@@ -1,11 +1,12 @@
-var CYBERSEC = "CyberSec";
-var NETBURNERS = "Netburners";
-var SLUMSNAKES = "Slum Snakes";
-var NITESEC = "NiteSec";
-var BLACKHAND = "The Black Hand";
-var RUNNERS = "BitRunners";
-var FIELDWORK = "Field Work";
-var HACKING = "Hacking Contracts";
+const SECTOR12 = "Sector-12";
+const CYBERSEC = "CyberSec";
+const NETBURNERS = "Netburners";
+const SLUMSNAKES = "Slum Snakes";
+const NITESEC = "NiteSec";
+const BLACKHAND = "The Black Hand";
+const RUNNERS = "BitRunners";
+const FIELDWORK = "Field Work";
+const HACKING = "Hacking Contracts";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -21,28 +22,40 @@ export async function main(ns) {
 	if (ns.getPlayer().hacking < 100) {
 		await firstActions(ns, bootcount);
 	}
+	await runAndWait(ns, "solve_contract.js", "auto");
+	if (ns.getServerMoneyAvailable("home") > 15000000 && bootcount < 3) {
+		await workForFactionUntil(ns, SECTOR12, HACKING, 10);
+	}
 
 	switch (bootcount) {
 		case 0:
-			await workForFactionUntil(ns, CYBERSEC, HACKING, 3750);
-			await workForFactionUntil(ns, NETBURNERS, HACKING, 2000);
-			ns.spawn("purchase-augmentations.js", 1, CYBERSEC, NETBURNERS);
+			await workForFactionUntil(ns, CYBERSEC, HACKING, 2000);
+			await workForFactionUntil(ns, NETBURNERS, HACKING, 2500);
+			await workForFactionUntil(ns, SECTOR12, HACKING, 5000);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SESECTOR12);
 			break;
 		case 1:
 			await workForFactionUntil(ns, CYBERSEC, HACKING, 10000);
 			await workForFactionUntil(ns, NETBURNERS, HACKING, 7500);
-			ns.spawn("purchase-augmentations.js", 1, CYBERSEC, NETBURNERS);
+			await workForFactionUntil(ns, SECTOR12, HACKING, 7500);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
 			break;
 		case 2:
 			await workForFactionUntil(ns, CYBERSEC, HACKING, 18750);
 			await workForFactionUntil(ns, NETBURNERS, HACKING, 12500);
-			ns.spawn("purchase-augmentations.js", 1, CYBERSEC, NETBURNERS);
+			await workForFactionUntil(ns, SECTOR12, HACKING, 12500);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
 			break;
 	}
 
 	await runAndWait(ns, "commit-crimes.js", 214); // hack level of avmnite-2h
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
+	await runAndWait(ns, "solve_contract.js", "auto");
+	
 	if (bootcount<6) {
 		await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 10);
 	}
@@ -51,23 +64,27 @@ export async function main(ns) {
 		case 3:
 			await workForFactionUntil(ns, NITESEC, HACKING, 15000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 1500);
-			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 4:
 			await workForFactionUntil(ns, NITESEC, HACKING, 20000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 5000);
-			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 5:
 			await workForFactionUntil(ns, NITESEC, HACKING, 50000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 22500);
-			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 	}
 
-
 	await runAndWait(ns, "writeprogram.js", 2);
 	await startHacking(ns);
+	await runAndWait(ns, "solve_contract.js", "auto");
+
 	if (bootcount<8) {
 		await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
 		await runAndWait(ns, "rscan.js", "hack");
@@ -87,18 +104,24 @@ export async function main(ns) {
 		case 6:
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 50000);
 			await workForFactionUntil(ns, RUNNERS, HACKING, 100000);
-			ns.spawn("purchase-augmentations.js", 1, RUNNERS, BLACKHAND);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, RUNNERS, BLACKHAND);
 			break;
 		case 7:
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 100000);
 			await workForFactionUntil(ns, RUNNERS, HACKING, 200000);
-			ns.spawn("purchase-augmentations.js", 1, BLACKHAND, RUNNERS);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, BLACKHAND, RUNNERS);
 			break;
 		case 8:
 			await workForFactionUntil(ns, RUNNERS, HACKING, 1000000);
-			ns.spawn("purchase-augmentations.js", 1, RUNNERS);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js", 1, RUNNERS);
 			break
 	}
+	await runAndWait(ns, "writeprogram.js", 4);
+	await startHacking(ns);
+	await runAndWait(ns, "solve_contract.js", "auto");
 }
 
 /** @param {NS} ns **/
@@ -118,6 +141,7 @@ async function getCounter(ns) {
 
 /** @param {NS} ns **/
 async function firstActions(ns, bootcount) {
+	ns.purchaseTor();
 	await runAndWait(ns, "start-hacknet.js", bootcount);
 	// nuke and hack unprotected hosts
 	await startHacking(ns);

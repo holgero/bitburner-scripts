@@ -2,14 +2,14 @@
 export async function main(ns) {
 	var bootcount = ns.args[0];
 	var maxNodes = 4;
-	var maxLevel = 100;
+	var maxLevel = 50;
 	var maxRam = 2;
 	var maxCore = 1;
 	var scriptHost = "joesguns";
 
 	if (bootcount > 2) {
 		maxNodes = 5;
-		maxLevel = 110;
+		maxLevel = 100;
 	}
 	if (bootcount > 4) {
 		maxNodes = 6;

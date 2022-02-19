@@ -8,7 +8,7 @@ export async function main(ns) {
 		var price = ns.getAugmentationPrice(augmentation);
 		var rep = ns.getAugmentationRepReq(augmentation);
 		var have = ns.getOwnedAugmentations().includes(augmentation) ? "*" : " ";
-		ns.tprintf("%40s costs %10d needs %10d %s", augmentation,  price, rep, have);
+		ns.tprintf("%50s costs %10d needs %10d %s", augmentation,  price, rep, have);
 	}
 
 	ns.tprintf("\nSorted by Reputation");
@@ -17,6 +17,6 @@ export async function main(ns) {
 		var price = ns.getAugmentationPrice(augmentation);
 		var rep = ns.getAugmentationRepReq(augmentation);
 		var have = ns.getOwnedAugmentations().includes(augmentation) ? "*" : " ";
-		ns.tprintf("%40s costs %10d needs %10d %s", augmentation,  price, rep, have);
+		ns.tprintf("%50s costs %10d needs %10d %s", augmentation,  price, rep, have);
 	}
 }
