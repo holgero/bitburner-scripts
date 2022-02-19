@@ -54,19 +54,31 @@ export async function main(ns) {
 	switch (bootcount) {
 		case 3:
 			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 15000);
-			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 1500);
+			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
+				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 1500);
+			} else {
+				await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 20000);
+				await writeCounter(ns, ++bootcount);
+			}
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 4:
 			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 20000);
-			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 5000);
+			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
+				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 5000);
+			} else {
+				await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 50000);
+				await writeCounter(ns, ++bootcount);
+			}
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 5:
 			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 50000);
-			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 22500);
+			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
+				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 22500);
+			}
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
@@ -131,6 +143,11 @@ async function getCounter(ns) {
 }
 
 /** @param {NS} ns **/
+async function writeCounter(ns, bootcount) {
+	await ns.write("count.txt", bootcount, "w");
+}
+
+/** @param {NS} ns **/
 async function firstActions(ns, bootcount) {
 	if (ns.getServer("home").maxRam > 32) {
 		if (!ns.scriptRunning("instrument.script", "home")) {
@@ -156,7 +173,7 @@ async function firstActions(ns, bootcount) {
 	}
 	// if we are going to join CyberSec later on anyway, do it right now
 	if (bootcount < 3) {
-		await runAndWait(ns, "workforfaction.js", 1, CYBERSEC, HACKING);
+		await runAndWait(ns, "workforfaction.js", 1, CYBERSEC, HACKING, JSON.stringify([CYBERSEC, NETBURNERS]));
 	} else {
 		// don't join unecessarily a faction
 		await runAndWait(ns, "commit-crimes.js", 100);

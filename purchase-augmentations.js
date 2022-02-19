@@ -13,6 +13,7 @@ export async function main(ns) {
 	for (var augmentation of toPurchase) {
 		while (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
 			ns.tprintf("Can't afford %s yet, waiting...", augmentation);
+			if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
 			await ns.sleep(60000);
 		}
 		for (var faction of factions) {

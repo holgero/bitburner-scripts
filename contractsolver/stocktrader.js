@@ -7,6 +7,9 @@ export async function main(ns) {
 		case 1:
 			ns.tprintf("Stock trader 1: %d", stockTraderI(prices));
 			break;
+		case 2:
+			ns.tprintf("Stock trader 3: %d", stockTraderIII(prices));
+			break;
 		case 99:
 			ns.tprintf("Stock trader 2: %d", stockTraderII(prices));
 			break;
@@ -63,4 +66,17 @@ export function stockTraderII(prices) {
 		sum += compact[ii+1] - compact[ii];
 	}
 	return sum;
+}
+
+export function stockTraderIII(prices) {
+	var compact = compactPrices(prices);
+	var best = 0;
+	for (var divider = 2; divider < compact.length - 2; divider+=2) {
+		var bestFirst = bestSingleTransaction(compact.slice(0,divider));
+		var bestSecond = bestSingleTransaction(compact.slice(divider));
+		if (bestFirst + bestSecond > best) {
+			best = bestFirst + bestSecond;
+		}
+	}
+	return best;
 }

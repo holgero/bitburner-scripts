@@ -1,6 +1,6 @@
-var ram = 128;
+var ram = 64;
 
-for (var i=0; i<14; i++) {
+for (var i=0; i<15; i++) {
 	tprint(ram, " costs ", formatMoney( getPurchasedServerLimit() *
 		getPurchasedServerCost(ram) ) );
 	tprint("   can run ", Math.floor(ram / 2.4), " threads");

@@ -5,7 +5,10 @@ import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappinginterv
 import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
 import { arrayJumpingGame } from "contractsolver/arrayjumpinggame.js";
 import { minimalPathSum } from "contractsolver/minimalpathsum.js";
-import { stockTraderI, stockTraderII } from "contractsolver/stocktrader.js";
+import { subarraySum } from "contractsolver/subarraysum.js";
+import { totalWaysToSum } from "contractsolver/totalwaystosum.js";
+import { generateIpAddress } from "contractsolver/generateipaddress.js";
+import { stockTraderI, stockTraderII, stockTraderIII } from "contractsolver/stocktrader.js";
 
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
@@ -17,6 +20,10 @@ const GAME = "Array Jumping Game";
 const TRIANGLE = "Minimum Path Sum in a Triangle";
 const TRADER1 = "Algorithmic Stock Trader I";
 const TRADER2 = "Algorithmic Stock Trader II";
+const TRADER3 = "Algorithmic Stock Trader III";
+const SUBARRAY = "Subarray with Maximum Sum";
+const WAYSUM = "Total Ways to Sum";
+const IPADDR = "Generate IP Address";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -90,11 +97,23 @@ async function findAndSolveContracts(ns, server) {
 				case TRIANGLE:
 					solution = +minimalPathSum(data, 0, 0);
 					break;
+				case SUBARRAY:
+					solution = +subarraySum(data);
+					break;
+				case WAYSUM:
+					solution = +totalWaysToSum(data);
+					break;
+				case IPADDR:
+					solution = generateIpAddress(data);
+					break;
 				case TRADER1:
 					solution = +stockTraderI(data);
 					break;
 				case TRADER2:
 					solution = +stockTraderII(data);
+					break;
+				case TRADER3:
+					solution = +stockTraderIII(data);
 					break;
 				default:
 					continue;
