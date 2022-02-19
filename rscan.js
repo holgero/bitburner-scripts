@@ -189,10 +189,10 @@ async function printRoute(ns, server) {
 
 /** @param {NS} ns **/
 async function runHack(ns, server) {
-	ns.killall(server);
 	if (!ns.hasRootAccess(server)) {
 			return;
 	}
+	ns.scriptKill(hackScript,server);
 	var availableRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
 	var neededRam = ns.getScriptRam(hackScript);
 	var threads = Math.floor(availableRam/neededRam);

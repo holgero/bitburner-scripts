@@ -9,8 +9,8 @@ scriptKill("do-weaken.script", "home");
 scriptKill("do-grow.script", "home");
 scriptKill("do-hack.script", "home");
 
-// leave 16 GB for other purposes on home
-var availableRam = getServerMaxRam("home") - getServerUsedRam("home") - 16;
+// leave 32 GB for other purposes on home
+var availableRam = getServerMaxRam("home") - getServerUsedRam("home") - 32;
 var ramPerThread = Math.max(getScriptRam("do-grow.script"),
 	getScriptRam("do-hack.script"), getScriptRam("do-weaken.script"));
 var maxThreads = Math.floor(availableRam / ramPerThread);
