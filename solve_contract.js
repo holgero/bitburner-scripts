@@ -1,9 +1,11 @@
 import { gridPaths } from "contractsolver/gridpaths.js";
 import { gridPaths2 } from "contractsolver/gridpaths2.js";
+import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
 
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
+const PRIME = "Find Largest Prime Factor";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -61,6 +63,9 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case PATHS2:
 					solution = gridPaths2(data.length, data[0].length, data);
+					break;
+				case PRIME:
+					solution = +largestPrimeFactor(data);
 					break;
 				default:
 					continue;
