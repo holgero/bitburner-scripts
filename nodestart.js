@@ -43,53 +43,61 @@ export async function main(ns) {
 	await runAndWait(ns, "commit-crimes.js", 214); // hack level of avmnite-2h
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
+	if (bootcount<6) {
+		await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 10);
+	}
 
 	switch (bootcount) {
 		case 3:
-			await runAndWait(ns, "workforfaction.js", 0, SLUMSNAKES, FIELDWORK);
 			await workForFactionUntil(ns, NITESEC, HACKING, 15000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 1500);
 			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 4:
-			await runAndWait(ns, "workforfaction.js", 0, SLUMSNAKES, FIELDWORK);
 			await workForFactionUntil(ns, NITESEC, HACKING, 20000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 5000);
 			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 5:
-			await runAndWait(ns, "workforfaction.js", 0, SLUMSNAKES, FIELDWORK);
 			await workForFactionUntil(ns, NITESEC, HACKING, 50000);
 			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 22500);
 			ns.spawn("purchase-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 	}
 
-	await writeProgram(ns, programs[2]);
+
+	await runAndWait(ns, "writeprogram.js", 2);
 	await startHacking(ns);
-	await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
-	await runAndWait(ns, "rscan.js", "hack");
-	await runAndWait(ns, "rscan.js", "back");
-	await ns.sleep(5000);
-	await runAndWait(ns, "workforfaction.js", 0, BLACKHAND, HACKING);
-	await writeProgram(ns, programs[3]);
+	if (bootcount<8) {
+		await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
+		await runAndWait(ns, "rscan.js", "hack");
+		await runAndWait(ns, "rscan.js", "back");
+		await workForFactionUntil(ns, BLACKHAND, HACKING, 10);
+	}
+	await runAndWait(ns, "writeprogram.js", 3);
 	await startHacking(ns);
-	await runAndWait(ns, "commit-crimes.js", 537); // hack level of run4theh111z (BitRunners)
-	await runAndWait(ns, "rscan.js", "hack");
-	await runAndWait(ns, "rscan.js", "back");
+	if (bootcount<9) {
+		await runAndWait(ns, "commit-crimes.js", 537); // hack level of run4theh111z (BitRunners)
+		await runAndWait(ns, "rscan.js", "hack");
+		await runAndWait(ns, "rscan.js", "back");
+		await workForFactionUntil(ns, RUNNERS, HACKING, 10);
+	}
 
 	switch (bootcount) {
 		case 6:
-			await runAndWait(ns, "workforfaction.js", 0, SLUMSNAKES, FIELDWORK);
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 50000);
 			await workForFactionUntil(ns, RUNNERS, HACKING, 100000);
-			ns.spawn("purchase-augmentations.js", 1, RUNNERS, BLACKHAND, SLUMSNAKES);
+			ns.spawn("purchase-augmentations.js", 1, RUNNERS, BLACKHAND);
 			break;
 		case 7:
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 100000);
 			await workForFactionUntil(ns, RUNNERS, HACKING, 200000);
 			ns.spawn("purchase-augmentations.js", 1, BLACKHAND, RUNNERS);
 			break;
+		case 8:
+			await workForFactionUntil(ns, RUNNERS, HACKING, 1000000);
+			ns.spawn("purchase-augmentations.js", 1, RUNNERS);
+			break
 	}
 }
 
@@ -114,9 +122,9 @@ async function firstActions(ns, bootcount) {
 	// nuke and hack unprotected hosts
 	await startHacking(ns);
 	// can't do anything usefull yet, so kill a few people
-	await runAndWait(ns, "commit-crimes.js", programs[0].level);
+	await runAndWait(ns, "commit-crimes.js", 50);
 	// start work on first program as soon as it becomes available
-	await writeProgram(ns, programs[0]);
+	await runAndWait(ns, "writeprogram.js", 0);
 	// now use it
 	await startHacking(ns);
 	while (!ns.getServer("CSEC").backdoorInstalled) {
@@ -129,11 +137,11 @@ async function firstActions(ns, bootcount) {
 		await runAndWait(ns, "workforfaction.js", 1, CYBERSEC, HACKING);
 	} else {
 		// don't join unecessarily a faction
-		await runAndWait(ns, "commit-crimes.js", programs[1].level);
+		await runAndWait(ns, "commit-crimes.js", 100);
 	}
 
 	// do the second program, too
-	await writeProgram(ns, programs[1]);
+	await runAndWait(ns, "writeprogram.js", 1);
 	await startHacking(ns);
 }
 
@@ -159,30 +167,4 @@ async function startHacking(ns) {
 	await runAndWait(ns, "rscan.js", "nuke");
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
-}
-
-var programs = [
-	{ name: "BruteSSH.exe", level: 50 },
-	{ name: "FTPCrack.exe", level: 100 },
-	{ name: "relaySMTP.exe", level: 250 },
-	{ name: "HTTPWorm.exe", level: 500 },
-	{ name: "SQLInject.exe", level: 750 }
-];
-
-/** @param {NS} ns **/
-async function writeProgram(ns, program) {
-	if (!ns.fileExists(program.name)) {
-		await startProgrammingOn(ns, program);
-		while (!ns.fileExists(program.name)) {
-			await ns.sleep(60000);
-		}
-	}
-}
-
-/** @param {NS} ns **/
-async function startProgrammingOn(ns, program) {
-	while (ns.getHackingLevel() < program.level) {
-		await ns.sleep(60000);
-	}
-	ns.createProgram(program.name, true);
 }
