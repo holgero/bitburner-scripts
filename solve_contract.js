@@ -1,11 +1,17 @@
 import { gridPaths } from "contractsolver/gridpaths.js";
 import { gridPaths2 } from "contractsolver/gridpaths2.js";
 import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
+import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
+import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
+import { arrayJumpingGame } from "contractsolver/arrayjumpinggame.js";
 
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
 const PRIME = "Find Largest Prime Factor";
+const MERGE = "Merge Overlapping Intervals";
+const SPIRAL = "Spiralize Matrix";
+const GAME = "Array Jumping Game";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -66,6 +72,15 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case PRIME:
 					solution = +largestPrimeFactor(data);
+					break;
+				case MERGE:
+					solution = mergeOverlappingIntervals(data);
+					break;
+				case SPIRAL:
+					solution = spiralizeMatrix(data);
+					break;
+				case GAME:
+					solution = +arrayJumpingGame(data);
 					break;
 				default:
 					continue;
