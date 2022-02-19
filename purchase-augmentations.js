@@ -36,7 +36,7 @@ export async function main(ns) {
 	}
 
 	await incrementCounter(ns);
-	// ns.spawn("reset.js");
+	ns.spawn("reset.js");
 }
 
 /** @param {NS} ns **/

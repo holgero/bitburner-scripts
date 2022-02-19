@@ -14,107 +14,98 @@ export async function main(ns) {
 
 	var bootcount = await getCounter(ns);
 	ns.tprintf("Started %d. run", +bootcount + 1);
-	if (ns.getServer("home").maxRam > 32) {
-		if (!ns.scriptRunning("instrument.script", "home")) {
-			ns.run("instrument.script", 1, "foodnstuff");
-		}
-	}
-	if (ns.getPlayer().hacking < 100) {
-		await firstActions(ns, bootcount);
-	}
-	await runAndWait(ns, "solve_contract.js", "auto");
-	if (ns.getServerMoneyAvailable("home") > 15000000 && bootcount < 3) {
-		await workForFactionUntil(ns, SECTOR12, HACKING, 10);
-	}
+	await firstActions(ns, bootcount);
+
+	var wantedFactions = [CYBERSEC, NETBURNERS, SECTOR12,
+		SLUMSNAKES, NITESEC, BLACKHAND, RUNNERS];
 
 	switch (bootcount) {
 		case 0:
-			await workForFactionUntil(ns, CYBERSEC, HACKING, 2000);
-			await workForFactionUntil(ns, NETBURNERS, HACKING, 2500);
-			await workForFactionUntil(ns, SECTOR12, HACKING, 5000);
+			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 2000);
+			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 2500);
+			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 5000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SESECTOR12);
+			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
 			break;
 		case 1:
-			await workForFactionUntil(ns, CYBERSEC, HACKING, 10000);
-			await workForFactionUntil(ns, NETBURNERS, HACKING, 7500);
-			await workForFactionUntil(ns, SECTOR12, HACKING, 7500);
+			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 10000);
+			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 7500);
+			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 7500);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
 			break;
 		case 2:
-			await workForFactionUntil(ns, CYBERSEC, HACKING, 18750);
-			await workForFactionUntil(ns, NETBURNERS, HACKING, 12500);
-			await workForFactionUntil(ns, SECTOR12, HACKING, 12500);
+			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 18750);
+			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 12500);
+			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 12500);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
 			break;
 	}
-
+	wantedFactions.shift();
+	wantedFactions.shift();
+	wantedFactions.shift();
+	
 	await runAndWait(ns, "commit-crimes.js", 214); // hack level of avmnite-2h
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
 	await runAndWait(ns, "solve_contract.js", "auto");
-	
-	if (bootcount<6) {
-		await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 10);
-	}
 
 	switch (bootcount) {
 		case 3:
-			await workForFactionUntil(ns, NITESEC, HACKING, 15000);
-			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 1500);
+			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 15000);
+			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 1500);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 4:
-			await workForFactionUntil(ns, NITESEC, HACKING, 20000);
-			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 5000);
+			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 20000);
+			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 5000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 		case 5:
-			await workForFactionUntil(ns, NITESEC, HACKING, 50000);
-			await workForFactionUntil(ns, SLUMSNAKES, FIELDWORK, 22500);
+			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 50000);
+			await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 22500);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
 			break;
 	}
+	wantedFactions.shift();
+	wantedFactions.shift();
 
 	await runAndWait(ns, "writeprogram.js", 2);
 	await startHacking(ns);
 	await runAndWait(ns, "solve_contract.js", "auto");
 
-	if (bootcount<8) {
+	if (bootcount < 8) {
 		await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
 		await runAndWait(ns, "rscan.js", "hack");
 		await runAndWait(ns, "rscan.js", "back");
-		await workForFactionUntil(ns, BLACKHAND, HACKING, 10);
 	}
 	await runAndWait(ns, "writeprogram.js", 3);
 	await startHacking(ns);
-	if (bootcount<9) {
+	if (bootcount < 9) {
 		await runAndWait(ns, "commit-crimes.js", 537); // hack level of run4theh111z (BitRunners)
 		await runAndWait(ns, "rscan.js", "hack");
 		await runAndWait(ns, "rscan.js", "back");
-		await workForFactionUntil(ns, RUNNERS, HACKING, 10);
 	}
 
 	switch (bootcount) {
 		case 6:
-			await workForFactionUntil(ns, BLACKHAND, HACKING, 50000);
-			await workForFactionUntil(ns, RUNNERS, HACKING, 100000);
+			await workForFactionUntil(ns, wantedFactions, BLACKHAND, HACKING, 50000);
+			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 100000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, RUNNERS, BLACKHAND);
 			break;
 		case 7:
-			await workForFactionUntil(ns, BLACKHAND, HACKING, 100000);
-			await workForFactionUntil(ns, RUNNERS, HACKING, 200000);
+			await workForFactionUntil(ns, wantedFactions, BLACKHAND, HACKING, 100000);
+			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 200000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, BLACKHAND, RUNNERS);
 			break;
 		case 8:
-			await workForFactionUntil(ns, RUNNERS, HACKING, 1000000);
+			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 1000000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js", 1, RUNNERS);
 			break
@@ -141,8 +132,15 @@ async function getCounter(ns) {
 
 /** @param {NS} ns **/
 async function firstActions(ns, bootcount) {
-	ns.purchaseTor();
+	if (ns.getServer("home").maxRam > 32) {
+		if (!ns.scriptRunning("instrument.script", "home")) {
+			ns.run("instrument.script", 1, "foodnstuff");
+		}
+	}
 	await runAndWait(ns, "start-hacknet.js", bootcount);
+	await runAndWait(ns, "solve_contract.js", "auto");
+	if (ns.getPlayer().hacking > 100) return;
+
 	// nuke and hack unprotected hosts
 	await startHacking(ns);
 	// can't do anything usefull yet, so kill a few people
@@ -167,12 +165,13 @@ async function firstActions(ns, bootcount) {
 	// do the second program, too
 	await runAndWait(ns, "writeprogram.js", 1);
 	await startHacking(ns);
+	await runAndWait(ns, "solve_contract.js", "auto");
 }
 
 /** @param {NS} ns **/
-async function workForFactionUntil(ns, faction, worktype, limit) {
+async function workForFactionUntil(ns, wantedFactions, faction, worktype, limit) {
 	while (ns.getFactionRep(faction) < limit) {
-		await runAndWait(ns, "workforfaction.js", limit, faction, worktype);
+		await runAndWait(ns, "workforfaction.js", limit, faction, worktype, JSON.stringify(wantedFactions));
 		await ns.sleep(300000);
 		ns.stopAction();
 	}

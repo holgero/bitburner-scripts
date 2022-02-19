@@ -1,16 +1,17 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (ns.args.length != 3) {
+	if (ns.args.length != 4) {
 		usage(ns);
 		return;
 	}
 	var reputation = ns.args[0];
 	var faction = ns.args[1];
 	var worktype = ns.args[2];
+	var wantedFactions = JSON.parse(ns.args[3]);
 	while (true) {
 		var invites = ns.checkFactionInvitations();
 		for (var ii=0; ii<invites.length; ii++) {
-			if (invites[ii] == faction) {
+			if (invites[ii] == faction || wantedFactions.includes(invites[ii])) {
 				ns.joinFaction(invites[ii]);
 			}
 		}
@@ -26,5 +27,5 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function usage(ns) {
-	ns.tprint("usage: workforfaction.js [minrep] [faction] [worktype]")
+	ns.tprint("usage: workforfaction.js [minrep] [faction] [worktype] [wantedfactions]")
 }

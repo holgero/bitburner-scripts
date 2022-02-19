@@ -19,6 +19,11 @@ async function writeProgram(ns, program) {
 		while (ns.getHackingLevel() < program.level) {
 			if (ns.getPlayer().tor && ns.getServerMoneyAvailable("home") > program.cost) {
 				if (ns.purchaseProgram(program.name)) return;
+			} else {
+				if (ns.getServerMoneyAvailable("home")>program.cost + 200000) {
+					ns.purchaseTor();
+					if (ns.purchaseProgram(program.name)) return;
+				}
 			}
 			await ns.sleep(60000);
 		}
