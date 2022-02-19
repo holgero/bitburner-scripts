@@ -1,0 +1,9 @@
+var ram = 1048576;
+var threads = Math.floor(ram/getScriptRam("do-hack.js"));
+
+for (var i = 0; i<getPurchasedServerLimit(); i++) {
+	var hostname = "pserv-" + i;
+	killall(hostname);
+    scp("do-hack.js", hostname);
+	exec("do-hack.js", hostname, threads, "foodnstuff");
+}

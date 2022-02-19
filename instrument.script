@@ -1,0 +1,81 @@
+var target = args[0];
+
+var moneyMin = getServerMaxMoney(target) * 0.75;
+var moneyMax = getServerMaxMoney(target) * 0.95;
+var securityMin = 1.2 * getServerMinSecurityLevel(target) + 1;
+var securityMax = 1.4 * getServerMinSecurityLevel(target) + 5;
+
+scriptKill("do-weaken.script", "home");
+scriptKill("do-grow.script", "home");
+scriptKill("do-hack.script", "home");
+
+// leave 16 GB for other purposes on home
+var availableRam = getServerMaxRam("home") - getServerUsedRam("home") - 16;
+var ramPerThread = Math.max(getScriptRam("do-grow.script"),
+	getScriptRam("do-hack.script"), getScriptRam("do-weaken.script"));
+var maxThreads = Math.floor(availableRam / ramPerThread);
+
+var growThreads = Math.ceil(maxThreads / 1.5);
+var weakenThreads = Math.ceil((maxThreads - growThreads) / 1.5);
+var delta = Math.floor(maxThreads / 5);
+
+tprint("Starting on target '", target, "' with threads (total/w/g): ", maxThreads, "/", weakenThreads, "/", growThreads);
+print("Starting on target '", target, "' with threads (total/w/g): ", maxThreads, "/", weakenThreads, "/", growThreads);
+
+while (true) {
+	var hackThreads = maxThreads - weakenThreads - growThreads;
+	if (weakenThreads > 0) {
+		run("do-weaken.script", weakenThreads, target);
+	}
+	if (growThreads > 0) {
+		run("do-grow.script", growThreads, target);
+	}
+	if (hackThreads > 0) {
+		run("do-hack.script", hackThreads, target);
+	}
+
+	var changed = false;
+	while (!changed) {
+		var sleepTime = 0;
+		if (hackThreads > 0) {
+			sleepTime = Math.max(sleepTime, getHackTime(target));
+		}
+		if (growThreads > 0) {
+			sleepTime = Math.max(sleepTime, getGrowTime(target));
+		}
+		if (weakenThreads > 0) {
+			sleepTime = Math.max(sleepTime, getWeakenTime(target));
+		}
+		sleepTime = 100 + Math.ceil(sleepTime);
+		sleep(sleepTime);
+		if (getServerSecurityLevel(target) > securityMax) {
+			weakenThreads += delta;
+			changed = true;
+			if (hackThreads < delta) {
+				growThreads=maxThreads - weakenThreads;
+			}
+		} else if (getServerMoneyAvailable(target) < moneyMin) {
+			growThreads += delta;
+			changed = true;
+			if (hackThreads < delta) {
+				weakenThreads = maxThreads - growThreads;
+			}
+		} else if (weakenThreads > 0 && getServerSecurityLevel(target) < securityMin) {
+			weakenThreads -= delta;
+			changed = true;
+		} else if (growThreads > 0 && getServerMoneyAvailable(target) > moneyMax) {
+			growThreads -= delta;
+			changed = true;
+		}
+	}
+	delta = Math.max(1, Math.floor(delta*0.925));
+	// safety measures
+	weakenThreads = Math.max(0, Math.min(weakenThreads, maxThreads));
+	growThreads = Math.max(0, Math.min(growThreads, maxThreads));
+	if (weakenThreads + growThreads > maxThreads) {
+		growThreads = maxThreads - weakenThreads;
+	}
+	scriptKill("do-weaken.script", "home");
+	scriptKill("do-grow.script", "home");
+	scriptKill("do-hack.script", "home");
+}
