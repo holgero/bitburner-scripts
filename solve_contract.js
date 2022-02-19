@@ -1,4 +1,5 @@
 var known;
+const PATHS1="Unique Paths in a Grid I";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -9,6 +10,10 @@ export async function main(ns) {
 	ns.disableLog("scan");
 	known = ns.getPurchasedServers();
 	known.push("home");
+	if (ns.args[0] == "auto") {
+		await traverse(ns, "home", findAndSolveContracts);
+		return;
+	}
 	if (ns.args[0] == "list") {
 		await traverse(ns, "home", findContracts);
 		return;
@@ -21,7 +26,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function usage(ns) {
-	ns.tprint("usage: run solve_contract.js [list|solve] <server> <filename> <solution>...");
+	ns.tprint("usage: run solve_contract.js [auto|list|solve] <server> <filename> <solution>...");
 }
 
 /** @param {NS} ns **/
@@ -39,15 +44,28 @@ async function traverse(ns, startServer, serverProc) {
 }
 
 /** @param {NS} ns **/
+async function findAndSolveContracts(ns, server) {
+	var contracts = ns.ls(server, ".cct");
+	if (contracts.length > 0) {
+		for (var contract of contracts) {
+			var type = ns.codingcontract.getContractType(contract, server);
+			var data = ns.codingcontract.getData(contract, server);
+			if (type === PATHS1) {
+				solution =
+				var result = ns.codingcontract.attempt(solution, filename, server, {returnReward:true});
+			}
+		}
+	}
+}
+
+/** @param {NS} ns **/
 async function findContracts(ns, server) {
 	var contracts = ns.ls(server, ".cct");
 	if (contracts.length > 0) {
 		for (var contract of contracts) {
-			ns.tprint(server + ": " + contract);
+			ns.tprint(server + " " + contract);
 			ns.tprint(ns.codingcontract.getContractType(contract, server));
 			ns.tprint(ns.codingcontract.getData(contract, server));
-			// ns.tprint(ns.codingcontract.getDescription(contract, server));
-			// ns.tprint(ns.codingcontract.getNumTriesRemaining(contract, server));
 		}
 	}
 }
