@@ -70,16 +70,20 @@ export async function main(ns) {
 	await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
+	await ns.sleep(5000);
 	await runAndWait(ns, "workforfaction.js", 0, BLACKHAND, HACKING);
 	await writeProgram(ns, programs[3]);
 	await startHacking(ns);
+	await runAndWait(ns, "commit-crimes.js", 537); // hack level of run4theh111z (BitRunners)
+	await runAndWait(ns, "rscan.js", "hack");
+	await runAndWait(ns, "rscan.js", "back");
 
 	switch (bootcount) {
 		case 6:
 			await runAndWait(ns, "workforfaction.js", 0, SLUMSNAKES, FIELDWORK);
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 50000);
 			await workForFactionUntil(ns, RUNNERS, HACKING, 100000);
-			ns.spawn("purchase-augmentations.js", 1, BLACKHAND, RUNNERS, SLUMSNAKES);
+			ns.spawn("purchase-augmentations.js", 1, RUNNERS, BLACKHAND, SLUMSNAKES);
 			break;
 		case 7:
 			await workForFactionUntil(ns, BLACKHAND, HACKING, 100000);

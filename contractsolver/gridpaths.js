@@ -6,7 +6,7 @@ export async function main(ns) {
 	ns.tprintf("Solution: %d", gridPaths(rows, columns));
 }
 
-function gridPaths(rows, columns) {
+export function gridPaths(rows, columns) {
 	if (rows <= 1) return 1;
 	if (columns <= 1) return 1;
 	return gridPaths(rows - 1, columns) + gridPaths(rows, columns - 1);

@@ -42,8 +42,7 @@ export async function main(ns) {
 		}
 		for (var faction of ns.args) {
 			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
-				ns.purchaseAugmentation(faction, augmentation);
-				break;
+				if (ns.purchaseAugmentation(faction, augmentation)) break;
 			}
 		}
 	}

@@ -1,5 +1,9 @@
+import { gridPaths } from "contractsolver/gridpaths.js";
+import { gridPaths2 } from "contractsolver/gridpaths2.js";
+
 var known;
-const PATHS1="Unique Paths in a Grid I";
+const PATHS1 = "Unique Paths in a Grid I";
+const PATHS2 = "Unique Paths in a Grid II";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -32,7 +36,7 @@ function usage(ns) {
 /** @param {NS} ns **/
 async function traverse(ns, startServer, serverProc) {
 	var servers = ns.scan(startServer);
-	for (var i=0; i< servers.length; i++) {
+	for (var i = 0; i < servers.length; i++) {
 		var server = servers[i];
 		if (known.includes(servers[i])) {
 			continue;
@@ -50,9 +54,23 @@ async function findAndSolveContracts(ns, server) {
 		for (var contract of contracts) {
 			var type = ns.codingcontract.getContractType(contract, server);
 			var data = ns.codingcontract.getData(contract, server);
-			if (type === PATHS1) {
-				solution =
-				var result = ns.codingcontract.attempt(solution, filename, server, {returnReward:true});
+			var solution;
+			switch (type) {
+				case PATHS1:
+					solution = gridPaths(data[0], data[1]);
+					break;
+				case PATHS2:
+					solution = gridPaths2(data.length, data[0].length, data);
+					break;
+				default:
+					continue;
+			}
+
+			var result = ns.codingcontract.attempt(solution, contract, server, { returnReward: true });
+			if (result == "") {
+				ns.tprint("FAILED: %s, on %s %s with data %s", type, server, contract, data);
+			} else {
+				ns.tprintf("Solved %s on %s. reward: %s", type, server, result);
 			}
 		}
 	}
@@ -79,7 +97,7 @@ async function solveContract(ns, server, filename) {
 		solution = ns.args.slice(3);
 	}
 	ns.tprintf("solution '%s' for contract '%s' on server '%s'", solution, filename, server);
-	var result = ns.codingcontract.attempt(solution, filename, server, {returnReward:true});
+	var result = ns.codingcontract.attempt(solution, filename, server, { returnReward: true });
 	if (result == "") {
 		ns.tprint("FAILED");
 	} else {
