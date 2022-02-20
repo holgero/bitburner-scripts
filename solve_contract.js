@@ -23,7 +23,7 @@ const TRADER2 = "Algorithmic Stock Trader II";
 const TRADER3 = "Algorithmic Stock Trader III";
 const SUBARRAY = "Subarray with Maximum Sum";
 const WAYSUM = "Total Ways to Sum";
-const IPADDR = "Generate IP Address";
+const IPADDR = "Generate IP Addresses";
 
 /** @param {NS} ns **/
 export async function main(ns) {
