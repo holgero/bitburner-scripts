@@ -20,9 +20,8 @@ export async function main(ns) {
 	var victims = potentialVictims.filter(
 		victim => ns.getServer(victim).requiredHackingSkill <= currentHackingSkill);
 	victims.sort( (a,b) => ns.getServer(a).moneyMax - ns.getServer(b).moneyMax);
-	victims.reverse();
 	if (victims.length > ns.getPurchasedServerLimit()) {
-		victims = victims.slice(0, ns.getPurchasedServerLimit());
+		victims = victims.slice(victims.length-ns.getPurchasedServerLimit());
 	}
 
 	var threads = Math.floor(ram/ns.getScriptRam(SCRIPT));

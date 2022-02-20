@@ -89,6 +89,7 @@ export async function main(ns) {
 	await runAndWait(ns, "writeprogram.js", 2);
 	await startHacking(ns);
 	await runAndWait(ns, "solve_contract.js", "auto");
+	await runAndWait(ns, "start-hacknet.js", bootcount);
 
 	if (bootcount < 8) {
 		await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "I.I.I.I")); // Black Hand
@@ -102,6 +103,7 @@ export async function main(ns) {
 		await runAndWait(ns, "rscan.js", "hack");
 		await runAndWait(ns, "rscan.js", "back");
 	}
+	await runAndWait(ns, "start-servers.js", 512);
 
 	switch (bootcount) {
 		case 6:
@@ -154,7 +156,9 @@ async function firstActions(ns, bootcount) {
 			ns.run("instrument.script", 1, "foodnstuff");
 		}
 	}
-	await runAndWait(ns, "start-hacknet.js", bootcount);
+	if (bootcount < 6) {
+		await runAndWait(ns, "start-hacknet.js", bootcount);
+	}
 	await runAndWait(ns, "solve_contract.js", "auto");
 	if (ns.getPlayer().hacking > 100) return;
 
