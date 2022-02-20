@@ -46,7 +46,7 @@ export async function main(ns) {
 	wantedFactions.shift();
 	wantedFactions.shift();
 	
-	await runAndWait(ns, "commit-crimes.js", 214); // hack level of avmnite-2h
+	await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "avmnite-02h"));
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
 	await runAndWait(ns, "solve_contract.js", "auto");
@@ -91,14 +91,14 @@ export async function main(ns) {
 	await runAndWait(ns, "solve_contract.js", "auto");
 
 	if (bootcount < 8) {
-		await runAndWait(ns, "commit-crimes.js", 343); // hack level of I.I.I.I (Black Hand)
+		await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "I.I.I.I")); // Black Hand
 		await runAndWait(ns, "rscan.js", "hack");
 		await runAndWait(ns, "rscan.js", "back");
 	}
 	await runAndWait(ns, "writeprogram.js", 3);
 	await startHacking(ns);
 	if (bootcount < 9) {
-		await runAndWait(ns, "commit-crimes.js", 537); // hack level of run4theh111z (BitRunners)
+		await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "run4theh111z")); // BitRunners
 		await runAndWait(ns, "rscan.js", "hack");
 		await runAndWait(ns, "rscan.js", "back");
 	}
@@ -167,7 +167,7 @@ async function firstActions(ns, bootcount) {
 	// now use it
 	await startHacking(ns);
 	while (!ns.getServer("CSEC").backdoorInstalled) {
-		await runAndWait(ns, "commit-crimes.js", 60);
+		await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "CSEC"));
 		await runAndWait(ns, "rscan.js", "back");
 		await ns.sleep(5000);
 	}
@@ -207,4 +207,8 @@ async function startHacking(ns) {
 	await runAndWait(ns, "rscan.js", "nuke");
 	await runAndWait(ns, "rscan.js", "hack");
 	await runAndWait(ns, "rscan.js", "back");
+}
+
+function getHacklevel(ns, server) {
+	return ns.getServer(server).requiredHackingSkill;
 }
