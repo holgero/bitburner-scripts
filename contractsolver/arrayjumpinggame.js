@@ -7,7 +7,7 @@ export async function main(ns) {
 
 export function arrayJumpingGame(distances) {
 	var maxDistance = distances[0];
-	for (var ii = 1; ii < maxDistance; ii++) {
+	for (var ii = 1; ii <= maxDistance; ii++) {
 		maxDistance = Math.max(maxDistance, ii + distances[ii]);
 		if (maxDistance > distances.length) {
 			return 1;
