@@ -1,15 +1,15 @@
-var ram = 1048576;
+var ram = 1024;
 // maximum is 1048576
 var upgrade = false;
 // var victims = [ "silver-helix", "phantasy", "iron-gym"  ];
 
-// var victims = [ "johnson-ortho", "omega-net", "crush-fitness", "silver-helix", "phantasy", "iron-gym" ];
+var victims = [ "johnson-ortho", "omega-net", "crush-fitness", "silver-helix", "phantasy", "iron-gym" ];
 
 // var victims = [ "netlink", "comptek", "rothman-uni", "johnson-ortho", "omega-net",
 //     "crush-fitness", "silver-helix", "phantasy", "iron-gym" ];
 
 // var victims = [ "alpha-ent", "rho-construction", "catalyst", "aevum-police",
-// "summit-uni", "netlink", "millenium-fitness", "comptek", "the-hub", "rothman-uni" ];
+//  "summit-uni", "netlink", "millenium-fitness", "comptek", "the-hub", "rothman-uni" ];
 
 // level 786
 // var victims = [ "zb-institute", "solaris", "lexo-corp", "alpha-ent",
@@ -17,10 +17,10 @@ var upgrade = false;
 //	"netlink", "comptek", "rothman-uni", "the-hub", "millenium-fitness", "johnson-ortho" ];
 
 // level 1500
-var victims = [
-	"megacorp", "ecorp", "b-and-a", "nwo", "clarkinc", "4sigma", "kuai-gong",
-	"blade", "omnitek", "fulcrumtech", "deltaone", "global-pharm", "zeus-med",
-	"nova-med", "univ-energy", "aerocorp", "unitalife", "stormtech", "zb-institute" ];
+//var victims = [
+//	"megacorp", "ecorp", "b-and-a", "nwo", "clarkinc", "4sigma", "kuai-gong",
+//	"blade", "omnitek", "fulcrumtech", "deltaone", "global-pharm", "zeus-med",
+//	"nova-med", "univ-energy", "aerocorp", "unitalife", "stormtech", "zb-institute" ];
 
 var threads = Math.floor(ram/getScriptRam("hack-server.script"));
 var cost = Math.ceil(getPurchasedServerCost(ram));

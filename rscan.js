@@ -138,10 +138,10 @@ async function moneyInfo(ns, server) {
 		return;
 	}
 	var money = Math.floor(ns.getServerMaxMoney(server) / 1000000);
-	if (money < 1000) {
+	if (money < 1) {
 		return;
 	}
-	ns.tprint(server, " max money: ", money, " m");
+	ns.tprintf("%30s %10d m", server, money);
 }
 
 /** @param {NS} ns **/
