@@ -2,10 +2,11 @@ const SCRIPT = "hack-server.script";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (ns.args.length != 1) {
+	if (ns.args.length < 1) {
 		return usage(ns);
 	}
 	var ram = +ns.args[0];
+	var force = ns.args.length>1 ? ns.args[1] : false;
 	
 	var potentialVictims = [
 		"syscore",  "zb-institute", "solaris", "lexo-corp", "alpha-ent",
@@ -32,11 +33,26 @@ export async function main(ns) {
 	ns.tprintf("This will cost %d m per server, in total %d m", Math.ceil(cost/1000000),
 		Math.ceil(cost*ns.getPurchasedServerLimit()/1000000) );
 	
+	if (force) {
+		ns.tprintf("Cleaning up existing servers");
+		removeServers(ns);
+	}
 	ns.spawn("start-servers2.js", 1, ram, threads, SCRIPT, JSON.stringify(victims));
 }
 
 /** @param {NS} ns **/
 function usage(ns) {
-	ns.tprintf("run start-servers.js [memory in GB]");
+	ns.tprintf("run start-servers.js [memory in GB] [?force]");
 	return 1;
+}
+
+/** @param {NS} ns **/
+async function removeServers(ns) {
+	for (var ii=0; ii<ns.getPurchasedServerLimit(); ii++) {
+		var hostname = "pserv-" + ii;
+		while (ns.serverExists(hostname)) {
+			ns.killall(hostname);
+			ns.deleteServer(hostname);
+		}
+	}
 }
