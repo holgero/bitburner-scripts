@@ -8,20 +8,19 @@ export async function main(ns) {
 	for (var ii = 0; ii < victims.length; ii++) {
 		var hostname = "pserv-" + ii;
 		if (ns.serverExists(hostname)) {
-			ns.tprintf("Server %s already exists, skipping victim %s.", hostname, victims[ii]);
-			continue;
-		}
-
-		while (true) {
-			var result = ns.purchaseServer("pserv-" + ii, ram);
-			if (result == hostname) {
-				break;
+			ns.tprintf("Server %s already exists.", hostname);
+		} else {
+			while (true) {
+				var result = ns.purchaseServer("pserv-" + ii, ram);
+				if (result == hostname) {
+					break;
+				}
+				if (result != "") {
+					ns.tprintf("Hostname change??? wanted: %s, got: %s", hostname, result);
+					return;
+				}
+				await ns.sleep(60000);
 			}
-			if (result != "") {
-				ns.tprintf("Hostname change??? wanted: %s, got: %s", hostname, result);
-				return;
-			}
-			await ns.sleep(60000);
 		}
 		await ns.scp(script, hostname);
 		ns.exec(script, hostname, threads, victims[ii]);
