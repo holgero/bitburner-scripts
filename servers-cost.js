@@ -1,3 +1,5 @@
+import { formatMoney } from "helpers.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	var money = ns.getServerMoneyAvailable("home");
@@ -24,20 +26,4 @@ function printInfo(ns, ram) {
 		ram,
 		formatMoney(ns.getPurchasedServerCost(ram)*ns.getPurchasedServerLimit()),
 		formatMoney(ns.getPurchasedServerCost(ram)));
-}
-
-function formatMoney(amount) {
-	if (amount > 1000) {
-		if (amount > 1000000) {
-			if (amount > 1000000000) {
-				if (amount > 1000000000000) {
-					return (amount / 1000000000000).toFixed(3) + " t";
-				}
-				return (amount / 1000000000).toFixed(3) + " b";
-			}
-			return (amount / 1000000).toFixed(3) + " m";
-		}
-		return (amount / 1000).toFixed(3) + " k";
-	}
-	return amount.toFixed(3) + "  ";
 }
