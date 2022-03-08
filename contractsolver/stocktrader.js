@@ -13,6 +13,9 @@ export async function main(ns) {
 		case 99:
 			ns.tprintf("Stock trader 2: %d", stockTraderII(prices));
 			break;
+		default:
+			ns.tprintf("Stock trader 4: %d", stockTraderIV(ns, transactions, prices));
+			break;
 	}
 }
 
@@ -47,7 +50,7 @@ function bestSingleTransaction(prices) {
 		if (prices[ii] < lowest) {
 			lowest = prices[ii];
 		}
-		var delta = prices[ii+1] - lowest;
+		var delta = prices[ii + 1] - lowest;
 		if (delta > best) best = delta;
 	}
 
@@ -62,8 +65,8 @@ export function stockTraderI(prices) {
 export function stockTraderII(prices) {
 	var compact = compactPrices(prices);
 	var sum = 0;
-	for (var ii = 0; ii < compact.length; ii+=2) {
-		sum += compact[ii+1] - compact[ii];
+	for (var ii = 0; ii < compact.length; ii += 2) {
+		sum += compact[ii + 1] - compact[ii];
 	}
 	return sum;
 }
@@ -71,12 +74,30 @@ export function stockTraderII(prices) {
 export function stockTraderIII(prices) {
 	var compact = compactPrices(prices);
 	var best = 0;
-	for (var divider = 2; divider < compact.length - 2; divider+=2) {
-		var bestFirst = bestSingleTransaction(compact.slice(0,divider));
+	for (var divider = 2; divider <= compact.length - 2; divider += 2) {
+		var bestFirst = bestSingleTransaction(compact.slice(0, divider));
 		var bestSecond = bestSingleTransaction(compact.slice(divider));
 		if (bestFirst + bestSecond > best) {
 			best = bestFirst + bestSecond;
 		}
 	}
-	return best;
+	if (best > 0) {
+		return best;
+	}
+	return stockTraderI(prices);
+}
+
+export function stockTraderIV(ns, transactions, prices) {
+	var compact = compactPrices(prices);
+	ns.tprintf("Compact: %s", JSON.stringify(compact));
+	if (compact.length / 2 <= transactions) {
+		return stockTraderII(prices);
+	}
+	var deltas = [];
+	for (var ii=0; ii < compact.length; ii+=2) {
+		deltas.push(compact[ii+1]-compact[ii]);
+	}
+	ns.tprintf("Deltas: %s", JSON.stringify(deltas));
+
+	return 0;
 }

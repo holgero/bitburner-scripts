@@ -121,7 +121,7 @@ async function findAndSolveContracts(ns, server) {
 
 			var result = ns.codingcontract.attempt(solution, contract, server, { returnReward: true });
 			if (result == "") {
-				ns.tprint("FAILED: %s, on %s %s with data %s", type, server, contract, data);
+				ns.tprintf("FAILED: %s, on %s %s with data %s. Solution: %s", type, server, contract, data, solution);
 			} else {
 				ns.tprintf("Solved %s on %s. reward: %s", type, server, result);
 			}

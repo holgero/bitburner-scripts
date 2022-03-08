@@ -1,10 +1,3 @@
-var known;
-var path;
-var hackingLevel;
-var bestVictim;
-var hackScript = "hack-server.script";
-var hackSelf = true;
-
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.tprintf("%30s %10s %10s %10s", "Server", "Nuked", "Backdoor", "Hacklevel");

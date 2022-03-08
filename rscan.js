@@ -2,7 +2,7 @@ var known;
 var path;
 var hackingLevel;
 var bestVictim;
-var hackScript = "hack-server.script";
+var hackScript = "hack-server.js";
 var hackSelf = true;
 
 /** @param {NS} ns **/
@@ -160,6 +160,7 @@ async function printBackdoorRoutes(ns, server) {
 		server == "avmnite-02h" ||
 		server == "The-Cave" ||
 		server == "w0r1d_d43m0n" ||
+		server == "fulcrumassets" ||
 		server == "run4theh111z") {
 		if (!ns.hasRootAccess(server)) {
 			return;
@@ -175,8 +176,10 @@ async function printBackdoorRoutes(ns, server) {
 				}
 				ns.connect("home");
 			}
-			if (!ns.getServer(server).backdoorInstalled) {
-				ns.tprint("home; connect ", path.join("; connect "), "; backdoor");
+			if (ns.getServer(server).backdoorInstalled) {
+				ns.tprintf("installed backdoor on %s", server);
+			} else {
+				ns.tprintf("home; connect %s; backdoor", path.join("; connect "));
 			}
 		}
 	}

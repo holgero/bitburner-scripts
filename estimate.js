@@ -1,15 +1,22 @@
 import { formatMoney } from "helpers.js";
 
-const GOVENOR = "NeuroFlux Governor";
+const GOVERNOR = "NeuroFlux Governor";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var minRep = +ns.args.shift();
 	var toPurchase = [];
 	var haveAug = ns.getOwnedAugmentations(true);
-	for (var faction of ns.args) {
-		var reputation = ns.getFactionRep(faction);
-		var possibleAugmentations = ns.getAugmentationsFromFaction(faction);
+	var factions = [];
+	for (var arg of ns.args) {
+		if (arg.indexOf(":") > 0) {
+			var idx = arg.indexOf(":");
+			factions.push({name:arg.substring(0, idx), reputation:arg.substring(idx+1)});
+		} else {
+			factions.push({name:arg, reputation:ns.getFactionRep(arg)});
+		}
+	}
+	for (var faction of factions) {
+		var possibleAugmentations = ns.getAugmentationsFromFaction(faction.name);
 		for (var augmentation of possibleAugmentations) {
 			if (ns.getAugmentationPrereq(augmentation).length > 0) {
 				var haveThem = true;
@@ -23,11 +30,11 @@ export async function main(ns) {
 					continue;
 				}
 			}
-			if (augmentation == GOVENOR) continue;
+			if (augmentation == GOVERNOR) continue;
 			if (toPurchase.includes(augmentation)) continue;
 			if (haveAug.includes(augmentation)) continue;
 			var needed = ns.getAugmentationRepReq(augmentation);
-			if (needed <= Math.max(reputation, minRep)) {
+			if (needed <= faction.reputation) {
 				toPurchase.push(augmentation);
 			}
 		}

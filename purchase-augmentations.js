@@ -23,17 +23,24 @@ export async function main(ns) {
 		}
 	}
 
+	ns.tprintf("Bought planned augmentations, spending remaining money: ", ns.getServerMoneyAvailable("home"));
 	// if there is money left, run home upgrades
 	while (ns.getUpgradeHomeCoresCost() < ns.getServerMoneyAvailable("home")) {
-		ns.upgradeHomeCores();
+		if (!ns.upgradeHomeCores()) break;
+		ns.tprintf("Bought a core, money left: %d", ns.getServerMoneyAvailable("home"));
+		await ns.sleep(500);
 	}
 	while (ns.getUpgradeHomeRamCost() < ns.getServerMoneyAvailable("home")) {
-		ns.upgradeHomeRam();
+		if (!ns.upgradeHomeRam()) break;
+		ns.tprintf("Bought ram, money left: %d", ns.getServerMoneyAvailable("home"));
+		await ns.sleep(500);
 	}
 
 	// spend the rest of the money on Neural Governor augs
 	while (ns.getServerMoneyAvailable("home") > ns.getAugmentationPrice(GOVERNOR)) {
 		ns.purchaseAugmentation(governor_faction, GOVERNOR);
+		ns.tprintf("Bought governor, money left: %d", ns.getServerMoneyAvailable("home"));
+		await ns.sleep(500);
 	}
 
 	await incrementCounter(ns);

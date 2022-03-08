@@ -47,6 +47,6 @@ export async function main(ns) {
 			}
 		}
 	}
-	
+	ns.tprintf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
 	ns.spawn("purchase-augmentations.js", 1, JSON.stringify(ns.args), JSON.stringify(toPurchase), governor_faction);
 }

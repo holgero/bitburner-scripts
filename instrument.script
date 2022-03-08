@@ -5,14 +5,14 @@ var moneyMax = getServerMaxMoney(target) * 0.95;
 var securityMin = 1.2 * getServerMinSecurityLevel(target) + 1;
 var securityMax = 1.4 * getServerMinSecurityLevel(target) + 5;
 
-scriptKill("do-weaken.script", "home");
-scriptKill("do-grow.script", "home");
-scriptKill("do-hack.script", "home");
+scriptKill("do-weaken.js", "home");
+scriptKill("do-grow.js", "home");
+scriptKill("do-hack.js", "home");
 
 // leave 35 GB for other purposes on home
 var availableRam = getServerMaxRam("home") - getServerUsedRam("home") - 35;
-var ramPerThread = Math.max(getScriptRam("do-grow.script"),
-	getScriptRam("do-hack.script"), getScriptRam("do-weaken.script"));
+var ramPerThread = Math.max(getScriptRam("do-grow.js"),
+	getScriptRam("do-hack.js"), getScriptRam("do-weaken.js"));
 var maxThreads = Math.floor(availableRam / ramPerThread);
 
 var growThreads = Math.ceil(maxThreads / 1.5);
@@ -25,13 +25,13 @@ print("Starting on target '", target, "' with threads (total/w/g): ", maxThreads
 while (true) {
 	var hackThreads = maxThreads - weakenThreads - growThreads;
 	if (weakenThreads > 0) {
-		run("do-weaken.script", weakenThreads, target);
+		run("do-weaken.js", weakenThreads, target);
 	}
 	if (growThreads > 0) {
-		run("do-grow.script", growThreads, target);
+		run("do-grow.js", growThreads, target);
 	}
 	if (hackThreads > 0) {
-		run("do-hack.script", hackThreads, target);
+		run("do-hack.js", hackThreads, target);
 	}
 
 	var changed = false;
@@ -75,7 +75,7 @@ while (true) {
 	if (weakenThreads + growThreads > maxThreads) {
 		growThreads = maxThreads - weakenThreads;
 	}
-	scriptKill("do-weaken.script", "home");
-	scriptKill("do-grow.script", "home");
-	scriptKill("do-hack.script", "home");
+	scriptKill("do-weaken.js", "home");
+	scriptKill("do-grow.js", "home");
+	scriptKill("do-hack.js", "home");
 }

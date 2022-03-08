@@ -1,4 +1,5 @@
 const SECTOR12 = "Sector-12";
+const AEVUM = "Aevum";
 const CYBERSEC = "CyberSec";
 const NETBURNERS = "Netburners";
 const SLUMSNAKES = "Slum Snakes";
@@ -25,7 +26,7 @@ export async function main(ns) {
 			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 2500);
 			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 5000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
+			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12, AEVUM);
 			break;
 		case 1:
 			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 10000);
