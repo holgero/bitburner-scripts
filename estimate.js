@@ -7,7 +7,11 @@ export async function main(ns) {
 	var toPurchase = [];
 	var haveAug = ns.getOwnedAugmentations(true);
 	var factions = [];
-	for (var arg of ns.args) {
+	var loopOver = ns.getPlayer().factions;
+	if (ns.args.length > 0) {
+		loopOver = ns.args;
+	}
+	for (var arg of loopOver) {
 		if (arg.indexOf(":") > 0) {
 			var idx = arg.indexOf(":");
 			factions.push({name:arg.substring(0, idx), reputation:arg.substring(idx+1)});
@@ -15,6 +19,7 @@ export async function main(ns) {
 			factions.push({name:arg, reputation:ns.getFactionRep(arg)});
 		}
 	}
+	ns.tprintf("Factions: %s", JSON.stringify(factions))
 	for (var faction of factions) {
 		var possibleAugmentations = ns.getAugmentationsFromFaction(faction.name);
 		for (var augmentation of possibleAugmentations) {
