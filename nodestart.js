@@ -17,21 +17,21 @@ export async function main(ns) {
 			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 2500);
 			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 5000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12, c.AEVUM);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 1:
 			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 10000);
 			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 7500);
 			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 7500);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 2:
 			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 18750);
 			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 12500);
 			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 12500);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12);
+			ns.spawn("plan-augmentations.js");
 			break;
 	}
 	wantedFactions.shift();
@@ -53,7 +53,7 @@ export async function main(ns) {
 				await writeCounter(ns, ++bootcount);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 4:
 			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 20000);
@@ -64,7 +64,7 @@ export async function main(ns) {
 				await writeCounter(ns, ++bootcount);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 5:
 			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 50000);
@@ -72,7 +72,7 @@ export async function main(ns) {
 				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 22500);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
+			ns.spawn("plan-augmentations.js");
 			break;
 	}
 	wantedFactions.shift();
@@ -102,18 +102,18 @@ export async function main(ns) {
 			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 50000);
 			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 100000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.RUNNERS, c.BLACK_HAND);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 7:
 			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 100000);
 			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 200000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.BLACK_HAND, c.RUNNERS);
+			ns.spawn("plan-augmentations.js");
 			break;
 		case 8:
 			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 1000000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, c.RUNNERS);
+			ns.spawn("plan-augmentations.js");
 			break
 	}
 	await runAndWait(ns, "writeprogram.js", 4);

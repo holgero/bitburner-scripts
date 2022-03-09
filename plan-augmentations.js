@@ -4,9 +4,8 @@ const GOVERNOR = "NeuroFlux Governor";
 export async function main(ns) {
 	var toPurchase = [];
 	var haveAug = ns.getOwnedAugmentations(true);
-	for (var faction of ns.args) {
-		// ns.tprintf("Augmentations of %s: %v", faction,
-		//	ns.getAugmentationsFromFaction(faction));
+	var factions = ns.getPlayer().factions;
+	for (var faction of factions) {
 		var reputation = ns.getFactionRep(faction);
 		var possibleAugmentations = ns.getAugmentationsFromFaction(faction);
 		for (var augmentation of possibleAugmentations) {
