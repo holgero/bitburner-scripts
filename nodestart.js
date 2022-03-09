@@ -1,13 +1,4 @@
-const SECTOR12 = "Sector-12";
-const AEVUM = "Aevum";
-const CYBERSEC = "CyberSec";
-const NETBURNERS = "Netburners";
-const SLUMSNAKES = "Slum Snakes";
-const NITESEC = "NiteSec";
-const BLACKHAND = "The Black Hand";
-const RUNNERS = "BitRunners";
-const FIELDWORK = "Field Work";
-const HACKING = "Hacking Contracts";
+import * as c from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -17,30 +8,30 @@ export async function main(ns) {
 	ns.tprintf("Started %d. run", +bootcount + 1);
 	await firstActions(ns, bootcount);
 
-	var wantedFactions = [CYBERSEC, NETBURNERS, SECTOR12,
-		SLUMSNAKES, NITESEC, BLACKHAND, RUNNERS];
+	var wantedFactions = [c.CYBERSEC, c.NETBURNERS, c.SECTOR12,
+		c.SLUM_SNAKES, c.NITESEC, c.BLACK_HAND, c.RUNNERS];
 
 	switch (bootcount) {
 		case 0:
-			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 2000);
-			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 2500);
-			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 5000);
+			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 2000);
+			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 2500);
+			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 5000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12, AEVUM);
+			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12, c.AEVUM);
 			break;
 		case 1:
-			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 10000);
-			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 7500);
-			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 7500);
+			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 10000);
+			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 7500);
+			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 7500);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
+			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12);
 			break;
 		case 2:
-			await workForFactionUntil(ns, wantedFactions, CYBERSEC, HACKING, 18750);
-			await workForFactionUntil(ns, wantedFactions, NETBURNERS, HACKING, 12500);
-			await workForFactionUntil(ns, wantedFactions, SECTOR12, HACKING, 12500);
+			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 18750);
+			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 12500);
+			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 12500);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, CYBERSEC, NETBURNERS, SECTOR12);
+			ns.spawn("plan-augmentations.js", 1, c.CYBERSEC, c.NETBURNERS, c.SECTOR12);
 			break;
 	}
 	wantedFactions.shift();
@@ -54,34 +45,34 @@ export async function main(ns) {
 
 	switch (bootcount) {
 		case 3:
-			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 15000);
-			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
-				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 1500);
+			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 15000);
+			if (ns.getPlayer().factions.includes(c.SLUM_SNAKES)) {
+				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 1500);
 			} else {
-				await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 20000);
+				await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 20000);
 				await writeCounter(ns, ++bootcount);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
 			break;
 		case 4:
-			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 20000);
-			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
-				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 5000);
+			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 20000);
+			if (ns.getPlayer().factions.includes(SLUMS_NAKES)) {
+				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 5000);
 			} else {
-				await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 50000);
+				await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 50000);
 				await writeCounter(ns, ++bootcount);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
 			break;
 		case 5:
-			await workForFactionUntil(ns, wantedFactions, NITESEC, HACKING, 50000);
-			if (ns.getPlayer().factions.includes(SLUMSNAKES)) {
-				await workForFactionUntil(ns, wantedFactions, SLUMSNAKES, FIELDWORK, 22500);
+			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 50000);
+			if (ns.getPlayer().factions.includes(c.SLUM_SNAKES)) {
+				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 22500);
 			}
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, SLUMSNAKES, NITESEC);
+			ns.spawn("plan-augmentations.js", 1, c.SLUM_SNAKES, c.NITESEC);
 			break;
 	}
 	wantedFactions.shift();
@@ -108,21 +99,21 @@ export async function main(ns) {
 
 	switch (bootcount) {
 		case 6:
-			await workForFactionUntil(ns, wantedFactions, BLACKHAND, HACKING, 50000);
-			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 100000);
+			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 50000);
+			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 100000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, RUNNERS, BLACKHAND);
+			ns.spawn("plan-augmentations.js", 1, c.RUNNERS, c.BLACK_HAND);
 			break;
 		case 7:
-			await workForFactionUntil(ns, wantedFactions, BLACKHAND, HACKING, 100000);
-			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 200000);
+			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 100000);
+			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 200000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, BLACKHAND, RUNNERS);
+			ns.spawn("plan-augmentations.js", 1, c.BLACK_HAND, c.RUNNERS);
 			break;
 		case 8:
-			await workForFactionUntil(ns, wantedFactions, RUNNERS, HACKING, 1000000);
+			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 1000000);
 			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js", 1, RUNNERS);
+			ns.spawn("plan-augmentations.js", 1, c.RUNNERS);
 			break
 	}
 	await runAndWait(ns, "writeprogram.js", 4);
@@ -178,7 +169,7 @@ async function firstActions(ns, bootcount) {
 	}
 	// if we are going to join CyberSec later on anyway, do it right now
 	if (bootcount < 3) {
-		await runAndWait(ns, "workforfaction.js", 1, CYBERSEC, HACKING, JSON.stringify([CYBERSEC, NETBURNERS]));
+		await runAndWait(ns, "workforfaction.js", 1, c.CYBERSEC, c.HACKING, JSON.stringify([c.CYBERSEC, c.NETBURNERS]));
 	} else {
 		// don't join unecessarily a faction
 		await runAndWait(ns, "commit-crimes.js", 100);
