@@ -88,16 +88,23 @@ export function stockTraderIII(prices) {
 }
 
 export function stockTraderIV(ns, transactions, prices) {
+	switch (transactions) {
+		case 1:
+			return stockTraderI(prices);
+		case 2:
+			return stockTraderIII(prices);
+	}
+
 	var compact = compactPrices(prices);
 	ns.tprintf("Compact: %s", JSON.stringify(compact));
 	if (compact.length / 2 <= transactions) {
 		return stockTraderII(prices);
 	}
 	var deltas = [];
-	for (var ii=0; ii < compact.length; ii+=2) {
-		deltas.push(compact[ii+1]-compact[ii]);
+	for (var ii = 0; ii < compact.length; ii += 2) {
+		deltas.push(compact[ii + 1] - compact[ii]);
 	}
 	ns.tprintf("Deltas: %s", JSON.stringify(deltas));
 
-	return 0;
+	return -1;
 }

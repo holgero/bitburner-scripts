@@ -8,7 +8,8 @@ import { minimalPathSum } from "contractsolver/minimalpathsum.js";
 import { subarraySum } from "contractsolver/subarraysum.js";
 import { totalWaysToSum } from "contractsolver/totalwaystosum.js";
 import { generateIpAddress } from "contractsolver/generateipaddress.js";
-import { stockTraderI, stockTraderII, stockTraderIII } from "contractsolver/stocktrader.js";
+import { validExpressions } from "contractsolver/validexpressions.js";
+import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
 
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
@@ -21,9 +22,11 @@ const TRIANGLE = "Minimum Path Sum in a Triangle";
 const TRADER1 = "Algorithmic Stock Trader I";
 const TRADER2 = "Algorithmic Stock Trader II";
 const TRADER3 = "Algorithmic Stock Trader III";
+const TRADER4 = "Algorithmic Stock Trader IV";
 const SUBARRAY = "Subarray with Maximum Sum";
 const WAYSUM = "Total Ways to Sum";
 const IPADDR = "Generate IP Addresses";
+const VALID = "Find All Valid Math Expressions";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -106,6 +109,9 @@ async function findAndSolveContracts(ns, server) {
 				case IPADDR:
 					solution = generateIpAddress(data);
 					break;
+				case VALID:
+					solution = validExpressions(data[0], data[1]);
+					break;
 				case TRADER1:
 					solution = +stockTraderI(data);
 					break;
@@ -114,6 +120,13 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case TRADER3:
 					solution = +stockTraderIII(data);
+					break;
+				case TRADER4:
+					solution = +stockTraderIV(ns, data[0], data[1]);
+					if (solution < 0) {
+						ns.tprintf("Did not find a solution.");
+						return;
+					}
 					break;
 				default:
 					continue;
