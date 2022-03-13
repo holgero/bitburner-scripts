@@ -38,16 +38,21 @@ const ALL_FACTIONS = [
 export async function main(ns) {
 	var factions;
 	var options = ns.flags([["owned", false],
-		["member", false],
-		["filter_reputation", false],
-		["filter_price", false]]);
+	["member", false],
+	["invites", false],
+	["filter_reputation", false],
+	["filter_price", false]]);
 	if (options._.length > 0) {
 		factions = options._;
 	} else {
 		if (options.member) {
 			factions = ns.getPlayer().factions;
 		} else {
-			factions = ALL_FACTIONS;
+			if (options.invites) {
+				factions = ns.checkFactionInvitations();
+			} else {
+				factions = ALL_FACTIONS;
+			}
 		}
 	}
 	var skip;
@@ -76,6 +81,7 @@ export async function main(ns) {
 					name: augmentation,
 					price: ns.getAugmentationPrice(augmentation),
 					reputation: ns.getAugmentationRepReq(augmentation),
+					enough: ns.getFactionRep(faction) >= ns.getAugmentationRepReq(augmentation) ? "*" : " ",
 					have: ns.getOwnedAugmentations().includes(augmentation) ? "*" : " ",
 					faction: faction
 				});
@@ -96,7 +102,8 @@ export async function main(ns) {
 }
 
 function printAugmentation(ns, augmentation) {
-	ns.tprintf("%50s costs %10s needs %10d %s %s",
-		augmentation.name.substring(0, 49), formatMoney(augmentation.price), augmentation.reputation,
+	ns.tprintf("%50s costs %10s needs %10d%s %s %s",
+		augmentation.name.substring(0, 49), formatMoney(augmentation.price), 
+		augmentation.reputation, augmentation.enough,
 		augmentation.faction, augmentation.have);
 }
