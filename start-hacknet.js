@@ -17,23 +17,26 @@ export async function main(ns) {
 	}
 	if (bootcount > 8) {
 		maxLevel = 140;
-		maxRam = 3;
+		maxRam = 4;
 	}
 	if (bootcount > 16) {
 		maxNodes = 8;
 		maxLevel = 160;
-		maxRam = 4;
+		maxRam = 8;
 	}
 	if (bootcount > 24) {
 		maxNodes = 10;
 		maxLevel = 180;
-		maxRam = 6;
+		maxRam = 64;
 		maxCore = 2;
 	}
 	if (bootcount > 32) {
 		maxNodes = 12;
 		maxLevel = 200;
 		maxCore = 16;
+	}
+	if (bootcount > 64) {
+		maxNodes = 18;
 	}
 	ns.nuke(scriptHost);
 	await ns.scp("start-hacknet2.js", scriptHost);
