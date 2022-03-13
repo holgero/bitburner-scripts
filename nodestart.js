@@ -9,7 +9,7 @@ export async function main(ns) {
 	await firstActions(ns, bootcount);
 
 	var wantedFactions = [c.CYBERSEC, c.NETBURNERS, c.SECTOR12,
-		c.SLUM_SNAKES, c.NITESEC, c.BLACK_HAND, c.RUNNERS];
+		c.SLUM_SNAKES, c.NITESEC, c.BLACK_HAND, c.BITRUNNERS, c.DAEDALUS];
 
 	switch (bootcount) {
 		case 0:
@@ -100,18 +100,18 @@ export async function main(ns) {
 	switch (bootcount) {
 		case 6:
 			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 50000);
-			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 100000);
+			await workForFactionUntil(ns, wantedFactions, c.BITRUNNERS, c.HACKING, 100000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js");
 			break;
 		case 7:
 			await workForFactionUntil(ns, wantedFactions, c.BLACK_HAND, c.HACKING, 100000);
-			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 200000);
+			await workForFactionUntil(ns, wantedFactions, c.BITRUNNERS, c.HACKING, 200000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js");
 			break;
 		case 8:
-			await workForFactionUntil(ns, wantedFactions, c.RUNNERS, c.HACKING, 1000000);
+			await workForFactionUntil(ns, [], c.BITRUNNERS, c.HACKING, 1000000);
 			await runAndWait(ns, "solve_contract.js", "auto");
 			ns.spawn("plan-augmentations.js");
 			break
@@ -119,6 +119,14 @@ export async function main(ns) {
 	await runAndWait(ns, "writeprogram.js", 4);
 	await startHacking(ns);
 	await runAndWait(ns, "solve_contract.js", "auto");
+
+	switch (bootcount) {
+		case 9:
+			await workForFactionUntil(ns, [], c.DAEDALUS, c.HACKING, 1000000);
+			await runAndWait(ns, "solve_contract.js", "auto");
+			ns.spawn("plan-augmentations.js");
+			break
+	}
 }
 
 /** @param {NS} ns **/

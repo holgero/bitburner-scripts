@@ -38,7 +38,7 @@ export async function main(ns) {
 
 	var governor_faction;
 	var maxRep = 0;
-	for (var faction of ns.args) {
+	for (var faction of factions) {
 		if (ns.getAugmentationsFromFaction(faction).includes(GOVERNOR)) {
 			if (ns.getFactionRep(faction)>maxRep) {
 				governor_faction = faction;
@@ -47,5 +47,5 @@ export async function main(ns) {
 		}
 	}
 	ns.tprintf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
-	ns.spawn("purchase-augmentations.js", 1, JSON.stringify(ns.args), JSON.stringify(toPurchase), governor_faction);
+	ns.spawn("purchase-augmentations.js", 1, JSON.stringify(factions), JSON.stringify(toPurchase), governor_faction);
 }
