@@ -2,7 +2,9 @@ import { formatMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	ns.tprintf("Current memory of server pserv-0: %d GB", ns.getServerMaxRam("pserv-0"));
+	if (ns.serverExists("pserv-0")) {
+		ns.tprintf("Current memory of server pserv-0: %d GB", ns.getServerMaxRam("pserv-0"));
+	}
 	var money = ns.getServerMoneyAvailable("home");
 	var havePerServer = money / ns.getPurchasedServerLimit();
 	var ram = 64;
