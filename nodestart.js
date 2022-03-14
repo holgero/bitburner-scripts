@@ -3,84 +3,36 @@ import * as c from "constants.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	await runAndWait(ns, "calculate-factions.js");
+	const config = JSON.parse(ns.read("nodestart.txt"));
+	ns.tprintf("Config: %s", JSON.stringify(config));
 
 	var bootcount = await getCounter(ns);
 	ns.tprintf("Started %d. run", +bootcount + 1);
 	await firstActions(ns, bootcount);
 
-	var wantedFactions = [c.CYBERSEC, c.NETBURNERS, c.SECTOR12,
-		c.SLUM_SNAKES, c.NITESEC, c.BLACK_HAND, c.BITRUNNERS, c.DAEDALUS];
-
-	switch (bootcount) {
-		case 0:
-			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 2000);
-			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 2500);
-			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 5000);
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
-		case 1:
-			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 10000);
-			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 7500);
-			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 7500);
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
-		case 2:
-			await workForFactionUntil(ns, wantedFactions, c.CYBERSEC, c.HACKING, 18750);
-			await workForFactionUntil(ns, wantedFactions, c.NETBURNERS, c.HACKING, 12500);
-			await workForFactionUntil(ns, wantedFactions, c.SECTOR12, c.HACKING, 12500);
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
+	for (var goal of config.factionGoals) {
+		switch (goal.name) {
+			case c.NITESEC:
+				await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "avmnite-02h"));
+				await runAndWait(ns, "rscan.js", "hack");
+				await runAndWait(ns, "rscan.js", "back");
+				break;
+			case c.BLACK_HAND:
+				await runAndWait(ns, "writeprogram.js", 2);
+				await startHacking(ns);
+				await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "I.I.I.I")); // Black Hand
+				await runAndWait(ns, "rscan.js", "hack");
+				await runAndWait(ns, "rscan.js", "back");
+				break;
+		}
+		await workForFactionUntil(ns, config.toJoin, goal.name, c.HACKING, goal.reputation);
+		await runAndWait(ns, "solve_contract.js", "auto");
 	}
-	wantedFactions.shift();
-	wantedFactions.shift();
-	wantedFactions.shift();
-	
-	await runAndWait(ns, "commit-crimes.js", getHacklevel(ns, "avmnite-02h"));
-	await runAndWait(ns, "rscan.js", "hack");
-	await runAndWait(ns, "rscan.js", "back");
-	await runAndWait(ns, "solve_contract.js", "auto");
+	ns.spawn("plan-augmentations.js");
 
-	switch (bootcount) {
-		case 3:
-			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 15000);
-			if (ns.getPlayer().factions.includes(c.SLUM_SNAKES)) {
-				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 1500);
-			} else {
-				await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 20000);
-				await writeCounter(ns, ++bootcount);
-			}
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
-		case 4:
-			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 20000);
-			if (ns.getPlayer().factions.includes(SLUMS_NAKES)) {
-				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 5000);
-			} else {
-				await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 50000);
-				await writeCounter(ns, ++bootcount);
-			}
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
-		case 5:
-			await workForFactionUntil(ns, wantedFactions, c.NITESEC, c.HACKING, 50000);
-			if (ns.getPlayer().factions.includes(c.SLUM_SNAKES)) {
-				await workForFactionUntil(ns, wantedFactions, c.SLUM_SNAKES, c.FIELDWORK, 22500);
-			}
-			await runAndWait(ns, "solve_contract.js", "auto");
-			ns.spawn("plan-augmentations.js");
-			break;
-	}
-	wantedFactions.shift();
-	wantedFactions.shift();
+	return;
 
-	await runAndWait(ns, "writeprogram.js", 2);
-	await startHacking(ns);
-	await runAndWait(ns, "solve_contract.js", "auto");
 	await runAndWait(ns, "start-hacknet.js", bootcount);
 
 	if (bootcount < 8) {
