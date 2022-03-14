@@ -45,10 +45,6 @@ export async function main(ns) {
 		await traverse(ns, "home", findContracts);
 		return;
 	}
-	if (ns.args[0] == "solve") {
-		await solveContract(ns, ns.args[1], ns.args[2]);
-		return;
-	}
 }
 
 /** @param {NS} ns **/
@@ -132,12 +128,8 @@ async function findAndSolveContracts(ns, server) {
 					continue;
 			}
 
-			var result = ns.codingcontract.attempt(solution, contract, server, { returnReward: true });
-			if (result == "") {
-				ns.tprintf("FAILED: %s, on %s %s with data %s. Solution: %s", type, server, contract, data, solution);
-			} else {
-				ns.tprintf("Solved %s on %s. reward: %s", type, server, result);
-			}
+			ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, data, JSON.stringify(solution));
+			ns.spawn("solve_contract2.js", 1, server, contract, JSON.stringify(solution));
 		}
 	}
 }
@@ -151,22 +143,5 @@ async function findContracts(ns, server) {
 			ns.tprint(ns.codingcontract.getContractType(contract, server));
 			ns.tprint(ns.codingcontract.getData(contract, server));
 		}
-	}
-}
-
-/** @param {NS} ns **/
-async function solveContract(ns, server, filename) {
-	var solution;
-	if (ns.args.length == 4 && Number.isSafeInteger(ns.args[3])) {
-		solution = +ns.args[3];
-	} else {
-		solution = ns.args.slice(3);
-	}
-	ns.tprintf("solution '%s' for contract '%s' on server '%s'", solution, filename, server);
-	var result = ns.codingcontract.attempt(solution, filename, server, { returnReward: true });
-	if (result == "") {
-		ns.tprint("FAILED");
-	} else {
-		ns.tprintf("Success, reward: %s", result);
 	}
 }
