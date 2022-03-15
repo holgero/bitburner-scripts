@@ -45,7 +45,7 @@ export async function main(ns) {
 			freeServers(ns);
 		}
 	}
-	ns.spawn("start-servers2.js", 1, ram, threads, SCRIPT, JSON.stringify(victims));
+	ns.spawn("start-servers2.js", 1, ram, SCRIPT, JSON.stringify(victims));
 }
 
 /** @param {NS} ns **/
@@ -55,7 +55,7 @@ function usage(ns) {
 }
 
 /** @param {NS} ns **/
-async function removeSmallServers(ns, ram) {
+function removeSmallServers(ns, ram) {
 	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
 		var hostname = "pserv-" + ii;
 		if (ns.serverExists(hostname)) {
@@ -69,7 +69,7 @@ async function removeSmallServers(ns, ram) {
 }
 
 /** @param {NS} ns **/
-async function freeServers(ns) {
+function freeServers(ns) {
 	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
 		var hostname = "pserv-" + ii;
 		if (ns.serverExists(hostname)) {

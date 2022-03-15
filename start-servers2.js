@@ -1,9 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	var ram = ns.args[0];
-	var threads = ns.args[1];
-	var script = ns.args[2];
-	var victims = JSON.parse(ns.args[3]);
+	var script = ns.args[1];
+	var victims = JSON.parse(ns.args[2]);
 
 	for (var ii = 0; ii < victims.length; ii++) {
 		var hostname = "pserv-" + ii;
@@ -23,6 +22,7 @@ export async function main(ns) {
 			}
 		}
 		await ns.scp(script, hostname);
+		var threads = Math.floor(ns.getServer(hostname).maxRam / ns.getScriptRam(script));
 		ns.exec(script, hostname, threads, victims[ii]);
 	}
 }
