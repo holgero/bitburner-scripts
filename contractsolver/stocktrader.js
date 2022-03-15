@@ -14,7 +14,7 @@ export async function main(ns) {
 			ns.tprintf("Stock trader 2: %d", stockTraderII(prices));
 			break;
 		default:
-			ns.tprintf("Stock trader 4: %d", stockTraderIV(ns, transactions, prices));
+			ns.tprintf("Stock trader 4: %d", stockTraderIVa(ns, transactions, prices));
 			break;
 	}
 }
@@ -107,4 +107,56 @@ export function stockTraderIV(ns, transactions, prices) {
 	ns.tprintf("Deltas: %s", JSON.stringify(deltas));
 
 	return -1;
+}
+
+function stockTraderIVa(ns, transactions, prices) {
+	switch (transactions) {
+		case 1:
+			return stockTraderI(prices);
+		case 2:
+			return stockTraderIII(prices);
+	}
+
+	var compact = compactPrices(prices);
+	if (compact.length / 2 <= transactions) {
+		return stockTraderII(prices);
+	}
+	ns.tprintf("Compact: %s", JSON.stringify(compact));
+	var divider = [];
+	for (var ii = 0; ii < transactions; ii++) {
+		divider.push(2 * ii);
+	}
+	var best = 0;
+	while (dividerNext(divider, compact.length)) {
+		var x = transactionValue(divider, transactions, compact);
+		if (x > best) {
+			best = x;
+			ns.tprintf("Best: %d (%s)", best, JSON.stringify(divider));
+		}
+	}
+	return best;
+}
+
+function dividerNext(divider, listlength) {
+	for (var ii = divider.length - 1, max = listlength; ii >= 0; ii--, max -= 2) {
+		if (divider[ii] < max) {
+			divider[ii] += 2;
+			for (var jj = ii + 1; jj < divider.length; jj++) {
+				divider[jj] = 2 + divider[jj - 1];
+			}
+			return true;
+		}
+	}
+	divider[0] += 2;
+	return divider[0] < divider[1];
+}
+
+function transactionValue(divider, transactions, compact) {
+	var sum = bestSingleTransaction(compact.slice(0, divider[0]));
+	for (var ii = 1; ii < divider.length; ii ++) {
+		sum += bestSingleTransaction(compact.slice(divider[ii-1], divider[ii]));
+	}
+	sum += bestSingleTransaction(compact.slice(divider[divider.length-1]));
+
+	return sum;
 }
