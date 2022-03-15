@@ -2,12 +2,10 @@ import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var factions = JSON.parse(ns.args[0]);
-	var toPurchase = JSON.parse(ns.args[1]);
-	var governor_faction = ns.args[2];
-	var reboot = (ns.length == 4 && ns.args[3] == "--reboot");
+	var options = ns.flags([["reboot", false]]);
+	var toPurchase = JSON.parse(options._[0]);
+	var governor_faction = options._[1];
 
-	ns.tprintf("Factions to buy from: %s", factions);
 	ns.tprintf("Augmentations to buy: %v", toPurchase);
 	ns.tprintf("Faction to buy governors from: %s", governor_faction);
 
@@ -17,7 +15,7 @@ export async function main(ns) {
 			if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
 			await ns.sleep(60000);
 		}
-		for (var faction of factions) {
+		for (var faction of ns.getPlayer().factions) {
 			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
 				if (ns.purchaseAugmentation(faction, augmentation)) break;
 			}
@@ -45,7 +43,7 @@ export async function main(ns) {
 	}
 
 	await incrementCounter(ns);
-	if (reboot) {
+	if (options.reboot) {
 		ns.spawn("reset.js");
 	}
 }

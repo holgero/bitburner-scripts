@@ -1,6 +1,6 @@
+import { getAugmentationsToPurchase } from "helpers.js";
 import { formatMoney } from "helpers.js";
-
-const GOVERNOR = "NeuroFlux Governor";
+import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -20,32 +20,7 @@ export async function main(ns) {
 		}
 	}
 	ns.tprintf("Factions: %s", JSON.stringify(factions))
-	for (var faction of factions) {
-		var possibleAugmentations = ns.getAugmentationsFromFaction(faction.name);
-		for (var augmentation of possibleAugmentations) {
-			if (ns.getAugmentationPrereq(augmentation).length > 0) {
-				var haveThem = true;
-				for (var requiredAug of ns.getAugmentationPrereq(augmentation)) {
-					if (!haveAug.includes(requiredAug)) {
-						haveThem = false;
-						break;
-					}
-				}
-				if (!haveThem) {
-					continue;
-				}
-			}
-			if (augmentation == GOVERNOR) continue;
-			if (toPurchase.includes(augmentation)) continue;
-			if (haveAug.includes(augmentation)) continue;
-			var needed = ns.getAugmentationRepReq(augmentation);
-			if (needed <= faction.reputation) {
-				toPurchase.push(augmentation);
-			}
-		}
-	}
-	toPurchase.sort(function (a, b) { return ns.getAugmentationPrice(a) - ns.getAugmentationPrice(b); });
-	toPurchase.reverse();
+	await getAugmentationsToPurchase(ns, factions, toPurchase);
 	ns.tprintf("Augmentations to buy: %v", toPurchase);
 	var factor = 1.0;
 	var sum = 0;
