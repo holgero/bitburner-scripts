@@ -69,13 +69,24 @@ async function addPossibleAugmentations(ns, factions, toPurchase, haveAug) {
 							continue;
 						}
 						sortc = (toPurchase[reqIdx].sortc + 1.9 * sortc) / 2.9;
-						toPurchase[reqIdx].sortc = sortc + 1;
+						updateRequiredChain(toPurchase, requiredAug, sortc);
 					}
 				}
 			}
-			toPurchase.push({ name: augmentation, sortc: sortc });
+			toPurchase.push({ name: augmentation, sortc: sortc, required: requiredAugs });
 		}
 		await ns.sleep(100);
 	}
 	// ns.tprintf("Augs: %s", JSON.stringify(toPurchase))
+}
+
+function updateRequiredChain(toPurchase, requiredAug, sortc) {
+	toPurchase.forEach(function (a) {
+		if (a.name == requiredAug) {
+			a.sortc = sortc + 1;
+			for (var required of a.required) {
+				updateRequiredChain(toPurchase, required, sortc + 1);
+			}
+		}
+	});
 }
