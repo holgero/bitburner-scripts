@@ -16,7 +16,7 @@ const STORY_LINE = [
 	{ name: c.DAEDALUS, backdoor: "", work: c.HACKING, location: "" }
 	].reverse();
 
-const AUGS_BEFORE_INSTALL = 7;
+const AUGS_BEFORE_INSTALL = 6;
 const AUGS_PER_FACTION = 2;
 
 /** @param {NS} ns **/
