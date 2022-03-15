@@ -88,11 +88,11 @@ export async function main(ns) {
 			}
 		}
 	}
-	ns.tprintf("Sorted by price");
-	augmentations.sort(function (a, b) { return a.price - b.price });
-	for (var augmentation of augmentations) {
-		printAugmentation(ns, augmentation);
-	}
+	// ns.tprintf("Sorted by price");
+	// augmentations.sort(function (a, b) { return a.price - b.price });
+	// for (var augmentation of augmentations) {
+		// printAugmentation(ns, augmentation);
+	// }
 
 	ns.tprintf("\nSorted by Reputation");
 	augmentations.sort(function (a, b) { return a.reputation - b.reputation });
