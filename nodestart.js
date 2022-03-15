@@ -40,15 +40,18 @@ export async function main(ns) {
 				hacknet_started = true;
 			}
 			// thirdly: upgrade server farm
-			if (nextProgram >= c.programs.length) {
-				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
-					// start as big as possible
-					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
-						nextServerRam *= 2;
+			if (nextProgram > 3) {
+				// but not during the last goal
+				if (goal.name != config.factionGoals[config.factionGoals.length - 1].name) {
+					if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
+						// start as big as possible
+						while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
+							nextServerRam *= 2;
+						}
+						await runAndWait(ns, "start-servers.js", nextServerRam, "upgrade");
+						// only upgrade in bigger steps
+						nextServerRam *= 8;
 					}
-					await runAndWait(ns, "start-servers.js", nextServerRam, "upgrade");
-					// only upgrade in bigger steps
-					nextServerRam *= 8;
 				}
 			}
 			var backdoor = goal.properties.backdoor;
