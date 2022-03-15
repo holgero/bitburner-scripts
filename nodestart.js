@@ -25,7 +25,7 @@ export async function main(ns) {
 			var currentMoney = ns.getServerMoneyAvailable("home");
 			// how to spend our money: first priority is to buy all needed programs
 			if (nextProgram < c.programs.length &&
-					currentMoney > c.programs[nextProgram].cost + 200000) {
+				currentMoney > c.programs[nextProgram].cost + 200000) {
 				while (nextProgram < c.programs.length &&
 					currentMoney > c.programs[nextProgram].cost + 200000) {
 					await runAndWait(ns, "writeprogram.js", nextProgram++);
@@ -43,8 +43,8 @@ export async function main(ns) {
 			if (nextProgram >= c.programs.length) {
 				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 					// start as big as possible
-					while (currentMoney > ns.getPurchasedServerCost(nextServerRam*2) * ns.getPurchasedServerLimit()) {
-						nextServerRam *=2;
+					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
+						nextServerRam *= 2;
 					}
 					await runAndWait(ns, "start-servers.js", nextServerRam, "upgrade");
 					// only upgrade in bigger steps
@@ -63,7 +63,12 @@ export async function main(ns) {
 				ns.stopAction();
 				if (ns.getFactionRep(goal.name) > goal.reputation) break;
 				await runAndWait(ns, "workforfaction.js", goal.reputation, goal.name, goal.properties.work, JSON.stringify(config.toJoin));
-				await ns.sleep(60000);
+				if (ns.isBusy()) {
+					await ns.sleep(60000);
+				} else {
+					// not working for a faction: kill a few people until we progress
+					await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+				}
 			} else {
 				// not working for a faction: kill a few people until we progress
 				await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
@@ -73,7 +78,7 @@ export async function main(ns) {
 			await ns.sleep(20000);
 		}
 	}
-	ns.spawn("plan-augmentations.js");
+	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
 
 /** @param {NS} ns **/

@@ -8,11 +8,11 @@ export async function main(ns) {
 	var faction = ns.args[1];
 	var worktype = ns.args[2];
 	var wantedFactions = JSON.parse(ns.args[3]);
-	while (true) {
+	for (var ii=0; ii<3; ii++) {
 		var invites = ns.checkFactionInvitations();
-		for (var ii=0; ii<invites.length; ii++) {
-			if (invites[ii] == faction || wantedFactions.includes(invites[ii])) {
-				ns.joinFaction(invites[ii]);
+		for (var invite of invites) {
+			if (invite == faction || wantedFactions.includes(invite)) {
+				ns.joinFaction(invite);
 			}
 		}
 		if (ns.workForFaction(faction, worktype)) {
@@ -21,7 +21,7 @@ export async function main(ns) {
 		if (ns.getFactionRep(faction) >= reputation) {
 			break;
 		}
-		await ns.sleep(10000);
+		await ns.sleep(5000);
 	}
 }
 
