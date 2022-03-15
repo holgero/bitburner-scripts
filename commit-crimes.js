@@ -40,8 +40,5 @@ async function commitCrime(ns, crime) {
 		while (ns.isBusy()) {
 			await ns.sleep(1000);
 		}
-		if (++crimeCount % 10 == 0) {
-			await ns.sleep(10000);
-		}
 	}
 }

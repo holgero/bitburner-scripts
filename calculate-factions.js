@@ -24,14 +24,13 @@ export async function main(ns) {
 	var faction_augmentations = [];
 	var ownedAugmentations = ns.getOwnedAugmentations(true);
 	buildDatabase(ns, faction_augmentations, STORY_LINE, ownedAugmentations.slice(0));
-
-	ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
+	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
 	var factionsToJoin = [];
 	for (var faction of faction_augmentations) {
 		factionsToJoin.push(faction.name);
 	}
-	ns.tprintf("Factions to join: %s", JSON.stringify(factionsToJoin));
+	// ns.tprintf("Factions to join: %s", JSON.stringify(factionsToJoin));
 
 	var faction_goals = [];
 	var newAugs = 0;
@@ -52,7 +51,7 @@ export async function main(ns) {
 			break;
 		}
 	}
-	ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));
+	// ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));
 	await ns.write("nodestart.txt", JSON.stringify({ toJoin: factionsToJoin, factionGoals: faction_goals }), "w");
 }
 
