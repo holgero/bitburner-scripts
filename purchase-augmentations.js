@@ -1,11 +1,12 @@
-const GOVERNOR = "NeuroFlux Governor";
+import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
 	var factions = JSON.parse(ns.args[0]);
 	var toPurchase = JSON.parse(ns.args[1]);
 	var governor_faction = ns.args[2];
-	
+	var reboot = (ns.length == 4 && ns.args[3] == "--reboot");
+
 	ns.tprintf("Factions to buy from: %s", factions);
 	ns.tprintf("Augmentations to buy: %v", toPurchase);
 	ns.tprintf("Faction to buy governors from: %s", governor_faction);
@@ -44,7 +45,9 @@ export async function main(ns) {
 	}
 
 	await incrementCounter(ns);
-	ns.spawn("reset.js");
+	if (reboot) {
+		ns.spawn("reset.js");
+	}
 }
 
 /** @param {NS} ns **/

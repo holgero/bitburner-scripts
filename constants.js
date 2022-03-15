@@ -68,6 +68,10 @@ export const ALL_FACTIONS = [
 export const HACKING = "Hacking Contracts";
 export const FIELDWORK = "Field Work";
 
+// augmentations
+export const GOVERNOR = "NeuroFlux Governor";
+
+// programs
 export const programs = [
         { name: "BruteSSH.exe", level: 50, cost: 500000 },
         { name: "FTPCrack.exe", level: 100, cost: 1500000 },
