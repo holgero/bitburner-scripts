@@ -2,8 +2,11 @@ import * as c from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	var options = ns.flags([["restart", false]]);
+	if (!options.restart) {
+		await runAndWait(ns, "calculate-factions.js");
+	}
 	ns.disableLog("sleep");
-	await runAndWait(ns, "calculate-factions.js");
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	if (ns.getServer("home").maxRam > 32) {
 		if (!ns.scriptRunning("instrument.script", "home")) {
