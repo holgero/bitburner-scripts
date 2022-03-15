@@ -67,3 +67,11 @@ export const ALL_FACTIONS = [
 // working types
 export const HACKING = "Hacking Contracts";
 export const FIELDWORK = "Field Work";
+
+export const programs = [
+        { name: "BruteSSH.exe", level: 50, cost: 500000 },
+        { name: "FTPCrack.exe", level: 100, cost: 1500000 },
+        { name: "relaySMTP.exe", level: 250, cost: 5000000 },
+        { name: "HTTPWorm.exe", level: 500, cost: 30000000 },
+        { name: "SQLInject.exe", level: 750, cost: 250000000 }
+];
