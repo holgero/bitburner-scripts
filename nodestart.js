@@ -36,7 +36,7 @@ export async function main(ns) {
 			}
 			// second priority: free money from hacknet
 			if (!hacknet_started && nextProgram > 2) {
-				await runAndWait(ns, "start-hacknet.js", 1);
+				await runAndWait(ns, "start-hacknet.js", 4);
 				hacknet_started = true;
 			}
 			// thirdly: upgrade server farm
