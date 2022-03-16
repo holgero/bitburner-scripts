@@ -42,17 +42,7 @@ export async function main(ns) {
 		await ns.sleep(500);
 	}
 
-	await incrementCounter(ns);
 	if (options.reboot) {
 		ns.spawn("reset.js");
 	}
-}
-
-/** @param {NS} ns **/
-async function incrementCounter(ns) {
-	var bootcount = ns.read("count.txt");
-	bootcount++;
-	await ns.write("count.txt", bootcount, "w");
-
-	return bootcount;
 }
