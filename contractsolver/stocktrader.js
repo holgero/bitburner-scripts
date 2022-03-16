@@ -14,7 +14,7 @@ export async function main(ns) {
 			ns.tprintf("Stock trader 2: %d", stockTraderII(prices));
 			break;
 		default:
-			ns.tprintf("Stock trader 4: %d", stockTraderIVa(ns, transactions, prices));
+			ns.tprintf("Stock trader 4: %d", stockTraderIV(ns, transactions, prices));
 			break;
 	}
 }
@@ -96,42 +96,20 @@ export function stockTraderIV(ns, transactions, prices) {
 	}
 
 	var compact = compactPrices(prices);
-	ns.tprintf("Compact: %s", JSON.stringify(compact));
 	if (compact.length / 2 <= transactions) {
 		return stockTraderII(prices);
 	}
-	var deltas = [];
-	for (var ii = 0; ii < compact.length; ii += 2) {
-		deltas.push(compact[ii + 1] - compact[ii]);
-	}
-	ns.tprintf("Deltas: %s", JSON.stringify(deltas));
-
-	return -1;
-}
-
-function stockTraderIVa(ns, transactions, prices) {
-	switch (transactions) {
-		case 1:
-			return stockTraderI(prices);
-		case 2:
-			return stockTraderIII(prices);
-	}
-
-	var compact = compactPrices(prices);
-	if (compact.length / 2 <= transactions) {
-		return stockTraderII(prices);
-	}
-	ns.tprintf("Compact: %s", JSON.stringify(compact));
+	// ns.tprintf("Compact: %s", JSON.stringify(compact));
 	var divider = [];
-	for (var ii = 0; ii < transactions; ii++) {
+	for (var ii = 0; ii < transactions - 1; ii++) {
 		divider.push(2 * ii);
 	}
 	var best = 0;
 	while (dividerNext(divider, compact.length)) {
-		var x = transactionValue(divider, transactions, compact);
+		var x = transactionValue(divider, compact);
 		if (x > best) {
 			best = x;
-			ns.tprintf("Best: %d (%s)", best, JSON.stringify(divider));
+			// ns.tprintf("Best: %d (%s)", best, JSON.stringify(divider));
 		}
 	}
 	return best;
@@ -151,12 +129,12 @@ function dividerNext(divider, listlength) {
 	return divider[0] < divider[1];
 }
 
-function transactionValue(divider, transactions, compact) {
+function transactionValue(divider, compact) {
 	var sum = bestSingleTransaction(compact.slice(0, divider[0]));
-	for (var ii = 1; ii < divider.length; ii ++) {
-		sum += bestSingleTransaction(compact.slice(divider[ii-1], divider[ii]));
+	for (var ii = 1; ii < divider.length; ii++) {
+		sum += bestSingleTransaction(compact.slice(divider[ii - 1], divider[ii]));
 	}
-	sum += bestSingleTransaction(compact.slice(divider[divider.length-1]));
+	sum += bestSingleTransaction(compact.slice(divider[divider.length - 1]));
 
 	return sum;
 }
