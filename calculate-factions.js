@@ -1,9 +1,5 @@
 import * as c from "constants.js";
 
-
-// Faction type:
-// { name, backdoor, work, location }
-
 const STORY_LINE = [
 	{ name: c.CYBERSEC, backdoor: "CSEC", work: c.HACKING, location: "" },
 	{ name: c.NETBURNERS, backdoor: "", work: c.HACKING, location: "" },
@@ -14,16 +10,15 @@ const STORY_LINE = [
 	{ name: c.TIAN_DI_HUI, backdoor: "", work:c.HACKING, location: c.CHONGQING },
 	{ name: c.BITRUNNERS, backdoor: "run4theh111z", work: c.HACKING, location: "" },
 	{ name: c.DAEDALUS, backdoor: "", work: c.HACKING, location: "" }
-	].reverse();
+	];
 
-const AUGS_BEFORE_INSTALL = 6;
-const AUGS_PER_FACTION = 2;
+const AUGS_BEFORE_INSTALL = 7;
+const AUGS_PER_FACTION = 3;
 
 /** @param {NS} ns **/
 export async function main(ns) {
 	var faction_augmentations = [];
-	var ownedAugmentations = ns.getOwnedAugmentations(true);
-	buildDatabase(ns, faction_augmentations, STORY_LINE, ownedAugmentations.slice(0));
+	buildDatabase(ns, faction_augmentations, STORY_LINE);
 	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
 	var factionsToJoin = [];
@@ -45,7 +40,7 @@ export async function main(ns) {
 			}
 		}
 		if (ns.getFactionRep(faction.name) < repToReach) {
-			faction_goals.push({ name: faction.name, properties:faction.properties, reputation: repToReach });
+			faction_goals.push({ ...faction, reputation: repToReach });
 		}
 		if (newAugs >= AUGS_BEFORE_INSTALL) {
 			break;
@@ -56,7 +51,8 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-function buildDatabase(ns, faction_augmentations, factions, ignore) {
+function buildDatabase(ns, faction_augmentations, factions) {
+	var ignore = ns.getOwnedAugmentations(true);
 	for (var faction of factions) {
 		var augmentations = ns.getAugmentationsFromFaction(faction.name).filter(a => !ignore.includes(a));
 		if (augmentations.length > 0) {
@@ -68,9 +64,8 @@ function buildDatabase(ns, faction_augmentations, factions, ignore) {
 				});
 			}
 			augmentations_with_rep.sort((a, b) => a.reputation - b.reputation);
-			faction_augmentations.push({ name: faction.name, properties:faction, augmentations: augmentations_with_rep });
+			faction_augmentations.push({ ...faction, augmentations: augmentations_with_rep });
 			ignore = ignore.concat(augmentations);
 		}
 	}
-	faction_augmentations.reverse();
 }

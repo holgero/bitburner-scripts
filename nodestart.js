@@ -23,8 +23,8 @@ export async function main(ns) {
 		var focus = true;
 		ns.tprintf("Next goal: %s", JSON.stringify(goal));
 		while (true) {
-			if (goal.properties.location) {
-				ns.travelToCity(goal.properties.location);
+			if (goal.location) {
+				ns.travelToCity(goal.location);
 			}
 			var currentMoney = ns.getServerMoneyAvailable("home");
 			// how to spend our money: first priority is to buy all needed programs
@@ -58,7 +58,7 @@ export async function main(ns) {
 					}
 				}
 			}
-			var backdoor = goal.properties.backdoor;
+			var backdoor = goal.backdoor;
 			if (backdoor && !ns.getServer(backdoor).backdoorInstalled) {
 				if (ns.getServerRequiredHackingLevel(backdoor) <= ns.getPlayer().hacking &&
 					ns.getServerNumPortsRequired(backdoor) <= nextProgram) {
@@ -70,7 +70,7 @@ export async function main(ns) {
 				ns.stopAction();
 				if (ns.getFactionRep(goal.name) > goal.reputation) break;
 				await runAndWait(ns, "workforfaction.js", goal.reputation, goal.name,
-					goal.properties.work, JSON.stringify(config.toJoin), JSON.stringify(focus));
+					goal.work, JSON.stringify(config.toJoin), JSON.stringify(focus));
 				if (ns.isBusy()) {
 					await ns.sleep(60000);
 				} else {
