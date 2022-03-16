@@ -20,6 +20,7 @@ export async function main(ns) {
 	var hacknet_started = false;
 	var nextServerRam = 32;
 	for (var goal of config.factionGoals) {
+		var focus = true;
 		ns.tprintf("Next goal: %s", JSON.stringify(goal));
 		while (true) {
 			if (goal.properties.location) {
@@ -68,7 +69,8 @@ export async function main(ns) {
 			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
 				ns.stopAction();
 				if (ns.getFactionRep(goal.name) > goal.reputation) break;
-				await runAndWait(ns, "workforfaction.js", goal.reputation, goal.name, goal.properties.work, JSON.stringify(config.toJoin));
+				await runAndWait(ns, "workforfaction.js", goal.reputation, goal.name,
+					goal.properties.work, JSON.stringify(config.toJoin), JSON.stringify(focus));
 				if (ns.isBusy()) {
 					await ns.sleep(60000);
 				} else {
@@ -82,6 +84,7 @@ export async function main(ns) {
 			// check for coding contracts
 			await runAndWait(ns, "solve_contract.js", "auto");
 			await ns.sleep(20000);
+			focus = ns.isFocused();
 		}
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
