@@ -19,11 +19,13 @@ export async function main(ns) {
 	var nextProgram = 0;
 	var hacknet_started = false;
 	var nextServerRam = 32;
-	for (var goal of config.factionGoals) {
+	while (config.factionGoals.length > 0) {
+		var goal = selectGoal(ns, config.factionGoals);
 		var focus = true;
-		ns.tprintf("Next goal: %s", JSON.stringify(goal));
+		ns.tprintf("%s goal: %s %d", config.factionGoals.length > 0 ? "Next" : "Last",
+			goal.name, goal.reputation);
 		while (true) {
-			if (goal.location) {
+			if (goal.location && ns.getPlayer().city != goal.location) {
 				ns.travelToCity(goal.location);
 			}
 			var currentMoney = ns.getServerMoneyAvailable("home");
@@ -46,7 +48,7 @@ export async function main(ns) {
 			// thirdly: upgrade server farm
 			if (nextProgram > 3) {
 				// but not during the last goal
-				if (goal.name != config.factionGoals[config.factionGoals.length - 1].name) {
+				if (config.factionGoals.length > 0) {
 					if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 						// start as big as possible
 						while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
@@ -83,11 +85,27 @@ export async function main(ns) {
 			}
 			// check for coding contracts
 			await runAndWait(ns, "solve_contract.js", "auto");
+			// maybe we can install more backdoors
+			await runAndWait(ns, "rscan.js", "back");
 			await ns.sleep(20000);
 			focus = ns.isFocused();
 		}
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
+}
+
+/** @param {NS} ns **/
+function selectGoal(ns, goals) {
+	var money = ns.getServerMoneyAvailable("home");
+	var factions = ns.getPlayer().factions;
+	for (var ii = 0; ii < goals.length; ii++) {
+		var goal = goals[ii];
+		if (factions.includes(goal.name) || (!goal.money || goal.money <= 1.2 * money)) {
+			goals.splice(ii, 1);
+			return goal;
+		}
+	}
+	return goals.shift();
 }
 
 /** @param {NS} ns **/
