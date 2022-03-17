@@ -52,9 +52,7 @@ export async function main(ns) {
 				newAugs++;
 			}
 		}
-		if (ns.getFactionRep(faction.name) < repToReach) {
-			faction_goals.push({ ...faction, reputation: repToReach });
-		}
+		faction_goals.push({ ...faction, reputation: repToReach });
 		if (newAugs >= AUGS_BEFORE_INSTALL) {
 			break;
 		}
