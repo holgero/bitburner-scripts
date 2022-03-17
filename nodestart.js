@@ -30,7 +30,7 @@ export async function main(ns) {
 		ns.tprintf("%s goal: %s %d", config.factionGoals.length > 0 ? "Next" : "Last",
 			goal.name, goal.reputation);
 		while (true) {
-			if (goal.location && ns.getPlayer().city != goal.location) {
+			if (!ns.getPlayer().factions.includes(goal.name) && goal.location && ns.getPlayer().city != goal.location) {
 				ns.travelToCity(goal.location);
 			}
 			var currentMoney = ns.getServerMoneyAvailable("home");
@@ -78,12 +78,7 @@ export async function main(ns) {
 				await runAndWait(ns, "corporation.js");
 			}
 			var backdoor = goal.backdoor;
-			if (backdoor && !ns.getServer(backdoor).backdoorInstalled) {
-				if (ns.getServerRequiredHackingLevel(backdoor) <= ns.getPlayer().hacking &&
-					ns.getServerNumPortsRequired(backdoor) <= nextProgram) {
-					await startHacking(ns);
-				}
-			}
+			await installBackdoorIfNeeded(ns, backdoor);
 			// how to spend our time
 			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
 				ns.stopAction();
@@ -106,8 +101,8 @@ export async function main(ns) {
 			}
 			// check for coding contracts
 			await runAndWait(ns, "solve_contract.js", "auto");
-			// maybe we can install more backdoors
-			await runAndWait(ns, "rscan.js", "back");
+			// join future factions early, if we can
+			await futureGoalConditions(ns, config.factionGoals);
 			await ns.sleep(20000);
 			focus = ns.isFocused();
 		}
@@ -127,6 +122,30 @@ function selectGoal(ns, goals) {
 		}
 	}
 	return goals.shift();
+}
+
+/** @param {NS} ns **/
+async function installBackdoorIfNeeded(ns, server) {
+	if (server && !ns.getServer(server).backdoorInstalled) {
+		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
+			ns.getServerNumPortsRequired(server) <= nextProgram) {
+			await startHacking(ns);
+		}
+	}
+}
+
+/** @param {NS} ns **/
+async function futureGoalConditions(ns, factionGoals) {
+	for (var goal of factionGoals) {
+		if (ns.getPlayer().factions.includes(goal.name)) {
+			continue;
+		}
+		await installBackdoorIfNeeded(ns, goal.backdoor);
+		if (goal.location && ns.getPlayer().city != goal.location) {
+			ns.travelToCity(goal.location);
+			return;
+		}
+	}
 }
 
 /** @param {NS} ns **/
