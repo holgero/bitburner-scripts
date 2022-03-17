@@ -40,7 +40,7 @@ function setupCorporation(ns) {
 	ns.tprintf("%20s: %10s", "Current revenue", formatMoney(corporation.revenue));
 	ns.tprintf("%20s: %10s", "Current expenses", formatMoney(corporation.expenses));
 	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
-		corporation.shareSaleCooldown > 0 ? corporation.shareSaleCooldown : "");
+		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown/5) + " s cooldown" : "");
 	if (corporation.divisions.length == 0) {
 		ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
 	}
