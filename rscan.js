@@ -175,10 +175,11 @@ async function printBackdoorRoutes(ns, server) {
 					ns.connect(path[ii]);
 				}
 				ns.connect("home");
+				if (ns.getServer(server).backdoorInstalled) {
+					ns.tprintf("installed backdoor on %s", server);
+				}
 			}
-			if (ns.getServer(server).backdoorInstalled) {
-				ns.tprintf("installed backdoor on %s", server);
-			} else {
+			if (!ns.getServer(server).backdoorInstalled) {
 				ns.tprintf("home; connect %s; backdoor", path.join("; connect "));
 			}
 		}
