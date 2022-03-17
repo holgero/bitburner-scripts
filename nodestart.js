@@ -11,7 +11,7 @@ export async function main(ns) {
 	if (ns.getServer("home").maxRam > 32) {
 		if (ns.getServer("home").maxRam > 2048 && ns.getPlayer().hasCorporation) {
 			if (ns.getPlayer().playtimeSinceLastAug < 10000) {
-				await runAndWait(ns, "corporation2.js", "--milk");
+				await runAndWait(ns, "corporation2.js", "--milk", "[]");
 			}
 		}
 		if (!ns.scriptRunning("instrument.script", "home")) {
