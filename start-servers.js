@@ -25,7 +25,7 @@ export async function main(ns) {
 		victims = victims.concat(victims);
 	}
 	if (victims.length > ns.getPurchasedServerLimit()) {
-		victims = victims.slice(victims.length - ns.getPurchasedServerLimit());
+		victims = victims.slice(0, ns.getPurchasedServerLimit());
 	}
 
 	var threads = Math.floor(ram / ns.getScriptRam(SCRIPT));
