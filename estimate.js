@@ -4,19 +4,27 @@ import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	var options = ns.flags([["goal", false]]);
 	var toPurchase = [];
-	var haveAug = ns.getOwnedAugmentations(true);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
-	if (ns.args.length > 0) {
-		loopOver = ns.args;
+	if (options._.length > 0) {
+		loopOver = options._;
+	} else {
+		if (options.goal) {
+			const config = JSON.parse(ns.read("nodestart.txt"));
+			loopOver = [];
+			for (var goal of config.factionGoals) {
+				loopOver.push(goal.name + ":" + goal.reputation);
+			}
+		}
 	}
 	for (var arg of loopOver) {
 		if (arg.indexOf(":") > 0) {
 			var idx = arg.indexOf(":");
-			factions.push({name:arg.substring(0, idx), reputation:arg.substring(idx+1)});
+			factions.push({ name: arg.substring(0, idx), reputation: arg.substring(idx + 1) });
 		} else {
-			factions.push({name:arg, reputation:ns.getFactionRep(arg)});
+			factions.push({ name: arg, reputation: ns.getFactionRep(arg) });
 		}
 	}
 	ns.tprintf("Factions: %s", JSON.stringify(factions))

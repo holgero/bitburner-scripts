@@ -1,38 +1,6 @@
 import { formatMoney } from "helpers.js";
+import { ALL_FACTIONS } from "constants.js";
 
-const ALL_FACTIONS = [
-	"CyberSec",
-	"Tian Di Hui",
-	"Netburners",
-	"Sector-12",
-	"Chongqing",
-	"New Tokyo",
-	"Ishima",
-	"Aevum",
-	"Volhaven",
-	"NiteSec",
-	"The Black Hand",
-	"BitRunners",
-	"ECorp",
-	"MegaCorp",
-	"KuaiGong International",
-	"Four Sigma",
-	"NWO",
-	"Blade Industries",
-	"OmniTek Incorporated",
-	"Bachman & Associates",
-	"Clarke Incorporated",
-	"Fulcrum Secret Technologies",
-	"Slum Snakes",
-	"Tetrads",
-	"Silhouette",
-	"Speakers for the Dead",
-	"The Dark Army",
-	"The Syndicate",
-	"The Covenant",
-	"Daedalus",
-	"Illuminati"
-];
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -40,6 +8,7 @@ export async function main(ns) {
 	var options = ns.flags([["owned", false],
 	["member", false],
 	["invites", false],
+	["goal", false],
 	["filter_reputation", false],
 	["filter_price", false]]);
 	if (options._.length > 0) {
@@ -51,7 +20,15 @@ export async function main(ns) {
 			if (options.invites) {
 				factions = ns.checkFactionInvitations();
 			} else {
-				factions = ALL_FACTIONS;
+				if (options.goal) {
+					const config = JSON.parse(ns.read("nodestart.txt"));
+					factions = [];
+					for (var goal of config.factionGoals) {
+						factions.push(goal.name);
+					}
+				} else {
+					factions = ALL_FACTIONS;
+				}
 			}
 		}
 	}
