@@ -1,4 +1,4 @@
-import { GOVERNOR } from "constants.js";
+import { GOVERNOR } from "./constants.js";
 
 /** @param {NS} ns **/
 export function formatMoney(amount) {
