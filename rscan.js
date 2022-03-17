@@ -7,6 +7,7 @@ var hackSelf = true;
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	var options = ns.flags([["quiet", false]]);
 	if (ns.args.length == 0) {
 		usage(ns);
 		return;
@@ -18,22 +19,22 @@ export async function main(ns) {
 	hackingLevel = ns.getHackingLevel();
 	bestVictim = findBestVictim(ns);
 	if (ns.args[0] == "nuke") {
-		await traverse(ns, "home", nukeServer);
+		await traverse(ns, options, "home", nukeServer);
 	} else if (ns.args[0] == "money") {
-		await traverse(ns, "home", moneyInfo);
+		await traverse(ns, options, "home", moneyInfo);
 	} else if (ns.args[0] == "hack") {
-		await traverse(ns, "home", runHack);
+		await traverse(ns, options, "home", runHack);
 	} else if (ns.args[0] == "hackhack") {
 		bestVictim = "foodnstuff";
 		hackScript = "do-hack.js";
 		hackSelf = false;
-		await traverse(ns, "home", runHack);
+		await traverse(ns, options, "home", runHack);
 	} else if (ns.args[0] == "files") {
-		await traverse(ns, "home", checkFiles);
+		await traverse(ns, options, "home", checkFiles);
 	} else if (ns.args[0] == "route") {
-		await traverse(ns, "home", printRoute);
+		await traverse(ns, options, "home", printRoute);
 	} else if (ns.args[0] == "back") {
-		await traverse(ns, "home", printBackdoorRoutes);
+		await traverse(ns, options, "home", printBackdoorRoutes);
 	}
 }
 
@@ -62,7 +63,7 @@ function findBestVictim(ns) {
 }
 
 /** @param {NS} ns **/
-async function traverse(ns, startServer, serverProc) {
+async function traverse(ns, options, startServer, serverProc) {
 	var servers = ns.scan(startServer);
 	for (var i=0; i< servers.length; i++) {
 		var server = servers[i];
@@ -71,16 +72,16 @@ async function traverse(ns, startServer, serverProc) {
 		}
 		known.push(servers[i]);
 		path.push(server);
-		await serverProc(ns, server);
-		await traverse(ns, server, serverProc);
+		await serverProc(ns, options, server);
+		await traverse(ns, options, server, serverProc);
 		path.pop();
 	}
 }
 
 /** @param {NS} ns **/
-async function nukeServer(ns, server) {
+async function nukeServer(ns, options, server) {
 	if (ns.hasRootAccess(server)) {
-		ns.tprint("already have access to ", server);
+		if (!options.quiet) ns.tprint("already have access to ", server);
 		return;
 	}
 	var nports = ns.getServerNumPortsRequired(server);
@@ -133,7 +134,7 @@ async function nukeServer(ns, server) {
 }
 
 /** @param {NS} ns **/
-async function moneyInfo(ns, server) {
+async function moneyInfo(ns, options, server) {
 	if (ns.getServerRequiredHackingLevel(server) > hackingLevel) {
 		return;
 	}
@@ -145,7 +146,7 @@ async function moneyInfo(ns, server) {
 }
 
 /** @param {NS} ns **/
-async function checkFiles(ns, server) {
+async function checkFiles(ns, options, server) {
 	var contracts = ns.ls(server, ".cct");
 	if (contracts.length > 0) {
 		ns.tprint(contracts);
@@ -154,7 +155,7 @@ async function checkFiles(ns, server) {
 }
 
 /** @param {NS} ns **/
-async function printBackdoorRoutes(ns, server) {
+async function printBackdoorRoutes(ns, options, server) {
 	if (server == "CSEC" ||
 		server == "I.I.I.I" ||
 		server == "avmnite-02h" ||
@@ -187,12 +188,12 @@ async function printBackdoorRoutes(ns, server) {
 }
 
 /** @param {NS} ns **/
-async function printRoute(ns, server) {
+async function printRoute(ns, options, server) {
 	ns.tprint("home; connect ", path.join("; connect "));
 }
 
 /** @param {NS} ns **/
-async function runHack(ns, server) {
+async function runHack(ns, options, server) {
 	if (!ns.hasRootAccess(server)) {
 			return;
 	}
@@ -209,6 +210,6 @@ async function runHack(ns, server) {
 	if (threads > 0) {
 		await ns.scp(hackScript, server);
 		ns.exec(hackScript, server, threads, victim);
-		ns.tprint("Utilising ", server, " to hack " + victim + " with ", threads, " threads.");
+		if (!options.quiet) ns.tprint("Utilising ", server, " to hack " + victim + " with ", threads, " threads.");
 	}
 }

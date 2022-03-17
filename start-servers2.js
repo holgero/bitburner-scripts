@@ -6,9 +6,7 @@ export async function main(ns) {
 
 	for (var ii = 0; ii < victims.length; ii++) {
 		var hostname = "pserv-" + ii;
-		if (ns.serverExists(hostname)) {
-			ns.tprintf("Server %s already exists.", hostname);
-		} else {
+		if (!ns.serverExists(hostname)) {
 			while (true) {
 				var result = ns.purchaseServer("pserv-" + ii, ram);
 				if (result == hostname) {

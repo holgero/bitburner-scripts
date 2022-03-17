@@ -158,7 +158,7 @@ async function runAndWait(ns, script, ...args) {
 
 /** @param {NS} ns **/
 async function startHacking(ns) {
-	await runAndWait(ns, "rscan.js", "nuke");
-	await runAndWait(ns, "rscan.js", "hack");
-	await runAndWait(ns, "rscan.js", "back");
+	await runAndWait(ns, "rscan.js", "nuke", "--quiet");
+	await runAndWait(ns, "rscan.js", "hack", "--quiet");
+	await runAndWait(ns, "rscan.js", "back", "--quiet");
 }
