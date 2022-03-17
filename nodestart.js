@@ -92,7 +92,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 			await runAndWait(ns, "corporation.js");
 		}
 		var backdoor = goal.backdoor;
-		await installBackdoorIfNeeded(ns, backdoor);
+		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
 		// how to spend our time
 		if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
 			ns.stopAction();
@@ -116,7 +116,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "auto");
 		// join future factions early, if we can
-		await futureGoalConditions(ns, goals);
+		await futureGoalConditions(ns, goals, nextProgram);
 		await ns.sleep(20000);
 		focus = ns.isFocused();
 	}
@@ -137,7 +137,7 @@ function selectGoal(ns, goals) {
 }
 
 /** @param {NS} ns **/
-async function installBackdoorIfNeeded(ns, server) {
+async function installBackdoorIfNeeded(ns, server, nextProgram) {
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
 			ns.getServerNumPortsRequired(server) <= nextProgram) {
@@ -147,12 +147,12 @@ async function installBackdoorIfNeeded(ns, server) {
 }
 
 /** @param {NS} ns **/
-async function futureGoalConditions(ns, goals) {
+async function futureGoalConditions(ns, goals, nextProgram) {
 	for (var goal of goals) {
 		if (ns.getPlayer().factions.includes(goal.name)) {
 			continue;
 		}
-		await installBackdoorIfNeeded(ns, goal.backdoor);
+		await installBackdoorIfNeeded(ns, goal.backdoor, nextProgram);
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			ns.travelToCity(goal.location);
 			return;
