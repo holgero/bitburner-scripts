@@ -12,6 +12,7 @@ export async function main(ns) {
 		if (ns.getServer("home").maxRam > 2048 && ns.getPlayer().hasCorporation) {
 			if (ns.getPlayer().playtimeSinceLastAug < 10000) {
 				await runAndWait(ns, "corporation2.js", "--milk", "[]");
+				await runAndWait(ns, "start-hacknet.js", 16);
 			}
 		}
 		if (!ns.scriptRunning("instrument.script", "home")) {
@@ -41,21 +42,27 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 	ns.tprintf("%s goal: %s %d", goals.length > 0 ? "Next" : "Last", goal.name, percentage * goal.reputation);
 	var focus = true;
 	var nextProgram = 0;
-	var hacknet_nodes = 0;
 	var nextServerRam = 32;
+	var firstHacknetNode = false;
 	while (true) {
 		if (!ns.getPlayer().factions.includes(goal.name) && goal.location && ns.getPlayer().city != goal.location) {
 			ns.travelToCity(goal.location);
 		}
 		var currentMoney = ns.getServerMoneyAvailable("home");
+		if (nextProgram == 0 && !firstHacknetNode) {
+			await runAndWait(ns, "start-hacknet.js", 1);
+			firstHacknetNode = true;
+		}
 		// how to spend our money: first priority is to buy all programs
 		// the first program is a special case as we must also account fo the tor router
 		if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
 			currentMoney = ns.getServerMoneyAvailable("home");
 			await startHacking(ns);
+			await runAndWait(ns, "start-hacknet.js", 2);
 		}
-		if (nextProgram < c.programs.length &&
+		if (nextProgram > 0 &&
+			nextProgram < c.programs.length &&
 			currentMoney > c.programs[nextProgram].cost) {
 			while (nextProgram < c.programs.length && currentMoney > c.programs[nextProgram].cost) {
 				await runAndWait(ns, "writeprogram.js", nextProgram++);
@@ -63,20 +70,12 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 			}
 			// use our new programs
 			await startHacking(ns);
+			await runAndWait(ns, "start-hacknet.js", 4);
 		}
-		// second priority: free money from hacknet
-		if (hacknet_nodes == 0 && nextProgram > 2) {
-			hacknet_nodes = 4;
-			await runAndWait(ns, "start-hacknet.js", hacknet_nodes);
-		}
-		// thirdly: upgrade server farm
+		// upgrade server farm
 		if (nextProgram > 3) {
 			// but not during the last goal
 			if (goals.length > 0) {
-				if (hacknet_nodes == 4) {
-					hacknet_nodes = 8;
-					await runAndWait(ns, "start-hacknet.js", hacknet_nodes);
-				}
 				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 					// start as big as possible
 					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
@@ -85,6 +84,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					await runAndWait(ns, "start-servers.js", nextServerRam, "upgrade");
 					// only upgrade in bigger steps
 					nextServerRam *= 8;
+					await runAndWait(ns, "start-hacknet.js", 8);
 				}
 			}
 		}
