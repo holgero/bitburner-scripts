@@ -9,6 +9,11 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	if (ns.getServer("home").maxRam > 32) {
+		if (ns.getServer("home").maxRam > 2048 && ns.getPlayer().hasCorporation) {
+			if (ns.getPlayer().playtimeSinceLastAug < 10000) {
+				await runAndWait(ns, "corporation2.js", "--milk");
+			}
+		}
 		if (!ns.scriptRunning("instrument.script", "home")) {
 			ns.run("instrument.script", 1, "foodnstuff");
 		}
@@ -17,7 +22,7 @@ export async function main(ns) {
 	await startHacking(ns);
 
 	var nextProgram = 0;
-	var hacknet_started = false;
+	var hacknet_nodes = 0;
 	var nextServerRam = 32;
 	while (config.factionGoals.length > 0) {
 		var goal = selectGoal(ns, config.factionGoals);
@@ -29,11 +34,16 @@ export async function main(ns) {
 				ns.travelToCity(goal.location);
 			}
 			var currentMoney = ns.getServerMoneyAvailable("home");
-			// how to spend our money: first priority is to buy all needed programs
+			// how to spend our money: first priority is to buy all programs
+			// the first program is a special case as we must also account fo the tor router
+			if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
+				await runAndWait(ns, "writeprogram.js", nextProgram++);
+				currentMoney = ns.getServerMoneyAvailable("home");
+				await startHacking(ns);
+			}
 			if (nextProgram < c.programs.length &&
-				currentMoney > c.programs[nextProgram].cost + 200000) {
-				while (nextProgram < c.programs.length &&
-					currentMoney > c.programs[nextProgram].cost + 200000) {
+				currentMoney > c.programs[nextProgram].cost) {
+				while (nextProgram < c.programs.length && currentMoney > c.programs[nextProgram].cost) {
 					await runAndWait(ns, "writeprogram.js", nextProgram++);
 					currentMoney = ns.getServerMoneyAvailable("home");
 				}
@@ -41,14 +51,18 @@ export async function main(ns) {
 				await startHacking(ns);
 			}
 			// second priority: free money from hacknet
-			if (!hacknet_started && nextProgram > 2) {
-				await runAndWait(ns, "start-hacknet.js", 4);
-				hacknet_started = true;
+			if (hacknet_nodes == 0 && nextProgram > 2) {
+				hacknet_nodes = 4;
+				await runAndWait(ns, "start-hacknet.js", hacknet_nodes);
 			}
 			// thirdly: upgrade server farm
 			if (nextProgram > 3) {
 				// but not during the last goal
 				if (config.factionGoals.length > 0) {
+					if (hacknet_nodes == 4) {
+						hacknet_nodes = 8;
+						await runAndWait(ns, "start-hacknet.js", hacknet_nodes);
+					}
 					if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 						// start as big as possible
 						while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
@@ -60,6 +74,9 @@ export async function main(ns) {
 					}
 				}
 			}
+			if (nextProgram > 4) {
+				await runAndWait(ns, "corporation.js");
+			}
 			var backdoor = goal.backdoor;
 			if (backdoor && !ns.getServer(backdoor).backdoorInstalled) {
 				if (ns.getServerRequiredHackingLevel(backdoor) <= ns.getPlayer().hacking &&
@@ -70,7 +87,11 @@ export async function main(ns) {
 			// how to spend our time
 			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
 				ns.stopAction();
-				if (ns.getFactionRep(goal.name) > goal.reputation) break;
+				if (ns.getFactionRep(goal.name) > goal.reputation) {
+					break;
+				}
+				ns.tprintf("Goal completion (%s %d): %s %%", goal.name, goal.reputation,
+					Math.round(100.0 * ns.getFactionRep(goal.name) / goal.reputation));
 				await runAndWait(ns, "workforfaction.js", goal.reputation, goal.name,
 					goal.work, JSON.stringify(config.toJoin), JSON.stringify(focus));
 				if (ns.isBusy()) {
