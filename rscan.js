@@ -97,35 +97,35 @@ async function nukeServer(ns, options, server) {
 						if (ns.fileExists("SQLInject.exe", "home")) {
 							ns.sqlinject(server);
 						} else {
-							ns.tprint("need SQLInject.exe for ", server, " (", nports, ")");
+							if (!options.quiet) ns.tprint("need SQLInject.exe for ", server, " (", nports, ")");
 							return;
 						}
 					}
 					if (ns.fileExists("HTTPWorm.exe", "home")) {
 						ns.httpworm(server);
 					} else {
-						ns.tprint("need HTTPWorm.exe for ", server, " (", nports, ")");
+						if (!options.quiet) ns.tprint("need HTTPWorm.exe for ", server, " (", nports, ")");
 						return;
 					}
 				}
 				if (ns.fileExists("relaySMTP.exe", "home")) {
 					ns.relaysmtp(server);
 				} else {
-					ns.tprint("need relaySMTP.exe for ", server, " (", nports, ")");
+					if (!options.quiet) ns.tprint("need relaySMTP.exe for ", server, " (", nports, ")");
 					return;
 				}
 			}
 			if (ns.fileExists("FTPCrack.exe", "home")) {
 				ns.ftpcrack(server);
 			} else {
-				ns.tprint("need FTPCrack.exe for ", server, " (", nports, ")");
+				if (!options.quiet) ns.tprint("need FTPCrack.exe for ", server, " (", nports, ")");
 				return;
 			}
 		}
 		if (ns.fileExists("BruteSSH.exe", "home")) {
 			ns.brutessh(server);
 		} else {
-			ns.tprint("need BruteSSH.exe for ", server, " (", nports, ")");
+			if (!options.quiet) ns.tprint("need BruteSSH.exe for ", server, " (", nports, ")");
 			return;
 		}
 	}
