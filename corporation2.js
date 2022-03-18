@@ -1,4 +1,5 @@
 import { formatMoney } from "./helpers.js";
+import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
 const SMART_SUPPLY = "Smart Supply";
@@ -26,7 +27,7 @@ export async function main(ns) {
 		var selfFund = (player.bitNodeN != 3)
 		ns.corporation.createCorporation("ACME", selfFund);
 	}
-	setupCorporation(ns);
+	await setupCorporation(ns);
 	if (options.milk) {
 		ns.corporation.sellShares(1000000000);
 		await ns.sleep(30000);
@@ -38,17 +39,15 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-function setupCorporation(ns) {
+async function setupCorporation(ns) {
 	var corporation = ns.corporation.getCorporation();
-	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
-	ns.tprintf("Corporation info: %s", corporation.name);
-	ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
-	ns.tprintf("%20s: %10s", "Current revenue", formatMoney(corporation.revenue));
-	ns.tprintf("%20s: %10s", "Current expenses", formatMoney(corporation.expenses));
-	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
-		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
+	printCorporationInfo(ns, corporation);
+
 	if (corporation.divisions.length == 0) {
-		ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
+			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
+			corporation.funds -= ns.corporation.getExpandIndustryCost(AGRICULTURE);
+		}
 	}
 
 	var haveUnlocks = true;
@@ -65,12 +64,43 @@ function setupCorporation(ns) {
 	}
 	var agri = ns.corporation.getDivision(AGRICULTURE);
 	if (haveUnlocks) {
-		setupDivision(ns, agri);
+		expandDivision(ns, agri, corporation);
+		await setupDivision(ns, agri);
+		if (!corporation.public) {
+			ns.corporation.goPublic(0);
+		}
 	}
 }
 
 /** @param {NS} ns **/
-function setupDivision(ns, division) {
+function printCorporationInfo(ns, corporation) {
+	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
+	ns.tprintf("Corporation info: %s", corporation.name);
+	ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
+	ns.tprintf("%20s: %10s", "Current revenue", formatMoney(corporation.revenue));
+	ns.tprintf("%20s: %10s", "Current expenses", formatMoney(corporation.expenses));
+	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
+		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
+}
+
+/** @param {NS} ns **/
+function expandDivision(ns, division, corporation) {
+	if (division.cities.length >= c.CITIES.length) {
+		return;
+	}
+	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
+	while (corporation.funds > expansionCost) {
+		var nextCity = c.CITIES.find(a => !division.cities.includes(a));
+		if (nextCity) {
+			ns.corporation.expandCity(division.name, nextCity);
+			ns.corporation.purchaseWarehouse(division.name, nextCity);
+		}
+		corporation.funds -= expansionCost;
+	}
+}
+
+/** @param {NS} ns **/
+async function setupDivision(ns, division) {
 	for (var city of division.cities) {
 		ns.corporation.setSmartSupply(division.name, city, true);
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
@@ -79,8 +109,8 @@ function setupDivision(ns, division) {
 		while (office.employees.length < office.size) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
-		ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, 2);
-		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, 1);
+		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, 2);
+		await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, 1);
 	}
 }
 

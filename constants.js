@@ -1,11 +1,15 @@
-// factions
-// city factions
+// game world
 export const SECTOR12 = "Sector-12";
 export const AEVUM = "Aevum";
 export const VOLHAVEN = "Volhaven";
 export const CHONGQING = "Chongqing";
 export const NEW_TOKYO = "New Tokyo";
 export const ISHIMA = "Ishima";
+
+export const CITIES = [ SECTOR12, AEVUM, VOLHAVEN, CHONGQING, NEW_TOKYO, ISHIMA ];
+
+// factions
+// city factions have the same name as the cities
 
 // early factions
 export const TIAN_DI_HUI = "Tian Di Hui";
@@ -31,12 +35,7 @@ export const SLUM_SNAKES = "Slum Snakes";
 export const DAEDALUS = "Daedalus";
 
 export const ALL_FACTIONS = [
-	SECTOR12,
-	AEVUM,
-	VOLHAVEN,
-	CHONGQING,
-	NEW_TOKYO,
-	ISHIMA,
+	...CITIES,
 	TIAN_DI_HUI,
 	NETBURNERS,
 	NITESEC,
