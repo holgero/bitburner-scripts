@@ -39,11 +39,20 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 	if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 		return;
 	}
-	ns.tprintf("%s goal: %s %d", goals.length > 0 ? "Next" : "Last", goal.name, percentage * goal.reputation);
 	var focus = true;
 	var nextProgram = 0;
+	while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
+		nextProgram++;
+	}
 	var nextServerRam = 32;
+	if (ns.serverExists("pserv-0")) {
+		nextServerRam = 8 * ns.getServerMaxRam("pserv-0");
+	}
 	var firstHacknetNode = false;
+	ns.tprintf("%s goal: %s %d", goals.length > 0 ? "Next" : "Last", goal.name,
+		percentage * goal.reputation);
+	ns.tprintf("Next server ram size: %d GB, next program to aquire: %s",
+		nextServerRam, nextProgram < c.programs.length ? c.programs[nextProgram].name : "(complete)");
 	while (true) {
 		if (!ns.getPlayer().factions.includes(goal.name) && goal.location && ns.getPlayer().city != goal.location) {
 			ns.travelToCity(goal.location);

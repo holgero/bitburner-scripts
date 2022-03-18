@@ -17,7 +17,7 @@ const STORY_LINE = [
 ];
 
 const AUGS_BEFORE_INSTALL = 8;
-const AUGS_PER_FACTION = 3;
+const AUGS_PER_FACTION = 2;
 
 /** @param {NS} ns **/
 export async function main(ns) {
