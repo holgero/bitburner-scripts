@@ -127,8 +127,11 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
-				ns.tprintf("Goal completion (%s %d): %s %%", goal.name, percentage * goal.reputation,
-					Math.round(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)));
+				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
+					ns.getFactionRep(goal.name),
+					percentage * goal.reputation,
+					Math.round(100.0 * ns.getFactionRep(goal.name) /
+						(percentage * goal.reputation)));
 				await runAndWait(ns, "workforfaction.js", percentage * goal.reputation, goal.name,
 					goal.work, JSON.stringify(toJoin), JSON.stringify(focus));
 				if (ns.isBusy()) {
