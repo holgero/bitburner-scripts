@@ -27,9 +27,9 @@ export async function main(ns) {
 			factions.push({ name: arg, reputation: ns.getFactionRep(arg) });
 		}
 	}
-	ns.tprintf("Factions: %s", JSON.stringify(factions))
+	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	await getAugmentationsToPurchase(ns, factions, toPurchase);
-	ns.tprintf("Augmentations to buy: %v", toPurchase);
+	// ns.tprintf("Augmentations to buy: %v", toPurchase);
 	var factor = 1.0;
 	var sum = 0;
 	ns.tprintf("%50s  %10s  %10s", "Augmentation", "Price", "Total");
