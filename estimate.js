@@ -1,6 +1,5 @@
 import { getAugmentationsToPurchase } from "helpers.js";
 import { formatMoney } from "helpers.js";
-import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
