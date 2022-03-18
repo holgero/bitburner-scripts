@@ -42,6 +42,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
+	// ns.tprint("setupCorporation");
 	var corporation = ns.corporation.getCorporation();
 	printCorporationInfo(ns, corporation);
 
@@ -76,6 +77,7 @@ async function setupCorporation(ns) {
 
 /** @param {NS} ns **/
 function printCorporationInfo(ns, corporation) {
+	// ns.tprint("printCorporationInfo");
 	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
 	ns.tprintf("Corporation info: %s", corporation.name);
 	ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
@@ -87,22 +89,27 @@ function printCorporationInfo(ns, corporation) {
 
 /** @param {NS} ns **/
 function expandDivision(ns, division, corporation) {
+	// ns.tprint("expandDivision");
 	if (division.cities.length >= c.CITIES.length) {
 		return;
 	}
 	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
 	while (corporation.funds > expansionCost) {
 		var nextCity = c.CITIES.find(a => !division.cities.includes(a));
+		ns.tprintf("Expanding to %s", nextCity);
 		if (nextCity) {
 			ns.corporation.expandCity(division.name, nextCity);
 			ns.corporation.purchaseWarehouse(division.name, nextCity);
+			corporation.funds -= expansionCost;
+		} else {
+			break;
 		}
-		corporation.funds -= expansionCost;
 	}
 }
 
 /** @param {NS} ns **/
 async function setupDivision(ns, division) {
+	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
@@ -118,7 +125,7 @@ async function setupDivision(ns, division) {
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
 		var office = ns.corporation.getOffice(division.name, city);
-		while (office.employees.length < office.size) {
+		for (var ii = office.employees.length; ii < office.size; ii ++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
 		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, 2);
