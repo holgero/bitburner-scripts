@@ -9,6 +9,7 @@ export async function main(ns) {
 	if (!options.restart) {
 		await runAndWait(ns, "calculate-factions.js", AUGS_PER_RUN, AUGS_PER_FACTION);
 	}
+	await runAndWait(ns, "print_goals.js");
 	ns.disableLog("sleep");
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	if (ns.getServer("home").maxRam > 32) {
@@ -87,7 +88,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 		// upgrade home pc
 		if (nextProgram > 2) {
 			if (ns.getServerMaxRam("home") < 64) {
-				await runAndWait("upgradehomeserver.js", 64);
+				await runAndWait(ns, "upgradehomeserver.js", 64);
 				if (ns.getServerMaxRam("home") >= 64) {
 					if (!ns.scriptRunning("instrument.script", "home")) {
 						ns.run("instrument.script", 1, "foodnstuff");
@@ -117,24 +118,29 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 		var backdoor = goal.backdoor;
 		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
 		// how to spend our time
-		if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
-			ns.stopAction();
-			if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
-				break;
-			}
-			ns.tprintf("Goal completion (%s %d): %s %%", goal.name, percentage * goal.reputation,
-				Math.round(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)));
-			await runAndWait(ns, "workforfaction.js", percentage * goal.reputation, goal.name,
-				goal.work, JSON.stringify(toJoin), JSON.stringify(focus));
-			if (ns.isBusy()) {
-				await ns.sleep(60000);
+		if (ns.getPlayer().hacking < 100) {
+			// don't waste time with other stuff while our hacking level is low
+			await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+		} else {
+			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
+				ns.stopAction();
+				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+					break;
+				}
+				ns.tprintf("Goal completion (%s %d): %s %%", goal.name, percentage * goal.reputation,
+					Math.round(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)));
+				await runAndWait(ns, "workforfaction.js", percentage * goal.reputation, goal.name,
+					goal.work, JSON.stringify(toJoin), JSON.stringify(focus));
+				if (ns.isBusy()) {
+					await ns.sleep(60000);
+				} else {
+					// not working for a faction: kill a few people until we progress
+					await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+				}
 			} else {
 				// not working for a faction: kill a few people until we progress
 				await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
 			}
-		} else {
-			// not working for a faction: kill a few people until we progress
-			await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
 		}
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "auto");
