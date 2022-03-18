@@ -109,7 +109,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 			}
 		}
 		if (nextProgram > 4) {
-			await runAndWait(ns, "corporation.js");
+			await runAndWait(ns, "corporation.js", "--quiet");
 		}
 		var backdoor = goal.backdoor;
 		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
