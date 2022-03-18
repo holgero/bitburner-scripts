@@ -81,6 +81,17 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 			await startHacking(ns);
 			await runAndWait(ns, "start-hacknet.js", 4);
 		}
+		// upgrade home pc
+		if (nextProgram > 2) {
+			if (ns.getServerMaxRam("home") < 64) {
+				await runAndWait("upgradehomeserver.js", 64);
+				if (ns.getServerMaxRam("home") >= 64) {
+					if (!ns.scriptRunning("instrument.script", "home")) {
+						ns.run("instrument.script", 1, "foodnstuff");
+					}
+				}
+			}
+		}
 		// upgrade server farm
 		if (nextProgram > 3) {
 			// but not during the last goal
