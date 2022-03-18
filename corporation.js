@@ -12,6 +12,11 @@ export async function main(ns) {
 			return;
 		}
 	}
+	if (!ns.serverExists(SCRIPT_HOST)) {
+		// transient condition after restart: corporation is still there, but script_host
+		// is missing atm. Just silently ignore, it should be here again next round.
+		return;
+	}
 	// continue on SCRIPT_HOST
 	var scriptHostProcessList = ns.ps(SCRIPT_HOST);
 	await ns.scp("constants.js", SCRIPT_HOST);
