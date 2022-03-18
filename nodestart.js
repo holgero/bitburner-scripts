@@ -98,7 +98,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 		// upgrade server farm
 		if (nextProgram > 3) {
 			// but not during the last goal
-			if (goals.length > 0) {
+			if (goals.length > 0 || percentage < 1.0) {
 				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 					// start as big as possible
 					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
