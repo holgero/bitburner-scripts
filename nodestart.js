@@ -1,10 +1,13 @@
 import * as c from "constants.js";
 
+const AUGS_PER_RUN = 7;
+const AUGS_PER_FACTION = 2;
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["restart", false]]);
 	if (!options.restart) {
-		await runAndWait(ns, "calculate-factions.js");
+		await runAndWait(ns, "calculate-factions.js", AUGS_PER_RUN, AUGS_PER_FACTION);
 	}
 	ns.disableLog("sleep");
 	const config = JSON.parse(ns.read("nodestart.txt"));

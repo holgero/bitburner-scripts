@@ -16,12 +16,11 @@ const STORY_LINE = [
 	{ name: c.DAEDALUS, backdoor: "", money: 100000000000, work: c.HACKING, location: "" }
 ];
 
-const AUGS_BEFORE_INSTALL = 8;
-const AUGS_PER_FACTION = 2;
-
 /** @param {NS} ns **/
 export async function main(ns) {
-	var faction_augmentations = [];
+	const augsBeforeInstall = +ns.args[0];
+	const augsPerFaction = +ns.args[1];
+	const faction_augmentations = [];
 	buildDatabase(ns, faction_augmentations, STORY_LINE);
 	//ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 	removeDuplicateAugmentations(faction_augmentations);
@@ -37,7 +36,7 @@ export async function main(ns) {
 	var newAugs = 0;
 	var placeToBe = "";
 	for (var faction of faction_augmentations) {
-		var augsToAdd = Math.min(AUGS_PER_FACTION, AUGS_BEFORE_INSTALL - newAugs);
+		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
@@ -53,7 +52,7 @@ export async function main(ns) {
 			}
 		}
 		faction_goals.push({ ...faction, reputation: repToReach });
-		if (newAugs >= AUGS_BEFORE_INSTALL) {
+		if (newAugs >= augsBeforeInstall) {
 			break;
 		}
 	}
