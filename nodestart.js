@@ -177,8 +177,10 @@ async function futureGoalConditions(ns, goals, nextProgram) {
 		}
 		await installBackdoorIfNeeded(ns, goal.backdoor, nextProgram);
 		if (goal.location && ns.getPlayer().city != goal.location) {
-			ns.travelToCity(goal.location);
-			return;
+			if (ns.getServerMoneyAvailable("home") >= goal.money) {
+				ns.travelToCity(goal.location);
+				return;
+			}
 		}
 	}
 }
