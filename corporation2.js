@@ -5,6 +5,7 @@ const AGRICULTURE = "Agriculture";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
+const DREAM_SENSE = "DreamSense";
 const UNLOCKS = [WAREHOUSE_API, OFFICE_API];
 const OPERATIONS = "Operations";
 const ENGINEER = "Engineer";
@@ -67,6 +68,20 @@ async function setupCorporation(ns) {
 	}
 	var agri = ns.corporation.getDivision(AGRICULTURE);
 	if (haveUnlocks) {
+		if (ns.corporation.getUpgradeLevel(DREAM_SENSE) < 1) {
+			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
+			if (corporation.funds > cost) {
+				ns.corporation.levelUpgrade(DREAM_SENSE);
+				corporation.funds -= cost;
+			}
+		}
+		if (ns.corporation.getHireAdVertCount(agri.name)<1) {
+			var cost = ns.corporation.getHireAdVertCost(agri.name);
+			if (corporation.funds > cost) {
+				ns.corporation.hireAdVert(agri.name);
+				corporation.funds -= cost;
+			}
+		}
 		expandDivision(ns, agri, corporation);
 		await setupDivision(ns, agri);
 		if (!corporation.public) {
@@ -115,10 +130,12 @@ async function setupDivision(ns, division) {
 			ns.corporation.setSmartSupply(division.name, city, true);
 		} else {
 			for (var material of [WATER, ENERGY]) {
-				if (ns.corporation.getMaterial(division.name, city, material) > 10) {
-					ns.corporation.buyMaterial(division.name, city, material, 0.1);
+				var materialInfo =ns.corporation.getMaterial(division.name, city, material);
+				// ns.tprintf("material %s in %s: %s", material, city, JSON.stringify(materialInfo));
+				if (materialInfo.qty > 10) {
+					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, 1.0);
+					ns.corporation.buyMaterial(division.name, city, material, -2*materialInfo.prod);
 				}
 			}
 		}
