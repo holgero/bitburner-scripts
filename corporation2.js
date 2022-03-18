@@ -2,12 +2,14 @@ import { formatMoney } from "./helpers.js";
 import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
-const SMART_SUPPLY = "Smart Supply";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
-const UNLOCKS = [SMART_SUPPLY, WAREHOUSE_API, OFFICE_API];
+const SMART_SUPPLY = "Smart Supply";
+const UNLOCKS = [WAREHOUSE_API, OFFICE_API];
 const OPERATIONS = "Operations";
 const ENGINEER = "Engineer";
+const WATER = "Water";
+const ENERGY = "Energy";
 const FOOD = "Food";
 const PLANTS = "Plants";
 const MAX_SELL = "MAX";
@@ -102,7 +104,17 @@ function expandDivision(ns, division, corporation) {
 /** @param {NS} ns **/
 async function setupDivision(ns, division) {
 	for (var city of division.cities) {
-		ns.corporation.setSmartSupply(division.name, city, true);
+		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
+			ns.corporation.setSmartSupply(division.name, city, true);
+		} else {
+			for (var material of [WATER, ENERGY]) {
+				if (ns.corporation.getMaterial(division.name, city, material) > 10) {
+					ns.corporation.buyMaterial(division.name, city, material, 0.1);
+				} else {
+					ns.corporation.buyMaterial(division.name, city, material, 1.0);
+				}
+			}
+		}
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
 		var office = ns.corporation.getOffice(division.name, city);
