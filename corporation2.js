@@ -13,6 +13,7 @@ const WATER = "Water";
 const ENERGY = "Energy";
 const FOOD = "Food";
 const PLANTS = "Plants";
+const REALESTATE = "Real Estate";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 
@@ -135,9 +136,15 @@ async function setupDivision(ns, division) {
 				if (materialInfo.qty > 10) {
 					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, -2*materialInfo.prod);
+					ns.corporation.buyMaterial(division.name, city, material, 1.0-2*materialInfo.prod);
 				}
 			}
+		}
+		var realEstateInfo =ns.corporation.getMaterial(division.name, city, REALESTATE);
+		if (realEstateInfo.qty < 100) {
+			ns.corporation.buyMaterial(division.name, city, REALESTATE, 0.02);
+		} else {
+			ns.corporation.buyMaterial(division.name, city, REALESTATE, 0);
 		}
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
