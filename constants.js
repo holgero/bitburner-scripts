@@ -30,6 +30,8 @@ export const NWO = "NWO";
 
 // criminal factions
 export const SLUM_SNAKES = "Slum Snakes";
+export const TETRADS = "Tetrads";
+export const SPEAKERS = "Speakers for the Dead";
 
 // late game factions
 export const DAEDALUS = "Daedalus";
@@ -53,9 +55,9 @@ export const ALL_FACTIONS = [
 	"Clarke Incorporated",
 	"Fulcrum Secret Technologies",
 	SLUM_SNAKES,
-	"Tetrads",
+	TETRADS,
 	"Silhouette",
-	"Speakers for the Dead",
+	SPEAKERS,
 	"The Dark Army",
 	"The Syndicate",
 	"The Covenant",
@@ -65,7 +67,8 @@ export const ALL_FACTIONS = [
 
 // working types
 export const HACKING = "Hacking Contracts";
-export const FIELDWORK = "Field Work";
+export const FIELD_WORK = "Field Work";
+export const SECURITY_WORK = "Security Work";
 
 // augmentations
 export const GOVERNOR = "NeuroFlux Governor";

@@ -123,6 +123,9 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 			await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
 		} else {
 			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
+				if (goal.stats) {
+					await buffStatsToNeeded(ns, goal.stats);
+				}
 				ns.stopAction();
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
@@ -131,6 +134,9 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					ns.getFactionRep(goal.name),
 					percentage * goal.reputation,
 					(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1));
+				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT Job");
+				}
 				await runAndWait(ns, "workforfaction.js", percentage * goal.reputation, goal.name,
 					goal.work, JSON.stringify(toJoin), JSON.stringify(focus));
 				if (ns.isBusy()) {
@@ -165,6 +171,36 @@ function selectGoal(ns, goals) {
 		}
 	}
 	return goals.shift();
+}
+
+/** @param {NS} ns **/
+async function buffStatsToNeeded(ns, stats) {
+	var statsTooLow = 0;
+	var lowStatName = "";
+	var player = ns.getPlayer();
+	if (player.agility < stats) {
+		statsTooLow++;
+		lowStatName = "Agility";
+	}
+	if (player.dexterity < stats) {
+		statsTooLow++;
+		lowStatName = "Dexterity";
+	}
+	if (player.defense < stats) {
+		statsTooLow++;
+		lowStatName = "Defense";
+	}
+	if (player.strength < stats) {
+		statsTooLow++;
+		lowStatName = "Strength";
+	}
+	if (statsTooLow < 1) {
+		return;
+	}
+	if (statsTooLow < 2) {
+		await runAndWait(ns, "workout.js", lowStatName);
+		return;
+	}
 }
 
 /** @param {NS} ns **/

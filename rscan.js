@@ -49,7 +49,7 @@ function findBestVictim(ns) {
 		"blade", "omnitek", "fulcrumtech", "deltaone", "global-pharm", "zeus-med",
 		"nova-med", "univ-energy", "aerocorp", "unitalife", "stormtech", "zb-institute",
 		"solaris", "lexo-corp", "alpha-ent", "rho-construction", "syscore", "catalyst",
-		"aevum-police", "summit-uni", "netlink", "comptek", "rothman-uni", "the-hub",
+		"aevum-police", "summit-uni", "netlink", "rothman-uni", "the-hub",
 		"johnson-ortho",  "omega-net", "crush-fitness", "silver-helix", "phantasy",
 		"iron-gym", "max-hardware", "joesguns"];
 

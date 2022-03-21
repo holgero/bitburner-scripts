@@ -11,7 +11,7 @@ export async function main(ns) {
 	var potentialVictims = [
 		"syscore", "zb-institute", "solaris", "lexo-corp", "alpha-ent",
 		"rho-construction", "catalyst", "aevum-police", "summit-uni", "netlink",
-		"millenium-fitness", "comptek", "rothman-uni", "johnson-ortho", "omega-net",
+		"millenium-fitness", "rothman-uni", "johnson-ortho", "omega-net",
 		"crush-fitness", "silver-helix", "phantasy", "iron-gym", "max-hardware",
 		"zer0", "harakiri-sushi", "neo-net", "hong-fang-tea", "nectar-net",
 		"joesguns", "sigma-cosmetics", "foodnstuff"];
