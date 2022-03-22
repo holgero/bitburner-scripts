@@ -17,6 +17,7 @@ const STORY_LINE = [
 	{ name: c.BITRUNNERS, backdoor: "run4theh111z", work: c.HACKING, location: "" },
 	{ name: c.SPEAKERS, backdoor: "", money: 0, stats: 300, work: c.SECURITY_WORK, location: "" },
 	{ name: c.ECORP, backdoor: "", company: true, money: 0, stats: 0, work: c.HACKING, location: "" },
+	{ name: c.SYNDICATE, backdoor: "", money: 10000000, stats: 300, work: c.SECURITY_WORK, location: c.SECTOR12 },
 	{ name: c.DAEDALUS, backdoor: "", money: 100000000000, work: c.HACKING, location: "" }
 ];
 
@@ -26,9 +27,9 @@ export async function main(ns) {
 	const augsPerFaction = +ns.args[1];
 	const faction_augmentations = [];
 	buildDatabase(ns, faction_augmentations, STORY_LINE);
-	//ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
+	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 	removeDuplicateAugmentations(faction_augmentations);
-	//ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
+	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
 	var factionsToJoin = [];
 	for (var faction of faction_augmentations) {
@@ -41,6 +42,11 @@ export async function main(ns) {
 	var placeToBe = "";
 	for (var faction of faction_augmentations) {
 		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
+		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
+			// if we still need to work for the company first,
+			// get only the first aug from this faction
+			augsToAdd = Math.min(augsToAdd, 1);
+		}
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;

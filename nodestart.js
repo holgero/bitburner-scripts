@@ -174,31 +174,41 @@ function selectGoal(ns, goals) {
 }
 
 /** @param {NS} ns **/
+async function haveStats(ns, stats) {
+	var player = ns.getPlayer();
+	if (player.agility < stats) {
+		return "Agility";
+	}
+	if (player.dexterity < stats) {
+		return "Dexterity";
+	}
+	if (player.defense < stats) {
+		return "Defense";
+	}
+	if (player.strength < stats) {
+		return "Strength";
+	}
+	return false;
+}
+
+/** @param {NS} ns **/
 async function buffStatsToNeeded(ns, stats) {
 	var statsTooLow = 0;
-	var lowStatName = "";
 	var player = ns.getPlayer();
 	if (player.agility < stats) {
 		statsTooLow++;
-		lowStatName = "Agility";
 	}
 	if (player.dexterity < stats) {
 		statsTooLow++;
-		lowStatName = "Dexterity";
 	}
 	if (player.defense < stats) {
 		statsTooLow++;
-		lowStatName = "Defense";
 	}
 	if (player.strength < stats) {
 		statsTooLow++;
-		lowStatName = "Strength";
 	}
-	if (statsTooLow < 1) {
-		return;
-	}
-	if (statsTooLow < 2) {
-		await runAndWait(ns, "workout.js", lowStatName);
+	if (statsTooLow == 1) {
+		await runAndWait(ns, "workout.js", haveStats(ns, stats));
 		return;
 	}
 }
@@ -222,7 +232,9 @@ async function futureGoalConditions(ns, goals, nextProgram) {
 		await installBackdoorIfNeeded(ns, goal.backdoor, nextProgram);
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			if (ns.getServerMoneyAvailable("home") >= goal.money) {
-				ns.travelToCity(goal.location);
+				if (!goal.stats || !haveStats(ns, goal.stats)) {
+					ns.travelToCity(goal.location);
+				}
 				return;
 			}
 		}
