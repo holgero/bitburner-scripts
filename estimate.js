@@ -14,7 +14,8 @@ export async function main(ns) {
 			const config = JSON.parse(ns.read("nodestart.txt"));
 			loopOver = [];
 			for (var goal of config.factionGoals) {
-				loopOver.push(goal.name + ":" + goal.reputation);
+				loopOver.push(goal.name + ":" +
+					Math.max(ns.getFactionRep(goal.name), goal.reputation));
 			}
 		}
 	}
