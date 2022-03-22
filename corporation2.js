@@ -20,11 +20,14 @@ const MP_SELL = "MP";
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["milk", false]]);
-	if (!options._.length == 1) {
+	if (options._.length < 1) {
 		ns.tprint("Invalid usage!");
 		return;
 	}
 	var processList = JSON.parse(options._[0]);
+	if (!options.milk) {
+		options = JSON.parse(options._[1]);
+	}
 
 	var player = ns.getPlayer();
 	if (!player.hasCorporation) {
@@ -34,8 +37,20 @@ export async function main(ns) {
 	await setupCorporation(ns);
 	if (options.milk) {
 		ns.corporation.sellShares(1000000000);
-		await ns.sleep(30000);
+		await ns.sleep(10000);
 		ns.corporation.buyBackShares(1000000000);
+	} else {
+		if (options.public) {
+			var corp = ns.corporation.getCorporation();
+			if (!corp.public) {
+				var ipoShares = Math.min(1e9, Math.floor(options.public / corp.sharePrice));
+				ns.corporation.goPublic(ipoShares);
+				await ns.sleep(10000);
+				if (ipoShares > 0) {
+					ns.corporation.buyBackShares(ipoShares);
+				}
+			}
+		}
 	}
 	if (processList.length) {
 		restorePreviousScripts(ns, processList);
@@ -44,7 +59,6 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
-	// ns.tprint("setupCorporation");
 	var corporation = ns.corporation.getCorporation();
 	printCorporationInfo(ns, corporation);
 
@@ -76,7 +90,7 @@ async function setupCorporation(ns) {
 				corporation.funds -= cost;
 			}
 		}
-		if (ns.corporation.getHireAdVertCount(agri.name)<1) {
+		if (ns.corporation.getHireAdVertCount(agri.name) < 1) {
 			var cost = ns.corporation.getHireAdVertCost(agri.name);
 			if (corporation.funds > cost) {
 				ns.corporation.hireAdVert(agri.name);
@@ -85,9 +99,6 @@ async function setupCorporation(ns) {
 		}
 		expandDivision(ns, agri, corporation);
 		await setupDivision(ns, agri);
-		if (!corporation.public) {
-			ns.corporation.goPublic(0);
-		}
 	}
 }
 
@@ -97,8 +108,7 @@ function printCorporationInfo(ns, corporation) {
 	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
 	ns.tprintf("Corporation info: %s", corporation.name);
 	ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
-	ns.tprintf("%20s: %10s", "Current revenue", formatMoney(corporation.revenue));
-	ns.tprintf("%20s: %10s", "Current expenses", formatMoney(corporation.expenses));
+	ns.tprintf("%20s: %10s", "Current profit", formatMoney(corporation.revenue - corporation.expenses));
 	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice));
@@ -132,16 +142,16 @@ async function setupDivision(ns, division) {
 			ns.corporation.setSmartSupply(division.name, city, true);
 		} else {
 			for (var material of [WATER, ENERGY]) {
-				var materialInfo =ns.corporation.getMaterial(division.name, city, material);
+				var materialInfo = ns.corporation.getMaterial(division.name, city, material);
 				// ns.tprintf("material %s in %s: %s", material, city, JSON.stringify(materialInfo));
 				if (materialInfo.qty > 10) {
 					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, 1.0-2*materialInfo.prod);
+					ns.corporation.buyMaterial(division.name, city, material, 1.0 - 2 * materialInfo.prod);
 				}
 			}
 		}
-		var realEstateInfo =ns.corporation.getMaterial(division.name, city, REALESTATE);
+		var realEstateInfo = ns.corporation.getMaterial(division.name, city, REALESTATE);
 		if (realEstateInfo.qty < 100) {
 			ns.corporation.buyMaterial(division.name, city, REALESTATE, 0.02);
 		} else {
@@ -150,7 +160,7 @@ async function setupDivision(ns, division) {
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
 		var office = ns.corporation.getOffice(division.name, city);
-		for (var ii = office.employees.length; ii < office.size; ii ++) {
+		for (var ii = office.employees.length; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
 		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, 2);

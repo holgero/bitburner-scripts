@@ -5,7 +5,7 @@ const MEMORY_NEEDED = 2048;
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["quiet", false]]);
+	var options = ns.flags([["quiet", false], ["public", 0]]);
 	var player = ns.getPlayer();
 	if (!player.hasCorporation) {
 		if (!checkConditions(ns, player, options)) {
@@ -23,7 +23,7 @@ export async function main(ns) {
 	await ns.scp("helpers.js", SCRIPT_HOST);
 	await ns.scp("corporation2.js", SCRIPT_HOST);
 	ns.killall(SCRIPT_HOST);
-	ns.exec("corporation2.js", SCRIPT_HOST, 1, JSON.stringify(scriptHostProcessList));
+	ns.exec("corporation2.js", SCRIPT_HOST, 1, JSON.stringify(scriptHostProcessList), JSON.stringify(options));
 }
 
 function checkConditions(ns, player, options) {

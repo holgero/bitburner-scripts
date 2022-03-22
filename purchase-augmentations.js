@@ -23,6 +23,13 @@ export async function main(ns) {
 	}
 
 	ns.tprintf("Bought planned augmentations, spending remaining money: ", ns.getServerMoneyAvailable("home"));
+	if (ns.getPlayer().hasCorporation) {
+		ns.tprintf("Checking if we can spend money on IPO of our corporation");
+		ns.run("corporation.js", 1, "--public", Math.floor(0.9 * ns.getServerMoneyAvailable("home")));
+		while (ns.scriptRunning("corporation.js") || ns.scriptRunning("corporation2.js", "pserv-0")) {
+			await ns.sleep(5000);
+		}
+	}
 	// if there is money left, run home upgrades
 	while (ns.getUpgradeHomeCoresCost() < ns.getServerMoneyAvailable("home")) {
 		if (!ns.upgradeHomeCores()) break;
