@@ -50,8 +50,9 @@ export async function main(ns) {
 			// if we still need to work for the company first, just gain some favor
 			repToReach = 25000;
 		}
-		if (player.hasCorporation) {
+		if (player.hasCorporation && ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
 			// hopefully means plenty of money, we should be able to bribe some factions
+			// during the next run
 			repToReach = Math.min(repToReach, reputationNeeded(ns, faction.name));
 		}
 		if (placeToBe && faction.location) {
@@ -61,8 +62,13 @@ export async function main(ns) {
 			placeToBe = faction.location;
 		}
 		if (faction.name == c.DAEDALUS) {
-			// try to get to favor 150 as soon as possible
-			repToReach = Math.max(repToReach, reputationNeeded(ns, faction.name));
+			if (ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
+				// try to get to favor 150 as soon as possible
+				repToReach = Math.max(repToReach, reputationNeeded(ns, faction.name));
+			} else {
+				// reach the red pill
+				repToReach = faction.augmentations[faction.augmentations.length - 1].reputation;
+			}
 		}
 		for (var augmentation of faction.augmentations) {
 			if (augmentation.reputation <= repToReach) {

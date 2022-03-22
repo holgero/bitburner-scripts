@@ -127,6 +127,10 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					await buffStatsToNeeded(ns, goal.stats);
 				}
 				ns.stopAction();
+				if (ns.getServerMoneyAvailable("home") > 150000000000) {
+					await runAndWait(ns, "donate-faction.js",
+						goal.name, percentage * goal.reputation, ns.getServerMoneyAvailable("home") - 100000000000);
+				}
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
