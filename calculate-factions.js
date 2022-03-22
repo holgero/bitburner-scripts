@@ -18,6 +18,7 @@ const STORY_LINE = [
 	{ name: c.SPEAKERS, backdoor: "", money: 0, stats: 300, work: c.SECURITY_WORK, location: "" },
 	{ name: c.ECORP, backdoor: "", company: true, money: 0, stats: 0, work: c.HACKING, location: "" },
 	{ name: c.SYNDICATE, backdoor: "", money: 10000000, stats: 300, work: c.HACKING, location: c.SECTOR12 },
+	{ name: c.NWO, backdoor: "", company: true, money: 0, stats: 0, work: c.HACKING, location: "" },
 	{ name: c.DAEDALUS, backdoor: "", money: 100000000000, work: c.HACKING, location: "" }
 ];
 
