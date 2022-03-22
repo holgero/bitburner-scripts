@@ -4,7 +4,7 @@ const STORY_LINE = [
 	{ name: c.CYBERSEC, backdoor: "CSEC", money: 0, work: c.HACKING, location: "" },
 	{ name: c.NETBURNERS, backdoor: "", money: 0, work: c.HACKING, location: "" },
 	{ name: c.SECTOR12, backdoor: "", money: 15000000, work: c.HACKING, location: c.SECTOR12 },
-	{ name: c.SLUM_SNAKES, backdoor: "", money: 1000000, stats: 30, work: c.SECURITY_WORK, location: ""},
+	{ name: c.SLUM_SNAKES, backdoor: "", money: 1000000, stats: 30, work: c.SECURITY_WORK, location: "" },
 	{ name: c.AEVUM, backdoor: "", money: 40000000, work: c.HACKING, location: c.AEVUM },
 	{ name: c.TIAN_DI_HUI, backdoor: "", money: 1000000, work: c.HACKING, location: c.CHONGQING },
 	{ name: c.CHONGQING, backdoor: "", money: 20000000, work: c.HACKING, location: c.CHONGQING },
@@ -40,6 +40,7 @@ export async function main(ns) {
 	var faction_goals = [];
 	var newAugs = 0;
 	var placeToBe = "";
+	var player = ns.getPlayer();
 	for (var faction of faction_augmentations) {
 		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
 		var repToReach = faction.augmentations.length >= augsToAdd ?
@@ -49,11 +50,19 @@ export async function main(ns) {
 			// if we still need to work for the company first, just gain some favor
 			repToReach = 25000;
 		}
+		if (player.hasCorporation) {
+			// hopefully means plenty of money, we should be able to bribe some factions
+			repToReach = Math.min(repToReach, reputationNeeded(ns, faction.name));
+		}
 		if (placeToBe && faction.location) {
 			if (!isCompatible(placeToBe, faction.location)) continue;
 		}
 		if (!placeToBe && faction.location) {
 			placeToBe = faction.location;
+		}
+		if (faction.name == c.DAEDALUS) {
+			// try to get to favor 150 as soon as possible
+			repToReach = Math.max(repToReach, reputationNeeded(ns, faction.name));
 		}
 		for (var augmentation of faction.augmentations) {
 			if (augmentation.reputation <= repToReach) {
@@ -110,7 +119,7 @@ function removeDuplicateAugmentations(faction_augmentations) {
 	removeFactionsWithoutAugmentations(faction_augmentations);
 	var allAugmentations = [];
 	for (var faction of faction_augmentations) {
-		var filtered = faction.augmentations.filter( a => !allAugmentations.includes(a.augmentation));
+		var filtered = faction.augmentations.filter(a => !allAugmentations.includes(a.augmentation));
 		faction.augmentations = filtered;
 		for (var augmentation of faction.augmentations) {
 			allAugmentations.push(augmentation.augmentation);
@@ -136,4 +145,11 @@ function removeFactionsWithoutAugmentations(faction_augmentations) {
 			ii--;
 		}
 	}
+}
+
+/** @param {NS} ns **/
+function reputationNeeded(ns, faction) {
+	var previousReputation = Math.pow(1.02, ns.getFactionFavor(faction) - 1) * 25500 - 25000;
+	var reputationNeeded = Math.pow(1.02, ns.getFavorToDonate() - 1) * 25500 - 25000;
+	return Math.max(0, reputationNeeded - previousReputation);
 }
