@@ -42,14 +42,13 @@ export async function main(ns) {
 	var placeToBe = "";
 	for (var faction of faction_augmentations) {
 		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
-		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
-			// if we still need to work for the company first,
-			// get only the first aug from this faction
-			augsToAdd = Math.min(augsToAdd, 1);
-		}
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
+		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
+			// if we still need to work for the company first, just gain some favor
+			repToReach = 25000;
+		}
 		if (placeToBe && faction.location) {
 			if (!isCompatible(placeToBe, faction.location)) continue;
 		}
