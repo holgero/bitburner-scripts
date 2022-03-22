@@ -120,7 +120,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
-			await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+			await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
 		} else {
 			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
 				if (goal.stats) {
@@ -147,11 +147,11 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					await ns.sleep(60000);
 				} else {
 					// not working for a faction: kill a few people until we progress
-					await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+					await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
 				}
 			} else {
 				// not working for a faction: kill a few people until we progress
-				await runAndWait(ns, "commit-crimes.js", ns.getPlayer().hacking + 1);
+				await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
 			}
 		}
 		// check for coding contracts
@@ -222,6 +222,7 @@ async function buffStatsToNeeded(ns, stats) {
 		await runAndWait(ns, "workout.js", haveStats(ns, stats));
 		return;
 	}
+	await runAndWait(ns, "commit-crimes.js", "--until_stats", stats);
 }
 
 /** @param {NS} ns **/
