@@ -134,10 +134,12 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
+				var percentComplete =(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
 				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
 					ns.getFactionRep(goal.name),
 					percentage * goal.reputation,
-					(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1));
+					percentComplete);
+				ns.toast(goal.name + ": " + percentComplete + " %");
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT Job");
 				}

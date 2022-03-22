@@ -101,6 +101,7 @@ function printCorporationInfo(ns, corporation) {
 	ns.tprintf("%20s: %10s", "Current expenses", formatMoney(corporation.expenses));
 	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
+	ns.toast("Share price: " + formatMoney(corporation.sharePrice));
 }
 
 /** @param {NS} ns **/
