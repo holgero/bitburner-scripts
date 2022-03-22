@@ -32,11 +32,11 @@ export async function main(ns) {
 	// ns.tprintf("Augmentations to buy: %v", toPurchase);
 	var factor = 1.0;
 	var sum = 0;
-	ns.tprintf("%50s  %10s  %10s", "Augmentation", "Price", "Total");
+	ns.tprintf("%55s  %10s  %10s", "Augmentation", "Price", "Total");
 	for (var augmentation of toPurchase) {
 		var toPay = factor * ns.getAugmentationPrice(augmentation);
 		sum += toPay;
-		ns.tprintf("%50s: %10s  %10s", augmentation, formatMoney(toPay), formatMoney(sum));
+		ns.tprintf("%55s: %10s  %10s", augmentation, formatMoney(toPay), formatMoney(sum));
 		factor = factor * 1.9;
 	}
 }
