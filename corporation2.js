@@ -40,7 +40,7 @@ export async function main(ns) {
 		var selfFund = (player.bitNodeN != 3)
 		ns.corporation.createCorporation("ACME", selfFund);
 	}
-	await setupCorporation(ns);
+	await setupCorporation(ns, options);
 	if (options.milk) {
 		ns.corporation.sellShares(1000000000);
 		await ns.sleep(10000);
@@ -64,9 +64,9 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-async function setupCorporation(ns) {
+async function setupCorporation(ns, options) {
 	var corporation = ns.corporation.getCorporation();
-	printCorporationInfo(ns, corporation);
+	printCorporationInfo(ns, corporation, options);
 
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
@@ -109,12 +109,14 @@ async function setupCorporation(ns) {
 }
 
 /** @param {NS} ns **/
-function printCorporationInfo(ns, corporation) {
+function printCorporationInfo(ns, corporation, options) {
 	// ns.tprint("printCorporationInfo");
 	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
-	ns.tprintf("Corporation info: %s", corporation.name);
-	ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
-	ns.tprintf("%20s: %10s", "Current profit", formatMoney(corporation.revenue - corporation.expenses));
+	if (!options.quiet) {
+		ns.tprintf("Corporation info: %s", corporation.name);
+		ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
+		ns.tprintf("%20s: %10s", "Current profit", formatMoney(corporation.revenue - corporation.expenses));
+	}
 	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice));
@@ -200,7 +202,7 @@ async function distributeEmployees(ns, divisionName, city, number) {
 	await ns.corporation.setAutoJobAssignment(divisionName, city, ENGINEER, engineers);
 	await ns.corporation.setAutoJobAssignment(divisionName, city, OPERATIONS, toDistribute);
 }
-	
+
 /** @param {NS} ns **/
 function restorePreviousScripts(ns, processList) {
 	// ns.tprintf("Commands to restore: %s", JSON.stringify(processList));
