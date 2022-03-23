@@ -163,7 +163,7 @@ async function setupDivision(ns, division) {
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
 		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 5000);
 		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 100);
-		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 100);
+		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 50);
 		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
 		var office = ns.corporation.getOffice(division.name, city);
 		for (var ii = office.employees.length; ii < office.size; ii++) {
