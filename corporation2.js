@@ -9,10 +9,16 @@ const DREAM_SENSE = "DreamSense";
 const UNLOCKS = [WAREHOUSE_API, OFFICE_API];
 const OPERATIONS = "Operations";
 const ENGINEER = "Engineer";
+const BUSINESS = "Business";
+const MANAGEMENT = "Management";
+const RESEARCH = "Research & Development";
 const WATER = "Water";
 const ENERGY = "Energy";
 const FOOD = "Food";
 const PLANTS = "Plants";
+const HARDWARE = "Hardware";
+const ROBOTS = "Robots";
+const AI_CORES = "AI Cores";
 const REALESTATE = "Real Estate";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
@@ -151,14 +157,12 @@ async function setupDivision(ns, division) {
 				}
 			}
 		}
-		var realEstateInfo = ns.corporation.getMaterial(division.name, city, REALESTATE);
-		if (realEstateInfo.qty < 100) {
-			ns.corporation.buyMaterial(division.name, city, REALESTATE, 0.02);
-		} else {
-			ns.corporation.buyMaterial(division.name, city, REALESTATE, 0);
-		}
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
+		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 5000);
+		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 100);
+		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 100);
+		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
 		var office = ns.corporation.getOffice(division.name, city);
 		for (var ii = office.employees.length; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
@@ -168,15 +172,26 @@ async function setupDivision(ns, division) {
 }
 
 /** @param {NS} ns **/
+function purchaseAdditionalMaterial(ns, divisionName, city, material, maxAmount) {
+	var info = ns.corporation.getMaterial(divisionName, city, material);
+	if (info.qty < maxAmount) {
+		ns.corporation.buyMaterial(divisionName, city, material, 0.2);
+	} else {
+		ns.corporation.buyMaterial(divisionName, city, material, 0);
+	}
+}
+
+/** @param {NS} ns **/
 async function distributeEmployees(ns, divisionName, city, number) {
 	var toDistribute = number;
 	var engineers = 0
 
-	if (toDistribute >= 7) {
+	if (toDistribute >= 8) {
+		await ns.corporation.setAutoJobAssignment(divisionName, city, BUSINESS, 1);
 		await ns.corporation.setAutoJobAssignment(divisionName, city, RESEARCH, 1);
-		await ns.corporation.setAutoJobAssignment(divisionName, city, MANAGER, 1);
+		await ns.corporation.setAutoJobAssignment(divisionName, city, MANAGEMENT, 1);
 		engineers++;
-		toDistribute -= 3;
+		toDistribute -= 4;
 	}
 	if (toDistribute >= 3) {
 		engineers++;
