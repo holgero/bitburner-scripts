@@ -26,14 +26,26 @@ export async function main(ns) {
 	// get all unprotected servers immediately
 	await startHacking(ns);
 
-	var firstRunGoals = config.factionGoals.slice(0);
-	while (firstRunGoals.length > 0) {
-		var goal = selectGoal(ns, firstRunGoals);
-		await workOnGoal(ns, goal, 0.75, firstRunGoals, config.toJoin);
+	var runGoals = config.factionGoals.slice(0);
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		await workOnGoal(ns, goal, 0.5, runGoals, config.toJoin);
 	}
-	while (config.factionGoals.length > 0) {
-		var goal = selectGoal(ns, config.factionGoals);
-		await workOnGoal(ns, goal, 1, config.factionGoals, config.toJoin);
+	runGoals = config.factionGoals.slice(0);
+	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved) );
+	runGoals.reverse();
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		await workOnGoal(ns, goal, 0.75, runGoals, config.toJoin);
+	}
+	runGoals = config.factionGoals.slice(0);
+	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved) );
+	runGoals.reverse();
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		await workOnGoal(ns, goal, 1, runGoals, config.toJoin);
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
