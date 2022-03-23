@@ -6,12 +6,11 @@ const AUGS_PER_FACTION = 2;
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["restart", false]]);
-	if (!options.restart) {
-		await runAndWait(ns, "calculate-factions.js", AUGS_PER_RUN, AUGS_PER_FACTION);
-	}
-	await runAndWait(ns, "print_goals.js");
 	ns.disableLog("sleep");
-	const config = JSON.parse(ns.read("nodestart.txt"));
+
+	// get all unprotected servers immediately
+	await startHacking(ns);
+
 	if (ns.getServer("home").maxRam > 32) {
 		if (ns.getServer("home").maxRam > 2048 && ns.getPlayer().hasCorporation) {
 			if (ns.getPlayer().playtimeSinceLastAug < 10000) {
@@ -23,9 +22,19 @@ export async function main(ns) {
 			ns.run("instrument.script", 1, "foodnstuff");
 		}
 	}
-	// get all unprotected servers immediately
-	await startHacking(ns);
 
+	if (!options.restart) {
+		var augsPerRun = AUGS_PER_RUN;
+		var augsPerFaction = AUGS_PER_FACTION;
+		if (ns.getServerMoneyAvailable("home") > 1e12) {
+			// profitable factory means bigger goals
+			augsPerRun += 3;
+			augsPerFaction++;
+		}
+		await runAndWait(ns, "calculate-factions.js", augsPerRun, augsPerFaction);
+	}
+	await runAndWait(ns, "print_goals.js");
+	const config = JSON.parse(ns.read("nodestart.txt"));
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
