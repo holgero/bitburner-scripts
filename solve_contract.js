@@ -9,6 +9,7 @@ import { subarraySum } from "contractsolver/subarraysum.js";
 import { totalWaysToSum } from "contractsolver/totalwaystosum.js";
 import { generateIpAddress } from "contractsolver/generateipaddress.js";
 import { validExpressions } from "contractsolver/validexpressions.js";
+import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
 import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
 
 var known;
@@ -27,6 +28,7 @@ const SUBARRAY = "Subarray with Maximum Sum";
 const WAYSUM = "Total Ways to Sum";
 const IPADDR = "Generate IP Addresses";
 const VALID = "Find All Valid Math Expressions";
+const SANITIZE = "Sanitize Parentheses in Expression";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -108,6 +110,9 @@ async function findAndSolveContracts(ns, server) {
 				case VALID:
 					solution = validExpressions(data[0], data[1]);
 					break;
+				case SANITIZE:
+					solution = sanitizeParenthesis(data);
+					break;
 				case TRADER1:
 					solution = +stockTraderI(data);
 					break;
@@ -128,7 +133,7 @@ async function findAndSolveContracts(ns, server) {
 					continue;
 			}
 
-			ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, data, JSON.stringify(solution));
+			ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, JSON.stringify(data), JSON.stringify(solution));
 			ns.spawn("solve_contract2.js", 1, server, contract, JSON.stringify(solution));
 		}
 	}
