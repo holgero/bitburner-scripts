@@ -163,11 +163,29 @@ async function setupDivision(ns, division) {
 		for (var ii = office.employees.length; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
-		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, 2);
-		await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, 1);
+		await distributeEmployees(ns, division.name, city, office.employees.length);
 	}
 }
 
+/** @param {NS} ns **/
+async function distributeEmployees(ns, divisionName, city, number) {
+	var toDistribute = number;
+	var engineers = 0
+
+	if (toDistribute >= 7) {
+		await ns.corporation.setAutoJobAssignment(divisionName, city, RESEARCH, 1);
+		await ns.corporation.setAutoJobAssignment(divisionName, city, MANAGER, 1);
+		engineers++;
+		toDistribute -= 3;
+	}
+	if (toDistribute >= 3) {
+		engineers++;
+		toDistribute--;
+	}
+	await ns.corporation.setAutoJobAssignment(divisionName, city, ENGINEER, engineers);
+	await ns.corporation.setAutoJobAssignment(divisionName, city, OPERATIONS, toDistribute);
+}
+	
 /** @param {NS} ns **/
 function restorePreviousScripts(ns, processList) {
 	// ns.tprintf("Commands to restore: %s", JSON.stringify(processList));
