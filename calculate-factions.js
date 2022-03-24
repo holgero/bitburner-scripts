@@ -56,10 +56,10 @@ export async function main(ns) {
 			// during the next run
 			repToReach = Math.min(repToReach, reputationNeeded(ns, faction.name));
 		}
-		if (placeToBe && faction.location) {
+		if (placeToBe && faction.location && faction.location == faction.name) {
 			if (!isCompatible(placeToBe, faction.location)) continue;
 		}
-		if (!placeToBe && faction.location) {
+		if (!placeToBe && faction.location && faction.location == faction.name) {
 			placeToBe = faction.location;
 		}
 		if (faction.name == c.DAEDALUS) {
