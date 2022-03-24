@@ -46,7 +46,7 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 0.75, runGoals, config.toJoin);
+		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config.toJoin);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -54,7 +54,7 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 1, runGoals, config.toJoin);
+		if (goal) await workOnGoal(ns, goal, 1, runGoals, config.toJoin);
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
