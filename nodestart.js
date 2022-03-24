@@ -160,7 +160,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					ns.getFactionRep(goal.name),
 					percentage * goal.reputation,
 					percentComplete);
-				ns.toast(goal.name + ": " + percentComplete + " %");
+				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT");
 				}
