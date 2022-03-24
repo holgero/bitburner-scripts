@@ -162,7 +162,7 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %");
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT Job");
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT");
 				}
 				await runAndWait(ns, "workforfaction.js", percentage * goal.reputation, goal.name,
 					goal.work, JSON.stringify(toJoin), JSON.stringify(focus));
