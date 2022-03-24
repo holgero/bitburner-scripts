@@ -2,5 +2,6 @@ bitburnerSave_*.json
 bitburnerFiles*.zip
 RECOVERY_BITBURNER_*.json
 nodestart.txt
+shareprice.txt
 test.js
 saves/

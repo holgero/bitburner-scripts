@@ -66,7 +66,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function setupCorporation(ns, options) {
 	var corporation = ns.corporation.getCorporation();
-	printCorporationInfo(ns, corporation, options);
+	await printCorporationInfo(ns, corporation, options);
 
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
@@ -109,7 +109,7 @@ async function setupCorporation(ns, options) {
 }
 
 /** @param {NS} ns **/
-function printCorporationInfo(ns, corporation, options) {
+async function printCorporationInfo(ns, corporation, options) {
 	// ns.tprint("printCorporationInfo");
 	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
 	var profit = corporation.revenue - corporation.expenses;
@@ -122,6 +122,8 @@ function printCorporationInfo(ns, corporation, options) {
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
 		", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
+	await ns.write("shareprice.txt", corporation.sharePrice, "w");
+	await ns.scp("shareprice.txt", "home");
 }
 
 /** @param {NS} ns **/
