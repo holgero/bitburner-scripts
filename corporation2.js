@@ -112,14 +112,16 @@ async function setupCorporation(ns, options) {
 function printCorporationInfo(ns, corporation, options) {
 	// ns.tprint("printCorporationInfo");
 	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
+	var profit = corporation.revenue - corporation.expenses;
 	if (!options.quiet) {
 		ns.tprintf("Corporation info: %s", corporation.name);
 		ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
-		ns.tprintf("%20s: %10s", "Current profit", formatMoney(corporation.revenue - corporation.expenses));
+		ns.tprintf("%20s: %10s", "Current profit", formatMoney(profit));
 	}
 	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
-	ns.toast("Share price: " + formatMoney(corporation.sharePrice));
+	ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
+		", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
 }
 
 /** @param {NS} ns **/
