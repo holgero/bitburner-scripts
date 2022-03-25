@@ -32,17 +32,17 @@ export async function main(ns) {
 	removeDuplicateAugmentations(faction_augmentations);
 	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
-	var factionsToJoin = [];
-	for (var faction of faction_augmentations) {
-		factionsToJoin.push(faction.name);
-	}
-	// ns.tprintf("Factions to join: %s", JSON.stringify(factionsToJoin));
-
 	var faction_goals = [];
 	var newAugs = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
 	for (var faction of faction_augmentations) {
+		if (newAugs >= augsBeforeInstall) {
+			// enough augs for this run, add remaining factions with their
+			// properties but a reputation goal of 0
+			faction_goals.push({ ...faction, reputation: 0 });
+			continue;
+		}
 		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
@@ -77,12 +77,9 @@ export async function main(ns) {
 			}
 		}
 		faction_goals.push({ ...faction, reputation: repToReach });
-		if (newAugs >= augsBeforeInstall) {
-			break;
-		}
 	}
 	// ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));
-	await ns.write("nodestart.txt", JSON.stringify({ toJoin: factionsToJoin, factionGoals: faction_goals }), "w");
+	await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
 }
 
 function isCompatible(city1, city2) {

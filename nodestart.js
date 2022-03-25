@@ -38,7 +38,7 @@ export async function main(ns) {
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 0.5, runGoals, config.toJoin);
+		await workOnGoal(ns, goal, 0.5, runGoals);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -46,7 +46,7 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config.toJoin);
+		if (goal) await workOnGoal(ns, goal, 0.75, runGoals);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -54,14 +54,14 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 1, runGoals, config.toJoin);
+		if (goal) await workOnGoal(ns, goal, 1, runGoals);
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
 
 /** @param {NS} ns **/
-async function workOnGoal(ns, goal, percentage, goals, toJoin) {
-	if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+async function workOnGoal(ns, goal, percentage, goals) {
+	if (ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
 		return;
 	}
 	var focus = true;
@@ -161,6 +161,13 @@ async function workOnGoal(ns, goal, percentage, goals, toJoin) {
 					percentage * goal.reputation,
 					percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
+				var toJoin = [];
+				var factions = ns.getPlayer().factions;
+				for (var tGoal of goals) {
+					if (!factions.includes(tGoal.name)) {
+						toJoin.push(tGoal.name);
+					}
+				}
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT",
 						JSON.stringify(toJoin), JSON.stringify(focus));
