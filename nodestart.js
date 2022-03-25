@@ -31,7 +31,7 @@ export async function main(ns) {
 			augsPerRun += 3;
 			augsPerFaction++;
 		}
-		await runAndWait(ns, "calculate-factions.js", augsPerRun, augsPerFaction);
+		await runAndWait(ns, "calculate-goals.js", augsPerRun, augsPerFaction);
 	}
 	await runAndWait(ns, "print_goals.js");
 	const config = JSON.parse(ns.read("nodestart.txt"));
