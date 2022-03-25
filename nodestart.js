@@ -38,7 +38,7 @@ export async function main(ns) {
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 0.5, runGoals);
+		await workOnGoal(ns, goal, 0.25, runGoals);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -119,8 +119,8 @@ async function workOnGoal(ns, goal, percentage, goals) {
 		}
 		// upgrade server farm
 		if (nextProgram > 3) {
-			// but not during the last goal
-			if (goals.length > 0 || percentage < 1.0) {
+			// but not during the last round
+			if (percentage < 1.0 && ns.getPlayer().bitNodeN != 3 || percentage <= 0.25) {
 				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
 					// start as big as possible
 					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
