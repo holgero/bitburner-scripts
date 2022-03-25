@@ -1,21 +1,14 @@
-import { formatMoney } from "helpers.js";
-
 const SCRIPT_HOST = "pserv-0";
-const MEMORY_NEEDED = 2048;
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["quiet", false], ["public", 0]]);
-	var player = ns.getPlayer();
-	if (!player.hasCorporation) {
-		if (!checkConditions(ns, player, options)) {
+	if (!ns.serverExists(SCRIPT_HOST) ||
+		!(ns.getServerMaxRam(SCRIPT_HOST) >= ns.getScriptRam("corporation2.js"))) {
+		if (!(ns.getServerMaxRam("home") >= ns.getScriptRam("corporation2.js"))) {
+			// neither here nor on the dedicated server enough ram: give up.
 			return;
 		}
-	}
-	if (!ns.serverExists(SCRIPT_HOST)) {
-		// transient condition after restart: corporation is still there, but script_host
-		// is missing atm. Just silently ignore, it should be here again next round.
-		return;
+		ns.spawn("corporation2.js", 1, ...ns.args);
 	}
 	// continue on SCRIPT_HOST
 	var scriptHostProcessList = ns.ps(SCRIPT_HOST);
@@ -23,33 +16,6 @@ export async function main(ns) {
 	await ns.scp("helpers.js", SCRIPT_HOST);
 	await ns.scp("corporation2.js", SCRIPT_HOST);
 	ns.killall(SCRIPT_HOST);
-	ns.exec("corporation2.js", SCRIPT_HOST, 1, JSON.stringify(scriptHostProcessList), JSON.stringify(options));
-}
-
-function checkConditions(ns, player, options) {
-	var selfFund = player.bitNodeN != 3;
-	if (!ns.serverExists(SCRIPT_HOST)) {
-		if (!options.quiet) {
-			ns.tprintf("Server %s to run corporation setup doesn't exist", SCRIPT_HOST);
-		}
-		return false;
-	}
-	if (ns.getServerMaxRam(SCRIPT_HOST) < MEMORY_NEEDED) {
-		if (!options.quiet) {
-			ns.tprintf("Server %s to run corporation setup has not enough memory (need: %d, has: %d)",
-				SCRIPT_HOST, MEMORY_NEEDED, ns.getServerMaxRam(SCRIPT_HOST));
-		}
-		return false;
-	}
-	if (selfFund) {
-		var money = ns.getServerMoneyAvailable("home");
-		if (money < 150000000000) {
-			if (!options.quiet) {
-				ns.tprintf("Not enough money to create a corporation! (Have: %s)",
-					formatMoney(money));
-			}
-			return false;
-		}
-	}
-	return true;
+	ns.exec("corporation2.js", SCRIPT_HOST, 1,
+		"--restart", JSON.stringify(scriptHostProcessList), ...ns.args);
 }

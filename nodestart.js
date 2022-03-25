@@ -10,14 +10,13 @@ export async function main(ns) {
 
 	// get all unprotected servers immediately
 	await startHacking(ns);
+	// if we have a corporation we can start this run with some easy money on restart
+	if (ns.getPlayer().playtimeSinceLastAug < 10000) {
+		await runAndWait(ns, "corporation.js", "--milk");
+	}
 
+	// make use of the memory on our home machine
 	if (ns.getServer("home").maxRam > 32) {
-		if (ns.getServer("home").maxRam > 2048 && ns.getPlayer().hasCorporation) {
-			if (ns.getPlayer().playtimeSinceLastAug < 10000) {
-				await runAndWait(ns, "corporation2.js", "--milk", "[]");
-				await runAndWait(ns, "start-hacknet.js", 16);
-			}
-		}
 		if (!ns.scriptRunning("instrument.script", "home")) {
 			ns.run("instrument.script", 1, "foodnstuff");
 		}
@@ -27,13 +26,14 @@ export async function main(ns) {
 		var augsPerRun = AUGS_PER_RUN;
 		var augsPerFaction = AUGS_PER_FACTION;
 		if (ns.getServerMoneyAvailable("home") > 1e12) {
-			// profitable factory means bigger goals
+			// a profitable factory means bigger goals
 			augsPerRun += 3;
 			augsPerFaction++;
 		}
 		await runAndWait(ns, "calculate-goals.js", augsPerRun, augsPerFaction);
 	}
 	await runAndWait(ns, "print_goals.js");
+
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
@@ -42,7 +42,7 @@ export async function main(ns) {
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved) );
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
@@ -50,7 +50,7 @@ export async function main(ns) {
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved) );
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
@@ -117,24 +117,37 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				}
 			}
 		}
-		// upgrade server farm
-		if (nextProgram > 3) {
-			// but not during the last round
-			if (percentage < 1.0 && ns.getPlayer().bitNodeN != 3 || percentage <= 0.25) {
-				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
-					// start as big as possible
-					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
-						nextServerRam *= 2;
+		if (ns.getPlayer().bitNodeN == 3) {
+			await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
+			// on bitnode 3 we'll have to rely on corporation money
+			await runAndWait(ns, "corporation.js", "--quiet", "--setup");
+			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+			if (corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
+				await runAndWait(ns, "corporation.js", "--sell");
+			}
+			if (corporationInfo.numShares == 0 && corporationInfo.shareSaleCooldown < 12000) {
+				await runAndWait(ns, "corporation.js", "--buy");
+			}
+		} else {
+			// upgrade server farm
+			if (nextProgram > 3) {
+				// but not during the last round
+				if (percentage < 1.0) {
+					if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
+						// start as big as possible
+						while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
+							nextServerRam *= 2;
+						}
+						await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
+						// only upgrade in bigger steps
+						nextServerRam *= 8;
+						await runAndWait(ns, "start-hacknet.js", 8);
 					}
-					await runAndWait(ns, "start-servers.js", nextServerRam, "upgrade");
-					// only upgrade in bigger steps
-					nextServerRam *= 8;
-					await runAndWait(ns, "start-hacknet.js", 8);
 				}
 			}
-		}
-		if (nextProgram > 4) {
-			await runAndWait(ns, "corporation.js", "--quiet");
+			if (nextProgram > 4) {
+				await runAndWait(ns, "corporation.js", "--quiet", "--setup");
+			}
 		}
 		var backdoor = goal.backdoor;
 		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
@@ -155,7 +168,7 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
-				var percentComplete =(100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+				var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
 				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
 					ns.getFactionRep(goal.name),
 					percentage * goal.reputation,

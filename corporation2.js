@@ -25,36 +25,46 @@ const MP_SELL = "MP";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["milk", false]]);
-	if (options._.length < 1) {
-		ns.tprint("Invalid usage!");
-		return;
-	}
-	var processList = JSON.parse(options._[0]);
-	if (!options.milk) {
-		options = JSON.parse(options._[1]);
-	}
+	var options = ns.flags([
+		["milk", false],
+		["sell", false],
+		["buy", false],
+		["setup", false],
+		["public", false],
+		["quiet", false],
+		["restart", "[]"]]);
+	var processList = JSON.parse(options.restart);
 
-	var player = ns.getPlayer();
-	if (!player.hasCorporation) {
-		var selfFund = (player.bitNodeN != 3)
-		ns.corporation.createCorporation("ACME", selfFund);
-	}
-	await setupCorporation(ns, options);
 	if (options.milk) {
 		ns.corporation.sellShares(1000000000);
-		await ns.sleep(10000);
+		await ns.sleep(1000);
 		ns.corporation.buyBackShares(1000000000);
-	} else {
-		if (options.public) {
-			var corp = ns.corporation.getCorporation();
-			if (!corp.public) {
-				var ipoShares = Math.min(1e9, Math.floor(options.public / corp.sharePrice));
-				ns.corporation.goPublic(ipoShares);
-				await ns.sleep(10000);
-				if (ipoShares > 0) {
-					ns.corporation.buyBackShares(ipoShares);
-				}
+	}
+	if (options.sell) {
+		ns.corporation.sellShares(1000000000);
+		ns.corporation.issueDividends(1);
+	}
+	if (options.buy) {
+		ns.corporation.buyBackShares(1000000000);
+		ns.corporation.issueDividends(0);
+	}
+	if (options.setup) {
+		var player = ns.getPlayer();
+		if (!player.hasCorporation) {
+			var selfFund = (player.bitNodeN != 3)
+			ns.corporation.createCorporation("ACME", selfFund);
+		}
+		await setupCorporation(ns);
+	}
+	await printCorporationInfo(ns, ns.corporation.getCorporation(), options);
+	if (options.public) {
+		var corp = ns.corporation.getCorporation();
+		if (!corp.public) {
+			var ipoShares = Math.min(1e9, Math.floor(options.public / corp.sharePrice));
+			ns.corporation.goPublic(ipoShares);
+			await ns.sleep(5000);
+			if (ipoShares > 0) {
+				ns.corporation.buyBackShares(ipoShares);
 			}
 		}
 	}
@@ -64,9 +74,8 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-async function setupCorporation(ns, options) {
+async function setupCorporation(ns) {
 	var corporation = ns.corporation.getCorporation();
-	await printCorporationInfo(ns, corporation, options);
 
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
@@ -122,8 +131,8 @@ async function printCorporationInfo(ns, corporation, options) {
 		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
 		", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
-	await ns.write("shareprice.txt", corporation.sharePrice, "w");
-	await ns.scp("shareprice.txt", "home");
+	await ns.write("corporation.txt", JSON.stringify(corporation), "w");
+	await ns.scp("corporation.txt", "home");
 }
 
 /** @param {NS} ns **/
