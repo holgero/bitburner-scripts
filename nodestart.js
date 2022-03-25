@@ -118,14 +118,16 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			}
 		}
 		if (ns.getPlayer().bitNodeN == 3) {
-			await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
+			if (!ns.serverExists("pserv-0")) {
+				await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
+			}
 			// on bitnode 3 we'll have to rely on corporation money
 			await runAndWait(ns, "corporation.js", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			if (corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				await runAndWait(ns, "corporation.js", "--sell");
 			}
-			if (corporationInfo.numShares == 0 && corporationInfo.shareSaleCooldown < 12000) {
+			if (corporationInfo.numShares < 1e9 && corporationInfo.shareSaleCooldown < 12000) {
 				await runAndWait(ns, "corporation.js", "--buy");
 			}
 		} else {
