@@ -6,7 +6,6 @@ const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
 const DREAM_SENSE = "DreamSense";
-const UNLOCKS = [WAREHOUSE_API, OFFICE_API];
 const OPERATIONS = "Operations";
 const ENGINEER = "Engineer";
 const BUSINESS = "Business";
@@ -81,30 +80,29 @@ async function setupCorporation(ns) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
 			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
 			corporation.funds -= ns.corporation.getExpandIndustryCost(AGRICULTURE);
+		} else {
+			return;
 		}
 	}
-
-	var haveUnlocks = true;
-	for (var unlock of UNLOCKS) {
+	// this one is needed to increase the popularity over time
+	if (ns.corporation.getUpgradeLevel(DREAM_SENSE) < 1) {
+		var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
+		if (corporation.funds > cost) {
+			ns.corporation.levelUpgrade(DREAM_SENSE);
+			corporation.funds -= cost;
+		}
+	}
+	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
 		if (!ns.corporation.hasUnlockUpgrade(unlock)) {
 			var cost = ns.corporation.getUnlockUpgradeCost(unlock);
 			if (cost < corporation.funds) {
 				ns.corporation.unlockUpgrade(unlock);
 				corporation.funds -= cost;
-			} else {
-				haveUnlocks = false;
 			}
 		}
 	}
 	var agri = ns.corporation.getDivision(AGRICULTURE);
-	if (haveUnlocks) {
-		if (ns.corporation.getUpgradeLevel(DREAM_SENSE) < 1) {
-			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
-			if (corporation.funds > cost) {
-				ns.corporation.levelUpgrade(DREAM_SENSE);
-				corporation.funds -= cost;
-			}
-		}
+	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
 		if (ns.corporation.getHireAdVertCount(agri.name) < 1) {
 			var cost = ns.corporation.getHireAdVertCost(agri.name);
 			if (corporation.funds > cost) {
@@ -112,8 +110,14 @@ async function setupCorporation(ns) {
 				corporation.funds -= cost;
 			}
 		}
-		expandDivision(ns, agri, corporation);
-		await setupDivision(ns, agri);
+		if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+			// only expand if we can manage it completely
+			expandDivision(ns, agri, corporation);
+		}
+		await setupDivisionOffice(ns, agri);
+	}
+	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		await setupDivisionWarehouse(ns, agri);
 	}
 }
 
@@ -156,7 +160,19 @@ function expandDivision(ns, division, corporation) {
 }
 
 /** @param {NS} ns **/
-async function setupDivision(ns, division) {
+async function setupDivisionOffice(ns, division) {
+	// ns.tprint("setupDivision");
+	for (var city of division.cities) {
+		var office = ns.corporation.getOffice(division.name, city);
+		for (var ii = office.employees.length; ii < office.size; ii++) {
+			ns.corporation.hireEmployee(division.name, city);
+		}
+		await distributeEmployees(ns, division.name, city, office.employees.length);
+	}
+}
+
+/** @param {NS} ns **/
+async function setupDivisionWarehouse(ns, division) {
 	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
@@ -178,11 +194,6 @@ async function setupDivision(ns, division) {
 		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 100);
 		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 50);
 		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
-		var office = ns.corporation.getOffice(division.name, city);
-		for (var ii = office.employees.length; ii < office.size; ii++) {
-			ns.corporation.hireEmployee(division.name, city);
-		}
-		await distributeEmployees(ns, division.name, city, office.employees.length);
 	}
 }
 
