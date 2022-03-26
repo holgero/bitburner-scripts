@@ -164,6 +164,13 @@ async function setupDivisionOffice(ns, division) {
 	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
+		if (office.size < 12) {
+			var corp = ns.corporation.getCorporation();
+			if (ns.corporation.getOfficeSizeUpgradeCost( division.name, city, 3) < corp.funds) {
+				ns.corporation.upgradeOfficeSize(division.name, city, 3);
+			}
+			office = ns.corporation.getOffice(division.name, city);
+		}
 		for (var ii = office.employees.length; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
@@ -184,15 +191,15 @@ async function setupDivisionWarehouse(ns, division) {
 				if (materialInfo.qty > 10) {
 					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, 1.0 - 2 * materialInfo.prod);
+					ns.corporation.buyMaterial(division.name, city, material, 0.1 - materialInfo.prod);
 				}
 			}
 		}
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
-		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 5000);
-		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 100);
-		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 50);
+		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 4000);
+		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 200);
+		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 40);
 		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
 	}
 }
@@ -200,10 +207,20 @@ async function setupDivisionWarehouse(ns, division) {
 /** @param {NS} ns **/
 function purchaseAdditionalMaterial(ns, divisionName, city, material, maxAmount) {
 	var info = ns.corporation.getMaterial(divisionName, city, material);
-	if (info.qty < maxAmount) {
-		ns.corporation.buyMaterial(divisionName, city, material, 0.2);
+	var corp = ns.corporation.getCorporation();
+	// only spend on addtl. materials while we don't own the company
+	var canSpend = corp.numShares == 0;
+
+	if (canSpend && info.qty < maxAmount) {
+		ns.corporation.buyMaterial(divisionName, city, material, 0.25);
+		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
 	} else {
 		ns.corporation.buyMaterial(divisionName, city, material, 0);
+		if (info.qty > 1.1 * maxAmount) {
+			ns.corporation.sellMaterial(divisionName, city, material, "0.1", "MP");
+		} else {
+			ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
+		}
 	}
 }
 
