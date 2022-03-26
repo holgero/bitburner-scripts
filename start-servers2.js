@@ -12,6 +12,9 @@ export async function main(ns) {
 				if (result == hostname) {
 					break;
 				}
+				if (victims.length == 1) {
+					break;
+				}
 				if (result != "") {
 					ns.tprintf("Hostname change??? wanted: %s, got: %s", hostname, result);
 					return;
