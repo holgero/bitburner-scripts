@@ -120,6 +120,8 @@ async function workOnGoal(ns, goal, percentage, goals) {
 		if (ns.getPlayer().bitNodeN == 3) {
 			if (!ns.serverExists("pserv-0")) {
 				await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
+				await ns.sleep(10000);
+				continue;
 			}
 			ns.rm("corporation.txt");
 			// on bitnode 3 we'll have to rely on corporation money
