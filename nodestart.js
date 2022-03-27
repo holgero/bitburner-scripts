@@ -16,6 +16,10 @@ export async function main(ns) {
 		// on bitnode 3 we rely completely on the corporation, so make sure that
 		// the corporation script can be run locally
 		await runAndWait(ns, "purchase-ram.js", 2048);
+		var spareRam = Math.ceil(64 + ns.getScriptRam("corporation2.js"));
+		if (!ns.scriptRunning("instrument.js", "home")) {
+			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
+		}
 	} else {
 		// make use of the memory on our home machine
 		if (ns.getServer("home").maxRam > 32) {
