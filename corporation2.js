@@ -76,7 +76,6 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
 	var corporation = ns.corporation.getCorporation();
-
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
 			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
@@ -118,6 +117,10 @@ async function setupCorporation(ns) {
 		await setupDivisionOffice(ns, agri);
 	}
 	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
+			await ns.sleep(500);
+			corporation = ns.corporation.getCorporation();
+		}
 		await setupDivisionWarehouse(ns, agri);
 	}
 }
@@ -169,7 +172,7 @@ async function setupDivisionOffice(ns, division) {
 		var office = ns.corporation.getOffice(division.name, city);
 		if (office.size < 12) {
 			var corp = ns.corporation.getCorporation();
-			if (ns.corporation.getOfficeSizeUpgradeCost( division.name, city, 3) < corp.funds) {
+			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
 			}
 			office = ns.corporation.getOffice(division.name, city);
@@ -197,7 +200,7 @@ async function setupDivisionWarehouse(ns, division) {
 				if (materialInfo.qty > 10) {
 					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, 0.1 - materialInfo.prod);
+					ns.corporation.buyMaterial(division.name, city, material, 0.25 - materialInfo.prod);
 				}
 			}
 		}
