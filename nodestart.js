@@ -1,4 +1,5 @@
 import * as c from "constants.js";
+import { formatMoney } from "helpers.js";
 
 const AUGS_PER_RUN = 7;
 const AUGS_PER_FACTION = 2;
@@ -128,17 +129,23 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			ns.tprintf("Current corporation state: kgv=%d, kuv=%d, owned=%d",
-			 (corporationInfo.revenue - corporationInfo.expenses)/corporationInfo.sharePrice,
-			 corporationInfo.revenue/corporationInfo.sharePrice,
-			 corporationInfo.numShares);
+				(corporationInfo.revenue - corporationInfo.expenses) / corporationInfo.sharePrice,
+				corporationInfo.revenue / corporationInfo.sharePrice,
+				corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (corporationInfo.sharePrice * 15000 > corporationInfo.revenue) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
 				}
 			}
-			if (corporationInfo.numShares < 1e9 && ( corporationInfo.shareSaleCooldown < 12000 || percentage >= 1.0)) {
-				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue || percentage >= 1.0 ) {
-					await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
+			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 || percentage >= 1.0)) {
+				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue || percentage >= 1.0) {
+					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
+					if (needed < ns.getServerMoneyAvailable("home")) {
+						await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
+					} else {
+						ns.tprintf("Want to buy back corporation shares. Need %s, I have %s",
+							formatMoney(needed), formatMoney(ns.getServerMoneyAvailable("home")));
+					}
 				}
 			}
 		} else {
