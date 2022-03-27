@@ -31,6 +31,7 @@ export async function main(ns) {
 		["setup", false],
 		["public", false],
 		["quiet", false],
+		["local", false],
 		["restart", "[]"]]);
 	var processList = JSON.parse(options.restart);
 
@@ -136,7 +137,9 @@ async function printCorporationInfo(ns, corporation, options) {
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
 		", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
 	await ns.write("corporation.txt", JSON.stringify(corporation), "w");
-	await ns.scp("corporation.txt", "home");
+	if (!options.local) {
+		await ns.scp("corporation.txt", "home");
+	}
 }
 
 /** @param {NS} ns **/

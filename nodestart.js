@@ -10,15 +10,21 @@ export async function main(ns) {
 
 	// get all unprotected servers immediately
 	await startHacking(ns);
-	// if we have a corporation we can start this run with some easy money on restart
-	if (ns.getPlayer().playtimeSinceLastAug < 10000) {
-		await runAndWait(ns, "corporation.js", "--milk");
-	}
 
-	// make use of the memory on our home machine
-	if (ns.getServer("home").maxRam > 32) {
-		if (!ns.scriptRunning("instrument.script", "home")) {
-			ns.run("instrument.script", 1, "foodnstuff");
+	if (ns.getPlayer().bitNodeN == 3) {
+		// on bitnode 3 we rely completely on the corporation, so make sure that
+		// the corporation script can be run locally
+		await runAndWait(ns, "purchase-ram.js", 2048);
+	} else {
+		// make use of the memory on our home machine
+		if (ns.getServer("home").maxRam > 32) {
+			if (!ns.scriptRunning("instrument.script", "home")) {
+				ns.run("instrument.script", 1, "foodnstuff");
+			}
+		}
+		// if we have a corporation we can start this run with some easy money on restart
+		if (ns.getPlayer().playtimeSinceLastAug < 10000) {
+			await runAndWait(ns, "corporation.js", "--milk");
 		}
 	}
 
@@ -118,26 +124,17 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			}
 		}
 		if (ns.getPlayer().bitNodeN == 3) {
-			if (!ns.serverExists("pserv-0")) {
-				await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
-				await ns.sleep(10000);
-				continue;
-			}
-			ns.rm("corporation.txt");
 			// on bitnode 3 we'll have to rely on corporation money
-			await runAndWait(ns, "corporation.js", "--quiet", "--setup");
-			while (ns.ls("home", "corporation.txt").length < 1) {
-				await ns.sleep(1000);
-			}
+			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (corporationInfo.sharePrice * 15000 > corporationInfo.revenue) {
-					await runAndWait(ns, "corporation.js", "--sell", corporationInfo.numShares);
+					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
 				}
 			}
 			if (corporationInfo.numShares < 1e9 && corporationInfo.shareSaleCooldown < 12000) {
 				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue) {
-					await runAndWait(ns, "corporation.js", "--buy", 1e9 - corporationInfo.numShares);
+					await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
 				}
 			}
 		} else {
