@@ -31,5 +31,8 @@ export function generateIpAddress(input) {
 }
 
 function isValidOctet(octet) {
-	return 0 < +octet && +octet < 256;
+	if (octet != "0" && octet.charAt(0) == "0") {
+		return false;
+	}
+	return 0 <= +octet && +octet < 256;
 }
