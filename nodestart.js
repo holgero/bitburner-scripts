@@ -121,8 +121,12 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			if (!ns.serverExists("pserv-0")) {
 				await runAndWait(ns, "start-servers.js", "--ram", 2048, "--single");
 			}
+			ns.rm("corporation.txt");
 			// on bitnode 3 we'll have to rely on corporation money
 			await runAndWait(ns, "corporation.js", "--quiet", "--setup");
+			while (ns.ls("home", "corporation.txt").length < 1) {
+				await ns.sleep(1000);
+			}
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (corporationInfo.sharePrice * 15000 > corporationInfo.revenue) {
