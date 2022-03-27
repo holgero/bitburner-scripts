@@ -40,6 +40,9 @@ export async function main(ns) {
 		if (newAugs >= augsBeforeInstall) {
 			// enough augs for this run, add remaining factions with their
 			// properties but a reputation goal of 0
+			if (placeToBe && faction.location && faction.location == faction.name) {
+				if (!isCompatible(placeToBe, faction.location)) continue;
+			}
 			faction_goals.push({ ...faction, reputation: 0 });
 			continue;
 		}
