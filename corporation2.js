@@ -26,8 +26,8 @@ const MP_SELL = "MP";
 export async function main(ns) {
 	var options = ns.flags([
 		["milk", false],
-		["sell", false],
-		["buy", false],
+		["sell", 0],
+		["buy", 0],
 		["setup", false],
 		["public", false],
 		["quiet", false],
@@ -40,11 +40,11 @@ export async function main(ns) {
 		ns.corporation.buyBackShares(1000000000);
 	}
 	if (options.sell) {
-		ns.corporation.sellShares(1000000000);
+		ns.corporation.sellShares(options.sell);
 		ns.corporation.issueDividends(1);
 	}
 	if (options.buy) {
-		ns.corporation.buyBackShares(1000000000);
+		ns.corporation.buyBackShares(options.buy);
 		ns.corporation.issueDividends(0);
 	}
 	if (options.setup) {
