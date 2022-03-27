@@ -272,6 +272,7 @@ async function buffStatsToNeeded(ns, stats) {
 
 /** @param {NS} ns **/
 async function installBackdoorIfNeeded(ns, server, nextProgram) {
+	// ns.tprintf("Install backdoor if needed: %s %d", server, nextProgram);
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
 			ns.getServerNumPortsRequired(server) <= nextProgram) {
@@ -283,6 +284,7 @@ async function installBackdoorIfNeeded(ns, server, nextProgram) {
 /** @param {NS} ns **/
 async function futureGoalConditions(ns, goals, nextProgram) {
 	for (var goal of goals) {
+		// ns.tprintf("Checking future goal %s", goal.name);
 		if (ns.getPlayer().factions.includes(goal.name)) {
 			continue;
 		}
@@ -291,8 +293,8 @@ async function futureGoalConditions(ns, goals, nextProgram) {
 			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {
 					ns.travelToCity(goal.location);
+					return;
 				}
-				return;
 			}
 		}
 	}
