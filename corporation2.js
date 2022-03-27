@@ -185,6 +185,9 @@ async function setupDivisionOffice(ns, division) {
 async function setupDivisionWarehouse(ns, division) {
 	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
+		if (!ns.corporation.hasWarehouse(division.name, city)) {
+			ns.corporation.purchaseWarehouse(division.name, city);
+		}
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
 		} else {
