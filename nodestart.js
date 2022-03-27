@@ -127,13 +127,17 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			// on bitnode 3 we'll have to rely on corporation money
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+			ns.tprintf("Current corporation state: kgv=%d, kuv=%d, owned=%d",
+			 (corporationInfo.revenue - corporationInfo.expenses)/corporationInfo.sharePrice,
+			 corporationInfo.revenue/corporationInfo.sharePrice,
+			 corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (corporationInfo.sharePrice * 15000 > corporationInfo.revenue) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
 				}
 			}
-			if (corporationInfo.numShares < 1e9 && corporationInfo.shareSaleCooldown < 12000) {
-				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue) {
+			if (corporationInfo.numShares < 1e9 && ( corporationInfo.shareSaleCooldown < 12000 || percentage >= 1.0)) {
+				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue || percentage >= 1.0 ) {
 					await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
 				}
 			}
