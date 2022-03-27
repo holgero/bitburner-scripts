@@ -198,7 +198,7 @@ async function setupDivisionWarehouse(ns, division) {
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
 		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
 		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 4000);
-		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 200);
+		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 300);
 		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 40);
 		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
 	}
