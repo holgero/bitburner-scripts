@@ -83,12 +83,18 @@ async function setupCorporation(ns) {
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
 			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
-			corporation.funds -= ns.corporation.getExpandIndustryCost(AGRICULTURE);
+			corporation = ns.corporation.getCorporation();
 		} else {
 			return;
 		}
 	}
-	// this one is needed to increase the popularity over time
+	if (corporation.divisions.length == 1 &&
+		corporation.divisions[0].cities.length >= c.CITIES.length) {
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
+			ns.corporation.expandIndustry(TOBACCO, TOBACCO);
+			corporation = ns.corporation.getCorporation();
+		}
+	}
 	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
 		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
 			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
@@ -154,7 +160,6 @@ async function printCorporationInfo(ns, corporation, options) {
 
 /** @param {NS} ns **/
 function expandDivision(ns, division, corporation) {
-	// ns.tprint("expandDivision");
 	if (division.cities.length >= c.CITIES.length) {
 		return;
 	}
@@ -176,7 +181,7 @@ function expandDivision(ns, division, corporation) {
 async function setupDivisionOffice(ns, division) {
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
-		if (office.size < 12) {
+		if (office.size < 9) {
 			var corp = ns.corporation.getCorporation();
 			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
@@ -195,6 +200,16 @@ async function setupDivisionWarehouse(ns, division) {
 	for (var city of division.cities) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
+		}
+		if (division.type == TOBACCO) {
+			if (division.products.length == 0) {
+				ns.corporation.makeProduct(division.name, c.SECTOR12, DROMEDAR, 1e8, 1e8);
+			}
+			var product = ns.corporation.getProduct(division.name, DROMEDAR);
+			if (product.developmentProgress < 100) {
+				ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
+				return;
+			}
 		}
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
