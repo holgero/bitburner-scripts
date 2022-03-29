@@ -17,10 +17,12 @@ export async function main(ns) {
 		// on bitnode 3 we rely completely on the corporation, so make sure that
 		// the corporation script can be run locally
 		await runAndWait(ns, "purchase-ram.js", 2048);
+		await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 		var spareRam = Math.ceil(64 + ns.getScriptRam("corporation2.js"));
 		if (!ns.scriptRunning("instrument.js", "home")) {
 			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
 		}
+		await runAndWait(ns, "start-servers.js", "--ram", "1024");
 	} else {
 		// make use of the memory on our home machine
 		if (ns.getServer("home").maxRam > 32) {
