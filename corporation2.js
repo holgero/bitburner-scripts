@@ -138,9 +138,9 @@ async function printCorporationInfo(ns, corporation, options) {
 		ns.tprintf("Corporation info: %s", corporation.name);
 		ns.tprintf("%20s: %10s", "Current funds", formatMoney(corporation.funds));
 		ns.tprintf("%20s: %10s", "Current profit", formatMoney(profit));
+		ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
+			corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	}
-	ns.tprintf("%20s: %10s %s", "Current share price", formatMoney(corporation.sharePrice),
-		corporation.shareSaleCooldown > 0 ? Math.ceil(corporation.shareSaleCooldown / 5) + " s cooldown" : "");
 	ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
 		", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
 	await ns.write("corporation.txt", JSON.stringify(corporation), "w");
@@ -171,7 +171,6 @@ function expandDivision(ns, division, corporation) {
 
 /** @param {NS} ns **/
 async function setupDivisionOffice(ns, division) {
-	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
 		if (office.size < 12) {
@@ -190,7 +189,6 @@ async function setupDivisionOffice(ns, division) {
 
 /** @param {NS} ns **/
 async function setupDivisionWarehouse(ns, division) {
-	// ns.tprint("setupDivision");
 	for (var city of division.cities) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
