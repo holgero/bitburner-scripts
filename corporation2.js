@@ -5,6 +5,8 @@ const AGRICULTURE = "Agriculture";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
+const SMART_FACTORIES = "Smart Factories";
+const SMART_STORAGE = "Smart Storage";
 const DREAM_SENSE = "DreamSense";
 const OPERATIONS = "Operations";
 const ENGINEER = "Engineer";
@@ -85,11 +87,13 @@ async function setupCorporation(ns) {
 		}
 	}
 	// this one is needed to increase the popularity over time
-	if (ns.corporation.getUpgradeLevel(DREAM_SENSE) < 1) {
-		var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
-		if (corporation.funds > cost) {
-			ns.corporation.levelUpgrade(DREAM_SENSE);
-			corporation.funds -= cost;
+	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
+		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
+			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
+			if (corporation.funds > cost) {
+				ns.corporation.levelUpgrade(upgrade);
+				corporation.funds -= cost;
+			}
 		}
 	}
 	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
