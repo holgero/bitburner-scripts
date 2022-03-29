@@ -198,12 +198,23 @@ async function setupDivisionWarehouse(ns, division) {
 		} else {
 			for (var material of [WATER, ENERGY]) {
 				var materialInfo = ns.corporation.getMaterial(division.name, city, material);
-				// ns.tprintf("material %s in %s: %s", material, city, JSON.stringify(materialInfo));
-				if (materialInfo.qty > 10) {
-					ns.corporation.buyMaterial(division.name, city, material, -materialInfo.prod);
+				var materialToBuy = -materialInfo.prod;
+				if (materialInfo.qty > 100) {
+					// too much
+					materialToBuy -= 1;
+				} else if (materialInfo.qty > 80) {
+					// still reduce
+					materialToBuy -= 0.25;
+				} else if (materialInfo.qty > 20) {
+					// this is fine
+				} else if (materialInfo.qty > 10) {
+					// a bit need more
+					materialToBuy += 0.25;
 				} else {
-					ns.corporation.buyMaterial(division.name, city, material, 0.25 - materialInfo.prod);
+					// get going!
+					materialToBuy += 1.0;
 				}
+				ns.corporation.buyMaterial(division.name, city, material, materialToBuy);
 			}
 		}
 		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
