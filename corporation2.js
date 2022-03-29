@@ -100,7 +100,7 @@ async function setupCorporation(ns) {
 			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
 			if (corporation.funds > cost) {
 				ns.corporation.levelUpgrade(upgrade);
-				corporation.funds -= cost;
+				corporation = ns.corporation.getCorporation();
 			}
 		}
 	}
@@ -109,7 +109,7 @@ async function setupCorporation(ns) {
 			var cost = ns.corporation.getUnlockUpgradeCost(unlock);
 			if (cost < corporation.funds) {
 				ns.corporation.unlockUpgrade(unlock);
-				corporation.funds -= cost;
+				corporation = ns.corporation.getCorporation();
 			}
 		}
 	}
@@ -119,12 +119,13 @@ async function setupCorporation(ns) {
 				var cost = ns.corporation.getHireAdVertCost(division.name);
 				if (corporation.funds > cost) {
 					ns.corporation.hireAdVert(division.name);
-					corporation.funds -= cost;
+					corporation = ns.corporation.getCorporation();
 				}
 			}
 			if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 				// only expand if we can manage it completely
 				expandDivision(ns, division, corporation);
+				corporation = ns.corporation.getCorporation();
 			}
 			await setupDivisionOffice(ns, division);
 		}
@@ -191,6 +192,7 @@ async function setupDivisionOffice(ns, division) {
 		for (var ii = office.employees.length; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
+		office = ns.corporation.getOffice(division.name, city);
 		await distributeEmployees(ns, division.name, city, office.employees.length);
 	}
 }
@@ -241,6 +243,7 @@ async function setupDivisionWarehouse(ns, division) {
 					// get going!
 					materialToBuy += 1.0;
 				}
+				materialToBuy = Math.max(0, materialToBuy);
 				ns.corporation.buyMaterial(division.name, city, material, materialToBuy);
 			}
 		}
