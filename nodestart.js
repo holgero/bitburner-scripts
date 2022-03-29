@@ -133,22 +133,24 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			// on bitnode 3 we'll have to rely on corporation money
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-			ns.tprintf("Current corporation state: kgv=%d, kuv=%d, owned=%d",
-				(corporationInfo.revenue - corporationInfo.expenses) / corporationInfo.sharePrice,
-				corporationInfo.revenue / corporationInfo.sharePrice,
-				corporationInfo.numShares);
+			var profit = corporationInfo.revenue - corporationInfo.expenses;
+			var rps = Math.floor(corporationInfo.revenue / corporationInfo.sharePrice / 1000);
+			ns.tprintf("Current corporation state: share=%s, profit=%s, rps=%d, cool=%d s, owned=%d",
+				formatMoney(corporationInfo.sharePrice), formatMoney(profit), rps,
+				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (corporationInfo.sharePrice * 15000 > corporationInfo.revenue) {
+				if (rps < 15) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
 				}
 			}
-			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 || percentage >= 1.0)) {
-				if (corporationInfo.sharePrice * 12500 < corporationInfo.revenue || percentage >= 1.0) {
+			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 ||
+				percentage >= 1.0)) {
+				if (rps > 12 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
 						await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
 					} else {
-						ns.tprintf("Want to buy back corporation shares. Need %s, I have %s",
+						ns.tprintf("Want to buy back corporation shares. Need %s, have %s",
 							formatMoney(needed), formatMoney(ns.getServerMoneyAvailable("home")));
 					}
 				}
@@ -188,7 +190,8 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				ns.stopAction();
 				if (ns.getServerMoneyAvailable("home") > 150000000000) {
 					await runAndWait(ns, "donate-faction.js",
-						goal.name, percentage * goal.reputation, ns.getServerMoneyAvailable("home") - 100000000000);
+						goal.name, percentage * goal.reputation,
+						ns.getServerMoneyAvailable("home") - 100000000000);
 				}
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
