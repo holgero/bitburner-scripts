@@ -2,6 +2,7 @@ import { formatMoney } from "./helpers.js";
 import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
+const TOBACCO = "Tobacco";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
@@ -21,6 +22,7 @@ const HARDWARE = "Hardware";
 const ROBOTS = "Robots";
 const AI_CORES = "AI Cores";
 const REALESTATE = "Real Estate";
+const DROMEDAR = "Dromedar";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 
@@ -105,27 +107,28 @@ async function setupCorporation(ns) {
 			}
 		}
 	}
-	var agri = ns.corporation.getDivision(AGRICULTURE);
-	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
-		if (ns.corporation.getHireAdVertCount(agri.name) < 1) {
-			var cost = ns.corporation.getHireAdVertCost(agri.name);
-			if (corporation.funds > cost) {
-				ns.corporation.hireAdVert(agri.name);
-				corporation.funds -= cost;
+	for (var division of corporation.divisions) {
+		if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+			if (ns.corporation.getHireAdVertCount(division.name) < 1) {
+				var cost = ns.corporation.getHireAdVertCost(division.name);
+				if (corporation.funds > cost) {
+					ns.corporation.hireAdVert(division.name);
+					corporation.funds -= cost;
+				}
 			}
+			if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+				// only expand if we can manage it completely
+				expandDivision(ns, division, corporation);
+			}
+			await setupDivisionOffice(ns, division);
 		}
 		if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
-			// only expand if we can manage it completely
-			expandDivision(ns, agri, corporation);
+			while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
+				await ns.sleep(500);
+				corporation = ns.corporation.getCorporation();
+			}
+			await setupDivisionWarehouse(ns, division);
 		}
-		await setupDivisionOffice(ns, agri);
-	}
-	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
-		while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
-			await ns.sleep(500);
-			corporation = ns.corporation.getCorporation();
-		}
-		await setupDivisionWarehouse(ns, agri);
 	}
 }
 
@@ -196,7 +199,16 @@ async function setupDivisionWarehouse(ns, division) {
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
 		} else {
-			for (var material of [WATER, ENERGY]) {
+			var materials = [];
+			switch (division.type) {
+				case AGRICULTURE:
+					materials = [WATER, ENERGY];
+					break;
+				case TOBACCO:
+					materials = [WATER, PLANTS];
+					break;
+			}
+			for (var material of materials) {
 				var materialInfo = ns.corporation.getMaterial(division.name, city, material);
 				var materialToBuy = -materialInfo.prod;
 				if (materialInfo.qty > 100) {
@@ -217,28 +229,37 @@ async function setupDivisionWarehouse(ns, division) {
 				ns.corporation.buyMaterial(division.name, city, material, materialToBuy);
 			}
 		}
-		ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
-		ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
-		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 4000);
-		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 300);
-		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 40);
-		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 200);
+		switch (division.type) {
+			case AGRICULTURE:
+				ns.corporation.sellMaterial(division.name, city, FOOD, MAX_SELL, MP_SELL);
+				ns.corporation.sellMaterial(division.name, city, PLANTS, MAX_SELL, MP_SELL);
+				break;
+			case TOBACCO:
+				ns.corporation.sellProduct(division.name, city, DROMEDAR, MAX_SELL, MP_SELL);
+				break;
+		}
+		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000);
+		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250);
+		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25);
+		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150);
 	}
 }
 
 /** @param {NS} ns **/
-function purchaseAdditionalMaterial(ns, divisionName, city, material, maxAmount) {
+function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount) {
+	var amount = baseAmount * ns.corporation.getWarehouse(divisionName, city).level;
+	// ns.tprintf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
 	var info = ns.corporation.getMaterial(divisionName, city, material);
 	var corp = ns.corporation.getCorporation();
 	// only spend on addtl. materials while we don't own the company
 	var canSpend = corp.numShares == 0;
 
-	if (canSpend && info.qty < maxAmount) {
+	if (canSpend && info.qty < amount) {
 		ns.corporation.buyMaterial(divisionName, city, material, 0.25);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
 	} else {
 		ns.corporation.buyMaterial(divisionName, city, material, 0);
-		if (info.qty > 1.1 * maxAmount) {
+		if (info.qty > 1.1 * amount) {
 			ns.corporation.sellMaterial(divisionName, city, material, "0.1", "MP");
 		} else {
 			ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
