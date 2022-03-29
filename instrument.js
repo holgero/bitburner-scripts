@@ -72,9 +72,12 @@ export async function main(ns) {
 		serverData.growThreads = Math.max(0, serverData.growThreads);
 		if (serverData.growThreads * ns.getScriptRam(GROW_SCRIPT) +
 			serverData.weakenThreads * ns.getScriptRam(WEAKEN_SCRIPT) > availableRam) {
-			serverData.growThreads = Math.floor(
+			serverData.growThreads = Math.max(0, Math.floor(
 				(availableRam - serverData.weakenThreads * ns.getScriptRam(WEAKEN_SCRIPT))
-				/ ns.getScriptRam(GROW_SCRIPT));
+				/ ns.getScriptRam(GROW_SCRIPT)));
+			serverData.weakenThreads = Math.max(0, Math.floor(
+				(availableRam - serverData.growThreads * ns.getScriptRam(GROW_SCRIPT))
+				/ ns.getScriptRam(WEAKEN_SCRIPT)));
 		}
 		ns.scriptKill(WEAKEN_SCRIPT, "home");
 		ns.scriptKill(GROW_SCRIPT, "home");
