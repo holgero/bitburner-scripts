@@ -133,7 +133,8 @@ async function findAndSolveContracts(ns, server) {
 					continue;
 			}
 
-			ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, JSON.stringify(data), JSON.stringify(solution));
+			// ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, JSON.stringify(data), JSON.stringify(solution));
+			ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, contract, JSON.stringify(data));
 			ns.spawn("solve_contract2.js", 1, server, contract, JSON.stringify(solution));
 		}
 	}

@@ -14,10 +14,11 @@ function usage(ns) {
 
 /** @param {NS} ns **/
 async function solveContract(ns, server, filename, solution) {
-	ns.tprintf("solution '%s' for contract '%s' on server '%s'", JSON.stringify(solution), filename, server);
+	// ns.tprintf("solution '%s' for contract '%s' on server '%s'",
+	// 	JSON.stringify(solution), filename, server);
 	var result = ns.codingcontract.attempt(solution, filename, server, { returnReward: true });
 	if (result == "") {
-		ns.tprint("FAILED");
+		ns.tprint("Contract FAILED");
 	} else {
 		ns.tprintf("Success, reward: %s", result);
 	}
