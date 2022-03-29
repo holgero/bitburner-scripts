@@ -15,10 +15,10 @@ const STORY_LINE = [
 	{ name: c.NITESEC, backdoor: "avmnite-02h", work: c.HACKING, location: "" },
 	{ name: c.BLACK_HAND, backdoor: "I.I.I.I", work: c.HACKING, location: "" },
 	{ name: c.BITRUNNERS, backdoor: "run4theh111z", work: c.HACKING, location: "" },
-	{ name: c.SPEAKERS, backdoor: "", money: 0, stats: 300, work: c.HACKING, location: "" },
+	{ name: c.SYNDICATE, backdoor: "", money: 10000000, stats: 200, work: c.HACKING, location: c.SECTOR12 },
 	{ name: c.ECORP, backdoor: "", company: true, money: 0, stats: 0, work: c.HACKING, location: "" },
-	{ name: c.SYNDICATE, backdoor: "", money: 10000000, stats: 300, work: c.HACKING, location: c.SECTOR12 },
 	{ name: c.NWO, backdoor: "", company: true, money: 0, stats: 0, work: c.HACKING, location: "" },
+	{ name: c.SPEAKERS, backdoor: "", money: 0, stats: 300, work: c.HACKING, location: "" },
 	{ name: c.DAEDALUS, backdoor: "", money: 100000000000, work: c.HACKING, location: "" }
 ];
 
@@ -26,6 +26,7 @@ const STORY_LINE = [
 export async function main(ns) {
 	const augsBeforeInstall = +ns.args[0];
 	const augsPerFaction = +ns.args[1];
+	const factionsBeforeInstall = +ns.args[2];
 	const faction_augmentations = [];
 	buildDatabase(ns, faction_augmentations, STORY_LINE);
 	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
@@ -34,10 +35,11 @@ export async function main(ns) {
 
 	var faction_goals = [];
 	var newAugs = 0;
+	var factionsToJoin = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
 	for (var faction of faction_augmentations) {
-		if (newAugs >= augsBeforeInstall) {
+		if ((newAugs >= augsBeforeInstall) || (factionsToJoin >= factionsBeforeInstall)) {
 			// enough augs for this run, add remaining factions with their
 			// properties but a reputation goal of 0
 			if (placeToBe && faction.location && faction.location == faction.name) {
@@ -67,7 +69,7 @@ export async function main(ns) {
 		}
 		if (faction.name == c.DAEDALUS) {
 			if (ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
-				// try to get to favor 150 as soon as possible
+				// try to get to favor for donating as soon as possible
 				repToReach = Math.max(repToReach, reputationNeeded(ns, faction.name));
 			} else {
 				// reach the red pill
@@ -79,6 +81,7 @@ export async function main(ns) {
 				newAugs++;
 			}
 		}
+		factionsToJoin++;
 		faction_goals.push({ ...faction, reputation: repToReach });
 	}
 	// ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));

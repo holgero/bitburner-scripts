@@ -3,6 +3,7 @@ import { formatMoney } from "helpers.js";
 
 const AUGS_PER_RUN = 7;
 const AUGS_PER_FACTION = 2;
+const FACTIONS_PER_RUN = 8;
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -41,7 +42,7 @@ export async function main(ns) {
 			augsPerRun += 3;
 			augsPerFaction++;
 		}
-		await runAndWait(ns, "calculate-goals.js", augsPerRun, augsPerFaction);
+		await runAndWait(ns, "calculate-goals.js", augsPerRun, augsPerFaction, FACTIONS_PER_RUN);
 	}
 	await runAndWait(ns, "print_goals.js");
 
