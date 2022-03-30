@@ -22,7 +22,9 @@ export async function main(ns) {
 		if (!ns.scriptRunning("instrument.js", "home")) {
 			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
 		}
-		await runAndWait(ns, "start-servers.js", "--ram", "1024");
+		if (ns.getServerMoneyAvailable("home") > 1e10) {
+			await runAndWait(ns, "start-servers.js", "--ram", "1024");
+		}
 	} else {
 		// make use of the memory on our home machine
 		if (ns.getServer("home").maxRam > 32) {
