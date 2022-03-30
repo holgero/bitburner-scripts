@@ -22,7 +22,7 @@ export async function main(ns) {
 		if (!ns.scriptRunning("instrument.js", "home")) {
 			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
 		}
-		if (ns.getServerMoneyAvailable("home") > 1e10) {
+		if (ns.getServerMoneyAvailable("home") > 15e9) {
 			await runAndWait(ns, "start-servers.js", "--ram", "1024");
 		}
 	} else {
@@ -43,6 +43,12 @@ export async function main(ns) {
 		var augsPerFaction = AUGS_PER_FACTION;
 		if (ns.getServerMoneyAvailable("home") > 1e12) {
 			// a profitable factory means bigger goals
+			augsPerRun += 3;
+			augsPerFaction++;
+		} else if (ns.getPlayer().playtimeSinceLastBitnode < 60000 &&
+			ns.getPlayer().bitNodeN == 3 && ns.getServerMoneyAvailable("home") > 50e9) {
+			// started fresh on bitnode 3 with a lot of money, make this first run
+			// longer
 			augsPerRun += 3;
 			augsPerFaction++;
 		}
