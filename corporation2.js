@@ -30,8 +30,8 @@ const MP_SELL = "MP";
 export async function main(ns) {
 	var options = ns.flags([
 		["milk", false],
-		["sell", 0],
-		["buy", 0],
+		["sell", false],
+		["buy", false],
 		["setup", false],
 		["public", false],
 		["quiet", false],
@@ -45,12 +45,13 @@ export async function main(ns) {
 		ns.corporation.buyBackShares(1000000000);
 	}
 	if (options.sell) {
-		ns.corporation.sellShares(options.sell);
+		ns.corporation.sellShares(ns.corporation.getCorporation().numShares);
 		ns.corporation.issueDividends(1);
 	}
 	if (options.buy) {
-		ns.corporation.buyBackShares(options.buy);
 		ns.corporation.issueDividends(0);
+		await stopBuying(ns);
+		ns.corporation.buyBackShares(ns.corporation.getCorporation().issuedShares);
 	}
 	if (options.setup) {
 		var player = ns.getPlayer();
@@ -140,9 +141,41 @@ async function setupCorporation(ns) {
 }
 
 /** @param {NS} ns **/
+async function stopBuying(ns) {
+	var corporation = ns.corporation.getCorporation();
+	if (!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		return;
+	}
+	while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
+		await ns.sleep(500);
+		corporation = ns.corporation.getCorporation();
+	}
+	for (var division of corporation.divisions) {
+		for (var city of division.cities) {
+			if (!ns.corporation.hasWarehouse(division.name, city)) {
+				continue;
+			}
+			for (var material of [WATER, ENERGY, PLANTS, REALESTATE, HARDWARE, ROBOTS, AI_CORES]) {
+				ns.corporation.buyMaterial(division.name, city, material, 0);
+			}
+		}
+	}
+	while (corporation.state != "START") {
+		await ns.sleep(500);
+		corporation = ns.corporation.getCorporation();
+	}
+	while (corporation.state == "START") {
+		await ns.sleep(500);
+		corporation = ns.corporation.getCorporation();
+	}
+	while (corporation.state != "START") {
+		await ns.sleep(500);
+		corporation = ns.corporation.getCorporation();
+	}
+}
+
+/** @param {NS} ns **/
 async function printCorporationInfo(ns, corporation, options) {
-	// ns.tprint("printCorporationInfo");
-	// ns.tprintf("Corporation info: %s", JSON.stringify(corporation));
 	var profit = corporation.revenue - corporation.expenses;
 	if (!options.quiet) {
 		ns.tprintf("Corporation info: %s", corporation.name);

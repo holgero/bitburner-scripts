@@ -150,7 +150,7 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (rps < 12) {
-					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
+					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
 			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 ||
@@ -158,7 +158,7 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				if (rps > 15 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
-						await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
+						await runAndWait(ns, "corporation2.js", "--local", "--buy");
 					} else {
 						ns.tprintf("Want to buy back corporation shares. Need %s, have %s",
 							formatMoney(needed), formatMoney(ns.getServerMoneyAvailable("home")));
