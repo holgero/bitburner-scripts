@@ -182,7 +182,10 @@ function expandDivision(ns, division, corporation) {
 async function setupDivisionOffice(ns, division) {
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
-		if (office.size < 9) {
+		// increase size of headquarters only after being present in all cities
+		if (division.cities.length == c.CITIES.length &&
+			city == c.SECTOR12 &&
+			office.size < 12) {
 			var corp = ns.corporation.getCorporation();
 			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
