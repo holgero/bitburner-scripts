@@ -46,7 +46,7 @@ export async function main(ns) {
 			augsPerRun += 3;
 			augsPerFaction++;
 		} else if (ns.getPlayer().playtimeSinceLastBitnode < 60000 &&
-			ns.getPlayer().bitNodeN == 3 && ns.getServerMoneyAvailable("home") > 50e9) {
+			ns.getPlayer().bitNodeN == 3 && ns.getServerMoneyAvailable("home") > 15e9) {
 			// started fresh on bitnode 3 with a lot of money, make this first run
 			// longer
 			augsPerRun += 3;
@@ -149,13 +149,13 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				formatMoney(corporationInfo.sharePrice), formatMoney(profit), rps,
 				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (rps < 15) {
+				if (rps < 12) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell", corporationInfo.numShares);
 				}
 			}
 			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 ||
 				percentage >= 1.0)) {
-				if (rps > 12 || percentage >= 1.0) {
+				if (rps > 15 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
 						await runAndWait(ns, "corporation2.js", "--local", "--buy", 1e9 - corporationInfo.numShares);
