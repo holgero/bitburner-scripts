@@ -75,7 +75,7 @@ async function addPossibleAugmentations(ns, factions, toPurchase, haveAug) {
 			}
 			toPurchase.push({ name: augmentation, sortc: sortc, required: requiredAugs });
 		}
-		await ns.sleep(100);
+		// await ns.sleep(100);
 	}
 	// ns.tprintf("Augs: %s", JSON.stringify(toPurchase))
 }
