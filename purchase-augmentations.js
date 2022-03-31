@@ -5,17 +5,20 @@ export async function main(ns) {
 	var options = ns.flags([["reboot", false]]);
 	var toPurchase = JSON.parse(options._[0]);
 	var governor_faction = options._[1];
+	var moreOptions = JSON.parse(options._[2]);
 
 	ns.tprintf("Augmentations to buy: %v", toPurchase);
 	ns.tprintf("Faction to buy governors from: %s", governor_faction);
 
 	for (var augmentation of toPurchase) {
-		for (var ii = 0; ii < 10; ii++) {
-			if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
-				ns.tprintf("Can't afford %s yet, waiting...", augmentation);
-				if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
-				await ns.sleep(60000);
+		if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
+			if (moreOptions.affordable) {
+				ns.tprintf("Can't afford %s", augmentation);
+				continue;
 			}
+			ns.tprintf("Can't afford %s yet, waiting...", augmentation);
+			if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
+			await ns.sleep(60000);
 		}
 		if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
 			ns.tprintf("Can't afford %s, giving up.", augmentation);

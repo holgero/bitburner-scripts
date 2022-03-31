@@ -7,10 +7,6 @@ export async function main(ns) {
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	var toPurchase = [];
 	await getAugmentationsToPurchase(ns, factions, toPurchase);
-	if (options.affordable) {
-		var money = ns.getServerMoneyAvailable("home");
-		toPurchase = toPurchase.filter(a => ns.getAugmentationPrice(a) < money);
-	}
 
 	var governor_faction;
 	var maxRep = 0;
@@ -27,6 +23,6 @@ export async function main(ns) {
 	ns.tprintf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
 	if (options.run_purchase) {
 		ns.spawn("purchase-augmentations.js", 1, JSON.stringify(toPurchase),
-			governor_faction, "--reboot");
+			governor_faction, "--reboot", JSON.stringify(options));
 	}
 }
