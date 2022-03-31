@@ -292,10 +292,20 @@ async function setupDivisionWarehouse(ns, division) {
 				ns.corporation.sellProduct(division.name, city, DROMEDAR, MAX_SELL, MP_SELL);
 				break;
 		}
-		purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000);
-		purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250);
-		purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25);
-		purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150);
+		var buying = false;
+		buying ||= purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000);
+		buying ||= purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250);
+		buying ||= purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25);
+		buying ||= purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150);
+		// if the warehouse is full and we are currently allowed to spend
+		// think about a warehouse expansion
+		if (!buying && ns.corporation.getCorporation().numShares == 0) {
+			if (ns.corporation.getWarehouse(division.name, city).level <
+				division.cities.length && ns.corporation.getCorporation().funds <
+				ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
+				ns.corporation.upgradeWarehouse(division.name, city);
+			}
+		}
 	}
 }
 
@@ -311,14 +321,15 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	if (canSpend && info.qty < amount) {
 		ns.corporation.buyMaterial(divisionName, city, material, 0.25);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
-	} else {
-		ns.corporation.buyMaterial(divisionName, city, material, 0);
-		if (info.qty > 1.1 * amount) {
-			ns.corporation.sellMaterial(divisionName, city, material, "0.1", "MP");
-		} else {
-			ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
-		}
+		return true;
 	}
+	ns.corporation.buyMaterial(divisionName, city, material, 0);
+	if (info.qty > 1.1 * amount) {
+		ns.corporation.sellMaterial(divisionName, city, material, "0.1", "MP");
+	} else {
+		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
+	}
+	return false;
 }
 
 /** @param {NS} ns **/
