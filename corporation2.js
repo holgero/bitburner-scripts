@@ -323,7 +323,7 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var canSpend = corp.numShares == 0;
 
 	if (canSpend && info.qty < amount) {
-		ns.corporation.buyMaterial(divisionName, city, material, 0.25);
+		ns.corporation.buyMaterial(divisionName, city, material, baseAmount/500.0);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
 		return true;
 	}
