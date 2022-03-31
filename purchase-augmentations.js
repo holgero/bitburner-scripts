@@ -16,12 +16,11 @@ export async function main(ns) {
 				ns.tprintf("Can't afford %s", augmentation);
 				continue;
 			}
+		}
+		while (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
 			ns.tprintf("Can't afford %s yet, waiting...", augmentation);
 			if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
 			await ns.sleep(60000);
-		}
-		if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
-			ns.tprintf("Can't afford %s, giving up.", augmentation);
 		}
 		for (var faction of ns.getPlayer().factions) {
 			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
