@@ -1,10 +1,6 @@
 import * as c from "constants.js";
 import { formatMoney } from "helpers.js";
 
-const AUGS_PER_RUN = 7;
-const AUGS_PER_FACTION = 2;
-const FACTIONS_PER_RUN = 8;
-
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["restart", false]]);
@@ -22,9 +18,6 @@ export async function main(ns) {
 		if (!ns.scriptRunning("instrument.js", "home")) {
 			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
 		}
-		if (ns.getServerMoneyAvailable("home") > 15e9) {
-			await runAndWait(ns, "start-servers.js", "--ram", "1024");
-		}
 	} else {
 		// make use of the memory on our home machine
 		if (ns.getServer("home").maxRam > 32) {
@@ -32,27 +25,15 @@ export async function main(ns) {
 				ns.run("instrument.js", 1, "foodnstuff");
 			}
 		}
+	}
+
+	if (!options.restart) {
 		// if we have a corporation we can start this run with some easy money on restart
 		if (ns.getPlayer().playtimeSinceLastAug < 10000) {
 			await runAndWait(ns, "corporation.js", "--milk");
 		}
-	}
-
-	if (!options.restart) {
-		var augsPerRun = AUGS_PER_RUN;
-		var augsPerFaction = AUGS_PER_FACTION;
-		if (ns.getServerMoneyAvailable("home") > 1e12) {
-			// a profitable factory means bigger goals
-			augsPerRun += 3;
-			augsPerFaction++;
-		} else if (ns.getPlayer().playtimeSinceLastBitnode < 60000 &&
-			ns.getPlayer().bitNodeN == 3 && ns.getServerMoneyAvailable("home") > 15e9) {
-			// started fresh on bitnode 3 with a lot of money, make this first run
-			// longer
-			augsPerRun += 3;
-			augsPerFaction++;
-		}
-		await runAndWait(ns, "calculate-goals.js", augsPerRun, augsPerFaction, FACTIONS_PER_RUN);
+		// determine goals for this run
+		await runAndWait(ns, "calculate-goals.js");
 	}
 	await runAndWait(ns, "print_goals.js");
 
@@ -166,26 +147,31 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				}
 			}
 		} else {
-			// upgrade server farm
-			if (nextProgram > 3) {
-				// but not during the last round
-				if (percentage < 1.0) {
-					if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
-						// start as big as possible
-						while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
-							nextServerRam *= 2;
-						}
-						await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
-						// only upgrade in bigger steps
-						nextServerRam *= 8;
-						await runAndWait(ns, "start-hacknet.js", 8);
-					}
-				}
-			}
 			if (nextProgram > 4) {
 				await runAndWait(ns, "corporation.js", "--quiet", "--setup");
 			}
 		}
+		// upgrade server farm
+		if (nextProgram > 3) {
+			// but not during the last round
+			if (percentage < 1.0) {
+				if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
+					// start as big as possible
+					while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
+						nextServerRam *= 2;
+					}
+					if (ns.getPlayer().bitNodeN == 3) {
+						// do not spend too much on servers on corporation bitnode
+						nextServerRam = Math.min(1024, nextServerRam);
+					}
+					await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
+					// only upgrade in bigger steps
+					nextServerRam *= 8;
+					await runAndWait(ns, "start-hacknet.js", 8);
+				}
+			}
+		}
+
 		var backdoor = goal.backdoor;
 		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
 		// how to spend our time

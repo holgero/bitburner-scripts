@@ -1,3 +1,4 @@
+import { getAugmentationsToPurchase, formatMoney } from "helpers.js";
 import * as c from "constants.js";
 
 const STORY_LINE = [
@@ -22,11 +23,12 @@ const STORY_LINE = [
 	{ name: c.DAEDALUS, backdoor: "", money: 100000000000, work: c.HACKING, location: "" }
 ];
 
+const AUGS_PER_RUN = 7;
+const FACTIONS_PER_RUN = 8;
+
 /** @param {NS} ns **/
 export async function main(ns) {
-	const augsBeforeInstall = +ns.args[0];
-	const augsPerFaction = +ns.args[1];
-	const factionsBeforeInstall = +ns.args[2];
+	var augsBeforeInstall = AUGS_PER_RUN;
 	const faction_augmentations = [];
 	buildDatabase(ns, faction_augmentations, STORY_LINE);
 	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
@@ -34,6 +36,38 @@ export async function main(ns) {
 	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
 	var faction_goals = [];
+	calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals);
+	var toPurchase = [];
+	await getAugmentationsToPurchase(ns, faction_goals, toPurchase);
+
+	while (estimatePrice(ns, toPurchase) < ns.getServerMoneyAvailable("home")) {
+		// ns.tprintf("Would spend %s on %d augmentations (%s)",
+		// 	formatMoney(estimatePrice(ns, toPurchase)), augsBeforeInstall, toPurchase);
+		await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
+		faction_goals = [];
+		calculateGoals(ns, faction_augmentations, ++augsBeforeInstall, faction_goals);
+		toPurchase = [];
+		await getAugmentationsToPurchase(ns, faction_goals, toPurchase);
+	}
+}
+
+/** @param {NS} ns **/
+function estimatePrice(ns, toPurchase) {
+	var sum = 0;
+	var factor = 1.0;
+	for (var augmentation of toPurchase) {
+		var toPay = factor * ns.getAugmentationPrice(augmentation);
+		sum += toPay;
+		factor = factor * 1.9;
+	}
+	return sum;
+}
+
+/** @param {NS} ns **/
+export async function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
+	const augsPerFaction = Math.floor(augsBeforeInstall / 3);
+	const factionsBeforeInstall = FACTIONS_PER_RUN;
+
 	var newAugs = 0;
 	var factionsToJoin = 0;
 	var placeToBe = "";
@@ -85,7 +119,6 @@ export async function main(ns) {
 		faction_goals.push({ ...faction, reputation: repToReach });
 	}
 	// ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));
-	await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
 }
 
 function isCompatible(city1, city2) {
@@ -102,7 +135,11 @@ function buildDatabase(ns, faction_augmentations, factions) {
 	for (var faction of factions) {
 		var augmentations = ns.getAugmentationsFromFaction(faction.name).
 			filter(a => !ignore.includes(a)).
-			map(a => ({ augmentation: a, reputation: ns.getAugmentationRepReq(a) }));
+			map(a => ({
+				augmentation: a,
+				reputation: ns.getAugmentationRepReq(a),
+				price: ns.getAugmentationPrice(a)
+			}));
 		if (augmentations.length > 0) {
 			augmentations.sort((a, b) => a.reputation - b.reputation);
 			faction_augmentations.push({ ...faction, augmentations: augmentations });
