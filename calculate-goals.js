@@ -37,18 +37,36 @@ export async function main(ns) {
 
 	var faction_goals = [];
 	calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals);
+	await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
 	var toPurchase = [];
 	await getAugmentationsToPurchase(ns, faction_goals, toPurchase);
 
-	while (estimatePrice(ns, toPurchase) < ns.getServerMoneyAvailable("home")) {
+	while (estimatePrice(ns, toPurchase) + estimateDonations(ns, faction_goals) <
+		ns.getServerMoneyAvailable("home")) {
 		// ns.tprintf("Would spend %s on %d augmentations (%s)",
 		// 	formatMoney(estimatePrice(ns, toPurchase)), augsBeforeInstall, toPurchase);
 		await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
 		faction_goals = [];
 		calculateGoals(ns, faction_augmentations, ++augsBeforeInstall, faction_goals);
-		toPurchase = [];
-		await getAugmentationsToPurchase(ns, faction_goals, toPurchase);
+		var newToPurchase = [];
+		await getAugmentationsToPurchase(ns, faction_goals, newToPurchase);
+		if (newToPurchase.length == toPurchase.length) {
+			break;
+		}
+		toPurchase = newToPurchase;
 	}
+}
+
+/** @param {NS} ns **/
+function estimateDonations(ns, faction_goals) {
+	var sum = 0;
+	var mult = ns.getPlayer().faction_rep_mult;
+	for (var goal of faction_goals) {
+		if (ns.getFactionFavor(goal.name) > ns.getFavorToDonate()) {
+			sum += 1e6 * goal.reputation / mult;
+		}
+	}
+	return sum;
 }
 
 /** @param {NS} ns **/
