@@ -10,10 +10,15 @@ export async function main(ns) {
 	ns.tprintf("Faction to buy governors from: %s", governor_faction);
 
 	for (var augmentation of toPurchase) {
-		while (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
-			ns.tprintf("Can't afford %s yet, waiting...", augmentation);
-			if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
-			await ns.sleep(60000);
+		for (var ii = 0; ii < 10; ii++) {
+			if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
+				ns.tprintf("Can't afford %s yet, waiting...", augmentation);
+				if (!ns.isBusy()) ns.run("commit-crimes.js", 1);
+				await ns.sleep(60000);
+			}
+		}
+		if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
+			ns.tprintf("Can't afford %s, giving up.", augmentation);
 		}
 		for (var faction of ns.getPlayer().factions) {
 			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {

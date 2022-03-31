@@ -3,10 +3,14 @@ import { getAugmentationsToPurchase } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["run_purchase", false]]);
-	var factions = ns.getPlayer().factions.map( f => ({name:f, reputation:ns.getFactionRep(f)}));
+	var options = ns.flags([["run_purchase", false], ["affordable", false]]);
+	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	var toPurchase = [];
 	await getAugmentationsToPurchase(ns, factions, toPurchase);
+	if (options.affordable) {
+		var money = ns.getServerMoneyAvailable("home");
+		toPurchase = toPurchase.filter(a => ns.getAugmentationPrice(a) < money);
+	}
 
 	var governor_faction;
 	var maxRep = 0;
