@@ -89,13 +89,6 @@ async function setupCorporation(ns) {
 			return;
 		}
 	}
-	if (corporation.divisions.length == 1 &&
-		corporation.divisions[0].cities.length >= c.CITIES.length) {
-		if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
-			ns.corporation.expandIndustry(TOBACCO, TOBACCO);
-			corporation = ns.corporation.getCorporation();
-		}
-	}
 	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
 		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
 			var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
@@ -112,6 +105,17 @@ async function setupCorporation(ns) {
 				ns.corporation.unlockUpgrade(unlock);
 				corporation = ns.corporation.getCorporation();
 			}
+		}
+	}
+	// expand to the second division if the first is fully expanded
+	// to all cities and only we have all the APIs to fully automate the new division
+	if (ns.corporation.hasUnlockUpgrade(OFFICE_API) &&
+		ns.corporation.hasUnlockUpgrade(WAREHOUSE_API) &&
+		corporation.divisions.length == 1 &&
+		corporation.divisions[0].cities.length >= c.CITIES.length) {
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
+			ns.corporation.expandIndustry(TOBACCO, TOBACCO);
+			corporation = ns.corporation.getCorporation();
 		}
 	}
 	for (var division of corporation.divisions) {
