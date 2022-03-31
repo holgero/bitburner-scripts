@@ -159,7 +159,7 @@ async function stopBuying(ns) {
 			if (!ns.corporation.hasWarehouse(division.name, city)) {
 				continue;
 			}
-			for (var material of [WATER, ENERGY, PLANTS, REALESTATE, HARDWARE, ROBOTS, AI_CORES]) {
+			for (var material of [REALESTATE, HARDWARE, ROBOTS, AI_CORES]) {
 				ns.corporation.buyMaterial(division.name, city, material, 0);
 			}
 		}
@@ -297,10 +297,10 @@ async function setupDivisionWarehouse(ns, division) {
 				break;
 		}
 		var buying = false;
-		buying ||= purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000);
-		buying ||= purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250);
-		buying ||= purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25);
-		buying ||= purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150);
+		buying = purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000) || buying;
+		buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
+		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
+		buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
 		// if the warehouse is full and we are currently allowed to spend
 		// think about a warehouse expansion
 		if (!buying && ns.corporation.getCorporation().numShares == 0) {
