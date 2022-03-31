@@ -302,11 +302,12 @@ async function setupDivisionWarehouse(ns, division) {
 		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
 		buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
 		// if the warehouse is full and we are currently allowed to spend
-		// think about a warehouse expansion
+		// expand the warehouse (still limited to level 3, just to be cautious)
 		if (!buying && ns.corporation.getCorporation().numShares == 0) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
-				division.cities.length && ns.corporation.getCorporation().funds <
-				ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
+				 Math.min(3, division.cities.length) &&
+				ns.corporation.getCorporation().funds >
+				 ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
 				ns.corporation.upgradeWarehouse(division.name, city);
 			}
 		}
