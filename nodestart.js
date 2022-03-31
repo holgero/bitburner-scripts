@@ -64,7 +64,7 @@ export async function main(ns) {
 		var goal = selectGoal(ns, runGoals);
 		if (goal) await workOnGoal(ns, goal, 1, runGoals);
 	}
-	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
+	ns.spawn("plan-augmentations.js", 1, "--run_purchase", "--affordable");
 }
 
 /** @param {NS} ns **/
