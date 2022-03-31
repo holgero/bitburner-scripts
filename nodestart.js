@@ -28,8 +28,8 @@ export async function main(ns) {
 	} else {
 		// make use of the memory on our home machine
 		if (ns.getServer("home").maxRam > 32) {
-			if (!ns.scriptRunning("instrument.script", "home")) {
-				ns.run("instrument.script", 1, "foodnstuff");
+			if (!ns.scriptRunning("instrument.js", "home")) {
+				ns.run("instrument.js", 1, "foodnstuff");
 			}
 		}
 		// if we have a corporation we can start this run with some easy money on restart
@@ -133,8 +133,8 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			if (ns.getServerMaxRam("home") < 64) {
 				await runAndWait(ns, "upgradehomeserver.js", 64);
 				if (ns.getServerMaxRam("home") >= 64) {
-					if (!ns.scriptRunning("instrument.script", "home")) {
-						ns.run("instrument.script", 1, "foodnstuff");
+					if (!ns.scriptRunning("instrument.js", "home")) {
+						ns.run("instrument.js", 1, "foodnstuff");
 					}
 				}
 			}
@@ -144,7 +144,7 @@ async function workOnGoal(ns, goal, percentage, goals) {
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			var profit = corporationInfo.revenue - corporationInfo.expenses;
-			var rps = Math.floor( (corporationInfo.funds / 100000 + corporationInfo.revenue) / corporationInfo.sharePrice / 1000);
+			var rps = Math.floor((corporationInfo.funds / 100000 + corporationInfo.revenue) / corporationInfo.sharePrice / 1000);
 			ns.tprintf("Current corporation state: share=%s, profit=%s, rps=%d, cool=%d s, owned=%d",
 				formatMoney(corporationInfo.sharePrice), formatMoney(profit), rps,
 				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
