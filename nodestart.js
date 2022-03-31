@@ -149,13 +149,13 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				formatMoney(corporationInfo.sharePrice), formatMoney(profit), rps,
 				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (rps < 10) {
+				if (rps < 15) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
 			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 ||
 				percentage >= 1.0)) {
-				if (rps > 15 || percentage >= 1.0) {
+				if (rps > 20 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
 						await runAndWait(ns, "corporation2.js", "--local", "--buy");
