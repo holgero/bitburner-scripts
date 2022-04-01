@@ -43,9 +43,12 @@ export async function main(ns) {
 
 	while (estimatePrice(ns, toPurchase) + estimateDonations(ns, faction_goals) <
 		ns.getServerMoneyAvailable("home")) {
-		// ns.tprintf("Would spend %s on %d augmentations (%s)",
-		// 	formatMoney(estimatePrice(ns, toPurchase)), augsBeforeInstall, toPurchase);
-		await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
+		await ns.write("nodestart.txt",
+			JSON.stringify({
+				factionGoals: faction_goals,
+				estimatedPrice: estimatePrice(ns, toPurchase),
+				estimatedDonations: estimateDonations(ns, faction_goals)
+			}), "w");
 		faction_goals = [];
 		calculateGoals(ns, faction_augmentations, ++augsBeforeInstall, faction_goals);
 		var newToPurchase = [];

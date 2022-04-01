@@ -1,3 +1,5 @@
+import { formatMoney } from "helpers.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	const config = JSON.parse(ns.read("nodestart.txt"));
@@ -8,4 +10,6 @@ export async function main(ns) {
 		ns.getFactionRep(goal.name),
 		goal.reputation ? (100*ns.getFactionRep(goal.name)/goal.reputation).toFixed(1) + " %":"");
 	}
+	ns.tprintf("Estimated costs: augmentations: %s, donations: %s",
+		formatMoney(config.estimatedPrice), formatMoney(config.estimatedDonations));
 }
