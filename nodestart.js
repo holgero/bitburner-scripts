@@ -14,9 +14,7 @@ export async function main(ns) {
 		// the corporation script can be run locally
 		await runAndWait(ns, "purchase-ram.js", 2048);
 		await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
-		if (ns.getPlayer().playtimeSinceLastAug < 10000) {
-			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--milk");
-		}
+		await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--milk");
 		var spareRam = Math.ceil(64 + ns.getScriptRam("corporation2.js"));
 		if (!ns.scriptRunning("instrument.js", "home")) {
 			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
