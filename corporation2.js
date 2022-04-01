@@ -301,10 +301,12 @@ async function setupDivisionWarehouse(ns, division) {
 		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
 		buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
 		// if the warehouse is full and we are currently allowed to spend
-		// expand the warehouse (still limited to level 3, just to be cautious)
-		if (!buying && ns.corporation.getCorporation().numShares == 0) {
+		// expand the warehouse
+		if (!buying && ns.corporation.getCorporation().numShares == 0 &&
+			ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
-				 Math.min(3, division.cities.length) &&
+				 Math.min(ns.corporation.getOffice(division.name, city).employees.length,
+				  division.cities.length) &&
 				ns.corporation.getCorporation().funds >
 				 ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
 				ns.corporation.upgradeWarehouse(division.name, city);
