@@ -43,7 +43,7 @@ export async function getAugmentationsToPurchase(ns, factions, toPurchase) {
 async function addPossibleAugmentations(ns, factions, toPurchase, haveAug) {
 	for (var factionElem of factions) {
 		var faction = factionElem.name;
-		var reputation = factionElem.reputation;
+		var reputation = Math.max(ns.getFactionRep(faction), factionElem.reputation);
 		var possibleAugmentations = ns.getAugmentationsFromFaction(faction);
 		for (var augmentation of possibleAugmentations) {
 			if (haveAug.includes(augmentation)) {
