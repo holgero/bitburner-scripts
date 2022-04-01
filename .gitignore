@@ -3,5 +3,6 @@ bitburnerFiles*.zip
 RECOVERY_BITBURNER_*.json
 nodestart.txt
 corporation.txt
+backup.txt
 test.js
 saves/
