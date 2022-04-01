@@ -169,10 +169,13 @@ async function workOnGoal(ns, goal, percentage, goals) {
 						// do not spend too much on servers on corporation bitnode
 						nextServerRam = Math.min(1024, nextServerRam);
 					}
-					await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
-					// only upgrade in bigger steps
-					nextServerRam *= 8;
-					await runAndWait(ns, "start-hacknet.js", 8);
+					if (!ns.serverExists("pserv-0")
+						|| (nextServerRam >= ns.getServerMaxRam("pserv-0") * 8)) {
+						await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
+						// only upgrade in bigger steps
+						nextServerRam *= 8;
+						await runAndWait(ns, "start-hacknet.js", 8);
+					}
 				}
 			}
 		}
