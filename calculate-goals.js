@@ -37,9 +37,14 @@ export async function main(ns) {
 
 	var faction_goals = [];
 	calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals);
-	await ns.write("nodestart.txt", JSON.stringify({ factionGoals: faction_goals }), "w");
 	var toPurchase = [];
 	await getAugmentationsToPurchase(ns, faction_goals, toPurchase);
+	await ns.write("nodestart.txt",
+		JSON.stringify({
+			factionGoals: faction_goals,
+			estimatedPrice: estimatePrice(ns, toPurchase),
+			estimatedDonations: estimateDonations(ns, faction_goals)
+		}), "w");
 
 	while (estimatePrice(ns, toPurchase) + estimateDonations(ns, faction_goals) <
 		ns.getServerMoneyAvailable("home")) {
@@ -96,7 +101,7 @@ export async function calculateGoals(ns, faction_augmentations, augsBeforeInstal
 	for (var faction of faction_augmentations) {
 		if ((newAugs >= augsBeforeInstall) || (factionsToJoin >= factionsBeforeInstall)) {
 			// enough augs for this run, add remaining factions with their
-			// properties but a reputation goal of 0
+			// properties but a reputation goal of zero
 			if (placeToBe && faction.location && faction.location == faction.name) {
 				if (!isCompatible(placeToBe, faction.location)) continue;
 			}
