@@ -219,10 +219,9 @@ function expandDivision(ns, division, corporation) {
 async function setupDivisionOffice(ns, division) {
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
-		// increase size of headquarters only after being present in all cities
+		// increase office size only after being present in all cities
 		if (division.cities.length == c.CITIES.length &&
-			city == c.SECTOR12 &&
-			office.size < 12) {
+			office.size < 9) {
 			var corp = ns.corporation.getCorporation();
 			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
@@ -233,7 +232,7 @@ async function setupDivisionOffice(ns, division) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
 		office = ns.corporation.getOffice(division.name, city);
-		await distributeEmployees(ns, division.name, city, office.employees.length);
+		await distributeEmployees(ns, division, city, office.employees.length);
 	}
 }
 
@@ -338,14 +337,14 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 }
 
 /** @param {NS} ns **/
-async function distributeEmployees(ns, divisionName, city, number) {
+async function distributeEmployees(ns, division, city, number) {
 	var toDistribute = number;
 	var engineers = 0
 
 	if (toDistribute >= 8) {
-		await ns.corporation.setAutoJobAssignment(divisionName, city, BUSINESS, 1);
-		await ns.corporation.setAutoJobAssignment(divisionName, city, RESEARCH, 1);
-		await ns.corporation.setAutoJobAssignment(divisionName, city, MANAGEMENT, 1);
+		await ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, 1);
+		await ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, 1);
+		await ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, 1);
 		engineers++;
 		toDistribute -= 4;
 	}
@@ -353,8 +352,16 @@ async function distributeEmployees(ns, divisionName, city, number) {
 		engineers++;
 		toDistribute--;
 	}
-	await ns.corporation.setAutoJobAssignment(divisionName, city, ENGINEER, engineers);
-	await ns.corporation.setAutoJobAssignment(divisionName, city, OPERATIONS, toDistribute);
+	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		var warehouse = ns.corporation.getWarehouse(division.name, city);
+		// ns.tprintf("Warehouse in %s: %d %d", city, warehouse.size, warehouse.sizeUsed);
+		if (warehouse.sizeUsed/warehouse.size > 0.8) {
+			engineers++;
+			toDistribute--;
+		}
+	}
+	await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, engineers);
+	await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, toDistribute);
 }
 
 /** @param {NS} ns **/
