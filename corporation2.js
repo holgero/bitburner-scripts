@@ -39,12 +39,12 @@ export async function main(ns) {
 		["restart", "[]"]]);
 	var processList = JSON.parse(options.restart);
 
-	if (options.milk) {
+	if (options.milk && !ns.corporation.getCorporation().shareSaleCooldown) {
 		ns.corporation.sellShares(1000000000);
 		await ns.sleep(1000);
 		ns.corporation.buyBackShares(1000000000);
 	}
-	if (options.sell) {
+	if (options.sell && !ns.corporation.getCorporation().shareSaleCooldown) {
 		ns.corporation.sellShares(ns.corporation.getCorporation().numShares);
 		ns.corporation.issueDividends(1);
 	}
