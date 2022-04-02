@@ -41,28 +41,9 @@ export async function main(ns) {
 	await runAndWait(ns, "print_goals.js");
 
 	const config = JSON.parse(ns.read("nodestart.txt"));
-	var runGoals = config.factionGoals.slice(0);
-	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 0.25, runGoals, config);
-	}
-	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
-	runGoals.reverse();
-	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
-	}
-	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
-	runGoals.reverse();
-	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
-	}
-	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * config.estimatedPrice) {
+	await workOnGoals(ns, config);
+
+	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns)) {
 		// too much money left, do a re-spawn once
 		ns.spawn("nodestart.js", 1, "--lasttime");
 	}
@@ -83,6 +64,49 @@ export async function main(ns) {
 	}
 
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase", "--affordable");
+}
+
+/** @param {NS} ns **/
+async function workOnGoals(ns, config) {
+	var runGoals = config.factionGoals.slice(0);
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		await workOnGoal(ns, goal, 0.25, runGoals, config);
+	}
+
+	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns)) {
+		return;
+	}
+
+	runGoals = config.factionGoals.slice(0);
+	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
+	runGoals.reverse();
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
+	}
+
+	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns)) {
+		return;
+	}
+
+	runGoals = config.factionGoals.slice(0);
+	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
+	runGoals.reverse();
+	while (runGoals.length > 0) {
+		var goal = selectGoal(ns, runGoals);
+		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
+	}
+}
+
+/** @param {NS} ns **/
+async function getEstimation(ns) {
+	await runAndWait(ns, "estimate.js", "--write");
+	var estimation = JSON.parse(ns.read("estimate.txt"));
+	ns.rm("estimate.txt", "home");
+	return estimation.estimatedPrice;
 }
 
 /** @param {NS} ns **/

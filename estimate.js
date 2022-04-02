@@ -3,7 +3,7 @@ import { formatMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["goal", false]]);
+	var options = ns.flags([["goal", false], ["write", false]]);
 	var toPurchase = [];
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
@@ -31,11 +31,19 @@ export async function main(ns) {
 	// ns.tprintf("Augmentations to buy: %v", toPurchase);
 	var factor = 1.0;
 	var sum = 0;
-	ns.tprintf("%55s  %10s  %10s", "Augmentation", "Price", "Total");
+	if (!options.write) {
+		ns.tprintf("%55s  %10s  %10s", "Augmentation", "Price", "Total");
+	}
 	for (var augmentation of toPurchase) {
 		var toPay = factor * ns.getAugmentationPrice(augmentation);
 		sum += toPay;
-		ns.tprintf("%55s: %10s  %10s", augmentation, formatMoney(toPay), formatMoney(sum));
+		if (!options.write) {
+			ns.tprintf("%55s: %10s  %10s", augmentation, formatMoney(toPay), formatMoney(sum));
+		}
 		factor = factor * 1.9;
+	}
+
+	if (options.write) {
+		await ns.write("estimate.txt", JSON.stringify({ estimatedPrice: sum }), "w");
 	}
 }
