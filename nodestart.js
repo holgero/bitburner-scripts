@@ -62,7 +62,7 @@ export async function main(ns) {
 		var goal = selectGoal(ns, runGoals);
 		if (goal) await workOnGoal(ns, goal, 1, runGoals);
 	}
-	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * (config.estimatedDonations + config.estimatedPrice)) {
+	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * config.estimatedPrice) {
 		// too much money left, do a re-spawn once
 		ns.spawn("nodestart.js", 1, "--lasttime");
 	}
