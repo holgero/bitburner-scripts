@@ -44,7 +44,7 @@ export async function main(ns) {
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		await workOnGoal(ns, goal, 0.25, runGoals);
+		await workOnGoal(ns, goal, 0.25, runGoals, config);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -52,7 +52,7 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 0.75, runGoals);
+		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
 	}
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
@@ -60,7 +60,7 @@ export async function main(ns) {
 	runGoals.reverse();
 	while (runGoals.length > 0) {
 		var goal = selectGoal(ns, runGoals);
-		if (goal) await workOnGoal(ns, goal, 1, runGoals);
+		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
 	}
 	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * config.estimatedPrice) {
 		// too much money left, do a re-spawn once
@@ -70,7 +70,7 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-async function workOnGoal(ns, goal, percentage, goals) {
+async function workOnGoal(ns, goal, percentage, goals, config) {
 	if (ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
 		return;
 	}
@@ -193,12 +193,15 @@ async function workOnGoal(ns, goal, percentage, goals) {
 				if (goal.stats) {
 					await buffStatsToNeeded(ns, goal.stats);
 				}
-				ns.stopAction();
-				if (ns.getServerMoneyAvailable("home") > 150000000000) {
-					await runAndWait(ns, "donate-faction.js",
-						goal.name, percentage * goal.reputation,
-						ns.getServerMoneyAvailable("home") - 100000000000);
+				if (config.estimatedDonations) {
+					var moneyForDonations = Math.max(0,
+						ns.getServerMoneyAvailable("home") - config.estimatedPrice);
+					if (moneyForDonations) {
+						await runAndWait(ns, "donate-faction.js",
+							goal.name, percentage * goal.reputation, moneyForDonations);
+					}
 				}
+				ns.stopAction();
 				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
