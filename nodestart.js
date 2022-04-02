@@ -58,7 +58,7 @@ export async function main(ns) {
 					break;
 				}
 			}
-			await ns.sleep(corporationInfo.shareSaleCooldown);
+			await ns.sleep(200 * corporationInfo.shareSaleCooldown);
 			ns.stopAction();
 		}
 	}
