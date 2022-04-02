@@ -330,26 +330,30 @@ async function setupDivisionWarehouse(ns, division) {
 
 /** @param {NS} ns **/
 function setMaterialSellParameters(ns, divisionName, city, material) {
-	if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
-		ns.corporation.setMaterialMarketTA2(divisionName, city, material, true);
-		return;
-	}
-	if (ns.corporation.hasResearched(divisionName, MARKET_TA_I)) {
-		ns.corporation.setMaterialMarketTA1(divisionName, city, material, true);
-		return;
+	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+		if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
+			ns.corporation.setMaterialMarketTA2(divisionName, city, material, true);
+			return;
+		}
+		if (ns.corporation.hasResearched(divisionName, MARKET_TA_I)) {
+			ns.corporation.setMaterialMarketTA1(divisionName, city, material, true);
+			return;
+		}
 	}
 	ns.corporation.sellMaterial(divisionName, city, material, MAX_SELL, MP_SELL);
 }
 
 /** @param {NS} ns **/
 function setProductSellParameters(ns, divisionName, city, product) {
-	if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
-		ns.corporation.setProductMarketTA2(divisionName, city, product, true);
-		return;
-	}
-	if (ns.corporation.hasResearched(divisionName, MARKET_TA_I)) {
-		ns.corporation.setProductMarketTA1(divisionName, city, product, true);
-		return;
+	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+		if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
+			ns.corporation.setProductMarketTA2(divisionName, city, product, true);
+			return;
+		}
+		if (ns.corporation.hasResearched(divisionName, MARKET_TA_I)) {
+			ns.corporation.setProductMarketTA1(divisionName, city, product, true);
+			return;
+		}
 	}
 	ns.corporation.sellProduct(divisionName, city, DROMEDAR, MAX_SELL, MP_SELL);
 }
