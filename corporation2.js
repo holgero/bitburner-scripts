@@ -14,6 +14,9 @@ const ENGINEER = "Engineer";
 const BUSINESS = "Business";
 const MANAGEMENT = "Management";
 const RESEARCH = "Research & Development";
+const LABORATORY = "Hi-Tech R&D Laboratory";
+const MARKET_TA_I = "Market-TA.I";
+const MARKET_TA_II = "Market-TA.II";
 const WATER = "Water";
 const ENERGY = "Energy";
 const FOOD = "Food";
@@ -67,7 +70,7 @@ export async function main(ns) {
 		if (!corp.public) {
 			var ipoShares = Math.min(1e9, Math.floor(options.public / corp.sharePrice));
 			ns.corporation.goPublic(ipoShares);
-			await ns.sleep(5000);
+			await ns.sleep(1000);
 			if (ipoShares > 0) {
 				ns.corporation.buyBackShares(ipoShares);
 			}
@@ -234,6 +237,16 @@ async function setupDivisionOffice(ns, division) {
 		office = ns.corporation.getOffice(division.name, city);
 		await distributeEmployees(ns, division, city, office.employees.length);
 	}
+	if (division.research) {
+		for (var researchName of [LABORATORY, MARKET_TA_I, MARKET_TA_II]) {
+			if (!ns.corporation.hasResearched(division.name, researchName)) {
+				if (ns.corporation.getResearchCost(division.name, researchName) < division.research) {
+					ns.corporation.research(division.name, researchName);
+					break;
+				}
+			}
+		}
+	}
 }
 
 /** @param {NS} ns **/
@@ -305,10 +318,10 @@ async function setupDivisionWarehouse(ns, division) {
 		if (!buying && ns.corporation.getCorporation().numShares == 0 &&
 			ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
-				 Math.min(ns.corporation.getOffice(division.name, city).employees.length,
-				  division.cities.length) &&
+				Math.min(ns.corporation.getOffice(division.name, city).employees.length,
+					division.cities.length) &&
 				ns.corporation.getCorporation().funds >
-				 ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
+				ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
 				ns.corporation.upgradeWarehouse(division.name, city);
 			}
 		}
@@ -325,7 +338,7 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var canSpend = corp.numShares == 0;
 
 	if (canSpend && info.qty < amount) {
-		ns.corporation.buyMaterial(divisionName, city, material, baseAmount/500.0);
+		ns.corporation.buyMaterial(divisionName, city, material, baseAmount / 500.0);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
 		return true;
 	}
@@ -357,7 +370,7 @@ async function distributeEmployees(ns, division, city, number) {
 	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 		var warehouse = ns.corporation.getWarehouse(division.name, city);
 		// ns.tprintf("Warehouse in %s: %d %d", city, warehouse.size, warehouse.sizeUsed);
-		if (warehouse.sizeUsed/warehouse.size > 0.8) {
+		if (warehouse.sizeUsed / warehouse.size > 0.8) {
 			engineers++;
 			toDistribute--;
 		}
