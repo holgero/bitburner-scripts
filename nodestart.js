@@ -66,6 +66,22 @@ export async function main(ns) {
 		// too much money left, do a re-spawn once
 		ns.spawn("nodestart.js", 1, "--lasttime");
 	}
+
+	if (ns.getPlayer().hasCorporation && ns.ls("home", "corporation.txt").length) {
+		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+		ns.rm("corporation.txt", "home");
+		if (corporationInfo.shareSaleCooldown) {
+			for (var goal of factionGoals.filter(a => a.company)) {
+				if (!ns.getPlayer().factions.includes(goal.name)) {
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "[]", "true");
+					break;
+				}
+			}
+			await ns.sleep(corporationInfo.shareSaleCooldown);
+			ns.stopAction();
+		}
+	}
+
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase", "--affordable");
 }
 
@@ -141,7 +157,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
-			if (corporationInfo.numShares < 1e9 && (corporationInfo.shareSaleCooldown < 12000 ||
+			if (corporationInfo.issuedShares > 0 && (corporationInfo.shareSaleCooldown < 12000 ||
 				percentage >= 1.0)) {
 				if (rps > 20 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
