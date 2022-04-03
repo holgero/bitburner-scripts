@@ -5,6 +5,7 @@ import { formatMoney } from "helpers.js";
 export async function main(ns) {
 	var options = ns.flags([["restart", false], ["lasttime", false]]);
 	ns.disableLog("sleep");
+	ns.tprintf("Start at %s", new Date());
 
 	// get all unprotected servers immediately
 	await startHacking(ns);
