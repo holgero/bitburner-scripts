@@ -3,6 +3,7 @@ import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
 const TOBACCO = "Tobacco";
+const SOFTWARE = "Software";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
@@ -26,6 +27,7 @@ const ROBOTS = "Robots";
 const AI_CORES = "AI Cores";
 const REALESTATE = "Real Estate";
 const DROMEDAR = "Dromedar";
+const BURNER = "ByteBurner";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 
@@ -121,6 +123,14 @@ async function setupCorporation(ns) {
 			corporation = ns.corporation.getCorporation();
 		}
 	}
+	if (corporation.divisions.length == 2 &&
+		corporation.divisions[1].cities.length >= c.CITIES.length) {
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(SOFTWARE)) {
+			ns.corporation.expandIndustry(SOFTWARE, SOFTWARE);
+			corporation = ns.corporation.getCorporation();
+		}
+	}
+
 	for (var division of corporation.divisions) {
 		if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
 			if (ns.corporation.getHireAdVertCount(division.name) < 1) {
@@ -255,15 +265,27 @@ async function setupDivisionWarehouse(ns, division) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
 		}
-		if (division.type == TOBACCO) {
-			if (division.products.length == 0) {
-				ns.corporation.makeProduct(division.name, c.SECTOR12, DROMEDAR, 1e8, 1e8);
-			}
-			var product = ns.corporation.getProduct(division.name, DROMEDAR);
-			if (product.developmentProgress < 100) {
-				ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
-				return;
-			}
+		switch (division.type) {
+			case TOBACCO:
+				if (division.products.length == 0) {
+					ns.corporation.makeProduct(division.name, c.SECTOR12, DROMEDAR, 1e8, 1e8);
+				}
+				var product = ns.corporation.getProduct(division.name, DROMEDAR);
+				if (product.developmentProgress < 100) {
+					ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
+					return;
+				}
+				break;
+			case SOFTWARE:
+				if (division.products.length == 0) {
+					ns.corporation.makeProduct(division.name, c.SECTOR12, BURNER, 1e8, 1e8);
+				}
+				var product = ns.corporation.getProduct(division.name, BURNER);
+				if (product.developmentProgress < 100) {
+					ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
+					// no return here: we can still produce AI Cores
+				}
+				break;
 		}
 		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
@@ -275,6 +297,9 @@ async function setupDivisionWarehouse(ns, division) {
 					break;
 				case TOBACCO:
 					materials = [WATER, PLANTS];
+					break;
+				case SOFTWARE:
+					materials = [ENERGY, HARDWARE];
 					break;
 			}
 			for (var material of materials) {
@@ -307,12 +332,18 @@ async function setupDivisionWarehouse(ns, division) {
 			case TOBACCO:
 				setProductSellParameters(ns, division.name, city, DROMEDAR);
 				break;
+			case SOFTWARE:
+				setMaterialSellParameters(ns, division.name, city, AI_CORES);
+				setProductSellParameters(ns, division.name, city, BURNER);
+				break;
 		}
 		var buying = false;
 		buying = purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000) || buying;
-		buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
 		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
-		buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
+		if (division.type != SOFTWARE) {
+			buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
+			buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
+		}
 		// if the warehouse is full and we are currently allowed to spend
 		// expand the warehouse
 		if (!buying && ns.corporation.getCorporation().numShares == 0 &&
@@ -355,7 +386,7 @@ function setProductSellParameters(ns, divisionName, city, product) {
 			return;
 		}
 	}
-	ns.corporation.sellProduct(divisionName, city, DROMEDAR, MAX_SELL, MP_SELL);
+	ns.corporation.sellProduct(divisionName, city, product, MAX_SELL, MP_SELL);
 }
 
 /** @param {NS} ns **/
