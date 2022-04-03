@@ -52,7 +52,7 @@ export async function main(ns) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		ns.rm("corporation.txt", "home");
 		if (corporationInfo.shareSaleCooldown) {
-			for (var goal of factionGoals.filter(a => a.company)) {
+			for (var goal of config.factionGoals.filter(a => a.company)) {
 				if (!ns.getPlayer().factions.includes(goal.name)) {
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "[]", "true");
 					break;
