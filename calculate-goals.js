@@ -110,7 +110,7 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 
 /** @param {NS} ns **/
 function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, maxRep) {
-	const augsPerFaction = Math.floor(augsBeforeInstall / 3);
+	// const augsPerFaction = Math.floor(augsBeforeInstall / 3);
 	var newAugs = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
@@ -124,7 +124,8 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			faction_goals.push({ ...faction, reputation: 0 });
 			continue;
 		}
-		var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
+		// var augsToAdd = Math.min(augsPerFaction, augsBeforeInstall - newAugs);
+		var augsToAdd = augsBeforeInstall - newAugs;
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
