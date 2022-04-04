@@ -291,13 +291,6 @@ function selectGoal(ns, goals) {
 	var factions = ns.getPlayer().factions;
 	for (var ii = 0; ii < goals.length; ii++) {
 		var goal = goals[ii];
-		if (factions.includes(c.DAEDALUS)) {
-			if (goal.name != c.DAEDALUS) {
-				goals.splice(ii, 1);
-				ii--;
-				continue;
-			}
-		}
 		if (factions.includes(goal.name) || (!goal.money || goal.money <= 1.2 * money)) {
 			goals.splice(ii, 1);
 			return goal;
