@@ -307,7 +307,7 @@ function selectGoal(ns, goals) {
 }
 
 /** @param {NS} ns **/
-async function lowStats(ns, stats) {
+function lowStats(ns, stats) {
 	var player = ns.getPlayer();
 	var result = [];
 	if (player.agility < stats) {
@@ -328,6 +328,7 @@ async function lowStats(ns, stats) {
 /** @param {NS} ns **/
 async function buffStatsToNeeded(ns, stats) {
 	var statsTooLow = lowStats(ns, stats);
+	// ns.tprintf("Too low on stats: %s", JSON.stringify(statsTooLow));
 	if (statsTooLow.length == 1) {
 		await runAndWait(ns, "workout.js", statsTooLow[0]);
 	} else {
