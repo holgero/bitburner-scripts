@@ -1,4 +1,4 @@
-import { getAugmentationsToPurchase, formatMoney } from "helpers.js";
+import { getAugmentationsToPurchase } from "helpers.js";
 import * as c from "constants.js";
 
 const STORY_LINE = [
@@ -24,7 +24,6 @@ const STORY_LINE = [
 ];
 
 const AUGS_PER_RUN = 7;
-const FACTIONS_PER_RUN = 8;
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -90,16 +89,33 @@ function estimatePrice(ns, toPurchase) {
 }
 
 /** @param {NS} ns **/
-export async function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
-	const augsPerFaction = Math.floor(augsBeforeInstall / 3);
-	const factionsBeforeInstall = FACTIONS_PER_RUN;
+function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
+	var newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, 1e9);
+	while (newAugs >= augsBeforeInstall) {
+		var neededRep = 0;
+		for (var goal of faction_goals) {
+			if (goal.reputation > neededRep) {
+				neededRep = goal.reputation;
+			}
+		}
+		neededRep--;
+		var check_goals = [];
+		newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, check_goals, neededRep);
+		if (newAugs >= augsBeforeInstall) {
+			faction_goals.splice(0, faction_goals.length);
+			faction_goals.push(...check_goals);
+		}
+	}
+}
 
+/** @param {NS} ns **/
+function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, maxRep) {
+	const augsPerFaction = Math.floor(augsBeforeInstall / 3);
 	var newAugs = 0;
-	var factionsToJoin = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
 	for (var faction of faction_augmentations) {
-		if ((newAugs >= augsBeforeInstall) || (factionsToJoin >= factionsBeforeInstall)) {
+		if (newAugs >= augsBeforeInstall) {
 			// enough augs for this run, add remaining factions with their
 			// properties but a reputation goal of zero
 			if (placeToBe && faction.location && faction.location == faction.name) {
@@ -127,6 +143,7 @@ export async function calculateGoals(ns, faction_augmentations, augsBeforeInstal
 		if (!placeToBe && faction.location && faction.location == faction.name) {
 			placeToBe = faction.location;
 		}
+		repToReach = Math.min(repToReach, maxRep);
 		if (faction.name == c.DAEDALUS) {
 			if (ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
 				// try to get to favor for donating as soon as possible
@@ -136,15 +153,16 @@ export async function calculateGoals(ns, faction_augmentations, augsBeforeInstal
 				repToReach = faction.augmentations[faction.augmentations.length - 1].reputation;
 			}
 		}
+		var repNeeded = 0;
 		for (var augmentation of faction.augmentations) {
 			if (augmentation.reputation <= repToReach) {
 				newAugs++;
+				repNeeded = Math.max(repNeeded, augmentation.reputation);
 			}
 		}
-		factionsToJoin++;
-		faction_goals.push({ ...faction, reputation: repToReach });
+		faction_goals.push({ ...faction, reputation: repNeeded });
 	}
-	// ns.tprintf("Faction goals: %s", JSON.stringify(faction_goals));
+	return newAugs;
 }
 
 function isCompatible(city1, city2) {
