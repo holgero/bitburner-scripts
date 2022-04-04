@@ -57,7 +57,8 @@ export async function main(ns) {
 		calculateGoals(ns, faction_augmentations, ++augsBeforeInstall, faction_goals);
 		var newToPurchase = [];
 		await getAugmentationsToPurchase(ns, faction_goals, newToPurchase);
-		if (newToPurchase.length == toPurchase.length) {
+		// ns.tprintf("%d", newToPurchase.length);
+		if (newToPurchase.length < augsBeforeInstall) {
 			break;
 		}
 		toPurchase = newToPurchase;
@@ -91,6 +92,7 @@ function estimatePrice(ns, toPurchase) {
 /** @param {NS} ns **/
 function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
 	var newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, 1e9);
+	// ns.tprintf("%s", JSON.stringify(faction_goals));
 	while (newAugs >= augsBeforeInstall) {
 		var neededRep = 0;
 		for (var goal of faction_goals) {
@@ -101,10 +103,15 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 		neededRep--;
 		var check_goals = [];
 		newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, check_goals, neededRep);
+		//ns.tprintf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
+		//if (augsBeforeInstall == 11 && newAugs == 10) {
+			//ns.tprintf("%s", JSON.stringify(faction_goals));
+		//}
 		if (newAugs >= augsBeforeInstall) {
 			faction_goals.splice(0, faction_goals.length);
 			faction_goals.push(...check_goals);
 		}
+		// ns.tprintf("%s", JSON.stringify(faction_goals));
 	}
 }
 
@@ -177,6 +184,7 @@ function isCompatible(city1, city2) {
 /** @param {NS} ns **/
 function buildDatabase(ns, faction_augmentations, factions) {
 	var ignore = ns.getOwnedAugmentations(true);
+	ignore.push(c.GOVERNOR);
 	for (var faction of factions) {
 		var augmentations = ns.getAugmentationsFromFaction(faction.name).
 			filter(a => !ignore.includes(a)).
