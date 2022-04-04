@@ -85,6 +85,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
+	ns.print("setupCorporation");
 	var corporation = ns.corporation.getCorporation();
 	if (corporation.divisions.length == 0) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
@@ -145,11 +146,11 @@ async function setupCorporation(ns) {
 				expandDivision(ns, division, corporation);
 				corporation = ns.corporation.getCorporation();
 			}
-			await setupDivisionOffice(ns, division);
+			await setupDivisionOffice(ns, division, corporation.divisions.length);
 		}
 		if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 			while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
-				await ns.sleep(500);
+				await ns.sleep(100);
 				corporation = ns.corporation.getCorporation();
 			}
 			await setupDivisionWarehouse(ns, division);
@@ -164,7 +165,7 @@ async function stopBuying(ns) {
 		return;
 	}
 	while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
-		await ns.sleep(500);
+		await ns.sleep(100);
 		corporation = ns.corporation.getCorporation();
 	}
 	for (var division of corporation.divisions) {
@@ -178,15 +179,15 @@ async function stopBuying(ns) {
 		}
 	}
 	while (corporation.state != "START") {
-		await ns.sleep(500);
+		await ns.sleep(100);
 		corporation = ns.corporation.getCorporation();
 	}
 	while (corporation.state == "START") {
-		await ns.sleep(500);
+		await ns.sleep(100);
 		corporation = ns.corporation.getCorporation();
 	}
 	while (corporation.state != "START") {
-		await ns.sleep(500);
+		await ns.sleep(100);
 		corporation = ns.corporation.getCorporation();
 	}
 }
@@ -229,12 +230,13 @@ function expandDivision(ns, division, corporation) {
 }
 
 /** @param {NS} ns **/
-async function setupDivisionOffice(ns, division) {
+async function setupDivisionOffice(ns, division, sizeFactor) {
+	ns.print("setupDivisionOffices");
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
 		// increase office size only after being present in all cities
 		if (division.cities.length == c.CITIES.length &&
-			office.size < 9) {
+			office.size < 9 * sizeFactor) {
 			var corp = ns.corporation.getCorporation();
 			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
@@ -245,7 +247,7 @@ async function setupDivisionOffice(ns, division) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
 		office = ns.corporation.getOffice(division.name, city);
-		await distributeEmployees(ns, division, city, office.employees.length);
+		await distributeEmployees(ns, division, city, office);
 	}
 	if (division.research) {
 		for (var researchName of [LABORATORY, MARKET_TA_I, MARKET_TA_II]) {
@@ -261,6 +263,7 @@ async function setupDivisionOffice(ns, division) {
 
 /** @param {NS} ns **/
 async function setupDivisionWarehouse(ns, division) {
+	ns.print("setupDivisionWarehouse");
 	for (var city of division.cities) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
@@ -378,21 +381,21 @@ function setMaterialSellParameters(ns, divisionName, city, material) {
 function setProductSellParameters(ns, divisionName, city, product) {
 	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
 		if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
-			ns.corporation.setProductMarketTA2(divisionName, city, product, true);
+			ns.corporation.setProductMarketTA2(divisionName, product, true);
 			return;
 		}
 		if (ns.corporation.hasResearched(divisionName, MARKET_TA_I)) {
-			ns.corporation.setProductMarketTA1(divisionName, city, product, true);
+			ns.corporation.setProductMarketTA1(divisionName, product, true);
 			return;
 		}
 	}
-	ns.corporation.sellProduct(divisionName, city, product, MAX_SELL, MP_SELL);
+	ns.corporation.sellProduct(divisionName, city, product, MAX_SELL, MP_SELL, true);
 }
 
 /** @param {NS} ns **/
 function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount) {
 	var amount = baseAmount * ns.corporation.getWarehouse(divisionName, city).level;
-	// ns.tprintf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
+	ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
 	var info = ns.corporation.getMaterial(divisionName, city, material);
 	var corp = ns.corporation.getCorporation();
 	// only spend on addtl. materials while we don't own the company
@@ -413,43 +416,73 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 }
 
 /** @param {NS} ns **/
-async function distributeEmployees(ns, division, city, number) {
-	var toDistribute = number;
-	var engineers = 0
-
-	if (toDistribute >= 8) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, 1);
-		await ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, 1);
-		await ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, 1);
-		engineers++;
-		toDistribute -= 4;
-	}
-	if (toDistribute >= 3) {
-		engineers++;
-		toDistribute--;
-	}
+async function distributeEmployees(ns, division, city, office) {
+	ns.print("distributeEmployees");
+	var toDistribute = office.size;
+	var wanted = {
+		management: Math.floor(toDistribute / 9),
+		business: Math.floor(toDistribute / 9),
+		research: Math.floor(toDistribute / 9),
+		engineers: Math.floor(toDistribute / 4)
+	};
 	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 		var warehouse = ns.corporation.getWarehouse(division.name, city);
-		// ns.tprintf("Warehouse in %s: %d %d", city, warehouse.size, warehouse.sizeUsed);
 		if (warehouse.sizeUsed / warehouse.size > 0.8) {
-			engineers++;
-			toDistribute--;
+			wanted.engineers++;
 		}
 	}
-	await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, engineers);
-	await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, toDistribute);
+	wanted.operations = toDistribute
+		- wanted.management - wanted.business - wanted. research - wanted.engineers;
+	var have = { management: 0, business: 0, research: 0, engineers: 0, operations: 0 };
+	for (var employee of office.employees) {
+		switch (ns.corporation.getEmployee(division.name, city, employee).pos) {
+			case RESEARCH:
+				have.research++;
+				break;
+			case MANAGEMENT:
+				have.management++;
+				break;
+			case BUSINESS:
+				have.business++;
+				break;
+			case ENGINEER:
+				have.engineers++;
+				break;
+			case OPERATIONS:
+				have.operations++;
+				break;
+		}
+	}
+	ns.printf("Wanted: %s", JSON.stringify(wanted));
+	ns.printf("Have:   %s", JSON.stringify(have));
+	if (wanted.business != have.business) {
+		await ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
+	}
+	if (wanted.research != have.research) {
+		await ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, wanted.research);
+	}
+	if (wanted.management != have.management) {
+		await ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
+	}
+	if (wanted.engineers != have.engineers) {
+		await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
+	}
+	if (wanted.operations != have.operations) {
+		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
+	}
+	ns.print("Done distributing");
 }
 
 /** @param {NS} ns **/
 function restorePreviousScripts(ns, processList) {
-	// ns.tprintf("Commands to restore: %s", JSON.stringify(processList));
+	ns.printf("Commands to restore: %s", JSON.stringify(processList));
 	// run all scripts, but the last
 	for (var ii = 0; ii < processList.length - 1; ii++) {
 		var process = processList[ii];
 		ns.run(process.filename, process.threads, ...process.args);
 	}
 	var lastProcess = processList.pop();
-	// ns.tprintf("Last command to restore: %s", JSON.stringify(lastProcess));
+	ns.printf("Last command to restore: %s", JSON.stringify(lastProcess));
 	// and spawn the last one
 	ns.spawn(lastProcess.filename, lastProcess.threads, ...lastProcess.args);
 }
