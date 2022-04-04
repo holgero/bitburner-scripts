@@ -55,7 +55,6 @@ export async function main(ns) {
 	}
 	if (options.buy) {
 		ns.corporation.issueDividends(0);
-		await stopBuying(ns);
 		ns.corporation.buyBackShares(ns.corporation.getCorporation().issuedShares);
 	}
 	if (options.setup) {
@@ -155,40 +154,6 @@ async function setupCorporation(ns) {
 			}
 			await setupDivisionWarehouse(ns, division);
 		}
-	}
-}
-
-/** @param {NS} ns **/
-async function stopBuying(ns) {
-	var corporation = ns.corporation.getCorporation();
-	if (!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
-		return;
-	}
-	while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
-		await ns.sleep(100);
-		corporation = ns.corporation.getCorporation();
-	}
-	for (var division of corporation.divisions) {
-		for (var city of division.cities) {
-			if (!ns.corporation.hasWarehouse(division.name, city)) {
-				continue;
-			}
-			for (var material of [REALESTATE, HARDWARE, ROBOTS, AI_CORES]) {
-				ns.corporation.buyMaterial(division.name, city, material, 0);
-			}
-		}
-	}
-	while (corporation.state != "START") {
-		await ns.sleep(100);
-		corporation = ns.corporation.getCorporation();
-	}
-	while (corporation.state == "START") {
-		await ns.sleep(100);
-		corporation = ns.corporation.getCorporation();
-	}
-	while (corporation.state != "START") {
-		await ns.sleep(100);
-		corporation = ns.corporation.getCorporation();
 	}
 }
 
