@@ -182,8 +182,8 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
-			if (corporationInfo.issuedShares > 0 && (corporationInfo.shareSaleCooldown < 12000 ||
-				percentage >= 1.0)) {
+			if (corporationInfo.issuedShares > 0 &&
+				(corporationInfo.shareSaleCooldown < 15000 || percentage >= 1.0)) {
 				if (rps > 20 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
