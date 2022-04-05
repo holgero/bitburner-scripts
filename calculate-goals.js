@@ -1,4 +1,4 @@
-import { getAugmentationsToPurchase } from "helpers.js";
+import { getAugmentationsToPurchase, statsGainFactor } from "helpers.js";
 import * as c from "constants.js";
 
 const STORY_LINE = [
@@ -24,6 +24,8 @@ const STORY_LINE = [
 ];
 
 const AUGS_PER_RUN = 7;
+const COMPANY_REP_GAIN_THRESHOLD = 2.0;
+const FACTION_STATS_THRESHOLD = 66;
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -91,8 +93,10 @@ function estimatePrice(ns, toPurchase) {
 
 /** @param {NS} ns **/
 function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
-	var newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, 1e9);
+	var newAugs = calculateGoalsWithRep(ns, faction_augmentations,
+		augsBeforeInstall, faction_goals, 1e9);
 	// ns.tprintf("%s", JSON.stringify(faction_goals));
+	ns.printf("New augmentations possible: %d", newAugs);
 	while (newAugs >= augsBeforeInstall) {
 		var neededRep = 0;
 		for (var goal of faction_goals) {
@@ -103,7 +107,7 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 		neededRep--;
 		var check_goals = [];
 		newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, check_goals, neededRep);
-		//ns.tprintf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
+		ns.printf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
 		//if (augsBeforeInstall == 11 && newAugs == 10) {
 			//ns.tprintf("%s", JSON.stringify(faction_goals));
 		//}
@@ -117,7 +121,6 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 
 /** @param {NS} ns **/
 function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, faction_goals, maxRep) {
-	// const augsPerFaction = Math.floor(augsBeforeInstall / 3);
 	var newAugs = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
@@ -136,18 +139,19 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 		var repToReach = faction.augmentations.length >= augsToAdd ?
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
+		ns.printf("Rep to reach with faction %s is %d", faction.name, repToReach);
 		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
-			if (player.company_rep_mult < 2.5) {
+			if (player.company_rep_mult < COMPANY_REP_GAIN_THRESHOLD) {
 				// skip for now, too slow to gain any rep with company
 				continue;
 			}
 			// if we still need to work for the company first, just gain some favor
 			repToReach = 25000;
 		}
-		if (player.hasCorporation && ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
-			// hopefully means plenty of money, we should be able to bribe some factions
-			// during the next run
-			repToReach = Math.min(repToReach, reputationNeeded(ns, faction.name));
+		if (faction.stats && ns.getFactionFavor(faction.name) == 0) {
+			if (faction.stats / statsGainFactor(ns) > FACTION_STATS_THRESHOLD) {
+				continue;
+			}
 		}
 		if (placeToBe && faction.location && faction.location == faction.name) {
 			if (!isCompatible(placeToBe, faction.location)) continue;
@@ -172,7 +176,13 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 				repNeeded = Math.max(repNeeded, augmentation.reputation);
 			}
 		}
+		if (player.hasCorporation && ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
+			// hopefully means plenty of money, we should be able to bribe some factions
+			// during the next run
+			repNeeded = Math.min(repNeeded, reputationNeeded(ns, faction.name));
+		}
 		faction_goals.push({ ...faction, reputation: repNeeded });
+		ns.printf("Rep needed with faction %s is %d", faction.name, repNeeded);
 	}
 	return newAugs;
 }
