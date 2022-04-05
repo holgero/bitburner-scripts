@@ -137,6 +137,10 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
 		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
+			if (player.company_rep_mult < 2.5) {
+				// skip for now, too slow to gain any rep with company
+				continue;
+			}
 			// if we still need to work for the company first, just gain some favor
 			repToReach = 25000;
 		}
