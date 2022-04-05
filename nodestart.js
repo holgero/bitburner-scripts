@@ -28,7 +28,7 @@ export async function main(ns) {
 			await ns.sleep(20000);
 		}
 		// make use of the memory on our home machine
-		if (ns.getServer("home").maxRam > 32) {
+		if (ns.getServerMaxRam("home") > 32) {
 			if (!ns.scriptRunning("instrument.js", "home")) {
 				ns.run("instrument.js", 1, "foodnstuff");
 			}
@@ -49,7 +49,7 @@ export async function main(ns) {
 		ns.spawn("nodestart.js", 1, "--lasttime");
 	}
 
-	if (ns.getPlayer().hasCorporation && ns.ls("home", "corporation.txt").length) {
+	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		ns.rm("corporation.txt", "home");
 		if (corporationInfo.shareSaleCooldown) {
@@ -127,7 +127,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 	var firstHacknetNode = false;
 	ns.tprintf("%s goal: %s %d", goals.length > 0 ? "Next" : "Last", goal.name,
 		percentage * goal.reputation);
-	ns.tprintf("Next server ram size: %d GB, next program to aquire: %s",
+	ns.printf("Next server ram size: %d GB, next program to aquire: %s",
 		nextServerRam, nextProgram < c.programs.length ? c.programs[nextProgram].name : "(complete)");
 	while (true) {
 		if (!ns.getPlayer().factions.includes(goal.name) && goal.location && ns.getPlayer().city != goal.location) {
@@ -174,9 +174,12 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			var profit = corporationInfo.revenue - corporationInfo.expenses;
 			var rps = Math.floor((corporationInfo.funds / 100000 + corporationInfo.revenue) / corporationInfo.sharePrice / 1000);
-			ns.tprintf("Corporation: share=%s, profit=%s, rps=%d, cool=%d s, owned=%d",
-				formatMoney(corporationInfo.sharePrice), formatMoney(profit), rps,
-				Math.ceil(corporationInfo.shareSaleCooldown / 5), corporationInfo.numShares);
+			ns.tprintf("Corporation: share=%s, profit=%s, funds=%s, rps=%d, cool=%d s, owned=%s",
+				formatMoney(corporationInfo.sharePrice),
+				formatMoney(profit),
+				formatMoney(corporationInfo.funds), rps,
+				Math.ceil(corporationInfo.shareSaleCooldown / 5),
+				corporationInfo.issuedShares == 0 ? "*": "-");
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
 				if (rps < 15) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
@@ -223,55 +226,59 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 			}
 		}
 
-		var backdoor = goal.backdoor;
-		await installBackdoorIfNeeded(ns, backdoor, nextProgram);
+		await installBackdoorIfNeeded(ns, goal.backdoor, nextProgram);
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
 			await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
 		} else {
-			if (!backdoor || ns.getServer(backdoor).backdoorInstalled) {
-				if (goal.stats) {
-					await buffStatsToNeeded(ns, goal.stats);
-				}
-				if (config.estimatedDonations) {
-					var moneyForDonations = Math.max(0,
-						ns.getServerMoneyAvailable("home") - config.estimatedPrice);
-					if (moneyForDonations) {
-						await runAndWait(ns, "donate-faction.js",
-							goal.name, percentage * goal.reputation, moneyForDonations);
+			if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
+				ns.printf("At start of checks");
+				if (await buffStatsToNeeded(ns, goal.stats, focus)) {
+					ns.printf("No workout needed");
+					ns.stopAction();
+					if (config.estimatedDonations) {
+						var moneyForDonations = Math.max(0,
+							ns.getServerMoneyAvailable("home") - config.estimatedPrice);
+						if (moneyForDonations) {
+							await runAndWait(ns, "donate-faction.js",
+								goal.name, percentage * goal.reputation, moneyForDonations);
+						}
 					}
-				}
-				ns.stopAction();
-				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
-					break;
-				}
-				var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
-				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
-					ns.getFactionRep(goal.name),
-					percentage * goal.reputation,
-					percentComplete);
-				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
-				var toJoin = [];
-				var factions = ns.getPlayer().factions;
-				for (var tGoal of goals) {
-					if (!factions.includes(tGoal.name)) {
-						toJoin.push(tGoal.name);
+					if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+						break;
 					}
-				}
-				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT",
+					var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+					ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
+						ns.getFactionRep(goal.name),
+						percentage * goal.reputation,
+						percentComplete);
+					ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
+					var toJoin = [];
+					var factions = ns.getPlayer().factions;
+					for (var tGoal of goals) {
+						if (!factions.includes(tGoal.name)) {
+							toJoin.push(tGoal.name);
+						}
+					}
+					ns.printf("Start working at company");
+					if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
+						await runAndWait(ns, "workforcompany.js", goal.name, "IT",
+							JSON.stringify(toJoin), JSON.stringify(focus));
+					}
+					ns.printf("Start working for faction");
+					await runAndWait(ns, "workforfaction.js", goal.name, goal.work,
 						JSON.stringify(toJoin), JSON.stringify(focus));
-				}
-				await runAndWait(ns, "workforfaction.js", goal.name, goal.work,
-					JSON.stringify(toJoin), JSON.stringify(focus));
-				if (ns.isBusy()) {
-					await ns.sleep(60000);
-				} else {
-					// not working for a faction: kill a few people until we progress
-					await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
+					if (ns.isBusy()) {
+						await ns.sleep(60000);
+					} else {
+						ns.printf("Not working");
+						// not working for a faction: kill a few people until we progress
+						await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
+					}
 				}
 			} else {
+				ns.printf("Not working and nothing to do");
 				// not working for a faction: kill a few people until we progress
 				await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
 			}
@@ -319,19 +326,26 @@ function lowStats(ns, stats) {
 }
 
 /** @param {NS} ns **/
-async function buffStatsToNeeded(ns, stats) {
+async function buffStatsToNeeded(ns, stats, focus) {
+	if (!stats) {
+		return true;
+	}
 	var statsTooLow = lowStats(ns, stats);
-	// ns.tprintf("Too low on stats: %s", JSON.stringify(statsTooLow));
+	if (statsTooLow.length == 0) {
+		return true;
+	}
+	ns.printf("Too low on stats: %s", JSON.stringify(statsTooLow));
 	if (statsTooLow.length == 1) {
-		await runAndWait(ns, "workout.js", statsTooLow[0]);
+		await runAndWait(ns, "workout.js", statsTooLow[0], focus);
 	} else {
 		await runAndWait(ns, "commit-crimes.js", "--until_stats", stats);
 	}
+	return false;
 }
 
 /** @param {NS} ns **/
 async function installBackdoorIfNeeded(ns, server, nextProgram) {
-	// ns.tprintf("Install backdoor if needed: %s %d", server, nextProgram);
+	ns.printf("Install backdoor if needed: %s %d", server, nextProgram);
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
 			ns.getServerNumPortsRequired(server) <= nextProgram) {
@@ -343,7 +357,7 @@ async function installBackdoorIfNeeded(ns, server, nextProgram) {
 /** @param {NS} ns **/
 async function futureGoalConditions(ns, goals, nextProgram) {
 	for (var goal of goals) {
-		// ns.tprintf("Checking future goal %s", goal.name);
+		ns.printf("Checking future goal %s", goal.name);
 		if (ns.getPlayer().factions.includes(goal.name)) {
 			continue;
 		}
