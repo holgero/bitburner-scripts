@@ -23,6 +23,22 @@ export function formatMoney(amount) {
 }
 
 /** @param {NS} ns **/
+export function statsGainFactor(ns) {
+	var player = ns.getPlayer();
+	var stats_mult = Math.min(
+		player.strength_mult,
+		player.defense_mult,
+		player.dexterity_mult,
+		player.agility_mult);
+	var stats_exp_mult = Math.min(
+		player.strength_exp_mult,
+		player.defense_exp_mult,
+		player.dexterity_exp_mult,
+		player.agility_exp_mult);
+	return stats_mult * stats_exp_mult;
+}
+
+/** @param {NS} ns **/
 export async function getAugmentationsToPurchase(ns, factions, toPurchase) {
 	var haveAug = ns.getOwnedAugmentations(true);
 	if (!haveAug.includes(GOVERNOR)) {
