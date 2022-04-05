@@ -106,7 +106,8 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 		}
 		neededRep--;
 		var check_goals = [];
-		newAugs = calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, check_goals, neededRep);
+		newAugs = calculateGoalsWithRep(ns, faction_augmentations,
+			augsBeforeInstall, check_goals, neededRep);
 		ns.printf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
 		//if (augsBeforeInstall == 11 && newAugs == 10) {
 			//ns.tprintf("%s", JSON.stringify(faction_goals));
