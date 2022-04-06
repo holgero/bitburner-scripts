@@ -26,6 +26,7 @@ const HARDWARE = "Hardware";
 const ROBOTS = "Robots";
 const AI_CORES = "AI Cores";
 const REALESTATE = "Real Estate";
+const RESTAURANT = "Restaurant";
 const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
 const MAX_SELL = "MAX";
@@ -87,8 +88,8 @@ async function setupCorporation(ns) {
 	ns.print("setupCorporation");
 	var corporation = ns.corporation.getCorporation();
 	if (corporation.divisions.length == 0) {
-		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
-			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(FOOD)) {
+			ns.corporation.expandIndustry(FOOD, FOOD);
 			corporation = ns.corporation.getCorporation();
 		} else {
 			return;
@@ -118,41 +119,60 @@ async function setupCorporation(ns) {
 		ns.corporation.hasUnlockUpgrade(WAREHOUSE_API) &&
 		corporation.divisions.length == 1 &&
 		corporation.divisions[0].cities.length >= c.CITIES.length) {
-		if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
-			ns.corporation.expandIndustry(TOBACCO, TOBACCO);
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
+			ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
 			corporation = ns.corporation.getCorporation();
 		}
 	}
 	if (corporation.divisions.length == 2 &&
 		corporation.divisions[1].cities.length >= c.CITIES.length) {
+		if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
+			ns.corporation.expandIndustry(TOBACCO, TOBACCO);
+			corporation = ns.corporation.getCorporation();
+		}
+	}
+	if (corporation.divisions.length == 3 &&
+		corporation.divisions[2].cities.length >= c.CITIES.length) {
 		if (corporation.funds > ns.corporation.getExpandIndustryCost(SOFTWARE)) {
 			ns.corporation.expandIndustry(SOFTWARE, SOFTWARE);
 			corporation = ns.corporation.getCorporation();
 		}
 	}
 
-	for (var division of corporation.divisions) {
-		if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
-			if (ns.corporation.getHireAdVertCount(division.name) < 1) {
+	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
+			await ns.sleep(100);
+			corporation = ns.corporation.getCorporation();
+		}
+		for (var division of corporation.divisions) {
+			await setupDivisionWarehouse(ns, division);
+		}
+	}
+	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+		corporation = ns.corporation.getCorporation();
+		for (var division of corporation.divisions) {
+			if (ns.corporation.getHireAdVertCount(division.name) <
+				corporation.divisions.length) {
 				var cost = ns.corporation.getHireAdVertCost(division.name);
 				if (corporation.funds > cost) {
 					ns.corporation.hireAdVert(division.name);
 					corporation = ns.corporation.getCorporation();
 				}
 			}
+			await setupDivisionOffice(ns, division, corporation.divisions.length);
 			if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+				if (division.products.length) {
+					// don't expand this division if there is a product development going on
+					var product = ns.corporation.getProduct(division.name,
+						division.products[0]);
+					if (product.developmentProgress < 100) {
+						continue;
+					}
+				}
 				// only expand if we can manage it completely
 				expandDivision(ns, division, corporation);
 				corporation = ns.corporation.getCorporation();
 			}
-			await setupDivisionOffice(ns, division, corporation.divisions.length);
-		}
-		if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
-			while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
-				await ns.sleep(100);
-				corporation = ns.corporation.getCorporation();
-			}
-			await setupDivisionWarehouse(ns, division);
 		}
 	}
 }
@@ -234,6 +254,17 @@ async function setupDivisionWarehouse(ns, division) {
 			ns.corporation.purchaseWarehouse(division.name, city);
 		}
 		switch (division.type) {
+			case FOOD:
+				if (division.products.length == 0) {
+					ns.corporation.makeProduct(division.name, c.SECTOR12, RESTAURANT, 1e8, 1e8);
+				}
+				var product = ns.corporation.getProduct(division.name, RESTAURANT);
+				if (product.developmentProgress < 100) {
+					ns.tprintf("Product %s at %s%%", product.name,
+						product.developmentProgress.toFixed(2));
+					return;
+				}
+				break;
 			case TOBACCO:
 				if (division.products.length == 0) {
 					ns.corporation.makeProduct(division.name, c.SECTOR12, DROMEDAR, 1e8, 1e8);
@@ -260,6 +291,9 @@ async function setupDivisionWarehouse(ns, division) {
 		} else {
 			var materials = [];
 			switch (division.type) {
+				case FOOD:
+					materials = [WATER, FOOD, ENERGY];
+					break;
 				case AGRICULTURE:
 					materials = [WATER, ENERGY];
 					break;
@@ -293,6 +327,9 @@ async function setupDivisionWarehouse(ns, division) {
 			}
 		}
 		switch (division.type) {
+			case FOOD:
+				setProductSellParameters(ns, division.name, city, RESTAURANT);
+				break;
 			case AGRICULTURE:
 				setMaterialSellParameters(ns, division.name, city, FOOD);
 				setMaterialSellParameters(ns, division.name, city, PLANTS);
@@ -397,7 +434,21 @@ async function distributeEmployees(ns, division, city, office) {
 		}
 	}
 	wanted.operations = toDistribute
-		- wanted.management - wanted.business - wanted. research - wanted.engineers;
+		- wanted.management - wanted.business - wanted.research - wanted.engineers;
+
+	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		if (division.products.length) {
+			var product = ns.corporation.getProduct(division.name, division.products[0]);
+			if (product.developmentProgress < 100) {
+				// during development we want engineers only
+				wanted.engineers = toDistribute;
+				wanted.management = 0;
+				wanted.business = 0;
+				wanted.research = 0;
+				wanted.operations = 0;
+			}
+		}
+	}
 	var have = { management: 0, business: 0, research: 0, engineers: 0, operations: 0 };
 	for (var employee of office.employees) {
 		switch (ns.corporation.getEmployee(division.name, city, employee).pos) {
