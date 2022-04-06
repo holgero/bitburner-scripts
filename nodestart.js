@@ -173,21 +173,24 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			var profit = corporationInfo.revenue - corporationInfo.expenses;
-			var rps = ((corporationInfo.funds / 100000 + corporationInfo.revenue / 2) / corporationInfo.sharePrice / 1000).toFixed(1);
-			ns.tprintf("Corporation: share=%s, profit=%s, funds=%s, rps=%d, cool=%d s, owned=%s",
+			var targetSharePriceLow = corporationInfo.valuation / (2 * corporationInfo.totalShares);
+			var targetSharePriceHigh = corporationInfo.valuation /
+				(2 * ( corporationInfo.totalShares -corporationInfo.issuedShares - corporationInfo.numShares ));
+			ns.tprintf("Corporation: share=%s, target=%s-%s, funds=%s, profit=%s, cool=%d s, owned=%s",
 				formatMoney(corporationInfo.sharePrice),
+				formatMoney(targetSharePriceLow), formatMoney(targetSharePriceHigh),
+				formatMoney(corporationInfo.funds),
 				formatMoney(profit),
-				formatMoney(corporationInfo.funds), rps,
 				Math.ceil(corporationInfo.shareSaleCooldown / 5),
 				corporationInfo.issuedShares == 0 ? "*": "-");
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (rps < 15) {
+				if (corporationInfo.sharePrice > targetSharePriceLow) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
 			if (corporationInfo.issuedShares > 0 &&
 				(corporationInfo.shareSaleCooldown < 15000 || percentage >= 1.0)) {
-				if (rps > 20 || percentage >= 1.0) {
+				if (corporationInfo.sharePrice < targetSharePriceHigh || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
 						await runAndWait(ns, "corporation2.js", "--local", "--buy");
