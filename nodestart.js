@@ -173,7 +173,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
 			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 			var profit = corporationInfo.revenue - corporationInfo.expenses;
-			var rps = Math.floor((corporationInfo.funds / 100000 + corporationInfo.revenue) / corporationInfo.sharePrice / 1000);
+			var rps = ((corporationInfo.funds / 100000 + corporationInfo.revenue / 2) / corporationInfo.sharePrice / 1000).toFixed(1);
 			ns.tprintf("Corporation: share=%s, profit=%s, funds=%s, rps=%d, cool=%d s, owned=%s",
 				formatMoney(corporationInfo.sharePrice),
 				formatMoney(profit),
