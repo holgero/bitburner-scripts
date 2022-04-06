@@ -185,7 +185,7 @@ async function setupCorporation(ns) {
 /** @param {NS} ns **/
 async function printCorporationInfo(ns, options) {
 	var corporation = ns.corporation.getCorporation();
-	corporation.valuation = valuation(corporation);
+	corporation.valuation = valuation(ns, corporation);
 	var profit = corporation.revenue - corporation.expenses;
 	if (!options.quiet) {
 		ns.tprintf("Corporation info: %s", corporation.name);
@@ -202,11 +202,9 @@ async function printCorporationInfo(ns, options) {
 	}
 }
 
-function valuation(corporation) {
+/** @param {NS} ns **/
+function valuation(ns, corporation) {
 	var profit = corporation.revenue - corporation.expenses;
-	if (corporation.dividendPercentage > 0) {
-		profit *= (100 - corporation.dividendPercentage) / 100;
-	}
 
 	var val = corporation.funds + profit * 85e3;
 	val *= Math.pow(1.1, corporation.divisions.length);

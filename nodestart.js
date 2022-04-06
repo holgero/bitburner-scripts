@@ -175,22 +175,22 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 			var profit = corporationInfo.revenue - corporationInfo.expenses;
 			var targetSharePriceLow = corporationInfo.valuation / (2 * corporationInfo.totalShares);
 			var targetSharePriceHigh = corporationInfo.valuation /
-				(2 * ( corporationInfo.totalShares -corporationInfo.issuedShares - corporationInfo.numShares ));
+				(2 * (corporationInfo.totalShares - corporationInfo.issuedShares - corporationInfo.numShares));
 			ns.tprintf("Corporation: share=%s, target=%s-%s, funds=%s, profit=%s, cool=%d s, owned=%s",
 				formatMoney(corporationInfo.sharePrice),
 				formatMoney(targetSharePriceLow), formatMoney(targetSharePriceHigh),
 				formatMoney(corporationInfo.funds),
 				formatMoney(profit),
 				Math.ceil(corporationInfo.shareSaleCooldown / 5),
-				corporationInfo.issuedShares == 0 ? "*": "-");
+				corporationInfo.issuedShares == 0 ? "*" : "-");
 			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (corporationInfo.sharePrice > targetSharePriceLow) {
+				if (corporationInfo.sharePrice > (targetSharePriceHigh + targetSharePriceLow) / 2.0) {
 					await runAndWait(ns, "corporation2.js", "--local", "--sell");
 				}
 			}
 			if (corporationInfo.issuedShares > 0 &&
 				(corporationInfo.shareSaleCooldown < 15000 || percentage >= 1.0)) {
-				if (corporationInfo.sharePrice < targetSharePriceHigh || percentage >= 1.0) {
+				if (corporationInfo.sharePrice <= (targetSharePriceHigh + targetSharePriceLow) / 2.0 || percentage >= 1.0) {
 					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
 					if (needed < ns.getServerMoneyAvailable("home")) {
 						await runAndWait(ns, "corporation2.js", "--local", "--buy");
