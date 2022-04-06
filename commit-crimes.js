@@ -1,22 +1,21 @@
 const HOMICIDE = "Homicide";
 const MUG = "Mug someone";
 const SHOPLIFT = "Shoplift";
-var crimeCount = 0;
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["until_hack", 0], ["until_stats", 0]]);
+	var options = ns.flags([["until_hack", 0], ["until_stats", 0], ["timed", 0]]);
+	var startTime = ns.getPlayer().playtimeSinceLastAug;
 	while (ns.getCrimeChance(HOMICIDE) < 0.5) {
 		while (ns.getCrimeChance(MUG) < 0.5) {
 			await commitCrime(ns, SHOPLIFT);
-			if (checkCondition(ns.getPlayer(), options))  return;
+			if (checkCondition(ns, options, startTime))  return;
 		}
 		await commitCrime(ns, MUG);
-		if (checkCondition(ns.getPlayer(), options))  return;
+		if (checkCondition(ns, options, startTime))  return;
 	}
-	for (var ii = 0; ii < 100; ii++) {
+	while (!checkCondition(ns, options, startTime)) {
 		await commitCrime(ns, HOMICIDE);
-		if (checkCondition(ns.getPlayer(), options))  return;
 	}
 }
 
@@ -34,7 +33,13 @@ async function commitCrime(ns, crime) {
 	}
 }
 
-function checkCondition(player, options) {
+function checkCondition(ns, options, startTime) {
+	var player = ns.getPlayer();
+	if (options.timed) {
+		var now = player.playtimeSinceLastAug;
+		// ns.printf("Timed option: %d", options.timed);
+		if ((now - startTime)/1000 > options.timed) return true;
+	}
 	if (options.until_hack && player.hacking >= options.until_hack) {
 		return true;
 	}

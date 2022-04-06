@@ -230,7 +230,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
-			await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
+			await runAndWait(ns, "commit-crimes.js", "--timed", 60, "--until_hack", 100);
 		} else {
 			if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
 				ns.printf("At start of checks");
@@ -273,14 +273,14 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						await ns.sleep(60000);
 					} else {
 						ns.printf("Not working");
-						// not working for a faction: kill a few people until we progress
-						await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
+						// not working for a faction: kill a few people
+						await runAndWait(ns, "commit-crimes.js", "--timed", 60);
 					}
 				}
 			} else {
 				ns.printf("Not working and nothing to do");
-				// not working for a faction: kill a few people until we progress
-				await runAndWait(ns, "commit-crimes.js", "--until_hack", ns.getPlayer().hacking + 1);
+				// not working for a faction: kill a few people
+				await runAndWait(ns, "commit-crimes.js", "--timed", 60);
 			}
 		}
 		// check for coding contracts

@@ -6,6 +6,8 @@ export async function main(ns) {
 		ns.gymWorkout("Snap Fitness Gym", lowStatName, focus) ||
 		ns.gymWorkout("Millenium Fitness Gym", lowStatName, focus)) {
 		await ns.sleep(60000);
+	} else {
+		ns.spawn("commit-crimes.js", 1, "--timed", 60);
 	}
 	return;
 }
