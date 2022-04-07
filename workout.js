@@ -1,3 +1,5 @@
+import * as c from "./constants.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	var lowStatName = ns.args[0];
@@ -7,7 +9,10 @@ export async function main(ns) {
 		ns.gymWorkout("Millenium Fitness Gym", lowStatName, focus)) {
 		await ns.sleep(60000);
 	} else {
-		ns.spawn("commit-crimes.js", 1, "--timed", 60);
+		ns.travelToCity(c.SECTOR12);
+		if (!ns.gymWorkout("Powerhouse Gym", lowStatName, focus)) {
+			ns.spawn("commit-crimes.js", 1, "--timed", 60);
+		}
 	}
 	return;
 }
