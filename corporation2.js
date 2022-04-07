@@ -42,7 +42,6 @@ export async function main(ns) {
 		["sell", false],
 		["buy", false],
 		["setup", false],
-		["public", false],
 		["quiet", false],
 		["local", false],
 		["restart", "[]"]]);
@@ -70,17 +69,6 @@ export async function main(ns) {
 		await setupCorporation(ns);
 	}
 	await printCorporationInfo(ns, options);
-	if (options.public) {
-		var corp = ns.corporation.getCorporation();
-		if (!corp.public) {
-			var ipoShares = Math.min(1e9, Math.floor(options.public / corp.sharePrice));
-			ns.corporation.goPublic(ipoShares);
-			await ns.sleep(1000);
-			if (ipoShares > 0) {
-				ns.corporation.buyBackShares(ipoShares);
-			}
-		}
-	}
 	if (processList.length) {
 		restorePreviousScripts(ns, processList);
 	}
