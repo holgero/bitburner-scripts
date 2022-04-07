@@ -31,6 +31,7 @@ const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
+const HOLD_BACK_FUNDS = 10e9;
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -91,7 +92,7 @@ async function setupCorporation(ns) {
 		// spend the funds of the company only while it is owned by someone else
 		// as spending has the potential of decreasing the share price
 		if (corporation.divisions.length == 0) {
-			if (corporation.funds > ns.corporation.getExpandIndustryCost(FOOD)) {
+			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(FOOD)) {
 				ns.corporation.expandIndustry(FOOD, FOOD);
 				corporation = ns.corporation.getCorporation();
 			} else {
@@ -101,7 +102,7 @@ async function setupCorporation(ns) {
 		for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
 			if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
 				var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
-				if (corporation.funds > cost) {
+				if (corporation.funds - HOLD_BACK_FUNDS > cost) {
 					ns.corporation.levelUpgrade(upgrade);
 					corporation = ns.corporation.getCorporation();
 				}
@@ -110,7 +111,7 @@ async function setupCorporation(ns) {
 		for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
 			if (!ns.corporation.hasUnlockUpgrade(unlock)) {
 				var cost = ns.corporation.getUnlockUpgradeCost(unlock);
-				if (cost < corporation.funds) {
+				if (cost < corporation.funds - HOLD_BACK_FUNDS) {
 					ns.corporation.unlockUpgrade(unlock);
 					corporation = ns.corporation.getCorporation();
 				}
@@ -122,21 +123,21 @@ async function setupCorporation(ns) {
 			ns.corporation.hasUnlockUpgrade(WAREHOUSE_API) &&
 			corporation.divisions.length == 1 &&
 			corporation.divisions[0].cities.length >= c.CITIES.length) {
-			if (corporation.funds > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
+			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
 				ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
 				corporation = ns.corporation.getCorporation();
 			}
 		}
 		if (corporation.divisions.length == 2 &&
 			corporation.divisions[1].cities.length >= c.CITIES.length) {
-			if (corporation.funds > ns.corporation.getExpandIndustryCost(TOBACCO)) {
+			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(TOBACCO)) {
 				ns.corporation.expandIndustry(TOBACCO, TOBACCO);
 				corporation = ns.corporation.getCorporation();
 			}
 		}
 		if (corporation.divisions.length == 3 &&
 			corporation.divisions[2].cities.length >= c.CITIES.length) {
-			if (corporation.funds > ns.corporation.getExpandIndustryCost(SOFTWARE)) {
+			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(SOFTWARE)) {
 				ns.corporation.expandIndustry(SOFTWARE, SOFTWARE);
 				corporation = ns.corporation.getCorporation();
 			}
@@ -159,7 +160,7 @@ async function setupCorporation(ns) {
 				corporation.divisions.length &&
 				corporation.numShares == 0) {
 				var cost = ns.corporation.getHireAdVertCost(division.name);
-				if (corporation.funds > cost) {
+				if (corporation.funds - HOLD_BACK_FUNDS > cost) {
 					ns.corporation.hireAdVert(division.name);
 					corporation = ns.corporation.getCorporation();
 				}
@@ -222,7 +223,7 @@ function expandDivision(ns, division, corporation) {
 		return;
 	}
 	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
-	while (corporation.funds > expansionCost) {
+	while (corporation.funds - HOLD_BACK_FUNDS > expansionCost) {
 		var nextCity = c.CITIES.find(a => !division.cities.includes(a));
 		ns.tprintf("Expanding to %s", nextCity);
 		if (nextCity) {
@@ -244,7 +245,7 @@ async function setupDivisionOffice(ns, division, sizeFactor) {
 		if (division.cities.length == c.CITIES.length &&
 			office.size < 9 * sizeFactor) {
 			var corp = ns.corporation.getCorporation();
-			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds) {
+			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds - HOLD_BACK_FUNDS) {
 				ns.corporation.upgradeOfficeSize(division.name, city, 3);
 			}
 			office = ns.corporation.getOffice(division.name, city);
@@ -377,7 +378,7 @@ async function setupDivisionWarehouse(ns, division) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
 				Math.min(ns.corporation.getOffice(division.name, city).employees.length,
 					division.cities.length) &&
-				ns.corporation.getCorporation().funds >
+				ns.corporation.getCorporation().funds - HOLD_BACK_FUNDS >
 				ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
 				ns.corporation.upgradeWarehouse(division.name, city);
 			}
