@@ -33,6 +33,8 @@ const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 
+const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([
@@ -87,62 +89,9 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
 	ns.print("setupCorporation");
+	expandIndustry(ns);
+	buyCorporationUpgrades(ns);
 	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares == 0) {
-		// spend the funds of the company only while it is owned by someone else
-		// as spending has the potential of decreasing the share price
-		if (corporation.divisions.length == 0) {
-			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(FOOD)) {
-				ns.corporation.expandIndustry(FOOD, FOOD);
-				corporation = ns.corporation.getCorporation();
-			} else {
-				return;
-			}
-		}
-		for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
-			if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
-				var cost = ns.corporation.getUpgradeLevelCost(DREAM_SENSE);
-				if (corporation.funds - HOLD_BACK_FUNDS > cost) {
-					ns.corporation.levelUpgrade(upgrade);
-					corporation = ns.corporation.getCorporation();
-				}
-			}
-		}
-		for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
-			if (!ns.corporation.hasUnlockUpgrade(unlock)) {
-				var cost = ns.corporation.getUnlockUpgradeCost(unlock);
-				if (cost < corporation.funds - HOLD_BACK_FUNDS) {
-					ns.corporation.unlockUpgrade(unlock);
-					corporation = ns.corporation.getCorporation();
-				}
-			}
-		}
-		// expand to the second division if the first is fully expanded
-		// to all cities and only we have all the APIs to fully automate the new division
-		if (ns.corporation.hasUnlockUpgrade(OFFICE_API) &&
-			ns.corporation.hasUnlockUpgrade(WAREHOUSE_API) &&
-			corporation.divisions.length == 1 &&
-			corporation.divisions[0].cities.length >= c.CITIES.length) {
-			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(AGRICULTURE)) {
-				ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
-				corporation = ns.corporation.getCorporation();
-			}
-		}
-		if (corporation.divisions.length == 2 &&
-			corporation.divisions[1].cities.length >= c.CITIES.length) {
-			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(TOBACCO)) {
-				ns.corporation.expandIndustry(TOBACCO, TOBACCO);
-				corporation = ns.corporation.getCorporation();
-			}
-		}
-		if (corporation.divisions.length == 3 &&
-			corporation.divisions[2].cities.length >= c.CITIES.length) {
-			if (corporation.funds - HOLD_BACK_FUNDS > ns.corporation.getExpandIndustryCost(SOFTWARE)) {
-				ns.corporation.expandIndustry(SOFTWARE, SOFTWARE);
-				corporation = ns.corporation.getCorporation();
-			}
-		}
-	}
 
 	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 		while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
@@ -154,8 +103,8 @@ async function setupCorporation(ns) {
 		}
 	}
 	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
-		corporation = ns.corporation.getCorporation();
 		for (var division of corporation.divisions) {
+			corporation = ns.corporation.getCorporation();
 			if (ns.corporation.getHireAdVertCount(division.name) <
 				corporation.divisions.length &&
 				corporation.numShares == 0) {
@@ -177,10 +126,68 @@ async function setupCorporation(ns) {
 				}
 				// only expand if we can manage it completely
 				expandDivision(ns, division, corporation);
-				corporation = ns.corporation.getCorporation();
 			}
 		}
 	}
+}
+
+/** @param {NS} ns **/
+function buyCorporationUpgrades(ns) {
+	var corporation = ns.corporation.getCorporation();
+	if (corporation.numShares > 0) {
+		// spend money only while the shares belong to someone else
+		return;
+	}
+	var money = corporation.funds - HOLD_BACK_FUNDS;
+	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
+		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
+			var cost = ns.corporation.getUpgradeLevelCost(upgrade);
+			if (money > cost) {
+				ns.corporation.levelUpgrade(upgrade);
+				money -= cost;
+			}
+		}
+	}
+	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
+		if (!ns.corporation.hasUnlockUpgrade(unlock)) {
+			var cost = ns.corporation.getUnlockUpgradeCost(unlock);
+			if (money > cost) {
+				ns.corporation.unlockUpgrade(unlock);
+				money -= cost;
+			}
+		}
+	}
+}
+
+/** @param {NS} ns **/
+function expandIndustry(ns) {
+	var corporation = ns.corporation.getCorporation();
+	if (corporation.numShares > 0) {
+		// expand only while the shares belong to someone else
+		return;
+	}
+	if (!ns.corporation.hasUnlockUpgrade(OFFICE_API) ||
+		!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		// need the APIs for automatic expansion
+		return;
+	}
+	if (corporation.divisions.length >= INDUSTRIES.length) {
+		// maximum expansion reached
+		return;
+	}
+	var currentDivision = corporation.divisions.slice(-1);
+	if (currentDivision.cities.length < c.CITIES.length) {
+		// not fully expanded
+		return;
+	}
+	var industry = INDUSTRIES[corporation.divisions.length];
+	if (corporation.funds - HOLD_BACK_FUNDS <
+		ns.corporation.getExpandIndustryCost(industry)) {
+		// not enough funds to expand
+		return;
+	}
+	ns.tprintf("Expanding to industry: %s");
+	ns.corporation.expandIndustry(industry, industry);
 }
 
 /** @param {NS} ns **/
