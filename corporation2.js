@@ -211,22 +211,20 @@ function valuation(ns, corporation) {
 
 /** @param {NS} ns **/
 function expandDivision(ns, division, corporation) {
-	if (division.cities.length >= c.CITIES.length) {
-		return;
-	}
 	if (corporation.numShares > 0) {
 		return;
 	}
+	if (division.cities.length >= c.CITIES.length) {
+		return;
+	}
+	var money = corporation.funds - HOLD_BACK_FUNDS;
 	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
-	while (corporation.funds - HOLD_BACK_FUNDS > expansionCost) {
-		var nextCity = c.CITIES.find(a => !division.cities.includes(a));
+	for (var nextCity of c.CITIES.filter(a => !division.cities.includes(a))) {
 		ns.tprintf("Expanding to %s", nextCity);
-		if (nextCity) {
+		if (money > expansionCost) {
 			ns.corporation.expandCity(division.name, nextCity);
 			ns.corporation.purchaseWarehouse(division.name, nextCity);
-			corporation.funds -= expansionCost;
-		} else {
-			break;
+			money -= expansionCost;
 		}
 	}
 }
