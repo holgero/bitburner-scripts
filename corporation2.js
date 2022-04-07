@@ -154,6 +154,10 @@ function expandIndustry(ns) {
 		// expand only while the shares belong to someone else
 		return;
 	}
+	if (corporation.divisions.length == 0) {
+		startFirst(ns, INDUSTRIES[0]);
+		return;
+	}
 	if (!ns.corporation.hasUnlockUpgrade(OFFICE_API) ||
 		!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 		// need the APIs for automatic expansion
@@ -176,6 +180,14 @@ function expandIndustry(ns) {
 	}
 	ns.tprintf("Expanding to industry: %s");
 	ns.corporation.expandIndustry(industry, industry);
+}
+
+/** @param {NS} ns **/
+function startFirst(ns, industry) {
+	ns.tprintf("Starting first industry %s", industry);
+	ns.corporation.expandIndustry(industry, industry);
+	ns.corporation.unlockUpgrade(WAREHOUSE_API);
+	expandDivision(ns, ns.corporation.getDivision(industry), ns.corporation.getCorporation());
 }
 
 /** @param {NS} ns **/
