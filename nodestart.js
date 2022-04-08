@@ -10,29 +10,17 @@ export async function main(ns) {
 	// get all unprotected servers immediately
 	await startHacking(ns);
 
-	if (ns.getPlayer().bitNodeN == 3) {
-		// on bitnode 3 we rely completely on the corporation, so make sure that
-		// the corporation script can be run locally
-		await runAndWait(ns, "purchase-ram.js", 2048);
-		await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
-		await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--milk");
-		var spareRam = Math.ceil(64 + ns.getScriptRam("corporation2.js"));
-		if (!ns.scriptRunning("instrument.js", "home")) {
-			ns.run("instrument.js", 1, "--target", "foodnstuff", "--spare", spareRam);
+	// set up for corporations
+	await runAndWait(ns, "purchase-ram.js", 2048);
+	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
+		if (!ns.scriptRunning("corporation.js", "home")) {
+			ns.run("corporation.js");
 		}
-	} else {
-		// if we have a corporation we can start this run with some easy money on restart
-		if (ns.getPlayer().playtimeSinceLastAug < 10000) {
-			await runAndWait(ns, "corporation.js", "--milk");
-			// wait for a potential spawn...
-			await ns.sleep(20000);
-		}
-		// make use of the memory on our home machine
-		if (ns.getServerMaxRam("home") > 32) {
-			if (!ns.scriptRunning("instrument.js", "home")) {
-				ns.run("instrument.js", 1, "foodnstuff");
-			}
-		}
+	}
+
+	// use remaining memory on home machine for hacking foodnstuff
+	if (!ns.scriptRunning("instrument.js", "home")) {
+		ns.run("instrument.js", 1, "--target", "foodnstuff");
 	}
 
 	if (!options.restart) {
@@ -51,7 +39,6 @@ export async function main(ns) {
 
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-		ns.rm("corporation.txt", "home");
 		if (corporationInfo.shareSaleCooldown) {
 			for (var goal of config.factionGoals.filter(a => a.company)) {
 				if (!ns.getPlayer().factions.includes(goal.name)) {
@@ -59,7 +46,9 @@ export async function main(ns) {
 					break;
 				}
 			}
-			await ns.sleep(200 * corporationInfo.shareSaleCooldown);
+			await ns.sleep(200 * corporationInfo.shareSaleCooldown - 20000);
+			ns.scriptKill("corporation.js");
+			await ns.sleep(10000);
 			ns.stopAction();
 		}
 	}
@@ -166,43 +155,6 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						ns.run("instrument.js", 1, "foodnstuff");
 					}
 				}
-			}
-		}
-		if (ns.getPlayer().bitNodeN == 3) {
-			// on bitnode 3 we'll have to rely on corporation money
-			await runAndWait(ns, "corporation2.js", "--local", "--quiet", "--setup");
-			var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-			var profit = corporationInfo.revenue - corporationInfo.expenses;
-			var targetSharePriceLow = corporationInfo.valuation / (2 * corporationInfo.totalShares);
-			var targetSharePriceHigh = corporationInfo.valuation /
-				(2 * (corporationInfo.totalShares - corporationInfo.issuedShares - corporationInfo.numShares));
-			ns.tprintf("Corporation: share=%s, target=%s-%s, funds=%s, profit=%s, cool=%d s, owned=%s",
-				formatMoney(corporationInfo.sharePrice),
-				formatMoney(targetSharePriceLow), formatMoney(targetSharePriceHigh),
-				formatMoney(corporationInfo.funds),
-				formatMoney(profit),
-				Math.ceil(corporationInfo.shareSaleCooldown / 5),
-				corporationInfo.issuedShares == 0 ? "*" : "-");
-			if (corporationInfo.numShares > 0 && corporationInfo.shareSaleCooldown == 0 && percentage < 1.0) {
-				if (corporationInfo.sharePrice > (targetSharePriceHigh + targetSharePriceLow) / 2.0) {
-					await runAndWait(ns, "corporation2.js", "--local", "--sell");
-				}
-			}
-			if (corporationInfo.issuedShares > 0 &&
-				(corporationInfo.shareSaleCooldown < 15000 || percentage >= 1.0)) {
-				if (corporationInfo.sharePrice <= (targetSharePriceHigh + targetSharePriceLow) / 2.0 || percentage >= 1.0) {
-					var needed = (1e9 - corporationInfo.numShares) * corporationInfo.sharePrice * 1.1;
-					if (needed < ns.getServerMoneyAvailable("home")) {
-						await runAndWait(ns, "corporation2.js", "--local", "--buy");
-					} else {
-						ns.tprintf("Want to buy back corporation shares. Need %s, have %s",
-							formatMoney(needed), formatMoney(ns.getServerMoneyAvailable("home")));
-					}
-				}
-			}
-		} else {
-			if (nextProgram > 4) {
-				await runAndWait(ns, "corporation.js", "--quiet", "--setup");
 			}
 		}
 		// upgrade server farm
