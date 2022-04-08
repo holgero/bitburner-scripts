@@ -1,8 +1,11 @@
+import * as c from "./constants.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
-	ns.tprintf("City: %s, money: %d", ns.getPlayer().city, ns.getServerMoneyAvailable("home"));
-	ns.travelToCity("Sector-12");
-	ns.tprintf("City: %s, money: %d", ns.getPlayer().city, ns.getServerMoneyAvailable("home"));
-	ns.travelToCity("Aevum");
-	ns.tprintf("City: %s, money: %d", ns.getPlayer().city, ns.getServerMoneyAvailable("home"));
+	var options = ns.flags([["city", ""]]);
+	if (options.city && c.CITIES.includes(options.city)) {
+		if (ns.getPlayer().city != options.city) {
+			ns.travelToCity(options.city);
+		}
+	}
 }

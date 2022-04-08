@@ -129,8 +129,8 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 	ns.printf("Next server ram size: %d GB, next program to aquire: %s",
 		nextServerRam, nextProgram < c.programs.length ? c.programs[nextProgram].name : "(complete)");
 	while (true) {
-		if (!ns.getPlayer().factions.includes(goal.name) && goal.location && ns.getPlayer().city != goal.location) {
-			ns.travelToCity(goal.location);
+		if (!ns.getPlayer().factions.includes(goal.name) && goal.location) {
+			await runAndWait(ns, "travel.js", "--city", goal.location);
 		}
 		var currentMoney = ns.getServerMoneyAvailable("home");
 		if (nextProgram == 0 && !firstHacknetNode) {
@@ -234,8 +234,8 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 							toJoin.push(tGoal.name);
 						}
 					}
-					ns.printf("Start working at company");
 					if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
+						ns.printf("Start working at company");
 						await runAndWait(ns, "workforcompany.js", goal.name, "IT",
 							JSON.stringify(toJoin), JSON.stringify(focus));
 					}
@@ -377,7 +377,7 @@ async function futureGoalConditions(ns, goals, nextProgram) {
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {
-					ns.travelToCity(goal.location);
+					await runAndWait(ns, "travel.js", "--city", goal.location);
 					return;
 				}
 			}
