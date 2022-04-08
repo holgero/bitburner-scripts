@@ -167,7 +167,7 @@ function expandIndustry(ns) {
 		// maximum expansion reached
 		return;
 	}
-	var currentDivision = corporation.divisions.slice(-1);
+	var currentDivision = corporation.divisions[corporation.divisions.length-1];
 	if (currentDivision.cities.length < c.CITIES.length) {
 		// not fully expanded
 		return;
@@ -452,7 +452,7 @@ async function distributeEmployees(ns, division, city, office) {
 		management: Math.floor(toDistribute / 9),
 		business: Math.floor(toDistribute / 9),
 		research: Math.floor(toDistribute / 9),
-		engineers: Math.floor(toDistribute / 4)
+		engineers: 1 + Math.floor(toDistribute / 9)
 	};
 	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
 		var warehouse = ns.corporation.getWarehouse(division.name, city);
