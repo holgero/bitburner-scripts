@@ -37,6 +37,7 @@ const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	ns.disableLog("sleep");
 	while (true) {
 		var player = ns.getPlayer();
 		if (!player.hasCorporation) {
@@ -54,14 +55,20 @@ export async function main(ns) {
 
 		if (corporation.numShares > 0 && !corporation.shareSaleCooldown &&
 			corporation.sharePrice > target) {
+			var money = ns.getServerMoneyAvailable("home");
 			ns.corporation.sellShares(corporation.numShares);
 			ns.corporation.issueDividends(1);
+			var earned = ns.getServerMoneyAvailable("home") - money;
+			ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
 		}
 		if (corporation.issuedShares > 0 && corporation.shareSaleCooldown < 15000 &&
 			corporation.sharePrice < target) {
 			if (corporation.issuedShares * corporation.sharePrice * 1.1 < ns.getServerMoneyAvailable("home")) {
+				var money = ns.getServerMoneyAvailable("home");
 				ns.corporation.issueDividends(0);
 				ns.corporation.buyBackShares(corporation.issuedShares);
+				var spend = money - ns.getServerMoneyAvailable("home");
+				ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
 			}
 		}
 
@@ -72,7 +79,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function setupCorporation(ns) {
-	ns.print("setupCorporation");
+	// ns.print("setupCorporation");
 	expandIndustry(ns);
 	buyCorporationUpgrades(ns);
 	var corporation = ns.corporation.getCorporation();
@@ -238,7 +245,7 @@ function expandDivision(ns, division, corporation) {
 
 /** @param {NS} ns **/
 async function setupDivisionOffice(ns, division, sizeFactor) {
-	ns.print("setupDivisionOffices");
+	// ns.print("setupDivisionOffices");
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
 		// increase office size only after being present in all cities
@@ -270,7 +277,7 @@ async function setupDivisionOffice(ns, division, sizeFactor) {
 
 /** @param {NS} ns **/
 async function setupDivisionWarehouse(ns, division) {
-	ns.print("setupDivisionWarehouse");
+	// ns.print("setupDivisionWarehouse");
 	for (var city of division.cities) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
@@ -425,7 +432,7 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var canSpend = corp.numShares == 0;
 
 	if (canSpend && info.qty < amount) {
-		ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
+		// ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
 		ns.corporation.buyMaterial(divisionName, city, material, baseAmount / 500.0);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
 		return true;
@@ -441,7 +448,7 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 
 /** @param {NS} ns **/
 async function distributeEmployees(ns, division, city, office) {
-	ns.print("distributeEmployees");
+	// ns.print("distributeEmployees");
 	var toDistribute = office.size;
 	var wanted = {
 		management: Math.floor(toDistribute / 9),
@@ -491,8 +498,8 @@ async function distributeEmployees(ns, division, city, office) {
 				break;
 		}
 	}
-	ns.printf("Wanted: %s", JSON.stringify(wanted));
-	ns.printf("Have:   %s", JSON.stringify(have));
+	// ns.printf("Wanted: %s", JSON.stringify(wanted));
+	// ns.printf("Have:   %s", JSON.stringify(have));
 	if (wanted.business != have.business) {
 		await ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
 	}
@@ -508,19 +515,5 @@ async function distributeEmployees(ns, division, city, office) {
 	if (wanted.operations != have.operations) {
 		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
 	}
-	ns.print("Done distributing");
-}
-
-/** @param {NS} ns **/
-function restorePreviousScripts(ns, processList) {
-	ns.printf("Commands to restore: %s", JSON.stringify(processList));
-	// run all scripts, but the last
-	for (var ii = 0; ii < processList.length - 1; ii++) {
-		var process = processList[ii];
-		ns.run(process.filename, process.threads, ...process.args);
-	}
-	var lastProcess = processList.pop();
-	ns.printf("Last command to restore: %s", JSON.stringify(lastProcess));
-	// and spawn the last one
-	ns.spawn(lastProcess.filename, lastProcess.threads, ...lastProcess.args);
+	// ns.print("Done distributing");
 }
