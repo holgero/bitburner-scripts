@@ -289,7 +289,7 @@ async function setupDivisionWarehouse(ns, division) {
 				}
 				var product = ns.corporation.getProduct(division.name, RESTAURANT);
 				if (product.developmentProgress < 100) {
-					ns.tprintf("Product %s at %s%%", product.name,
+					ns.printf("Product %s at %s%%", product.name,
 						product.developmentProgress.toFixed(2));
 					return;
 				}
@@ -300,7 +300,8 @@ async function setupDivisionWarehouse(ns, division) {
 				}
 				var product = ns.corporation.getProduct(division.name, DROMEDAR);
 				if (product.developmentProgress < 100) {
-					ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
+					ns.printf("Product %s at %s%%", product.name,
+						product.developmentProgress.toFixed(2));
 					return;
 				}
 				break;
@@ -310,7 +311,7 @@ async function setupDivisionWarehouse(ns, division) {
 				}
 				var product = ns.corporation.getProduct(division.name, BURNER);
 				if (product.developmentProgress < 100) {
-					ns.tprintf("Product %s at %d%%", product.name, product.developmentProgress);
+					ns.printf("Product %s at %d%%", product.name, product.developmentProgress);
 					// no return here: we can still produce AI Cores
 				}
 				break;
