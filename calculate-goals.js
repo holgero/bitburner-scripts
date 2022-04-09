@@ -111,7 +111,7 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 			augsBeforeInstall, check_goals, neededRep);
 		ns.printf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
 		//if (augsBeforeInstall == 11 && newAugs == 10) {
-			//ns.tprintf("%s", JSON.stringify(faction_goals));
+		//ns.tprintf("%s", JSON.stringify(faction_goals));
 		//}
 		if (newAugs >= augsBeforeInstall) {
 			faction_goals.splice(0, faction_goals.length);

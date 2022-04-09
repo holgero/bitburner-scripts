@@ -53,8 +53,10 @@ export async function main(ns) {
 		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares));
 		var target = (low + high) / 2;
 
-		if (corporation.numShares > 0 && !corporation.shareSaleCooldown &&
-			corporation.sharePrice > target) {
+		if (corporation.numShares > 0 &&
+			!corporation.shareSaleCooldown &&
+			corporation.sharePrice > target &&
+			!ns.fileExists("stopselling.txt")) {
 			var money = ns.getServerMoneyAvailable("home");
 			ns.corporation.sellShares(corporation.numShares);
 			ns.corporation.issueDividends(1);
@@ -234,8 +236,8 @@ function expandDivision(ns, division, corporation) {
 	var money = corporation.funds - HOLD_BACK_FUNDS;
 	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
 	for (var nextCity of c.CITIES.filter(a => !division.cities.includes(a))) {
-		ns.tprintf("Expanding to %s", nextCity);
 		if (money > expansionCost) {
+			ns.tprintf("Expanding to %s", nextCity);
 			ns.corporation.expandCity(division.name, nextCity);
 			ns.corporation.purchaseWarehouse(division.name, nextCity);
 			money -= expansionCost;

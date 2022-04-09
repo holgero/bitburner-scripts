@@ -24,15 +24,21 @@ export async function main(ns) {
 	}
 
 	if (!options.restart) {
+		ns.rm("stopselling.txt");
 		// determine goals for this run
 		await runAndWait(ns, "calculate-goals.js");
 	}
 	await runAndWait(ns, "print_goals.js");
 
 	const config = JSON.parse(ns.read("nodestart.txt"));
+	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
+	if (!daedalus || daedalus.augmentations[daedalus.augmentations.length - 1] != c.RED_PILL) {
+		config.factionGoals.push({name:c.WORLD_DAEMON, backdoor:c.WORLD_DAEMON });
+	}
+
 	await workOnGoals(ns, config);
 
-	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns)) {
+	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
 		// too much money left, do a re-spawn once
 		ns.spawn("nodestart.js", 1, "--lasttime");
 	}
@@ -60,40 +66,44 @@ export async function main(ns) {
 async function workOnGoals(ns, config) {
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
+		var goal = await selectGoal(ns, runGoals, config);
 		await workOnGoal(ns, goal, 0.25, runGoals, config);
 	}
 
-	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns)) {
+	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns, false)) {
 		return;
 	}
 
 	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
 	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	runGoals.reverse();
 	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
+		var goal = await selectGoal(ns, runGoals, config);
 		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
 	}
 
-	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns)) {
+	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns, false)) {
 		return;
 	}
 
 	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = ns.getFactionRep(a.name));
+	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
 	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	runGoals.reverse();
 	while (runGoals.length > 0) {
-		var goal = selectGoal(ns, runGoals);
+		var goal = await selectGoal(ns, runGoals, config);
 		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
 	}
 }
 
 /** @param {NS} ns **/
-async function getEstimation(ns) {
-	await runAndWait(ns, "estimate.js", "--write");
+async function getEstimation(ns, goal) {
+	if (goal) {
+		await runAndWait(ns, "estimate.js", "--write", "--goal");
+	} else {
+		await runAndWait(ns, "estimate.js", "--write");
+	}
 	var estimation = JSON.parse(ns.read("estimate.txt"));
 	ns.rm("estimate.txt", "home");
 	return estimation.estimatedPrice;
@@ -101,7 +111,7 @@ async function getEstimation(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoal(ns, goal, percentage, goals, config) {
-	if (ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
+	if (!goal.reputation || ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
 		return;
 	}
 	var focus = true;
@@ -232,6 +242,13 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					ns.printf("Start working for faction");
 					await runAndWait(ns, "workforfaction.js", goal.name, goal.work,
 						JSON.stringify(toJoin), JSON.stringify(focus));
+					if (factions.includes(c.DAEDALUS) && goal.name != c.DAEDALUS) {
+						var daedalus = goals.find(a => a.name == c.DAEDALUS);
+						if (daedalus && daedalus.augmentations[daedalus.augmentations.length - 1] == c.RED_PILL) {
+							// we have more important things to do
+							return;
+						}
+					}
 					if (ns.isBusy()) {
 						await ns.sleep(60000);
 					} else {
@@ -256,24 +273,40 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 }
 
 /** @param {NS} ns **/
-function selectGoal(ns, goals) {
+async function selectGoal(ns, goals, config) {
 	var money = ns.getServerMoneyAvailable("home");
 	var factions = ns.getPlayer().factions;
 	if (factions.includes(c.DAEDALUS)) {
 		var goal = goals.find(a => a.name == c.DAEDALUS);
-		// single minded now, there are no other goals...
-		goals.splice(0, goals.length);
-		if (goal.reputation == 0) {
-			if (ns.getFactionFavor(goal.name) < ns.getFavorToDonate()) {
-				goal.reputation = reputationNeeded(ns, goal.name);
+		if (goal && goal.augmentations[goal.augmentations.length - 1] == c.RED_PILL) {
+			// single minded now, there are no other goals...
+			goals.splice(0, goals.length);
+			if (goal.reputation == 0) {
+				if (ns.getFactionFavor(goal.name) < ns.getFavorToDonate()) {
+					goal.reputation = reputationNeeded(ns, goal.name);
+					await ns.write("stopselling.txt", "{goal:Daedalus}", "w");
+					config.estimatedDonations = 0;
+				}
 			}
+			if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
+				// reach the red pill
+				goal.reputation = goal.augmentations[goal.augmentations.length - 1].reputation;
+				config.estimatedDonations = 1;
+			}
+			await ns.write("nodestart.txt", JSON.stringify({
+				factionGoals: [goal],
+				estimatedPrice: 0,
+				estimatedDonations: config.estimatedDonations
+			}), "w");
+			config.estimatedPrice = await getEstimation(ns, true);
+			await ns.write("nodestart.txt", JSON.stringify({
+				factionGoals: [goal],
+				estimatedPrice: config.estimatedPrice,
+				estimatedDonations: config.estimatedDonations
+			}), "w");
+
+			return goal;
 		}
-		if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
-			// reach the red pill
-			goal.reputation = goal.augmentations[goal.augmentations.length-1].reputation;
-		}
-		
-		return goal;
 	}
 	for (var ii = 0; ii < goals.length; ii++) {
 		var goal = goals[ii];

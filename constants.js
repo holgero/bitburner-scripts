@@ -73,6 +73,10 @@ export const SECURITY_WORK = "Security Work";
 
 // augmentations
 export const GOVERNOR = "NeuroFlux Governor";
+export const RED_PILL = "The Red Pill";
+
+// servers
+export const WORLD_DAEMON = "w0r1d_d43m0n";
 
 // programs
 export const programs = [
