@@ -195,6 +195,14 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					if (config.estimatedDonations) {
 						var moneyForDonations = Math.max(0,
 							ns.getServerMoneyAvailable("home") - config.estimatedPrice);
+						if (ns.getPlayer().hasCorporation &&
+							ns.fileExists("corporation.txt", "home")) {
+							var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+							if (corporationInfo.issuedShares > 0) {
+								// dont donate money that is needed for buyback
+								moneyForDonations = 0;
+							}
+						}
 						if (moneyForDonations) {
 							await runAndWait(ns, "donate-faction.js",
 								goal.name, percentage * goal.reputation, moneyForDonations);
