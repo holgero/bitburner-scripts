@@ -47,7 +47,7 @@ export async function main(ns) {
 				}
 			}
 			await ns.sleep(200 * corporationInfo.shareSaleCooldown - 20000);
-			ns.scriptKill("corporation.js");
+			ns.scriptKill("corporation.js", "home");
 			await ns.sleep(10000);
 			ns.stopAction();
 		}
