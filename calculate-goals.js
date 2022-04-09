@@ -24,7 +24,8 @@ const STORY_LINE = [
 ];
 
 const AUGS_PER_RUN = 7;
-const COMPANY_REP_GAIN_THRESHOLD = 2.0;
+const COMPANY_REP_GAIN_THRESHOLD = 3.0;
+const COMPANY_FACTION_MIN_REP = 5000;
 const FACTION_STATS_THRESHOLD = 66;
 
 /** @param {NS} ns **/
@@ -146,8 +147,6 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 				// skip for now, too slow to gain any rep with company
 				continue;
 			}
-			// if we still need to work for the company first, just gain some favor
-			repToReach = 25000;
 		}
 		if (faction.stats && ns.getFactionFavor(faction.name) == 0) {
 			if (faction.stats / statsGainFactor(ns) > FACTION_STATS_THRESHOLD) {
@@ -181,6 +180,11 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			// hopefully means plenty of money, we should be able to bribe some factions
 			// during the next run
 			repNeeded = Math.min(repNeeded, reputationNeeded(ns, faction.name));
+		}
+		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
+			// we still have to work for the company first, so work only a bit
+			// for the coresponding faction
+			repNeeded = Math.min(repNeeded, COMPANY_FACTION_MIN_REP);
 		}
 		faction_goals.push({ ...faction, reputation: repNeeded });
 		ns.printf("Rep needed with faction %s is %d", faction.name, repNeeded);
