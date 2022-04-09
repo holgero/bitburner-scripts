@@ -1,4 +1,4 @@
-import { getAugmentationsToPurchase, statsGainFactor } from "helpers.js";
+import { getAugmentationsToPurchase, statsGainFactor, reputationNeeded } from "helpers.js";
 import * as c from "constants.js";
 
 const STORY_LINE = [
@@ -264,11 +264,4 @@ function removeFactionsWithoutAugmentations(faction_augmentations) {
 			ii--;
 		}
 	}
-}
-
-/** @param {NS} ns **/
-function reputationNeeded(ns, faction) {
-	var previousReputation = Math.pow(1.02, ns.getFactionFavor(faction) - 1) * 25500 - 25000;
-	var reputationNeeded = Math.pow(1.02, ns.getFavorToDonate() - 1) * 25500 - 25000;
-	return Math.max(0, reputationNeeded - previousReputation);
 }

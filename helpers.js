@@ -111,3 +111,10 @@ function updateRequiredChain(toPurchase, requiredAug, sortc) {
 		}
 	});
 }
+
+/** @param {NS} ns **/
+export function reputationNeeded(ns, faction) {
+	var previousReputation = Math.pow(1.02, ns.getFactionFavor(faction) - 1) * 25500 - 25000;
+	var reputationNeeded = Math.pow(1.02, ns.getFavorToDonate() - 1) * 25500 - 25000;
+	return Math.max(0, reputationNeeded - previousReputation);
+}
