@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { formatMoney } from "helpers.js";
+import { formatMoney, reputationNeeded } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -259,6 +259,22 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 function selectGoal(ns, goals) {
 	var money = ns.getServerMoneyAvailable("home");
 	var factions = ns.getPlayer().factions;
+	if (factions.includes(c.DAEDALUS)) {
+		var goal = goals.find(a => a.name == c.DAEDALUS);
+		// single minded now, there are no other goals...
+		goals.splice(0, goals.length);
+		if (goal.reputation == 0) {
+			if (ns.getFactionFavor(goal.name) < ns.getFavorToDonate()) {
+				goal.reputation = reputationNeeded(ns, goal.name);
+			}
+		}
+		if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
+			// reach the red pill
+			goal.reputation = goal.augmentations[goal.augmentations.length-1].reputation;
+		}
+		
+		return goal;
+	}
 	for (var ii = 0; ii < goals.length; ii++) {
 		var goal = goals[ii];
 		if (factions.includes(goal.name) || (!goal.money || goal.money <= 1.2 * money)) {

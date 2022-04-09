@@ -160,15 +160,6 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			placeToBe = faction.location;
 		}
 		repToReach = Math.min(repToReach, maxRep);
-		if (faction.name == c.DAEDALUS) {
-			if (ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
-				// try to get to favor for donating as soon as possible
-				repToReach = Math.max(repToReach, reputationNeeded(ns, faction.name));
-			} else {
-				// reach the red pill
-				repToReach = faction.augmentations[faction.augmentations.length - 1].reputation;
-			}
-		}
 		var repNeeded = 0;
 		for (var augmentation of faction.augmentations) {
 			if (augmentation.reputation <= repToReach) {
