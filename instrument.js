@@ -11,8 +11,9 @@ export async function main(ns) {
 	ns.scriptKill(HACK_SCRIPT, "home");
 
 	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - options.spare;
-	if (availableRam < 0) {
+	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
 		ns.tprintf("Not enough ram, exiting");
+		return;
 	}
 	var serverData = {
 		moneyMin: ns.getServerMaxMoney(options.target) * 0.75,
