@@ -27,6 +27,7 @@ export const MEGACORP = "MegaCorp";
 export const KUAIGONG = "KuaiGong International";
 export const FOUR_SIGMA = "Four Sigma";
 export const NWO = "NWO";
+export const CLARKE = "Clarke Incorporated";
 
 // criminal factions
 export const SLUM_SNAKES = "Slum Snakes";
@@ -53,7 +54,7 @@ export const ALL_FACTIONS = [
 	"Blade Industries",
 	"OmniTek Incorporated",
 	"Bachman & Associates",
-	"Clarke Incorporated",
+	CLARKE,
 	"Fulcrum Secret Technologies",
 	SLUM_SNAKES,
 	TETRADS,
