@@ -44,9 +44,12 @@ export async function main(ns) {
 
 	// spend the rest of the money on Neural Governor augs
 	while (ns.getServerMoneyAvailable("home") > ns.getAugmentationPrice(GOVERNOR)) {
-		ns.purchaseAugmentation(governor_faction, GOVERNOR);
-		ns.tprintf("Bought governor, money left: %d", ns.getServerMoneyAvailable("home"));
-		await ns.sleep(500);
+		if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
+			ns.tprintf("Bought governor, money left: %d", ns.getServerMoneyAvailable("home"));
+			await ns.sleep(500);
+		} else {
+			break;
+		}
 	}
 
 	if (options.reboot) {
