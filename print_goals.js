@@ -12,7 +12,7 @@ export async function main(ns) {
 				goal.reputation,
 				ns.getFactionRep(goal.name),
 				(100 * ns.getFactionRep(goal.name) / goal.reputation).toFixed(1) + " %",
-				augmentationsFrom(goal));
+				augmentationsFrom(ns, goal));
 		} else {
 			ns.tprintf("%22s %20s %20d", goal.name, "", ns.getFactionRep(goal.name));
 		}
@@ -21,10 +21,10 @@ export async function main(ns) {
 		formatMoney(config.estimatedPrice), formatMoney(config.estimatedDonations));
 }
 
-function augmentationsFrom(goal) {
+function augmentationsFrom(ns, goal) {
 	var result = "";
 	for (var augmentation of goal.augmentations) {
-		if (augmentation.reputation <= goal.reputation) {
+		if (augmentation.reputation <= Math.max(goal.reputation, ns.getFactionRep(goal.name))) {
 			result = result + augmentation.augmentation.substring(0, 12) + ", ";
 		}
 	}
