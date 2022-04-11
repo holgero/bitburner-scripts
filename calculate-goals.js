@@ -171,7 +171,9 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 		if (player.hasCorporation && ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
 			// hopefully means plenty of money, we should be able to bribe some factions
 			// during the next run
-			repNeeded = Math.min(repNeeded, reputationNeeded(ns, faction.name));
+			if (reputationNeeded(ns, faction.name) < 0.5 * repNeeded) {
+				repNeeded = reputationNeeded(ns, faction.name);
+			}
 		}
 		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
 			// we still have to work for the company first, so work only a bit
