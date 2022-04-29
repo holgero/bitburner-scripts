@@ -310,6 +310,10 @@ async function selectGoal(ns, goals, config) {
 	}
 	for (var ii = 0; ii < goals.length; ii++) {
 		var goal = goals[ii];
+		if (goal.company && goals.length > 1 && ns.getFactionFavor(goal.name) == 0) {
+			// skip companies that need to be worked for until the end of the goals
+			continue;
+		}
 		if (factions.includes(goal.name) || (!goal.money || goal.money <= 1.2 * money)) {
 			goals.splice(ii, 1);
 			return goal;

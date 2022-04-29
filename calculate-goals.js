@@ -127,6 +127,7 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 	var newAugs = 0;
 	var placeToBe = "";
 	var player = ns.getPlayer();
+	var companyWork = false;
 	for (var faction of faction_augmentations) {
 		if (newAugs >= augsBeforeInstall) {
 			// enough augs for this run, add remaining factions with their
@@ -143,9 +144,13 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			faction.augmentations[augsToAdd - 1].reputation :
 			faction.augmentations[faction.augmentations.length - 1].reputation;
 		ns.printf("Rep to reach with faction %s is %d", faction.name, repToReach);
-		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
-			if (player.company_rep_mult < COMPANY_REP_GAIN_THRESHOLD) {
-				// skip for now, too slow to gain any rep with company
+		if (faction.company && ns.getFactionFavor(faction.name) == 0 && ns.getFactionRep(faction.name) == 0) {
+			if (companyWork ||
+				ns.getCompanyFavor(faction.name) == 0 ||
+				player.company_rep_mult < COMPANY_REP_GAIN_THRESHOLD) {
+				// skip for now, already have to work for another company or
+				// no favor with the company or
+				// too slow to gain any rep with companies
 				continue;
 			}
 		}
@@ -176,9 +181,10 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			}
 		}
 		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
-			// we still have to work for the company first, so work only a bit
-			// for the coresponding faction
+			// we still have to work for the company (or worked for it this run),
+			// so work only a bit for the coresponding faction
 			repNeeded = Math.min(repNeeded, COMPANY_FACTION_MIN_REP);
+			companyWork = true;
 		}
 		faction_goals.push({ ...faction, reputation: repNeeded });
 		ns.printf("Rep needed with faction %s is %d", faction.name, repNeeded);
