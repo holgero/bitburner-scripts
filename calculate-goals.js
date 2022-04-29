@@ -180,8 +180,8 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 				repNeeded = reputationNeeded(ns, faction.name);
 			}
 		}
-		if (faction.company && ns.getFactionFavor(faction.name) == 0) {
-			// we still have to work for the company (or worked for it this run),
+		if (faction.company && ns.getFactionFavor(faction.name) == 0 && ns.getFactionRep(faction.name) == 0) {
+			// we still have to work for the company,
 			// so work only a bit for the coresponding faction
 			repNeeded = Math.min(repNeeded, COMPANY_FACTION_MIN_REP);
 			companyWork = true;
