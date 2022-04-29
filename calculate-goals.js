@@ -75,7 +75,7 @@ function estimateDonations(ns, faction_goals) {
 	var mult = ns.getPlayer().faction_rep_mult;
 	for (var goal of faction_goals) {
 		if (ns.getFactionFavor(goal.name) > ns.getFavorToDonate()) {
-			sum += 1e6 * goal.reputation / mult;
+			sum += 1e6 * Math.max(0, goal.reputation - ns.getFactionRep(goal.name)) / mult;
 		}
 	}
 	return sum;
