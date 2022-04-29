@@ -3,7 +3,7 @@ import { formatMoney, reputationNeeded } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["restart", false], ["lasttime", false]]);
+	var options = ns.flags([["restart", false], ["runagain", 0]]);
 	ns.disableLog("sleep");
 	ns.tprintf("Start at %s", new Date());
 
@@ -38,9 +38,9 @@ export async function main(ns) {
 
 	await workOnGoals(ns, config);
 
-	if (!options.lasttime && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
+	if (options.runagain < 3 && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
 		// too much money left, do a re-spawn once
-		ns.spawn("nodestart.js", 1, "--lasttime");
+		ns.spawn("nodestart.js", 1, "--runagain", "" + (+options.runagain + 1));
 	}
 
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
