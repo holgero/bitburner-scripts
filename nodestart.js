@@ -269,6 +269,10 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		await futureGoalConditions(ns, goals, nextProgram);
 		await ns.sleep(20000);
 		focus = ns.isFocused();
+		if (!ns.getPlayer().factions.includes(c.DAEDALUS) && goal.name == c.DAEDALUS) {
+			// don't wait for DAEDALUS invitation within this loop, do something else instead
+			break;
+		}
 	}
 }
 
