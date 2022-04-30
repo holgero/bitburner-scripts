@@ -161,7 +161,7 @@ async function printBackdoorRoutes(ns, options, server) {
 		server == "avmnite-02h" ||
 		server == "The-Cave" ||
 		server == "w0r1d_d43m0n" ||
-		server == "fulcrumassets" ||
+		// server == "fulcrumassets" ||
 		server == "run4theh111z") {
 		if (!ns.hasRootAccess(server)) {
 			return;
