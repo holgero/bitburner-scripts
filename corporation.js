@@ -203,6 +203,7 @@ async function printCorporationInfo(ns) {
 	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares));
 	corporation.valuation = value;
 	var profit = corporation.revenue - corporation.expenses;
+	corporation.bonusTime = ns.corporation.getBonusTime();
 	// ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
 	// 	", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
 	ns.printf("Corporation: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, owned=%s",

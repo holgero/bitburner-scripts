@@ -8,10 +8,11 @@ export async function main(ns) {
 		corporationInfo.issuedShares - corporationInfo.numShares));
 	var profit = corporationInfo.revenue - corporationInfo.expenses;
 
-	ns.tprintf("Corporation: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, owned=%s",
+	ns.tprintf("Corporation: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",
 		formatMoney(corporationInfo.sharePrice), formatMoney(low), formatMoney(high),
 		formatMoney(corporationInfo.funds),
 		formatMoney(profit),
 		Math.ceil(corporationInfo.shareSaleCooldown / 5),
+		Math.ceil(corporationInfo.bonusTime/1000),
 		corporationInfo.issuedShares == 0 ? "*" : "-");
 }
