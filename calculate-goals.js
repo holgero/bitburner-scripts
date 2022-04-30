@@ -34,9 +34,9 @@ export async function main(ns) {
 	var augsBeforeInstall = AUGS_PER_RUN;
 	const faction_augmentations = [];
 	buildDatabase(ns, faction_augmentations, STORY_LINE);
-	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
+	// ns.printf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 	removeDuplicateAugmentations(faction_augmentations);
-	// ns.tprintf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
+	// ns.printf("Database of factions and augmentations: %s", JSON.stringify(faction_augmentations));
 
 	var faction_goals = [];
 	calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals);
@@ -61,7 +61,7 @@ export async function main(ns) {
 		calculateGoals(ns, faction_augmentations, ++augsBeforeInstall, faction_goals);
 		var newToPurchase = [];
 		await getAugmentationsToPurchase(ns, faction_goals, newToPurchase);
-		// ns.tprintf("%d", newToPurchase.length);
+		// ns.printf("%d", newToPurchase.length);
 		if (newToPurchase.length < augsBeforeInstall) {
 			break;
 		}
@@ -97,7 +97,7 @@ function estimatePrice(ns, toPurchase) {
 function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_goals) {
 	var newAugs = calculateGoalsWithRep(ns, faction_augmentations,
 		augsBeforeInstall, faction_goals, 1e9);
-	// ns.tprintf("%s", JSON.stringify(faction_goals));
+	// ns.printf("%s", JSON.stringify(faction_goals));
 	ns.printf("New augmentations possible: %d", newAugs);
 	while (newAugs >= augsBeforeInstall) {
 		var neededRep = 0;
@@ -112,13 +112,13 @@ function calculateGoals(ns, faction_augmentations, augsBeforeInstall, faction_go
 			augsBeforeInstall, check_goals, neededRep);
 		ns.printf("augs with rep: (need %d) %d", augsBeforeInstall, newAugs);
 		//if (augsBeforeInstall == 11 && newAugs == 10) {
-		//ns.tprintf("%s", JSON.stringify(faction_goals));
+		// ns.printf("%s", JSON.stringify(faction_goals));
 		//}
 		if (newAugs >= augsBeforeInstall) {
 			faction_goals.splice(0, faction_goals.length);
 			faction_goals.push(...check_goals);
 		}
-		// ns.tprintf("%s", JSON.stringify(faction_goals));
+		// ns.printf("%s", JSON.stringify(faction_goals));
 	}
 }
 
@@ -166,18 +166,24 @@ function calculateGoalsWithRep(ns, faction_augmentations, augsBeforeInstall, fac
 			placeToBe = faction.location;
 		}
 		repToReach = Math.min(repToReach, maxRep);
+		ns.printf("Rep to reach with faction %s is capped to %d", faction.name, repToReach);
 		var repNeeded = 0;
 		for (var augmentation of faction.augmentations) {
 			if (augmentation.reputation <= repToReach) {
-				newAugs++;
-				repNeeded = Math.max(repNeeded, augmentation.reputation);
+				repNeeded = augmentation.reputation;
 			}
 		}
+		ns.printf("Rep needed with faction %s is %d", faction.name, repNeeded);
 		if (player.hasCorporation && ns.getFactionFavor(faction.name) < ns.getFavorToDonate()) {
 			// hopefully means plenty of money, we should be able to bribe some factions
 			// during the next run
 			if (reputationNeeded(ns, faction.name) < 0.5 * repNeeded) {
 				repNeeded = reputationNeeded(ns, faction.name);
+			}
+		}
+		for (var augmentation of faction.augmentations) {
+			if (augmentation.reputation <= repNeeded) {
+				newAugs++;
 			}
 		}
 		if (faction.company && ns.getFactionFavor(faction.name) == 0 && ns.getFactionRep(faction.name) == 0) {
