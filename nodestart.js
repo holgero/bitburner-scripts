@@ -237,7 +237,9 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						percentage * goal.reputation,
 						percentComplete);
 					ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
-					if (goals.length == 0 && percentage > 0.999 && percentComplete > 90) {
+					if (goals.filter(a => a.reputation > 0 && a.reputation > ns.getFactionRep(a.name)).length == 0 &&
+						percentage > 0.999 &&
+						percentComplete > 90) {
 						await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
 					}
 					var toJoin = [];
