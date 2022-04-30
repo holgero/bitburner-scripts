@@ -52,7 +52,17 @@ export async function main(ns) {
 					break;
 				}
 			}
-			await ns.sleep(200 * corporationInfo.shareSaleCooldown - corporationInfo.bonusTime - 20000);
+			var cooldown = corporationInfo.shareSaleCooldown / 5;
+			var bonus = corporationInfo.bonusTime / 1000;
+			var realtime;
+			if (cooldown > 10 * bonus / 9) {
+				realtime = cooldown - bonus;
+			} else {
+				realtime = cooldown / 10;
+			}
+			if (realtime > 10) {
+				await ns.sleep(1000 * (realtime - 10));
+			}
 			ns.scriptKill("corporation.js", "home");
 			await ns.sleep(10000);
 			ns.stopAction();
