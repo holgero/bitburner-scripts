@@ -33,7 +33,7 @@ export async function main(ns) {
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
 	if (!daedalus || daedalus.augmentations[daedalus.augmentations.length - 1] != c.RED_PILL) {
-		config.factionGoals.push({name:c.WORLD_DAEMON, backdoor:c.WORLD_DAEMON });
+		config.factionGoals.push({ name: c.WORLD_DAEMON, backdoor: c.WORLD_DAEMON });
 	}
 
 	await workOnGoals(ns, config);
@@ -227,6 +227,9 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						percentage * goal.reputation,
 						percentComplete);
 					ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
+					if (goals.length == 0 && percentage > 0.999 && percentComplete > 90) {
+						await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
+					}
 					var toJoin = [];
 					var factions = ns.getPlayer().factions;
 					for (var tGoal of goals) {
