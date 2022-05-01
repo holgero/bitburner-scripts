@@ -1,5 +1,6 @@
-import { getAugmentationsToPurchase, statsGainFactor, reputationNeeded } from "helpers.js";
-import * as c from "constants.js";
+import { getAugmentationsToPurchase, statsGainFactor, reputationNeeded } from "/helpers.js";
+import * as db from "/database.js";
+import * as c from "/constants.js";
 
 const AUGS_PER_RUN = 7;
 const COMPANY_REP_GAIN_THRESHOLD = 3.0;
@@ -60,7 +61,7 @@ function estimatePrice(ns, toPurchase) {
 	var sum = 0;
 	var factor = 1.0;
 	for (var augmentation of toPurchase) {
-		var toPay = factor * ns.getAugmentationPrice(augmentation);
+		var toPay = factor * db.xgetAugmentationPrice(ns, augmentation);
 		sum += toPay;
 		factor = factor * 1.9;
 	}

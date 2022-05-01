@@ -1,4 +1,5 @@
-import { GOVERNOR } from "./constants.js";
+import { GOVERNOR } from "/constants.js";
+import * as db from "/database.js";
 
 /** @param {NS} ns **/
 export function formatMoney(amount) {
@@ -79,7 +80,7 @@ async function addPossibleAugmentations(ns, factions, toPurchase, haveAug) {
 			if (needed > reputation) {
 				continue;
 			}
-			var sortc = ns.getAugmentationPrice(augmentation);
+			var sortc = db.xgetAugmentationPrice(ns, augmentation);
 			var requiredAugs = ns.getAugmentationPrereq(augmentation);
 			if (requiredAugs.length > 0) {
 				var haveThem = true;
