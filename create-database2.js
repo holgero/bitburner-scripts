@@ -29,7 +29,7 @@ export async function main(ns) {
 	const owned_augmentations = database.owned_augmentations;
 	const faction_augmentations = [];
 	buildFactionAugmentations(ns, STORY_LINE, faction_augmentations, owned_augmentations);
-	removeDuplicateAugmentations(faction_augmentations);
+	removeDuplicateAugmentations(ns, faction_augmentations);
 	await ns.write("database.txt", JSON.stringify(
 		{
 			faction_augmentations: faction_augmentations,
@@ -56,7 +56,8 @@ function buildFactionAugmentations(ns, factions, faction_augmentations, owned_au
 	}
 }
 
-function removeDuplicateAugmentations(faction_augmentations) {
+/** @param {NS} ns **/
+function removeDuplicateAugmentations(ns, faction_augmentations) {
 	// defer obtaining an augmentation from an early faction, iff it is at the end of their 
 	// list of available augmentations (so that it costs extra reputation effort to obtain)
 	for (var ii = 0; ii < faction_augmentations.length - 1; ii++) {
@@ -64,6 +65,10 @@ function removeDuplicateAugmentations(faction_augmentations) {
 		do {
 			if (element.augmentations.length > 0) {
 				var lastAugmentation = element.augmentations[element.augmentations.length - 1];
+				if (lastAugmentation.reputation < ns.getFactionRep(element.name)) {
+					// doesn't cost extra, we already have the rep needed for it
+					break;
+				}
 				if (hasAugmentation(lastAugmentation.augmentation, faction_augmentations.slice(ii + 1))) {
 					element.augmentations.pop();
 					continue;
