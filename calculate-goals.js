@@ -9,7 +9,7 @@ const FACTION_STATS_THRESHOLD = 66;
 /** @param {NS} ns **/
 export async function main(ns) {
 	var augsBeforeInstall = AUGS_PER_RUN;
-	const database = JSON.parse(ns.read("faction-augmentations.txt"));
+	const database = JSON.parse(ns.read("database.txt"));
 	const faction_augmentations = database.faction_augmentations;
 	var faction_goals = [];
 

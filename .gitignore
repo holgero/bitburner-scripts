@@ -3,7 +3,7 @@ bitburnerFiles*.zip
 RECOVERY_BITBURNER_*.json
 nodestart.txt
 corporation.txt
-faction-augmentations.txt
+database.txt
 backup.txt
 test.js
 saves/

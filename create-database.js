@@ -25,21 +25,23 @@ const STORY_LINE = [
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	const owned_augmentations = ns.getOwnedAugmentations(true);
 	const faction_augmentations = [];
-	const owned_augmentations = [];
-	buildDatabase(ns, STORY_LINE, faction_augmentations, owned_augmentations);
+	buildFactionAugmentations(ns, STORY_LINE, faction_augmentations, owned_augmentations);
 	removeDuplicateAugmentations(faction_augmentations);
-	await ns.write("faction-augmentations.txt", JSON.stringify(
+	const augmentations_factions = [];
+	buildAugmentationsFactions(ns, faction_augmentations, augmentations_factions);
+	await ns.write("database.txt", JSON.stringify(
 		{
 			faction_augmentations: faction_augmentations,
+			augmentations_factions: augmentations_factions,
 			owned_augmentations: owned_augmentations
 		}), "w");
 }
 
 /** @param {NS} ns **/
-function buildDatabase(ns, factions, faction_augmentations, owned_augmentations) {
-	var ignore = ns.getOwnedAugmentations(true);
-	owned_augmentations.push(...ignore);
+function buildFactionAugmentations(ns, factions, faction_augmentations, owned_augmentations) {
+	var ignore = owned_augmentations.slice(0);
 	ignore.push(c.GOVERNOR);
 	for (var faction of factions) {
 		var augmentations = ns.getAugmentationsFromFaction(faction.name).
@@ -47,11 +49,21 @@ function buildDatabase(ns, factions, faction_augmentations, owned_augmentations)
 			map(a => ({
 				augmentation: a,
 				reputation: ns.getAugmentationRepReq(a),
-				price: ns.getAugmentationPrice(a)
+				price: ns.getAugmentationPrice(a),
+				requirements: ns.getAugmentationPrereq(a)
 			}));
 		if (augmentations.length > 0) {
 			augmentations.sort((a, b) => a.reputation - b.reputation);
 			faction_augmentations.push({ ...faction, augmentations: augmentations });
+		}
+	}
+}
+
+/** @param {NS} ns **/
+function buildAugmentationsFactions(ns, factions, augmentations) {
+	for (var faction of factions) {
+		for (var augmentation of faction.augmentations) {
+			augmentations.push({...augmentation, faction:faction.name});
 		}
 	}
 }
