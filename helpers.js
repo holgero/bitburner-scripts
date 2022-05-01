@@ -39,6 +39,14 @@ export function statsGainFactor(ns) {
 }
 
 /** @param {NS} ns **/
+export async function runAndWait(ns, script, ...args) {
+	ns.run(script, 1, ...args);
+	while (ns.scriptRunning(script, "home")) {
+		await ns.sleep(1000);
+	}
+}
+
+/** @param {NS} ns **/
 export async function getAugmentationsToPurchase(ns, factions, haveAug, toPurchase) {
 	if (!haveAug.includes(GOVERNOR)) {
 		haveAug.push(GOVERNOR);

@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { formatMoney, reputationNeeded } from "helpers.js";
+import { runAndWait, reputationNeeded } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -406,14 +406,6 @@ async function futureGoalConditions(ns, goals, nextProgram) {
 				}
 			}
 		}
-	}
-}
-
-/** @param {NS} ns **/
-async function runAndWait(ns, script, ...args) {
-	ns.run(script, 1, ...args);
-	while (ns.scriptRunning(script, "home")) {
-		await ns.sleep(1000);
 	}
 }
 
