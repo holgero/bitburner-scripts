@@ -1,4 +1,11 @@
-const FILES = ["calculate-goals.js",
+const FILES = [
+	"bonus.js",
+	"calculate-goals.js",
+	"create-database1.js",
+	"create-database2.js",
+	"create-database3.js",
+	"create-database.js",
+	"database.js",
 	"commit-crimes.js",
 	"constants.js",
 	"corporation.js",
@@ -37,20 +44,21 @@ const FILES = ["calculate-goals.js",
 	"workforcompany.js",
 	"workforfaction.js",
 	"workout.js",
-	"writeprogram.js",
-	"contractsolver/arrayjumpinggame.js",
-	"contractsolver/generateipaddress.js",
-	"contractsolver/gridpaths2.js",
-	"contractsolver/gridpaths.js",
-	"contractsolver/largestprimefactor.js",
-	"contractsolver/mergeoverlappingintervals.js",
-	"contractsolver/minimalpathsum.js",
-	"contractsolver/sanitizeparenthesis.js",
-	"contractsolver/spiralizematrix.js",
-	"contractsolver/stocktrader.js",
-	"contractsolver/subarraysum.js",
-	"contractsolver/totalwaystosum.js",
-	"contractsolver/validexpressions.js"];
+	"writeprogram.js"];
+const CONTRACTSOLVER = [
+	"arrayjumpinggame.js",
+	"generateipaddress.js",
+	"gridpaths2.js",
+	"gridpaths.js",
+	"largestprimefactor.js",
+	"mergeoverlappingintervals.js",
+	"minimalpathsum.js",
+	"sanitizeparenthesis.js",
+	"spiralizematrix.js",
+	"stocktrader.js",
+	"subarraysum.js",
+	"totalwaystosum.js",
+	"validexpressions.js"];
 const BASEURL = "https://raw.githubusercontent.com/holgero/bitburner-scripts/main/";
 
 /** @param {NS} ns */
@@ -62,5 +70,12 @@ export async function main(ns) {
 	for (var file of loop) {
 		ns.tprintf("Fetching %s", file);
 		await ns.wget(BASEURL + file, file);
+	}
+	if (!ns.args.length) {
+		ns.cd("contractsolver");
+		for (var file of CONTRACTSOLVER) {
+			ns.tprintf("Fetching %s", file);
+			await ns.wget(BASEURL + "contractsolver/" + file, file);
+		}
 	}
 }
