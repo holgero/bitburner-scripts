@@ -177,6 +177,8 @@ function isCompatible(city1, city2) {
 	if (city1 == city2) return true;
 	if (city1 == c.VOLHAVEN || city2 == c.VOLHAVEN) return false;
 	if (city1 == c.SECTOR12 && city2 != c.AEVUM) return false;
+	if (city1 != c.AEVUM && city2 == c.SECTOR12) return false;
 	if (city1 == c.AEVUM && city2 != c.SECTOR12) return false;
+	if (city1 != c.SECTOR12 && city2 == c.AEVUM) return false;
 	return true;
 }
