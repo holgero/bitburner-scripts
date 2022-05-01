@@ -6,7 +6,7 @@ export async function main(ns) {
 	var options = ns.flags([["run_purchase", false], ["affordable", false]]);
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	var toPurchase = [];
-	await getAugmentationsToPurchase(ns, factions, toPurchase);
+	await getAugmentationsToPurchase(ns, factions, ns.getOwnedAugmentations(true), toPurchase);
 
 	var governor_faction;
 	var maxRep = 0;

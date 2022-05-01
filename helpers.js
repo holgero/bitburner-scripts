@@ -39,8 +39,7 @@ export function statsGainFactor(ns) {
 }
 
 /** @param {NS} ns **/
-export async function getAugmentationsToPurchase(ns, factions, toPurchase) {
-	var haveAug = ns.getOwnedAugmentations(true);
+export async function getAugmentationsToPurchase(ns, factions, haveAug, toPurchase) {
 	if (!haveAug.includes(GOVERNOR)) {
 		haveAug.push(GOVERNOR);
 	}

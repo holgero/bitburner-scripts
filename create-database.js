@@ -26,15 +26,20 @@ const STORY_LINE = [
 /** @param {NS} ns **/
 export async function main(ns) {
 	const faction_augmentations = [];
-	buildDatabase(ns, faction_augmentations, STORY_LINE);
+	const owned_augmentations = [];
+	buildDatabase(ns, STORY_LINE, faction_augmentations, owned_augmentations);
 	removeDuplicateAugmentations(faction_augmentations);
-	await ns.write("faction-augmentations.txt",
-		JSON.stringify(faction_augmentations), "w");
+	await ns.write("faction-augmentations.txt", JSON.stringify(
+		{
+			faction_augmentations: faction_augmentations,
+			owned_augmentations: owned_augmentations
+		}), "w");
 }
 
 /** @param {NS} ns **/
-function buildDatabase(ns, faction_augmentations, factions) {
+function buildDatabase(ns, factions, faction_augmentations, owned_augmentations) {
 	var ignore = ns.getOwnedAugmentations(true);
+	owned_augmentations.push(...ignore);
 	ignore.push(c.GOVERNOR);
 	for (var faction of factions) {
 		var augmentations = ns.getAugmentationsFromFaction(faction.name).

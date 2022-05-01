@@ -26,6 +26,7 @@ export async function main(ns) {
 	if (!options.restart) {
 		ns.rm("stopselling.txt");
 		// determine goals for this run
+		await runAndWait(ns, "create-database.js");
 		await runAndWait(ns, "calculate-goals.js");
 	}
 	await runAndWait(ns, "print_goals.js");
