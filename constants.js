@@ -9,8 +9,6 @@ export const ISHIMA = "Ishima";
 export const CITIES = [ SECTOR12, AEVUM, VOLHAVEN, CHONGQING, NEW_TOKYO, ISHIMA ];
 
 // factions
-// city factions have the same name as the cities
-
 // early factions
 export const TIAN_DI_HUI = "Tian Di Hui";
 export const NETBURNERS = "Netburners";
@@ -86,4 +84,28 @@ export const programs = [
         { name: "relaySMTP.exe", level: 250, cost: 5000000 },
         { name: "HTTPWorm.exe", level: 500, cost: 30000000 },
         { name: "SQLInject.exe", level: 750, cost: 250000000 }
+];
+
+// story line
+export const STORY_LINE = [
+        { name: CYBERSEC, backdoor: "CSEC", money: 0, work: HACKING, location: "" },
+        { name: NETBURNERS, backdoor: "", money: 0, work: HACKING, location: "" },
+        { name: SECTOR12, backdoor: "", money: 15000000, work: HACKING, location: SECTOR12 },
+        { name: TIAN_DI_HUI, backdoor: "", money: 1000000, work: HACKING, location: CHONGQING },
+        { name: NITESEC, backdoor: "avmnite-02h", work: HACKING, location: "" },
+        { name: SLUM_SNAKES, backdoor: "", money: 1000000, stats: 30, work: SECURITY_WORK, location: "" },
+        { name: CHONGQING, backdoor: "", money: 20000000, work: HACKING, location: CHONGQING },
+        { name: TETRADS, backdoor: "", money: 0, stats: 75, work: SECURITY_WORK, location: CHONGQING },
+        { name: VOLHAVEN, backdoor: "", money: 50000000, work: HACKING, location: VOLHAVEN },
+        { name: AEVUM, backdoor: "", money: 40000000, work: HACKING, location: AEVUM },
+        { name: NEW_TOKYO, backdoor: "", money: 20000000, work: HACKING, location: NEW_TOKYO },
+        { name: ISHIMA, backdoor: "", money: 30000000, work: HACKING, location: ISHIMA },
+        { name: BLACK_HAND, backdoor: "I.I.I.I", work: HACKING, location: "" },
+        { name: BITRUNNERS, backdoor: "run4theh111z", work: HACKING, location: "" },
+        { name: SYNDICATE, backdoor: "", money: 10000000, stats: 200, work: HACKING, location: SECTOR12 },
+        { name: NWO, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
+        { name: ECORP, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
+        { name: CLARKE, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
+        { name: SPEAKERS, backdoor: "", money: 0, stats: 300, work: HACKING, location: "" },
+        { name: DAEDALUS, backdoor: "", money: 100000000000, work: HACKING, location: "" }
 ];

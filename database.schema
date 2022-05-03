@@ -1,0 +1,28 @@
+{
+  "owned_augmentations": [
+    "Faction Name",
+  ],
+  "factions": [
+    {
+      "name": "Faction Name",
+      "backdoor": "Host Name to Backdoor",
+      "company": false,
+      "money": 0, // minimal money to get invite
+      "stats": 0, // minimal combat stats to get invite
+      "location": "City Name", // location to be to get invite
+      "work": "Hacking Contracts", // "Hacking Contracts" | "Security Work"
+      "augmentations": [ "Augmentation Name", ],
+    }
+  ],
+  "augmentations": [
+    {
+      "name": "Augmentation Name",
+      "type": "Hacking", // improve "Hacking"|"Reputation"|"Combat"|"Hacknet"|"Company"
+      "stats": AugmentationStats,
+      "reputation": 100000,
+      "price": 6000000000,
+      "requirements": [],     // dependency on other augmentations
+      "factions: [ "Aevum" ]  // faction names where it is available
+    }
+  ],
+}
