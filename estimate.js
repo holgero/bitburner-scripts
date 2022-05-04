@@ -14,7 +14,11 @@ export async function main(ns) {
 			const config = JSON.parse(ns.read("nodestart.txt"));
 			loopOver = [];
 			for (var goal of config.factionGoals) {
-				loopOver.push(goal.name + ":" + goal.reputation);
+				if (goal.reputation) {
+					loopOver.push(goal.name + ":" + goal.reputation);
+				} else {
+					loopOver.push(goal.name);
+				}
 			}
 		}
 	}
