@@ -89,9 +89,9 @@ export const programs = [
 // story line
 export const STORY_LINE = [
         { name: CYBERSEC, backdoor: "CSEC", money: 0, work: HACKING, location: "" },
-        { name: NETBURNERS, backdoor: "", money: 0, work: HACKING, location: "" },
+        { name: NETBURNERS, backdoor: "", money: 0, hack: 80, work: HACKING, location: "" },
         { name: SECTOR12, backdoor: "", money: 15000000, work: HACKING, location: SECTOR12 },
-        { name: TIAN_DI_HUI, backdoor: "", money: 1000000, work: HACKING, location: CHONGQING },
+        { name: TIAN_DI_HUI, backdoor: "", money: 1000000, hack: 50, work: HACKING, location: CHONGQING },
         { name: NITESEC, backdoor: "avmnite-02h", work: HACKING, location: "" },
         { name: SLUM_SNAKES, backdoor: "", money: 1000000, stats: 30, work: SECURITY_WORK, location: "" },
         { name: CHONGQING, backdoor: "", money: 20000000, work: HACKING, location: CHONGQING },
@@ -107,5 +107,5 @@ export const STORY_LINE = [
         { name: ECORP, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
         { name: CLARKE, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
         { name: SPEAKERS, backdoor: "", money: 0, stats: 300, work: HACKING, location: "" },
-        { name: DAEDALUS, backdoor: "", money: 100000000000, work: HACKING, location: "" }
+        { name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, work: HACKING, location: "" }
 ];
