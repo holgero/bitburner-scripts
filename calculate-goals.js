@@ -5,7 +5,7 @@ import * as c from "/constants.js";
 export async function main(ns) {
 	var options = ns.flags([["dry-run", false]]);
 	const database = JSON.parse(ns.read("database.txt"));
-	var factionGoals = [];
+	const factionGoals = [];
 	var augmentationCost = 0;
 	while (Math.max(1e9, ns.getServerMoneyAvailable("home")) > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals);
@@ -24,8 +24,13 @@ export async function main(ns) {
 	}
 	ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	ns.printf("Estimated Cost: %s", formatMoney(augmentationCost));
-	const futureFactions = getPossibleFactions(ns, factionGoals);
-	factionGoals.push(...futureFactions.filter(a => !factionGoals.some(b => b.name == a.name)));
+	do {
+		var futureFactions = getPossibleFactions(ns, database, factionGoals).
+			filter(a => !factionGoals.some(b => b.name == a.name));
+		if (futureFactions.length) {
+			factionGoals.push(futureFactions[0]);
+		}
+	} while (futureFactions.length);
 	var result = JSON.stringify({
 		factionGoals: factionGoals,
 		estimatedPrice: augmentationCost,
@@ -106,19 +111,22 @@ function costToGet(ns, factions, augmentation) {
 }
 
 /** @param {NS} ns **/
-function getPossibleFactions(ns, factionGoals) {
-	const factionsJoined = factionGoals.map(a => a.name);
-	const possibleFactions = c.STORY_LINE.filter(
-		a => (a.name != a.location) ||
-			factionsJoined.every(b => isCompatible(b, a.location)));
-	ns.printf("Possible factions: %s", JSON.stringify(possibleFactions));
+function getPossibleFactions(ns, database, factionGoals) {
+	const locations = factionGoals.filter(a => (a.name == a.location)).map(a=>a.name);
+	locations.push(...ns.getPlayer().factions.filter(a=>c.CITIES.includes(a)));
+	// ns.printf("locations: %s", JSON.stringify(locations));
+	const possibleFactions = database.factions.
+		filter(a => c.STORY_LINE.some(b => b.name == a.name)).
+		filter(a => (a.name != a.location) ||
+			locations.every(b => isCompatible(b, a.location)));
+	// ns.printf("Possible factions: %s", JSON.stringify(possibleFactions.map(a=>a.name)));
 	return possibleFactions;
 }
 
 /** @param {NS} ns **/
 function findNextAugmentation(ns, database, factionGoals) {
 	const augsToIgnore = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
-	const possibleFactions = getPossibleFactions(ns, factionGoals).map(a => a.name);
+	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
 	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", ""];
 	var candidates = [];
 	for (var prio of prios) {
@@ -152,6 +160,8 @@ function estimateDonations(ns, database, factionGoals) {
 }
 
 function isCompatible(city1, city2) {
+	if (city1 == "") return true;
+	if (city2 == "") return true;
 	if (city1 == city2) return true;
 	if (city1 == c.VOLHAVEN || city2 == c.VOLHAVEN) return false;
 	if (city1 == c.SECTOR12 && city2 != c.AEVUM) return false;
