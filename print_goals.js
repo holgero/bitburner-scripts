@@ -21,7 +21,8 @@ export async function main(ns) {
 				(100 * ns.getFactionRep(goal.name) / goal.reputation).toFixed(1) + " %",
 				augmentationsFrom(ns, database, goal));
 		} else {
-			ns.tprintf("%22s %10s %10d", goal.name, "", ns.getFactionRep(goal.name));
+			ns.tprintf("%22s %10s %10d %10s  %s", goal.name, "", ns.getFactionRep(goal.name), "",
+				augmentationsFrom(ns, database, goal));
 		}
 	}
 	ns.tprintf("Estimated costs: augmentations: %s, donations: %s",
@@ -31,8 +32,15 @@ export async function main(ns) {
 function augmentationsFrom(ns, database, goal) {
 	var result = "";
 	for (var augName of goal.augmentations) {
-		var augmentation = database.augmentations.find(a=>a.name == augName);
-		if (augmentation.reputation <= Math.max(goal.reputation, ns.getFactionRep(goal.name))) {
+		var augmentation = database.augmentations.find(a => a.name == augName);
+		var reputation = goal.reputation;
+		if (goal.reputation) {
+			reputation = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+		}
+		else {
+			reputation = ns.getFactionRep(goal.name);
+		}
+		if (augmentation.reputation <= reputation) {
 			result = result + augmentation.name.substring(0, 14) + ", ";
 		}
 	}
