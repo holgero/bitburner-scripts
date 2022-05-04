@@ -3,24 +3,17 @@ import * as db from "/database.js";
 
 /** @param {NS} ns **/
 export function formatMoney(amount) {
+	const suffix = [" ", "k", "m", "b", "t", "q", "Q"];
 	var sign = " ";
 	if (amount < 0) {
 		sign = "-";
 		amount = - amount;
 	}
-	if (amount > 1000) {
-		if (amount > 1000000) {
-			if (amount > 1000000000) {
-				if (amount > 1000000000000) {
-					return sign + (amount / 1000000000000).toFixed(3) + " t";
-				}
-				return sign + (amount / 1000000000).toFixed(3) + " b";
-			}
-			return sign + (amount / 1000000).toFixed(3) + " m";
-		}
-		return sign + (amount / 1000).toFixed(3) + " k";
+	var magnitude = Math.min(suffix.length - 1, Math.floor(Math.log10(amount) / 3));
+	if (amount == 0) {
+		magnitude = 0;
 	}
-	return sign + amount.toFixed(3) + "  ";
+	return sign + (amount / Math.pow(10, 3 * magnitude)).toFixed(3) + " " + suffix[magnitude];
 }
 
 /** @param {NS} ns **/
