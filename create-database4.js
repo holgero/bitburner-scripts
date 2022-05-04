@@ -3,8 +3,8 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	const owned_augmentations = database.owned_augmentations;
 	const factions = database.factions;
-	const augmentations = database.augmentations;
-	getMissingInfo(ns, augmentations);
+	const augmentations = [];
+	buildAugmentations(ns, factions, augmentations);
 	await ns.write("database.txt", JSON.stringify(
 		{
 			owned_augmentations: owned_augmentations,
@@ -14,8 +14,20 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-function getMissingInfo(ns, augmentations) {
-	for (var augmentation of augmentations) {
-		augmentation.requirements = ns.getAugmentationPrereq(augmentation.name);
+function buildAugmentations(ns, factions, augmentations) {
+	for (var faction of factions) {
+		for (var augmentation of faction.augmentations) {
+			var existing = augmentations.find(a => a.name == augmentation);
+			if (existing) {
+				existing.factions.push(faction.name);
+			} else {
+				augmentations.push({
+					name: augmentation,
+					reputation: ns.getAugmentationRepReq(augmentation),
+					price: ns.getAugmentationPrice(augmentation),
+					factions: [faction.name],
+				});
+			}
+		}
 	}
 }
