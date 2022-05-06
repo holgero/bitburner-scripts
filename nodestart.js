@@ -206,6 +206,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
+			await runAndWait(ns, "university.js", "--course", "CS", "--focus", focus);
 			await runAndWait(ns, "commit-crimes.js", "--timed", 60, "--until_hack", 100);
 		} else {
 			if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
