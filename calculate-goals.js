@@ -33,13 +33,19 @@ export async function main(ns) {
 	}
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
+	const toPurchase = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
 	do {
 		var futureFactions = getPossibleFactions(ns, database, factionGoals).
 			filter(a => !factionGoals.some(b => b.name == a.name));
-		if (futureFactions.length) {
-			factionGoals.push(futureFactions[0]);
+		var foundOne = false;
+		for (var faction of futureFactions) {
+			if (faction.augmentations.some(a => !toPurchase.includes(a))) {
+				factionGoals.push(futureFactions[0]);
+				foundOne = true;
+				break;
+			}
 		}
-	} while (futureFactions.length);
+	} while (foundOne);
 	var result = JSON.stringify({
 		factionGoals: factionGoals,
 		estimatedPrice: augmentationCost,
@@ -139,7 +145,7 @@ function getPossibleFactions(ns, database, factionGoals) {
 		filter(a => (a.name != a.location) ||
 			locations.every(b => isCompatible(b, a.location)));
 	// ns.printf("Possible factions: %s", JSON.stringify(possibleFactions.map(a=>a.name)));
-	return possibleFactions;
+	return possibleFactions.filter(a => a.augmentations.length > 0);
 }
 
 /** @param {NS} ns **/
