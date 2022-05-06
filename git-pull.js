@@ -4,6 +4,9 @@ const FILES = [
 	"create-database1.js",
 	"create-database2.js",
 	"create-database3.js",
+	"create-database4.js",
+	"create-database5.js",
+	"create-database6.js",
 	"create-database.js",
 	"database.js",
 	"commit-crimes.js",
@@ -71,11 +74,11 @@ export async function main(ns) {
 		ns.tprintf("Fetching %s", file);
 		await ns.wget(BASEURL + file, file);
 	}
-	if (!ns.args.length) {
-		ns.cd("contractsolver");
-		for (var file of CONTRACTSOLVER) {
-			ns.tprintf("Fetching %s", file);
-			await ns.wget(BASEURL + "contractsolver/" + file, file);
-		}
-	}
+	//if (!ns.args.length) {
+	//	for (var file of CONTRACTSOLVER) {
+	//		ns.tprintf("Fetching %s", file);
+	//		await ns.wget(BASEURL + "contractsolver/" + file, file);
+	//		// ns.mv("home", file, "contractsolver");
+	//	}
+	//}
 }
