@@ -22,13 +22,12 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function commitCrime(ns, crime) {
 	if (ns.isBusy()) {
-		await ns.sleep(10000);
+		await ns.sleep(1000);
 	} else {
-		var waitTime = ns.getCrimeStats(crime).time;
 		ns.commitCrime(crime);
-		await ns.sleep(waitTime);
+		await ns.sleep(500);
 		while (ns.isBusy()) {
-			await ns.sleep(1000);
+			await ns.sleep(500);
 		}
 	}
 }
