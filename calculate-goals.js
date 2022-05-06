@@ -105,15 +105,16 @@ function costToGet(ns, database, factionGoals, augmentation) {
 		var existingGoal = factionGoals.find(a => a.name == factionName);
 		var cost = 10000 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
 			Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
-		if (!player.factions.includes(faction.name)) {
+		if (!existingGoal) {
 			if (faction.backdoor) {
 				cost += 10000 / player.hacking_exp_mult * Math.max(0, ns.getServerRequiredHackingLevel(faction.backdoor) - player.hacking);
 			}
 			if (faction.hack) {
-				cost += 10000 / player.hacking_exp_mult * Math.max(0, faction.hack - player.hacking);
+				cost += 10000 / player.hacking_exp_mult * Math.pow(faction.hack - player.hacking, 2);
 			}
 			if (faction.company) {
-				cost += 100000 / (100 + faction.companyFavor) * Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
+				cost += 1e6 / (100 + faction.companyFavor) *
+					Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
 			}
 			if (faction.stats) {
 				var statsNeed = (faction.stats - player.defense) / player.defense_exp_mult;
