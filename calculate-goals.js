@@ -62,7 +62,7 @@ export async function main(ns) {
 		var foundOne = false;
 		for (var faction of futureFactions) {
 			if (faction.augmentations.some(a => !toPurchase.some(b => b.name == a))) {
-				factionGoals.push(futureFactions[0]);
+				factionGoals.push({ ...faction, reputation:0, aim:""});
 				foundOne = true;
 				break;
 			}
