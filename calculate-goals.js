@@ -7,12 +7,17 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	const factionGoals = [];
 	for (var faction of ns.getPlayer().factions) {
-		factionGoals.push({ ...database.factions.find(a => a.name == faction), reputation: 0 });
+		factionGoals.push({
+			...database.factions.find(a => a.name == faction),
+			reputation: 0,
+			aim: ""
+		});
 	}
+	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
-	var augmentationCost = estimatePrice(ns, database, factionGoals);
+	var augmentationCost = estimatePrice(toPurchase);
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	while (Math.max(100e6, ns.getServerMoneyAvailable("home")) > augmentationCost) {
+	while (Math.max(1e8, ns.getServerMoneyAvailable("home")) > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s",
 		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
@@ -23,23 +28,40 @@ export async function main(ns) {
 		var existing = factionGoals.find(a => a.name == nextAug.faction.name);
 		if (existing) {
 			existing.reputation = Math.max(existing.reputation, nextAug.reputation);
+			existing.aim = nextAug.name;
 		} else {
-			factionGoals.push({ ...nextAug.faction, reputation: nextAug.reputation });
+			factionGoals.push({
+				...nextAug.faction,
+				reputation: nextAug.reputation,
+				aim: nextAug.name
+			});
+			// a new goal. Check if existing goals have become obsolete.
+			var additionalAugs = database.augmentations.
+				filter(a=>nextAug.faction.augmentations.includes(a)).
+				filter(a=>a.reputation<=nextAug.reputation && a.name != nextAug.name);
+			for (var addAug of additionalAugs) {
+				for (var goal of factionGoals) {
+					if (goal.aim == addAug.name) {
+						goal.aim = "";
+						goal.reputation = 0;
+					}
+				}
+			}
 		}
-		augmentationCost = estimatePrice(ns, database, factionGoals);
+		toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+		augmentationCost = estimatePrice(toPurchase);
 		// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
 		// ns.tprintf("Faction Goals: %s", JSON.stringify(factionGoals));
 		// await ns.sleep(3000);
 	}
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	const toPurchase = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
 	do {
 		var futureFactions = getPossibleFactions(ns, database, factionGoals).
 			filter(a => !factionGoals.some(b => b.name == a.name));
 		var foundOne = false;
 		for (var faction of futureFactions) {
-			if (faction.augmentations.some(a => !toPurchase.includes(a))) {
+			if (faction.augmentations.some(a => !toPurchase.some(b => b.name == a))) {
 				factionGoals.push(futureFactions[0]);
 				foundOne = true;
 				break;
@@ -83,8 +105,7 @@ function getAugmentationsToPurchase(ns, database, factionGoals) {
 }
 
 /** @param {NS} ns **/
-function estimatePrice(ns, database, factionGoals) {
-	const toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+function estimatePrice(toPurchase) {
 	var sum = 0;
 	var factor = 1.0;
 	for (var augmentation of toPurchase) {
