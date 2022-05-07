@@ -81,7 +81,7 @@ async function workOnGoals(ns, config) {
 		await workOnGoal(ns, goal, 0.25, runGoals, config);
 	}
 
-	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns, false)) {
+	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
 		return;
 	}
 
@@ -94,7 +94,7 @@ async function workOnGoals(ns, config) {
 		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
 	}
 
-	if (ns.getServerMoneyAvailable("home") < await getEstimation(ns, false)) {
+	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
 		return;
 	}
 

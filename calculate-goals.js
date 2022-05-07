@@ -17,7 +17,7 @@ export async function main(ns) {
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
 	var augmentationCost = estimatePrice(toPurchase);
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	while (Math.max(1e8, ns.getServerMoneyAvailable("home")) > augmentationCost) {
+	while (Math.max(5e8, ns.getServerMoneyAvailable("home")) > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s",
 		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
