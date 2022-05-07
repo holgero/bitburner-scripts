@@ -190,9 +190,10 @@ function findNextAugmentation(ns, database, factionGoals) {
 	if (!candidates.length) {
 		return undefined;
 	}
-	candidates.sort((a, b) => (costToGet(ns, database, factionGoals, a).cost -
-		costToGet(ns, database, factionGoals, b).cost));
-	return { ...candidates[0], faction: costToGet(ns, database, factionGoals, candidates[0]).faction };
+	candidates.forEach(a => { var cost = costToGet(ns, database, factionGoals, a); a.cost = cost.cost; a.faction = cost.faction });
+	candidates.sort((a, b) => a.cost - b.cost);
+	ns.printf("Candidates: %s", JSON.stringify(candidates));
+	return candidates[0];
 }
 
 /** @param {NS} ns **/
