@@ -33,7 +33,7 @@ export async function main(ns) {
 
 	const config = JSON.parse(ns.read("nodestart.txt"));
 	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
-	if (!daedalus || daedalus.augmentations[daedalus.augmentations.length - 1] != c.RED_PILL) {
+	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
 		config.factionGoals.push({ name: c.WORLD_DAEMON, backdoor: c.WORLD_DAEMON });
 	}
 
@@ -263,7 +263,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						JSON.stringify(toJoin), JSON.stringify(focus));
 					if (factions.includes(c.DAEDALUS) && goal.name != c.DAEDALUS) {
 						var daedalus = goals.find(a => a.name == c.DAEDALUS);
-						if (daedalus && daedalus.augmentations[daedalus.augmentations.length - 1].augmentation == c.RED_PILL) {
+						if (daedalus && daedalus.augmentations.includes(c.RED_PILL)) {
 							// we have more important things to do
 							return;
 						}
@@ -306,7 +306,7 @@ async function selectGoal(ns, goals, config) {
 	var factions = ns.getPlayer().factions;
 	if (factions.includes(c.DAEDALUS)) {
 		var goal = goals.find(a => a.name == c.DAEDALUS);
-		if (goal && goal.augmentations[goal.augmentations.length - 1].augmentation == c.RED_PILL) {
+		if (goal && goal.augmentations.includes(c.RED_PILL)) {
 			// single minded now, there are no other goals...
 			goals.splice(0, goals.length);
 			if (goal.reputation == 0) {
@@ -318,7 +318,8 @@ async function selectGoal(ns, goals, config) {
 			}
 			if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
 				// reach the red pill
-				goal.reputation = goal.augmentations[goal.augmentations.length - 1].reputation;
+				const database = JSON.parse(ns.read("database.txt"));
+				goal.reputation = database.augmentations.find(a=>name == c.RED_PILL).reputation;
 				config.estimatedDonations = 1;
 			}
 			await ns.write("nodestart.txt", JSON.stringify({
