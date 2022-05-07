@@ -319,7 +319,7 @@ async function selectGoal(ns, goals, config) {
 			if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
 				// reach the red pill
 				const database = JSON.parse(ns.read("database.txt"));
-				goal.reputation = database.augmentations.find(a=>name == c.RED_PILL).reputation;
+				goal.reputation = database.augmentations.find(a=>a.name == c.RED_PILL).reputation;
 				config.estimatedDonations = 1;
 			}
 			await ns.write("nodestart.txt", JSON.stringify({
