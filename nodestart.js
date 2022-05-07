@@ -62,6 +62,7 @@ export async function main(ns) {
 				realtime = cooldown / 10;
 			}
 			if (realtime > 10) {
+				ns.tprintf("Share sale cooldown period: %d s", realtime);
 				await ns.sleep(1000 * (realtime - 10));
 			}
 			ns.scriptKill("corporation.js", "home");
@@ -75,6 +76,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, config) {
+	ns.tprintf("First round of goals at %d %%", 25);
 	var runGoals = config.factionGoals.slice(0);
 	while (runGoals.length > 0) {
 		var goal = await selectGoal(ns, runGoals, config);
@@ -85,6 +87,7 @@ async function workOnGoals(ns, config) {
 		return;
 	}
 
+	ns.tprintf("Second round of goals at %d %%", 75);
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
 	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
@@ -98,6 +101,7 @@ async function workOnGoals(ns, config) {
 		return;
 	}
 
+	ns.tprintf("Last round of goals at %d %%", 100);
 	runGoals = config.factionGoals.slice(0);
 	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
 	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
@@ -106,6 +110,7 @@ async function workOnGoals(ns, config) {
 		var goal = await selectGoal(ns, runGoals, config);
 		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
 	}
+	ns.tprintf("Finished all goals");
 }
 
 /** @param {NS} ns **/
@@ -228,6 +233,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 							}
 						}
 						if (moneyForDonations) {
+							ns.printf("Will donate %d", moneyForDonations);
 							await runAndWait(ns, "donate-faction.js",
 								goal.name, percentage * goal.reputation, moneyForDonations);
 						}
@@ -248,7 +254,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					}
 					var toJoin = [];
 					var factions = ns.getPlayer().factions;
-					for (var tGoal of goals) {
+					for (var tGoal of config.factionGoals) {
 						if (!factions.includes(tGoal.name)) {
 							toJoin.push(tGoal.name);
 						}
@@ -319,7 +325,7 @@ async function selectGoal(ns, goals, config) {
 			if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
 				// reach the red pill
 				const database = JSON.parse(ns.read("database.txt"));
-				goal.reputation = database.augmentations.find(a=>a.name == c.RED_PILL).reputation;
+				goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
 				config.estimatedDonations = 1;
 			}
 			await ns.write("nodestart.txt", JSON.stringify({
