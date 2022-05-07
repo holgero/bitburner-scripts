@@ -206,8 +206,10 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
-			await runAndWait(ns, "university.js", "--course", "CS", "--focus", focus);
+			await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
 			await runAndWait(ns, "commit-crimes.js", "--timed", 60, "--until_hack", 100);
+			focus = ns.isFocused();
+			ns.stopAction();
 		} else {
 			if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
 				ns.printf("At start of checks");
@@ -276,16 +278,21 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 				}
 			} else {
 				ns.printf("Not working and nothing to do");
-				// not working for a faction: kill a few people
-				await runAndWait(ns, "commit-crimes.js", "--timed", 60);
+				if (nextProgram == 0) {
+					await runAndWait(ns, "writeprogram.js", nextProgram++);
+					await startHacking(ns);
+				} else {
+					// not working for a faction: kill a few people
+					await runAndWait(ns, "commit-crimes.js", "--timed", 60);
+				}
 			}
+			focus = ns.isFocused();
 		}
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "auto");
 		// join future factions early, if we can
 		await futureGoalConditions(ns, goals, nextProgram);
 		await ns.sleep(20000);
-		focus = ns.isFocused();
 		if (!ns.getPlayer().factions.includes(c.DAEDALUS) && goal.name == c.DAEDALUS) {
 			// don't wait for DAEDALUS invitation within this loop, do something else instead
 			break;
