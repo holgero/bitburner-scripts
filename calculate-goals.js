@@ -1,4 +1,4 @@
-import { formatMoney } from "/helpers.js";
+import { formatMoney, reputationNeeded } from "/helpers.js";
 import * as c from "/constants.js";
 
 /** @param {NS} ns **/
@@ -56,6 +56,9 @@ export async function main(ns) {
 	}
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
+	if (ns.getPlayer().hasCorporation) {
+		capGoalsAtFavorToDonate(ns, database, factionGoals);
+	}
 	do {
 		var futureFactions = getPossibleFactions(ns, database, factionGoals).
 			filter(a => !factionGoals.some(b => b.name == a.name));
@@ -77,6 +80,18 @@ export async function main(ns) {
 		ns.run("print_goals.js", 1, "--direct", result);
 	} else {
 		await ns.write("nodestart.txt", result, "w");
+	}
+}
+
+/** @param {NS} ns **/
+function capGoalsAtFavorToDonate(ns, database, factionGoals) {
+	var limit = ns.getFavorToDonate();
+	for (var goal of factionGoals) {
+		if (goal.favor < limit) {
+			if (goal.reputation > 2*reputationNeeded(ns, goal.name)) {
+				goal.reputation = reputationNeeded(ns, goal.name);
+			}
+		}
 	}
 }
 
