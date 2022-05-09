@@ -76,41 +76,28 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, config) {
-	ns.tprintf("First round of goals at %d %%", 25);
-	var runGoals = config.factionGoals.slice(0);
-	while (runGoals.length > 0) {
-		var goal = await selectGoal(ns, runGoals, config);
-		await workOnGoal(ns, goal, 0.25, runGoals, config);
-	}
-
-	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
-		return;
-	}
-
-	ns.tprintf("Second round of goals at %d %%", 75);
-	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
-	runGoals.reverse();
-	while (runGoals.length > 0) {
-		var goal = await selectGoal(ns, runGoals, config);
-		if (goal) await workOnGoal(ns, goal, 0.75, runGoals, config);
-	}
-
-	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
-		return;
-	}
-
-	ns.tprintf("Last round of goals at %d %%", 100);
-	runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
-	runGoals.reverse();
-	while (runGoals.length > 0) {
-		var goal = await selectGoal(ns, runGoals, config);
-		if (goal) await workOnGoal(ns, goal, 1, runGoals, config);
-	}
+	if (!await workOnGoalsPercentage(ns, config, 0.25)) return;
+	if (!await workOnGoalsPercentage(ns, config, 0.50)) return;
+	if (!await workOnGoalsPercentage(ns, config, 0.75)) return;
+	if (!await workOnGoalsPercentage(ns, config, 1.00)) return;
 	ns.tprintf("Finished all goals");
+}
+
+/** @param {NS} ns **/
+async function workOnGoalsPercentage(ns, config, percentage) {
+	ns.tprintf("Round of goals at %d %%", percentage * 100);
+	var runGoals = config.factionGoals.slice(0);
+	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
+	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
+	runGoals.reverse();
+	while (runGoals.length > 0) {
+		var goal = await selectGoal(ns, runGoals, config);
+		if (goal) await workOnGoal(ns, goal, percentage, runGoals, config);
+	}
+	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
+		return false;
+	}
+	return true;
 }
 
 /** @param {NS} ns **/
