@@ -20,8 +20,8 @@ export async function main(ns) {
 	while (Math.max(5e8, ns.getServerMoneyAvailable("home")) > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s",
-		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
-		// 	nextAug.faction.name);
+			// nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
+			// nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
 			break;
 		}
@@ -134,7 +134,7 @@ function estimatePrice(toPurchase) {
 /** @param {NS} ns **/
 function costToGet(ns, database, factionGoals, augmentation) {
 	const player = ns.getPlayer();
-	var bestFactionCost = 1e9;
+	var bestFactionCost = 1e12;
 	var bestFaction = "";
 	for (var factionName of augmentation.factions) {
 		var faction = database.factions.find(a => a.name == factionName);
@@ -207,7 +207,7 @@ function findNextAugmentation(ns, database, factionGoals) {
 	}
 	candidates.forEach(a => { var cost = costToGet(ns, database, factionGoals, a); a.cost = cost.cost; a.faction = cost.faction });
 	candidates.sort((a, b) => a.cost - b.cost);
-	ns.printf("Candidates: %s", JSON.stringify(candidates));
+	// ns.tprintf("Candidates: %s", JSON.stringify(candidates));
 	return candidates[0];
 }
 
