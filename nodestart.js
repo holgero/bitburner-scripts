@@ -296,9 +296,9 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					ns.printf("Start working for faction");
 					await runAndWait(ns, "workforfaction.js", goal.name, goal.work,
 						JSON.stringify(toJoin), JSON.stringify(focus));
-					if (factions.includes(c.DAEDALUS) && goal.name != c.DAEDALUS) {
-						var daedalus = goals.find(a => a.name == c.DAEDALUS);
-						if (daedalus && daedalus.augmentations.includes(c.RED_PILL)) {
+					if (goal.name != c.DAEDALUS) {
+						await checkForDaedalus(ns, config);
+						if (config.finalGoal) {
 							// we have more important things to do
 							return;
 						}
