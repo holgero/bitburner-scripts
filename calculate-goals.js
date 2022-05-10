@@ -3,7 +3,7 @@ import * as c from "/constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["dry-run", false]]);
+	var options = ns.flags([["dry-run", false], ["money", 0]]);
 	const database = JSON.parse(ns.read("database.txt"));
 	const factionGoals = [];
 	for (var faction of ns.getPlayer().factions) {
@@ -17,7 +17,11 @@ export async function main(ns) {
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
 	var augmentationCost = estimatePrice(toPurchase);
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	while (Math.max(5e8, ns.getServerMoneyAvailable("home")) > augmentationCost) {
+	var maxMoneyToSpend = Math.max(5e8, ns.getServerMoneyAvailable("home"));
+	if (options.money) {
+		maxMoneyToSpend = options.money;
+	}
+	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s",
 		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
