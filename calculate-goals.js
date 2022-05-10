@@ -101,7 +101,7 @@ function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 
 /** @param {NS} ns **/
 function getAugmentationsToPurchase(ns, database, factionGoals) {
-	const toPurchase = [];
+	var toPurchase = [];
 	for (var goal of factionGoals) {
 		for (var augName of goal.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
@@ -114,7 +114,23 @@ function getAugmentationsToPurchase(ns, database, factionGoals) {
 			}
 		}
 	}
-	toPurchase.sort((a, b) => a.price - b.price).reverse();
+	const possibleRequirements = database.owned_augmentations.slice(0);
+	possibleRequirements.push(...(toPurchase.map(a => a.name)));
+	toPurchase = toPurchase.filter(a => a.requirements.every(r => possibleRequirements.includes(r)));
+	for (var aug of toPurchase) {
+		if (aug.requirements.length == 0 && aug.sortc == undefined) {
+			aug.sortc = aug.price;
+		} else {
+			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
+			if (!requirement) {
+				continue;
+			}
+			var sortc = (1.9 * aug.price + requirement.price) / 2.9;
+			aug.sortc = sortc;
+			requirement.sortc = sortc + 1;
+		}
+	}
+	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
 	return toPurchase;
 }
 
