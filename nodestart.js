@@ -84,6 +84,47 @@ async function workOnGoals(ns, config) {
 }
 
 /** @param {NS} ns **/
+async function checkForDaedalus(ns, config) {
+	const goals = config.factionGoals;
+	if (config.finalGoal) {
+		return;
+	}
+	if (ns.getPlayer().factions.includes(c.DAEDALUS) &&
+		goals.some(a => a.name == c.DAEDALUS && a.augmentations.includes(c.RED_PILL))) {
+		var goal = goals.find(a => a.name == c.DAEDALUS);
+		// single minded now, there are no other goals...
+		config.finalGoal = goal;
+		config.factionGoals.forEach(a => a.reputation = 0);
+		if (goal.reputation == 0) {
+			if (goal.favor < ns.getFavorToDonate()) {
+				goal.reputation = reputationNeeded(ns, goal.name);
+				await ns.write("stopselling.txt", "{goal:Daedalus}", "w");
+				config.estimatedDonations = 0;
+			}
+		}
+		if (goal.favor >= ns.getFavorToDonate()) {
+			// reach the red pill
+			const database = JSON.parse(ns.read("database.txt"));
+			goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
+			config.estimatedDonations = 1;
+		}
+		await ns.write("nodestart.txt", JSON.stringify({
+			factionGoals: config.factionGoals,
+			estimatedPrice: 0,
+			estimatedDonations: config.estimatedDonations
+		}), "w");
+		config.estimatedPrice = await getEstimation(ns, true);
+		await ns.write("nodestart.txt", JSON.stringify({
+			factionGoals: config.factionGoals,
+			estimatedPrice: config.estimatedPrice,
+			estimatedDonations: config.estimatedDonations
+		}), "w");
+
+		await runAndWait(ns, "print_goals.js");
+	}
+}
+
+/** @param {NS} ns **/
 async function workOnGoalsPercentage(ns, config, percentage) {
 	ns.tprintf("Round of goals at %d %%", percentage * 100);
 	var runGoals = config.factionGoals.slice(0);
@@ -91,6 +132,7 @@ async function workOnGoalsPercentage(ns, config, percentage) {
 	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	runGoals.reverse();
 	while (runGoals.length > 0) {
+		await checkForDaedalus(ns, config);
 		var goal = await selectGoal(ns, runGoals, config);
 		if (goal) await workOnGoal(ns, goal, percentage, runGoals, config);
 	}
@@ -295,41 +337,12 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 
 /** @param {NS} ns **/
 async function selectGoal(ns, goals, config) {
+	if (config.finalGoal) {
+		goals.splice(0, goals.length);
+		return config.finalGoal;
+	}
 	var money = ns.getServerMoneyAvailable("home");
 	var factions = ns.getPlayer().factions;
-	if (factions.includes(c.DAEDALUS)) {
-		var goal = goals.find(a => a.name == c.DAEDALUS);
-		if (goal && goal.augmentations.includes(c.RED_PILL)) {
-			// single minded now, there are no other goals...
-			goals.splice(0, goals.length);
-			if (goal.reputation == 0) {
-				if (ns.getFactionFavor(goal.name) < ns.getFavorToDonate()) {
-					goal.reputation = reputationNeeded(ns, goal.name);
-					await ns.write("stopselling.txt", "{goal:Daedalus}", "w");
-					config.estimatedDonations = 0;
-				}
-			}
-			if (ns.getFactionFavor(goal.name) >= ns.getFavorToDonate()) {
-				// reach the red pill
-				const database = JSON.parse(ns.read("database.txt"));
-				goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
-				config.estimatedDonations = 1;
-			}
-			await ns.write("nodestart.txt", JSON.stringify({
-				factionGoals: [goal],
-				estimatedPrice: 0,
-				estimatedDonations: config.estimatedDonations
-			}), "w");
-			config.estimatedPrice = await getEstimation(ns, true);
-			await ns.write("nodestart.txt", JSON.stringify({
-				factionGoals: [goal],
-				estimatedPrice: config.estimatedPrice,
-				estimatedDonations: config.estimatedDonations
-			}), "w");
-
-			return goal;
-		}
-	}
 	for (var ii = 0; ii < goals.length; ii++) {
 		var goal = goals[ii];
 		if (goal.company && goals.length > 1 && ns.getFactionFavor(goal.name) == 0 && ns.getFactionRep(goal.name) == 0) {
