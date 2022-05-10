@@ -37,8 +37,8 @@ export async function main(ns) {
 			});
 			// a new goal. Check if existing goals have become obsolete.
 			var additionalAugs = database.augmentations.
-				filter(a=>nextAug.faction.augmentations.includes(a)).
-				filter(a=>a.reputation<=nextAug.reputation && a.name != nextAug.name);
+				filter(a => nextAug.faction.augmentations.includes(a)).
+				filter(a => a.reputation <= nextAug.reputation && a.name != nextAug.name);
 			for (var addAug of additionalAugs) {
 				for (var goal of factionGoals) {
 					if (goal.aim == addAug.name) {
@@ -65,7 +65,7 @@ export async function main(ns) {
 		var foundOne = false;
 		for (var faction of futureFactions) {
 			if (faction.augmentations.some(a => !toPurchase.some(b => b.name == a))) {
-				factionGoals.push({ ...faction, reputation:0, aim:""});
+				factionGoals.push({ ...faction, reputation: 0, aim: "" });
 				foundOne = true;
 				break;
 			}
@@ -88,7 +88,7 @@ function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 	var limit = ns.getFavorToDonate();
 	for (var goal of factionGoals) {
 		if (goal.favor < limit) {
-			if (goal.reputation > 2*reputationNeeded(ns, goal.name)) {
+			if (goal.reputation > 2 * reputationNeeded(ns, goal.name)) {
 				goal.reputation = reputationNeeded(ns, goal.name);
 			}
 		}
@@ -101,12 +101,7 @@ function getAugmentationsToPurchase(ns, database, factionGoals) {
 	for (var goal of factionGoals) {
 		for (var augName of goal.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
-			var rep = goal.reputation;
-			if (rep == undefined) {
-				rep = ns.getFactionRep(goal.name);
-			} else {
-				rep = Math.max(rep, ns.getFactionRep(goal.name));
-			}
+			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
 			if (augmentation.reputation <= rep) {
 				if (!toPurchase.includes(augmentation)) {
 					toPurchase.push(augmentation);
@@ -149,7 +144,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 				cost += 10000 / player.hacking_exp_mult * Math.pow(Math.max(0, faction.hack - player.hacking, 2));
 			}
 			if (faction.company) {
-				cost += 20000 * ( 100 / (100 + faction.companyFavor) ) *
+				cost += 20000 * (100 / (100 + faction.companyFavor)) *
 					Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
 			}
 			if (faction.stats) {
@@ -197,15 +192,21 @@ function findNextAugmentation(ns, database, factionGoals) {
 			a => !augsToIgnore.includes(a.name) &&
 				a.type == prio &&
 				a.factions.some(b => possibleFactions.includes(b)));
-		if (candidates.length) break;
+		for (var candidate of candidates) {
+			candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
+		}
+		if (!candidates.length) {
+			continue;
+		}
+		candidates.forEach(a => {
+			var cost = costToGet(ns, database, factionGoals, a);
+			a.cost = cost.cost; a.faction = cost.faction
+		});
+		candidates = candidates.filter(a => a.faction != "");
+		if (candidates.length) {
+			break;
+		}
 	}
-	for (var candidate of candidates) {
-		candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
-	}
-	if (!candidates.length) {
-		return undefined;
-	}
-	candidates.forEach(a => { var cost = costToGet(ns, database, factionGoals, a); a.cost = cost.cost; a.faction = cost.faction });
 	candidates.sort((a, b) => a.cost - b.cost);
 	ns.printf("Candidates: %s", JSON.stringify(candidates));
 	return candidates[0];
