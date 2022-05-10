@@ -75,6 +75,8 @@ export async function main(ns) {
 			}
 		}
 	} while (foundOne);
+	toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+	augmentationCost = estimatePrice(toPurchase);
 	var result = JSON.stringify({
 		factionGoals: factionGoals,
 		estimatedPrice: augmentationCost,
