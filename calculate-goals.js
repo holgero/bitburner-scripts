@@ -63,6 +63,16 @@ export async function main(ns) {
 	if (ns.getPlayer().hasCorporation) {
 		capGoalsAtFavorToDonate(ns, database, factionGoals);
 	}
+	if (factionGoals.filter(a=>a.reputation).length == 0) {
+		var nextAug = findNextAugmentation(ns, database, factionGoals, 1e99);
+		if (nextAug) {
+			factionGoals.push({
+				...nextAug.faction,
+				reputation: nextAug.reputation,
+				aim: nextAug.name
+			});
+		}
+	}
 	do {
 		var futureFactions = getPossibleFactions(ns, database, factionGoals).
 			filter(a => !factionGoals.some(b => b.name == a.name));
