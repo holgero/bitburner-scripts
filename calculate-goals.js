@@ -22,7 +22,7 @@ export async function main(ns) {
 		maxMoneyToSpend = options.money;
 	}
 	while (maxMoneyToSpend > augmentationCost) {
-		var nextAug = findNextAugmentation(ns, database, factionGoals);
+		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s",
 		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
 		// 	nextAug.faction.name);
@@ -76,6 +76,7 @@ export async function main(ns) {
 		}
 	} while (foundOne);
 	toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+	// ns.tprintf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
 	augmentationCost = estimatePrice(toPurchase);
 	var result = JSON.stringify({
 		factionGoals: factionGoals,
@@ -120,9 +121,10 @@ function getAugmentationsToPurchase(ns, database, factionGoals) {
 	possibleRequirements.push(...(toPurchase.map(a => a.name)));
 	toPurchase = toPurchase.filter(a => a.requirements.every(r => possibleRequirements.includes(r)));
 	for (var aug of toPurchase) {
-		if (aug.requirements.length == 0 && aug.sortc == undefined) {
+		if (aug.sortc == undefined) {
 			aug.sortc = aug.price;
-		} else {
+		}
+		if (aug.requirements.length) {
 			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
 			if (!requirement) {
 				continue;
@@ -203,7 +205,7 @@ function getPossibleFactions(ns, database, factionGoals) {
 }
 
 /** @param {NS} ns **/
-function findNextAugmentation(ns, database, factionGoals) {
+function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	const augsToIgnore = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
 	// ns.tprintf("Augs to ignore: %s", JSON.stringify(augsToIgnore));
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
@@ -213,7 +215,8 @@ function findNextAugmentation(ns, database, factionGoals) {
 		candidates = database.augmentations.filter(
 			a => !augsToIgnore.includes(a.name) &&
 				a.type == prio &&
-				a.factions.some(b => possibleFactions.includes(b)));
+				a.factions.some(b => possibleFactions.includes(b)) &&
+				a.price < maxPrice);
 		for (var candidate of candidates) {
 			candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
 		}
