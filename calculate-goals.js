@@ -60,9 +60,7 @@ export async function main(ns) {
 	}
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	if (ns.getPlayer().hasCorporation) {
-		capGoalsAtFavorToDonate(ns, database, factionGoals);
-	}
+	capGoalsAtFavorToDonate(ns, database, factionGoals);
 	if (factionGoals.filter(a=>a.reputation).length == 0) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, 1e99);
 		if (nextAug) {
