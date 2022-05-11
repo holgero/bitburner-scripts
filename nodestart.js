@@ -76,10 +76,14 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, config) {
-	if (!await workOnGoalsPercentage(ns, config, 0.25)) return;
-	if (!await workOnGoalsPercentage(ns, config, 0.50)) return;
-	if (!await workOnGoalsPercentage(ns, config, 0.75)) return;
-	if (!await workOnGoalsPercentage(ns, config, 1.00)) return;
+	if (config.factionGoals.some(a => a.reputation)) {
+		if (!await workOnGoalsPercentage(ns, config, 0.25)) return;
+		if (!await workOnGoalsPercentage(ns, config, 0.50)) return;
+		if (!await workOnGoalsPercentage(ns, config, 0.75)) return;
+		if (!await workOnGoalsPercentage(ns, config, 1.00)) return;
+	} else {
+		ns.tprintf("No goals!");
+	}
 	ns.tprintf("Finished all goals");
 }
 
