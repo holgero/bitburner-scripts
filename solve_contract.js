@@ -3,7 +3,7 @@ import { gridPaths2 } from "contractsolver/gridpaths2.js";
 import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
 import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
 import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
-import { arrayJumpingGame } from "contractsolver/arrayjumpinggame.js";
+import { arrayJumpingGame, arrayJumpingGame2 } from "contractsolver/arrayjumpinggame.js";
 import { minimalPathSum } from "contractsolver/minimalpathsum.js";
 import { subarraySum } from "contractsolver/subarraysum.js";
 import { totalWaysToSum } from "contractsolver/totalwaystosum.js";
@@ -19,6 +19,7 @@ const PRIME = "Find Largest Prime Factor";
 const MERGE = "Merge Overlapping Intervals";
 const SPIRAL = "Spiralize Matrix";
 const GAME = "Array Jumping Game";
+const GAME2 = "Array Jumping Game II";
 const TRIANGLE = "Minimum Path Sum in a Triangle";
 const TRADER1 = "Algorithmic Stock Trader I";
 const TRADER2 = "Algorithmic Stock Trader II";
@@ -94,6 +95,9 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case GAME:
 					solution = +arrayJumpingGame(data);
+					break;
+				case GAME2:
+					solution = +arrayJumpingGame2(data);
 					break;
 				case TRIANGLE:
 					solution = +minimalPathSum(data, 0, 0);
