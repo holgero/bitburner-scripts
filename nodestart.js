@@ -85,16 +85,16 @@ async function workOnGoals(ns, config) {
 
 /** @param {NS} ns **/
 async function checkForDaedalus(ns, config) {
-	const goals = config.factionGoals;
 	if (config.finalGoal) {
 		return;
 	}
+	const goals = config.factionGoals;
 	if (ns.getPlayer().factions.includes(c.DAEDALUS) &&
 		goals.some(a => a.name == c.DAEDALUS && a.augmentations.includes(c.RED_PILL))) {
 		var goal = goals.find(a => a.name == c.DAEDALUS);
 		// single minded now, there are no other goals...
 		config.finalGoal = goal;
-		config.factionGoals.forEach(a => a.reputation = 0);
+		goals.forEach(a => a.reputation = 0);
 		if (goal.reputation == 0) {
 			if (goal.favor < ns.getFavorToDonate()) {
 				goal.reputation = reputationNeeded(ns, goal.name);
@@ -109,13 +109,13 @@ async function checkForDaedalus(ns, config) {
 			config.estimatedDonations = 1;
 		}
 		await ns.write("nodestart.txt", JSON.stringify({
-			factionGoals: config.factionGoals,
+			factionGoals: goals,
 			estimatedPrice: 0,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
 		config.estimatedPrice = await getEstimation(ns, true);
 		await ns.write("nodestart.txt", JSON.stringify({
-			factionGoals: config.factionGoals,
+			factionGoals: goals,
 			estimatedPrice: config.estimatedPrice,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
@@ -127,14 +127,14 @@ async function checkForDaedalus(ns, config) {
 /** @param {NS} ns **/
 async function workOnGoalsPercentage(ns, config, percentage) {
 	ns.tprintf("Round of goals at %d %%", percentage * 100);
-	var runGoals = config.factionGoals.slice(0);
-	runGoals.forEach(a => a.achieved = a.reputation ? ns.getFactionRep(a.name) : 0);
-	runGoals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
-	runGoals.reverse();
-	while (runGoals.length > 0) {
+	const goals = config.factionGoals;
+	while (true) {
 		await checkForDaedalus(ns, config);
-		var goal = await selectGoal(ns, runGoals, config);
-		if (goal) await workOnGoal(ns, goal, percentage, runGoals, config);
+		goals.forEach(a => a.achieved = a.reputation ?
+			ns.getFactionRep(a.name) / percentage : 0);
+		var goal = await selectGoal(ns, goals, config);
+		if (!goal) break;
+		await workOnGoal(ns, goal, percentage, goals, config);
 	}
 	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
 		return false;
@@ -169,8 +169,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		nextServerRam = 8 * ns.getServerMaxRam("pserv-0");
 	}
 	var firstHacknetNode = false;
-	ns.tprintf("%s goal: %s %d", goals.length > 0 ? "Next" : "Last", goal.name,
-		percentage * goal.reputation);
+	ns.tprintf("goal: %s %d", goal.name, percentage * goal.reputation);
 	ns.printf("Next server ram size: %d GB, next program to aquire: %s",
 		nextServerRam, nextProgram < c.programs.length ? c.programs[nextProgram].name : "(complete)");
 	while (true) {
@@ -283,7 +282,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					}
 					var toJoin = [];
 					var factions = ns.getPlayer().factions;
-					for (var tGoal of config.factionGoals) {
+					for (var tGoal of goals) {
 						if (!factions.includes(tGoal.name)) {
 							toJoin.push(tGoal.name);
 						}
@@ -338,23 +337,41 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 /** @param {NS} ns **/
 async function selectGoal(ns, goals, config) {
 	if (config.finalGoal) {
-		goals.splice(0, goals.length);
 		return config.finalGoal;
 	}
-	var money = ns.getServerMoneyAvailable("home");
+	goals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
+	goals.reverse();
 	var factions = ns.getPlayer().factions;
-	for (var ii = 0; ii < goals.length; ii++) {
-		var goal = goals[ii];
-		if (goal.company && goals.length > 1 && ns.getFactionFavor(goal.name) == 0 && ns.getFactionRep(goal.name) == 0) {
-			// skip companies that need to be worked for until the end of the goals
-			continue;
-		}
-		if (factions.includes(goal.name) || (!goal.money || goal.money <= 1.2 * money)) {
-			goals.splice(ii, 1);
+	var runGoals = goals.filter(a => (a.reputation - a.achieved) > 0);
+	if (runGoals.length == 0) {
+		return undefined;
+	}
+	for (var goal of runGoals) {
+		if (factions.includes(goal.name)) {
 			return goal;
 		}
 	}
-	return goals.shift();
+	// everything that follows is only possible in the first round where the
+	// player has not joined all necessary factions
+	// start with the factions that require stats
+	var statsFactions = runGoals.filter(a => a.stats).sort((a, b) => (a.stats - b.stats));
+	if (statsFactions.length > 0) {
+		return statsFactions[0];
+	}
+	for (var goal of runGoals) {
+		if (!goal.backdoor && !goal.company && !goal.money || goal.money <= 1.1 * ns.getServerMoneyAvailable("home")) {
+			return goal;
+		}
+	}
+	for (var goal of runGoals) {
+		if (!goal.company) {
+			return goal;
+		}
+	}
+	for (var goal of runGoals) {
+		return goal;
+	}
+	return undefined;
 }
 
 /** @param {NS} ns **/
@@ -396,7 +413,7 @@ async function buffStatsToNeeded(ns, stats, focus) {
 
 /** @param {NS} ns **/
 async function installBackdoorIfNeeded(ns, server, nextProgram) {
-	ns.printf("Install backdoor on %s (have program nr. %d)", server, nextProgram);
+	ns.printf("Install backdoor if needed: %s %d", server, nextProgram);
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
 			ns.getServerNumPortsRequired(server) <= nextProgram) {
