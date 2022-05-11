@@ -396,7 +396,7 @@ async function buffStatsToNeeded(ns, stats, focus) {
 
 /** @param {NS} ns **/
 async function installBackdoorIfNeeded(ns, server, nextProgram) {
-	ns.printf("Install backdoor if needed: %s %d", server, nextProgram);
+	ns.printf("Install backdoor on %s (have program nr. %d)", server, nextProgram);
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking &&
 			ns.getServerNumPortsRequired(server) <= nextProgram) {
