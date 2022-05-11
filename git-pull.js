@@ -80,7 +80,6 @@ export async function main(ns) {
 		for (var file of CONTRACTSOLVER) {
 			ns.tprintf("Fetching %s", file);
 			await ns.wget(BASEURL + "contractsolver/" + file, "/contractsolver/" + file);
-			// ns.mv("home", file, "contractsolver");
 		}
 	}
 }
