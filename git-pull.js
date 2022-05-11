@@ -76,11 +76,11 @@ export async function main(ns) {
 		ns.tprintf("Fetching %s", file);
 		await ns.wget(BASEURL + file, file);
 	}
-	//if (!ns.args.length) {
-	//	for (var file of CONTRACTSOLVER) {
-	//		ns.tprintf("Fetching %s", file);
-	//		await ns.wget(BASEURL + "contractsolver/" + file, file);
-	//		// ns.mv("home", file, "contractsolver");
-	//	}
-	//}
+	if (!ns.args.length) {
+		for (var file of CONTRACTSOLVER) {
+			ns.tprintf("Fetching %s", file);
+			await ns.wget(BASEURL + "contractsolver/" + file, "/contractsolver/" + file);
+			// ns.mv("home", file, "contractsolver");
+		}
+	}
 }
