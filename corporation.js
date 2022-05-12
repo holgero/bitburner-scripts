@@ -46,8 +46,12 @@ export async function main(ns) {
 				continue;
 			}
 		}
-		await setupCorporation(ns);
 		var corporation = ns.corporation.getCorporation();
+		if (!corporation.public) {
+			ns.corporation.goPublic(1e9);
+		}
+		await setupCorporation(ns);
+		corporation = ns.corporation.getCorporation();
 		var value = valuation(ns, corporation);
 		var low = value / (2 * corporation.totalShares);
 		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
@@ -204,7 +208,7 @@ async function printCorporationInfo(ns) {
 	var corporation = ns.corporation.getCorporation();
 	var value = valuation(ns, corporation);
 	var low = value / (2 * corporation.totalShares);
-	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares));
+	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
 	corporation.valuation = value;
 	var profit = corporation.revenue - corporation.expenses;
 	corporation.bonusTime = ns.corporation.getBonusTime();
