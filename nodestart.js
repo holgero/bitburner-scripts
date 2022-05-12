@@ -238,6 +238,9 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 					}
 				}
 			}
+			if (ns.getPlayer().hacking > 2000) {
+				await runAndWait("optimize-hacking.js");
+			}
 		}
 
 		await installBackdoorIfNeeded(ns, goal.backdoor, nextProgram);
