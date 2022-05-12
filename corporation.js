@@ -50,8 +50,10 @@ export async function main(ns) {
 		var corporation = ns.corporation.getCorporation();
 		var value = valuation(ns, corporation);
 		var low = value / (2 * corporation.totalShares);
-		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares));
-		var target = (low + high) / 2;
+		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
+		// high value is ridiculously high if the company is player owned,
+		// so cap it at 10*low value
+		var target = Math.min(10 * low, (low + high) / 2);
 
 		if (corporation.numShares > 0 &&
 			!corporation.shareSaleCooldown &&

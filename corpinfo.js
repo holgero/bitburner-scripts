@@ -5,7 +5,7 @@ export async function main(ns) {
 	var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 	var low = corporationInfo.valuation / (2 * corporationInfo.totalShares);
 	var high = corporationInfo.valuation / (2 * (corporationInfo.totalShares -
-		corporationInfo.issuedShares - corporationInfo.numShares));
+		corporationInfo.issuedShares - corporationInfo.numShares) + 1);
 	var profit = corporationInfo.revenue - corporationInfo.expenses;
 
 	ns.tprintf("Corporation: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",
