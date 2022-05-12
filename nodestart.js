@@ -411,7 +411,7 @@ async function buffStatsToNeeded(ns, stats, focus) {
 	if (statsTooLow.length == 1) {
 		await runAndWait(ns, "workout.js", statsTooLow[0], focus);
 	} else {
-		await runAndWait(ns, "commit-crimes.js", "--until_stats", stats);
+		await runAndWait(ns, "commit-crimes.js", "--until_stats", stats, "--timed", 60);
 	}
 	return false;
 }
