@@ -184,7 +184,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 				statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
 				statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
 				statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
-				cost += 10000 * statsNeed;
+				cost += 10000 * statsNeed*statsNeed;
 			}
 			if (faction.money) {
 				cost += Math.max(0, faction.money - ns.getServerMoneyAvailable("home"));
