@@ -157,12 +157,12 @@ function buyCorporationUpgrades(ns) {
 /** @param {NS} ns **/
 function expandIndustry(ns) {
 	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares > 0) {
-		// expand only while the shares belong to someone else
-		return;
-	}
 	if (corporation.divisions.length == 0) {
 		startFirst(ns, INDUSTRIES[0]);
+		return;
+	}
+	if (corporation.numShares > 0) {
+		// expand only while the shares belong to someone else
 		return;
 	}
 	if (!ns.corporation.hasUnlockUpgrade(OFFICE_API) ||
@@ -193,7 +193,9 @@ function expandIndustry(ns) {
 function startFirst(ns, industry) {
 	ns.tprintf("Starting first industry %s", industry);
 	ns.corporation.expandIndustry(industry, industry);
-	ns.corporation.unlockUpgrade(WAREHOUSE_API);
+	if (!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+		ns.corporation.unlockUpgrade(WAREHOUSE_API);
+	}
 	expandDivision(ns, ns.corporation.getDivision(industry), ns.corporation.getCorporation());
 }
 
