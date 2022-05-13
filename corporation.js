@@ -38,6 +38,7 @@ const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	ns.disableLog("getServerMoneyAvailable");
 	while (true) {
 		var player = ns.getPlayer();
 		if (!player.hasCorporation) {
@@ -68,6 +69,7 @@ export async function main(ns) {
 			ns.corporation.issueDividends(1);
 			var earned = ns.getServerMoneyAvailable("home") - money;
 			ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
+			ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		}
 		if (corporation.issuedShares > 0 && corporation.shareSaleCooldown < 15000 &&
 			corporation.sharePrice < target) {
@@ -77,6 +79,7 @@ export async function main(ns) {
 				ns.corporation.buyBackShares(corporation.issuedShares);
 				var spend = money - ns.getServerMoneyAvailable("home");
 				ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
+				ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
 			}
 		}
 
