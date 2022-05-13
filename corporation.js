@@ -32,7 +32,7 @@ const BURNER = "ByteBurner";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
-
+const POORMAN_MONEY = 1e9;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
@@ -55,13 +55,13 @@ export async function main(ns) {
 		var value = valuation(ns, corporation);
 		var low = value / (2 * corporation.totalShares);
 		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
-		// high value is ridiculously high if the company is player owned,
-		// so cap it at 10*low value
-		var target = Math.min(10 * low, (low + high) / 2);
+		var target = (low + high) / 2;
 
 		if (corporation.numShares > 0 &&
 			!corporation.shareSaleCooldown &&
-			corporation.sharePrice > target &&
+			(corporation.sharePrice > target || (
+				ns.getServerMoneyAvailable("home") < POORMAN_MONEY &&
+				corporation.sharePrice > 2 * low)) &&
 			!ns.fileExists("stopselling.txt")) {
 			var money = ns.getServerMoneyAvailable("home");
 			ns.corporation.sellShares(corporation.numShares);
