@@ -200,21 +200,12 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 						percentComplete > 90) {
 						await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
 					}
-					var toJoin = [];
-					var factions = ns.getPlayer().factions;
-					for (var tGoal of goals) {
-						if (!factions.includes(tGoal.name)) {
-							toJoin.push(tGoal.name);
-						}
-					}
 					if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 						ns.printf("Start working at company");
-						await runAndWait(ns, "workforcompany.js", goal.name, "IT",
-							JSON.stringify(toJoin), JSON.stringify(focus));
+						await runAndWait(ns, "workforcompany.js", goal.name, "IT", focus);
 					}
 					ns.printf("Start working for faction");
-					await runAndWait(ns, "workforfaction.js", goal.name, goal.work,
-						JSON.stringify(toJoin), JSON.stringify(focus));
+					await runAndWait(ns, "workforfaction.js", goal.name, goal.work, focus);
 					if (goal.name != c.DAEDALUS) {
 						await checkForDaedalus(ns, config);
 						if (config.finalGoal) {
