@@ -56,6 +56,7 @@ const CONTRACTSOLVER = [
 	"generateipaddress.js",
 	"gridpaths2.js",
 	"gridpaths.js",
+	"hammingcode.js",
 	"largestprimefactor.js",
 	"mergeoverlappingintervals.js",
 	"minimalpathsum.js",
