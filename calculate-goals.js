@@ -84,7 +84,7 @@ export async function main(ns) {
 		}
 	} while (foundOne);
 	toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
-	// ns.tprintf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
+	ns.printf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
 	augmentationCost = estimatePrice(toPurchase);
 	var result = JSON.stringify({
 		factionGoals: factionGoals,
