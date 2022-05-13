@@ -15,7 +15,7 @@ export async function main(ns) {
 	}
 	await runAndWait(ns, "print_goals.js");
 
-	const config = JSON.parse(ns.read("nodestart.txt"));
+	const config = JSON.parse(ns.read("factiongoals.txt"));
 	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
 	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
 		config.factionGoals.push({ name: c.WORLD_DAEMON, backdoor: c.WORLD_DAEMON });
@@ -96,13 +96,13 @@ async function checkForDaedalus(ns, config) {
 			goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
 			config.estimatedDonations = 1;
 		}
-		await ns.write("nodestart.txt", JSON.stringify({
+		await ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: 0,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
 		config.estimatedPrice = await getEstimation(ns, true);
-		await ns.write("nodestart.txt", JSON.stringify({
+		await ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: config.estimatedPrice,
 			estimatedDonations: config.estimatedDonations
@@ -154,8 +154,8 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		if (!ns.getPlayer().factions.includes(goal.name) && goal.location) {
 			await runAndWait(ns, "travel.js", "--city", goal.location);
 		}
-		var currentMoney = ns.getServerMoneyAvailable("home");
 		await installBackdoorIfNeeded(ns, goal.backdoor);
+		await runAndWait(ns, "joinfactions.js");
 		// how to spend our time
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low

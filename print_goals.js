@@ -7,7 +7,7 @@ export async function main(ns) {
 	if (options.direct) {
 		config = JSON.parse(options.direct);
 	} else {
-		config = JSON.parse(ns.read("nodestart.txt"));
+		config = JSON.parse(ns.read("factiongoals.txt"));
 	}
 	const database = JSON.parse(ns.read("database.txt"));
 	ns.tprintf("%22s %10s %10s %10s  %s", "Faction", "Goal",

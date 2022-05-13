@@ -94,7 +94,7 @@ export async function main(ns) {
 	if (options["dry-run"]) {
 		ns.run("print_goals.js", 1, "--direct", result);
 	} else {
-		await ns.write("nodestart.txt", result, "w");
+		await ns.write("factiongoals.txt", result, "w");
 	}
 }
 

@@ -21,7 +21,7 @@ export async function main(ns) {
 				factions = ns.checkFactionInvitations();
 			} else {
 				if (options.goal) {
-					const config = JSON.parse(ns.read("nodestart.txt"));
+					const config = JSON.parse(ns.read("factiongoals.txt"));
 					factions = [];
 					for (var goal of config.factionGoals) {
 						factions.push(goal.name);

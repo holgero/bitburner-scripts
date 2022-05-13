@@ -11,7 +11,7 @@ export async function main(ns) {
 		loopOver = options._;
 	} else {
 		if (options.goal) {
-			const config = JSON.parse(ns.read("nodestart.txt"));
+			const config = JSON.parse(ns.read("factiongoals.txt"));
 			loopOver = [];
 			for (var goal of config.factionGoals) {
 				if (goal.reputation) {
