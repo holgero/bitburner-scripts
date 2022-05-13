@@ -6,7 +6,7 @@ import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
 import { arrayJumpingGame, arrayJumpingGame2 } from "contractsolver/arrayjumpinggame.js";
 import { minimalPathSum } from "contractsolver/minimalpathsum.js";
 import { subarraySum } from "contractsolver/subarraysum.js";
-import { totalWaysToSum } from "contractsolver/totalwaystosum.js";
+import { totalWaysToSum, totalWaysToSum2 } from "contractsolver/totalwaystosum.js";
 import { generateIpAddress } from "contractsolver/generateipaddress.js";
 import { validExpressions } from "contractsolver/validexpressions.js";
 import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
@@ -28,6 +28,7 @@ const TRADER3 = "Algorithmic Stock Trader III";
 const TRADER4 = "Algorithmic Stock Trader IV";
 const SUBARRAY = "Subarray with Maximum Sum";
 const WAYSUM = "Total Ways to Sum";
+const WAYSUM2 = "Total Ways to Sum II";
 const IPADDR = "Generate IP Addresses";
 const VALID = "Find All Valid Math Expressions";
 const SANITIZE = "Sanitize Parentheses in Expression";
@@ -110,6 +111,9 @@ async function findAndSolveContracts(ns, server) {
 				case WAYSUM:
 					solution = +totalWaysToSum(data);
 					break;
+				case WAYSUM2:
+					solution = +totalWaysToSum2(data[0], data[1]);
+					break;
 				case IPADDR:
 					solution = generateIpAddress(data);
 					break;
@@ -142,7 +146,8 @@ async function findAndSolveContracts(ns, server) {
 					continue;
 			}
 
-			// ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s", type, server, contract, JSON.stringify(data), JSON.stringify(solution));
+			// ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
+			//  type, server, contract, JSON.stringify(data), JSON.stringify(solution));
 			ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, contract, JSON.stringify(data));
 			ns.spawn("solve_contract2.js", 1, server, contract, JSON.stringify(solution));
 		}
