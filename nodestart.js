@@ -17,37 +17,28 @@ export async function main(ns) {
 		}
 	}
 
-	ns.run("factiongoals.js");
+	if (!ns.scriptRunning("factiongoals.js", "home")) {
+		ns.run("factiongoals.js");
+	}
 
 	// use remaining memory on home machine for hacking foodnstuff
 	if (!ns.scriptRunning("instrument.js", "home")) {
 		ns.run("instrument.js", 1, "--target", "foodnstuff");
 	}
 
+	await runAndWait(ns, "start-hacknet.js", 1);
 	await progressHackingLevels(ns);
 }
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
 	var nextProgram = 0;
+	var hacknetLevel = 8;
 	while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 		nextProgram++;
 	}
-	var nextServerRam = 32;
-	if (ns.serverExists("pserv-0")) {
-		nextServerRam = 8 * ns.getServerMaxRam("pserv-0");
-	}
-	var firstHacknetNode = false;
-	ns.printf("Next server ram size: %d GB, next program to aquire: %s",
-		nextServerRam,
-		nextProgram < c.programs.length ? c.programs[nextProgram].name : "(complete)");
-
 	while (true) {
 		var currentMoney = ns.getServerMoneyAvailable("home");
-		if (nextProgram == 0 && !firstHacknetNode) {
-			await runAndWait(ns, "start-hacknet.js", 1);
-			firstHacknetNode = true;
-		}
 		// how to spend our money: first priority is to buy all programs
 		// the first program is a special case as we must also account fo the tor router
 		if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
@@ -80,21 +71,14 @@ async function progressHackingLevels(ns) {
 		}
 		// upgrade server farm
 		if (nextProgram > 3) {
-			if (currentMoney > ns.getPurchasedServerCost(nextServerRam) * ns.getPurchasedServerLimit()) {
-				// start as big as possible
-				while (currentMoney > ns.getPurchasedServerCost(nextServerRam * 2) * ns.getPurchasedServerLimit()) {
-					nextServerRam *= 2;
-				}
-				if (!ns.serverExists("pserv-0")
-					|| (nextServerRam >= ns.getServerMaxRam("pserv-0") * 8)) {
-					await runAndWait(ns, "start-servers.js", "--ram", nextServerRam, "--upgrade");
-					// only upgrade in bigger steps
-					nextServerRam *= 8;
-					await runAndWait(ns, "start-hacknet.js", 8);
-				}
+			if (hacknetLevel < 9) {
+				await runAndWait(ns, "start-hacknet.js", hacknetLevel++);
 			}
-			if (ns.getPlayer().hacking > 2000) {
-				await runAndWait("optimize-hacking.js");
+			if (!ns.serverExists("pserv-0") || ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
+				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+				if (ns.getPlayer().hacking > 2000) {
+					await runAndWait("optimize-hacking.js");
+				}
 			}
 		}
 		// check for coding contracts

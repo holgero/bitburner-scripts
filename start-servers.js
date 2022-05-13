@@ -1,3 +1,4 @@
+const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
 const VICTIMS = [
 	"syscore", "zb-institute", "solaris", "lexo-corp", "alpha-ent",
@@ -13,10 +14,30 @@ export async function main(ns) {
 		["ram", 32],
 		["single", false],
 		["restart", false],
-		["upgrade", false]]);
+		["upgrade", false],
+		["auto-upgrade", false]
+	]);
+
+	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
+	if (options["auto-upgrade"]) {
+		var hostname = SERVER_PREFIX + "0";
+		var nextRam = 32;
+		if (ns.serverExists(hostname)) {
+			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 8 * ns.getServerMaxRam(hostname));
+		}
+		var money = ns.getServerMoneyAvailable("home");
+		while (ns.getPurchasedServerCost(nextRam * 2) * numberOfServers < money &&
+			nextRam * 2 < ns.getPurchasedServerMaxRam()) {
+			nextRam *= 2;
+		}
+		if (ns.serverExists(hostname) && ns.getServerMaxRam(hostname) >= nextRam) {
+			return;
+		}
+		options.ram = nextRam;
+		options.upgrade = true;
+	}
 
 	var currentHackingSkill = ns.getPlayer().hacking;
-	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
 
 	var victims = VICTIMS.filter(
 		victim => ns.getServer(victim).hasAdminRights &&
@@ -52,7 +73,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function removeSmallServers(ns, ram) {
 	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
-		var hostname = "pserv-" + ii;
+		var hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
 			ns.killall(hostname);
 			if (ns.getServer(hostname).maxRam < ram) {
@@ -66,7 +87,7 @@ function removeSmallServers(ns, ram) {
 /** @param {NS} ns **/
 function freeServers(ns) {
 	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
-		var hostname = "pserv-" + ii;
+		var hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
 			ns.tprintf("Killing scripts on %s", hostname);
 			ns.killall(hostname);

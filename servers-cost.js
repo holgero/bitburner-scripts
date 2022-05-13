@@ -13,14 +13,19 @@ export async function main(ns) {
 			break;
 		}
 		ram *= 2;
+		if (ram > ns.getPurchasedServerMaxRam()) {
+			break;
+		}
 	}
 	ram = ram / 2;
 	ns.tprintf("Can afford %d servers with %d GB ram.", ns.getPurchasedServerLimit(), ram);
 	printInfo(ns, ram);
 	ns.tprintf("Next bigger servers:");
 	ram = ram * 2;
+	if (ram > ns.getPurchasedServerMaxRam()) return;
 	printInfo(ns, ram);
 	ram = ram * 2;
+	if (ram > ns.getPurchasedServerMaxRam()) return;
 	printInfo(ns, ram);
 }
 
