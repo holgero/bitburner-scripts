@@ -33,8 +33,11 @@ export async function main(ns) {
 		if (ns.serverExists(hostname) && ns.getServerMaxRam(hostname) >= nextRam) {
 			return;
 		}
+		if (money<ns.getPurchasedServerCost(nextRam)*numberOfServers) {
+			return;
+		}
 		options.ram = nextRam;
-		options.upgrade = true;
+		options.upgrade = ns.serverExists(hostname);
 	}
 
 	var currentHackingSkill = ns.getPlayer().hacking;

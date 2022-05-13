@@ -83,7 +83,7 @@ async function progressHackingLevels(ns) {
 		}
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "auto");
-		await ns.sleep(10000);
+		await ns.sleep(30000);
 	}
 }
 
