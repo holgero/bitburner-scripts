@@ -19,6 +19,7 @@ const FILES = [
 	"do-weaken.js",
 	"estimate.js",
 	"extras.js",
+	"factiongoals.js",
 	"git-pull.js",
 	"hack-server.js",
 	"helpers.js",
