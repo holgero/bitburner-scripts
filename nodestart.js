@@ -77,7 +77,7 @@ async function progressHackingLevels(ns) {
 			if (!ns.serverExists("pserv-0") || ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
 				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
 				if (ns.getPlayer().hacking > 2000) {
-					await runAndWait("optimize-hacking.js");
+					await runAndWait(ns, "optimize-hacking.js");
 				}
 			}
 		}
