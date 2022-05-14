@@ -18,6 +18,11 @@ export async function main(ns) {
 		["auto-upgrade", false]
 	]);
 
+	if (ns.scriptRunning("start-servers2.js", "home")) {
+		ns.tprint("There is already a server start running");
+		return;
+	}
+
 	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
 	if (options["auto-upgrade"]) {
 		var hostname = SERVER_PREFIX + "0";
@@ -27,13 +32,13 @@ export async function main(ns) {
 		}
 		var money = ns.getServerMoneyAvailable("home");
 		while (ns.getPurchasedServerCost(nextRam * 2) * numberOfServers < money &&
-			nextRam * 2 < ns.getPurchasedServerMaxRam()) {
+			nextRam * 2 <= ns.getPurchasedServerMaxRam()) {
 			nextRam *= 2;
 		}
 		if (ns.serverExists(hostname) && ns.getServerMaxRam(hostname) >= nextRam) {
 			return;
 		}
-		if (money<ns.getPurchasedServerCost(nextRam)*numberOfServers) {
+		if (money < ns.getPurchasedServerCost(nextRam) * numberOfServers) {
 			return;
 		}
 		options.ram = nextRam;
