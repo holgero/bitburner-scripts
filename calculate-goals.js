@@ -1,6 +1,10 @@
 import { formatMoney, reputationNeeded } from "/helpers.js";
 import * as c from "/constants.js";
 
+const MIN_MONEY = 500e6;
+const MAX_MONEY = 500e12;
+const MAX_AUGS = 12;
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["dry-run", false], ["money", 0]]);
@@ -17,15 +21,16 @@ export async function main(ns) {
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
 	var augmentationCost = estimatePrice(toPurchase);
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
-	var maxMoneyToSpend = Math.max(5e8, ns.getServerMoneyAvailable("home"));
+	var maxMoneyToSpend = Math.max(MIN_MONEY, ns.getServerMoneyAvailable("home"));
+	maxMoneyToSpend = Math.min(MAX_MONEY, maxMoneyToSpend);
 	if (options.money) {
 		maxMoneyToSpend = options.money;
 	}
 	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
-		// ns.tprintf("Next Aug: %30s %10s %10d %s",
-		// 	nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
-		// 	nextAug.faction.name);
+		ns.printf("Next Aug: %30s %10s %10d %s",
+			nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
+			nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
 			break;
 		}
@@ -54,6 +59,9 @@ export async function main(ns) {
 		}
 		toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 		augmentationCost = estimatePrice(toPurchase);
+		if (toPurchase.length > MAX_AUGS) {
+			break;
+		}
 		// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
 		// ns.tprintf("Faction Goals: %s", JSON.stringify(factionGoals));
 		// await ns.sleep(3000);
@@ -61,7 +69,7 @@ export async function main(ns) {
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
 	capGoalsAtFavorToDonate(ns, database, factionGoals);
-	if (factionGoals.filter(a=>a.reputation).length == 0) {
+	if (factionGoals.filter(a => a.reputation).length == 0) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, 1e99);
 		if (nextAug) {
 			factionGoals.push({
@@ -184,7 +192,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 				statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
 				statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
 				statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
-				cost += 10000 * statsNeed*statsNeed;
+				cost += 10000 * statsNeed * statsNeed;
 			}
 			if (faction.money) {
 				cost += Math.max(0, faction.money - ns.getServerMoneyAvailable("home"));
@@ -216,12 +224,16 @@ function getPossibleFactions(ns, database, factionGoals) {
 function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	const augsToIgnore = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
 	// ns.tprintf("Augs to ignore: %s", JSON.stringify(augsToIgnore));
+	const ownedAugs = [];
+	ownedAugs.push(...database.owned_augmentations);
+	ownedAugs.push(...augsToIgnore);
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
 	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", ""];
 	var candidates = [];
 	for (var prio of prios) {
 		candidates = database.augmentations.filter(
 			a => !augsToIgnore.includes(a.name) &&
+				a.requirements.every(a => ownedAugs.includes(a)) &&
 				a.type == prio &&
 				a.factions.some(b => possibleFactions.includes(b)) &&
 				a.price < maxPrice);
@@ -241,7 +253,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 		}
 	}
 	candidates.sort((a, b) => a.cost - b.cost);
-	ns.printf("Candidates: %s", JSON.stringify(candidates));
+	ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
 	return candidates[0];
 }
 
