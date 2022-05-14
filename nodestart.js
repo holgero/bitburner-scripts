@@ -18,7 +18,7 @@ export async function main(ns) {
 	}
 
 	if (!ns.scriptRunning("factiongoals.js", "home")) {
-		ns.run("factiongoals.js");
+		ns.run("factiongoals.js", 1, ...ns.args);
 	}
 
 	// use remaining memory on home machine for hacking foodnstuff
