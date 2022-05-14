@@ -55,7 +55,6 @@ const FILES = [
 const CONTRACTSOLVER = [
 	"arrayjumpinggame.js",
 	"generateipaddress.js",
-	"gridpaths2.js",
 	"gridpaths.js",
 	"hammingcode.js",
 	"largestprimefactor.js",

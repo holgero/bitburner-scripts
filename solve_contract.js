@@ -1,5 +1,4 @@
-import { gridPaths } from "contractsolver/gridpaths.js";
-import { gridPaths2 } from "contractsolver/gridpaths2.js";
+import { gridPaths, gridPaths2 } from "contractsolver/gridpaths.js";
 import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
 import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
 import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
