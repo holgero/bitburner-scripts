@@ -1,4 +1,4 @@
-import { gridPaths, gridPaths2 } from "contractsolver/gridpaths.js";
+import { gridPaths, gridPaths2, shortestPath } from "contractsolver/gridpaths.js";
 import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
 import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
 import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
@@ -15,6 +15,7 @@ import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
+const SHORTEST_PATH = "Shortest Path in a Grid";
 const PRIME = "Find Largest Prime Factor";
 const MERGE = "Merge Overlapping Intervals";
 const SPIRAL = "Spiralize Matrix";
@@ -86,6 +87,9 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case PATHS2:
 					solution = gridPaths2(data.length, data[0].length, data);
+					break;
+				case SHORTEST_PATH:
+					solution = shortestPath(data.length, data[0].length, data);
 					break;
 				case PRIME:
 					solution = +largestPrimeFactor(data);
