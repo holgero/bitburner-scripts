@@ -11,7 +11,7 @@ import { generateIpAddress } from "contractsolver/generateipaddress.js";
 import { validExpressions } from "contractsolver/validexpressions.js";
 import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
 import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
-import { hammingDecode } from "contractsolver/hammingcode.js";
+import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
 
 var known;
 const PATHS1 = "Unique Paths in a Grid I";
@@ -33,6 +33,7 @@ const IPADDR = "Generate IP Addresses";
 const VALID = "Find All Valid Math Expressions";
 const SANITIZE = "Sanitize Parentheses in Expression";
 const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
+const HAMMING_ENCODE = "HammingCodes: Integer to encoded Binary";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -141,6 +142,9 @@ async function findAndSolveContracts(ns, server) {
 					break;
 				case HAMMING_DECODE:
 					solution = +hammingDecode(data);
+					break;
+				case HAMMING_ENCODE:
+					solution = hammingEncode(data);
 					break;
 				default:
 					continue;
