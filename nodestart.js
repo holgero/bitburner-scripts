@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded } from "helpers.js";
+import { runAndWait } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
