@@ -168,20 +168,7 @@ async function printBackdoorRoutes(ns, options, server) {
 		}
 		if (ns.getServerRequiredHackingLevel(server) <= hackingLevel) {
 			if (!ns.getServer(server).backdoorInstalled) {
-				for (var ii=0; ii<path.length; ii++) {
-					ns.connect(path[ii]);
-				}
-				await ns.installBackdoor();
-				for (var ii=path.length-2; ii>0; ii--) {
-					ns.connect(path[ii]);
-				}
-				ns.connect("home");
-				if (ns.getServer(server).backdoorInstalled) {
-					ns.tprintf("installed backdoor on %s", server);
-				}
-			}
-			if (!ns.getServer(server).backdoorInstalled) {
-				ns.tprintf("home; connect %s; backdoor", path.join("; connect "));
+				ns.spawn("installbackdoor.js", 1, JSON.stringify(path));
 			}
 		}
 	}

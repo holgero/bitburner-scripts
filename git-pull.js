@@ -25,6 +25,7 @@ const FILES = [
 	"helpers.js",
 	"info.js",
 	"instrument.js",
+	"installbackdoor.js",
 	"joinfactions.js",
 	"nodestart.js",
 	"optimize-hack.js",
