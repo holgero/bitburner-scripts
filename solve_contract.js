@@ -42,7 +42,7 @@ export async function main(ns) {
 		return;
 	}
 	ns.disableLog("scan");
-	known = ns.getPurchasedServers();
+	known = [];
 	known.push("home");
 	if (ns.args[0] == "auto") {
 		await traverse(ns, "home", findAndSolveContracts);
