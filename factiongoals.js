@@ -160,7 +160,7 @@ async function workOnGoal(ns, goal, percentage, goals, config) {
 		if (ns.getPlayer().hacking < 100) {
 			// don't waste time with other stuff while our hacking level is low
 			await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
-			await runAndWait(ns, "commit-crimes.js", "--timed", 60, "--until_hack", 100);
+			await ns.sleep(60000);
 			focus = ns.isFocused();
 			ns.stopAction();
 		} else {
