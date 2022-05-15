@@ -108,11 +108,11 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function capGoalsAtFavorToDonate(ns, database, factionGoals) {
-	var limit = ns.getFavorToDonate();
+	var limit = database.favorToDonate;
 	for (var goal of factionGoals) {
 		if (goal.favor < limit) {
-			if (goal.reputation > 2 * reputationNeeded(ns, goal.name)) {
-				goal.reputation = reputationNeeded(ns, goal.name);
+			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name)) {
+				goal.reputation = reputationNeeded(ns, database, goal.name);
 			}
 		}
 	}
@@ -260,10 +260,10 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 /** @param {NS} ns **/
 function estimateDonations(ns, database, factionGoals) {
 	var sum = 0;
-	var donateFavor = ns.getFavorToDonate();
+	var donateFavor = database.favorToDonate;
 	var mult = ns.getPlayer().faction_rep_mult;
 	for (var goal of factionGoals) {
-		if (goal.reputation && ns.getFactionFavor(goal.name) > donateFavor) {
+		if (goal.reputation && goal.favor > donateFavor) {
 			sum += 1e6 * Math.max(0, goal.reputation - ns.getFactionRep(goal.name)) / mult;
 		}
 	}
