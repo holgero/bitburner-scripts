@@ -3,14 +3,8 @@ import * as c from "constants.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const owned_augmentations = database.owned_augmentations;
-	const factions = [];
-	buildFactionAugmentations(ns, factions, owned_augmentations);
-	await ns.write("database.txt", JSON.stringify(
-		{
-			owned_augmentations: owned_augmentations,
-			factions: factions
-		}), "w");
+	buildFactionAugmentations(ns, database.factions, database.owned_augmentations);
+	await ns.write("database.txt", JSON.stringify(database), "w");
 }
 
 /** @param {NS} ns **/
