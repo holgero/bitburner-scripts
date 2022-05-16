@@ -192,7 +192,7 @@ function expandIndustry(ns) {
 		// not enough funds to expand
 		return;
 	}
-	ns.tprintf("Expanding to industry: %s");
+	ns.tprintf("Expanding to industry: %s", industry);
 	ns.corporation.expandIndustry(industry, industry);
 }
 
