@@ -81,6 +81,13 @@ async function progressHackingLevels(ns) {
 				}
 			}
 		}
+		currentMoney = ns.getServerMoneyAvailable("home");
+		if (nextProgram >= c.programs.length &&
+			(ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
+			!ns.scriptRunning("corporation.js", "home")) {
+			await runAndWait(ns, "purchase-ram.js", 2048);
+			ns.run("corporation.js");
+		}
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "auto");
 		await ns.sleep(30000);
