@@ -1,4 +1,4 @@
-import { formatMoney } from "helpers.js";
+import { formatMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -27,6 +27,8 @@ export async function main(ns) {
 	}
 	ns.tprintf("Estimated costs: augmentations: %s, donations: %s",
 		formatMoney(config.estimatedPrice), formatMoney(config.estimatedDonations));
+	ns.tprintf("Completion percentage: %s %%",
+		(100 * goalCompletion(ns, config.factionGoals)).toFixed(1));
 }
 
 function augmentationsFrom(ns, database, goal) {

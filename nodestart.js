@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait } from "helpers.js";
+import { runAndWait, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -35,7 +35,11 @@ export async function main(ns) {
 async function progressHackingLevels(ns) {
 	var nextProgram = 0;
 	var hacknetLevel = 8;
+	var completion = 1;
 	while (true) {
+		if (ns.fileExists("factiongoals.txt")) {
+			completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+		}
 		if (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 			while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 				nextProgram++;
@@ -74,7 +78,7 @@ async function progressHackingLevels(ns) {
 			}
 		}
 		// upgrade server farm
-		if (nextProgram > 3) {
+		if (completion < 0.8 && nextProgram > 3) {
 			if (hacknetLevel < 9) {
 				await runAndWait(ns, "start-hacknet.js", hacknetLevel++);
 			}

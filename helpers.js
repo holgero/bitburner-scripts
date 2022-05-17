@@ -84,3 +84,18 @@ export function reputationNeeded(ns, database, factionName) {
 	var reputationNeeded = Math.pow(1.02, database.favorToDonate - 1) * 25500 - 25000;
 	return Math.max(0, reputationNeeded - previousReputation);
 }
+
+
+/** @param {NS} ns **/
+export function goalCompletion(ns, factionGoals) {
+	var totalRep = 0;
+	var repNeeded = 0;
+	for (var goal of factionGoals) {
+		if (goal.reputation) {
+			totalRep += goal.reputation;
+			repNeeded += Math.max(0, goal.reputation - ns.getFactionRep(goal.name));
+		}
+	}
+
+	return  1 - repNeeded / totalRep;
+}
