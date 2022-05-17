@@ -27,6 +27,7 @@ const FILES = [
 	"instrument.js",
 	"installbackdoor.js",
 	"joinfactions.js",
+	"kill-world.js",
 	"nodestart.js",
 	"optimize-hack.js",
 	"plan-augmentations.js",

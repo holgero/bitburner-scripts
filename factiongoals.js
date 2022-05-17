@@ -17,10 +17,6 @@ export async function main(ns) {
 
 	const database = JSON.parse(ns.read("database.txt"));
 	const config = JSON.parse(ns.read("factiongoals.txt"));
-	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
-	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
-		config.factionGoals.push({ name: c.WORLD_DAEMON, backdoor: c.WORLD_DAEMON });
-	}
 
 	await workOnGoals(ns, database, config);
 
@@ -74,6 +70,13 @@ async function workOnGoals(ns, database, config) {
 
 /** @param {NS} ns **/
 async function checkForDaedalus(ns, database, config) {
+	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
+	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
+		if (ns.getPlayer().hacking >= ns.getServer(c.WORLD_DAEMON).requiredHackingSkill) {
+			await ns.write("fini.txt", "End reached at " + new Date(), "w");
+			await runAndWait(ns, "kill-world.js");
+		}
+	}
 	if (config.finalGoal) {
 		return;
 	}
@@ -86,7 +89,7 @@ async function checkForDaedalus(ns, database, config) {
 		goals.forEach(a => a.reputation = 0);
 		if (goal.reputation == 0) {
 			if (goal.favor < database.favorToDonate) {
-				goal.reputation = reputationNeeded(ns, goal.name);
+				goal.reputation = reputationNeeded(ns, database, goal.name);
 				await ns.write("stopselling.txt", "{goal:Daedalus}", "w");
 				config.estimatedDonations = 0;
 			}
@@ -123,7 +126,7 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		var goal = await selectGoal(ns, goals, config);
 		if (!goal) break;
 		await workOnGoal(ns, database, goal, percentage, goals, config);
-		if (goal==config.finalGoal) break;
+		if (goal == config.finalGoal) break;
 	}
 	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
 		return false;
@@ -223,9 +226,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				}
 			} else {
 				ns.printf("Not working and nothing to do");
-				if (!ns.fileExists(c.programs[0].name)== 0) {
+				if (!ns.fileExists(c.programs[0].name) == 0) {
 					await runAndWait(ns, "writeprogram.js", 0);
-					await startHacking(ns);
 				} else {
 					// not working for a faction: kill a few people
 					await runAndWait(ns, "commit-crimes.js", "--timed", 60);
@@ -321,10 +323,10 @@ async function buffStatsToNeeded(ns, stats, focus) {
 
 /** @param {NS} ns **/
 async function installBackdoorIfNeeded(ns, server) {
-	ns.printf("Install backdoor if needed on %s", server);
 	if (server && !ns.getServer(server).backdoorInstalled) {
 		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking) {
-			await startHacking(ns);
+			ns.printf("Install backdoor on %s", server);
+			await runAndWait(ns, "rscan.js", "back", "--quiet");
 		}
 	}
 }
@@ -346,11 +348,4 @@ async function futureGoalConditions(ns, goals) {
 			}
 		}
 	}
-}
-
-/** @param {NS} ns **/
-async function startHacking(ns) {
-	await runAndWait(ns, "rscan.js", "nuke", "--quiet");
-	await runAndWait(ns, "rscan.js", "hack", "--quiet");
-	await runAndWait(ns, "rscan.js", "back", "--quiet");
 }

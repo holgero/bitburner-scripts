@@ -4,6 +4,7 @@ import { runAndWait } from "helpers.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	ns.disableLog("getServerMaxRam");
 	ns.tprintf("Start at %s", new Date());
 
 	// get all unprotected servers immediately
@@ -33,11 +34,14 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
 	var nextProgram = 0;
-	var hacknetLevel = 8;
-	while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
-		nextProgram++;
-	}
 	while (true) {
+		if (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
+			while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
+				nextProgram++;
+			}
+			await startHacking(ns);
+		}
+		var hacknetLevel = 8;
 		var currentMoney = ns.getServerMoneyAvailable("home");
 		// how to spend our money: first priority is to buy all programs
 		// the first program is a special case as we must also account fo the tor router
@@ -98,5 +102,4 @@ async function progressHackingLevels(ns) {
 async function startHacking(ns) {
 	await runAndWait(ns, "rscan.js", "nuke", "--quiet");
 	await runAndWait(ns, "rscan.js", "hack", "--quiet");
-	await runAndWait(ns, "rscan.js", "back", "--quiet");
 }
