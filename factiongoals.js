@@ -128,7 +128,7 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		await workOnGoal(ns, database, goal, percentage, goals, config);
 		if (goal == config.finalGoal) break;
 	}
-	if (Math.max(1e9, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
+	if (Math.max(1e12, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
 		return false;
 	}
 	return true;
