@@ -34,6 +34,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
 	var nextProgram = 0;
+	var hacknetLevel = 8;
 	while (true) {
 		if (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 			while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
@@ -41,7 +42,6 @@ async function progressHackingLevels(ns) {
 			}
 			await startHacking(ns);
 		}
-		var hacknetLevel = 8;
 		var currentMoney = ns.getServerMoneyAvailable("home");
 		// how to spend our money: first priority is to buy all programs
 		// the first program is a special case as we must also account fo the tor router
