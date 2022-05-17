@@ -1,4 +1,4 @@
-import { formatMoney, reputationNeeded } from "/helpers.js";
+import { formatMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
 import * as c from "/constants.js";
 
 const MIN_MONEY = 500e6;
@@ -117,42 +117,6 @@ function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 			}
 		}
 	}
-}
-
-/** @param {NS} ns **/
-function getAugmentationsToPurchase(ns, database, factionGoals) {
-	var toPurchase = [];
-	for (var goal of factionGoals) {
-		for (var augName of goal.augmentations) {
-			var augmentation = database.augmentations.find(a => a.name == augName);
-			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
-			if (augmentation.reputation <= rep) {
-				if (!toPurchase.includes(augmentation)) {
-					toPurchase.push(augmentation);
-					// ns.tprintf("Aug(%s): %s", goal.name, augName);
-				}
-			}
-		}
-	}
-	const possibleRequirements = database.owned_augmentations.slice(0);
-	possibleRequirements.push(...(toPurchase.map(a => a.name)));
-	toPurchase = toPurchase.filter(a => a.requirements.every(r => possibleRequirements.includes(r)));
-	for (var aug of toPurchase) {
-		if (aug.sortc == undefined) {
-			aug.sortc = aug.price;
-		}
-		if (aug.requirements.length) {
-			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
-			if (!requirement) {
-				continue;
-			}
-			var sortc = (1.9 * aug.price + requirement.price) / 2.9;
-			aug.sortc = sortc;
-			requirement.sortc = sortc + 1;
-		}
-	}
-	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
-	return toPurchase;
 }
 
 /** @param {NS} ns **/

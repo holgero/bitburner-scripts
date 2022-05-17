@@ -4,7 +4,6 @@ import { formatMoney } from "helpers.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["goal", false], ["write", false]]);
-	var toPurchase = [];
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
 	if (options._.length > 0) {
@@ -30,8 +29,9 @@ export async function main(ns) {
 			factions.push({ name: arg, reputation: ns.getFactionRep(arg) });
 		}
 	}
+	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
-	await getAugmentationsToPurchase(ns, factions, ns.getOwnedAugmentations(true), toPurchase);
+	var toPurchase = getAugmentationsToPurchase(ns, database, factions);
 	// ns.tprintf("Augmentations to buy: %v", toPurchase);
 	var factor = 1.0;
 	var sum = 0;
@@ -39,10 +39,10 @@ export async function main(ns) {
 		ns.tprintf("%55s  %10s  %10s", "Augmentation", "Price", "Total");
 	}
 	for (var augmentation of toPurchase) {
-		var toPay = factor * ns.getAugmentationPrice(augmentation);
+		var toPay = factor * augmentation.price;
 		sum += toPay;
 		if (!options.write) {
-			ns.tprintf("%55s: %10s  %10s", augmentation, formatMoney(toPay), formatMoney(sum));
+			ns.tprintf("%55s: %10s  %10s", augmentation.name, formatMoney(toPay), formatMoney(sum));
 		}
 		factor = factor * 1.9;
 	}

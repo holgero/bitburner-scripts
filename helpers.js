@@ -41,81 +41,45 @@ export async function runAndWait(ns, script, ...args) {
 }
 
 /** @param {NS} ns **/
-export async function getAugmentationsToPurchase(ns, factions, haveAug, toPurchase) {
-	if (!haveAug.includes(GOVERNOR)) {
-		haveAug.push(GOVERNOR);
-	}
-	var augmentations = [];
-	await addPossibleAugmentations(ns, factions, augmentations, haveAug);
-	await addPossibleAugmentations(ns, factions, augmentations, haveAug);
-
-	augmentations.sort(function (a, b) { return a.sortc - b.sortc; });
-	augmentations.reverse();
-	for (var augmentation of augmentations) {
-		toPurchase.push(augmentation.name);
-	}
-}
-
-/** @param {NS} ns **/
-async function addPossibleAugmentations(ns, factions, toPurchase, haveAug) {
-	for (var factionElem of factions) {
-		var faction = factionElem.name;
-		var reputation = Math.max(ns.getFactionRep(faction), factionElem.reputation);
-		var possibleAugmentations = ns.getAugmentationsFromFaction(faction);
-		for (var augmentation of possibleAugmentations) {
-			if (haveAug.includes(augmentation)) {
-				continue;
-			}
-			if (toPurchase.some(a => a.name == augmentation)) {
-				continue;
-			}
-			var needed = ns.getAugmentationRepReq(augmentation);
-			if (needed > reputation) {
-				continue;
-			}
-			var sortc = db.xgetAugmentationPrice(ns, augmentation);
-			var requiredAugs = ns.getAugmentationPrereq(augmentation);
-			if (requiredAugs.length > 0) {
-				var haveThem = true;
-				for (var requiredAug of requiredAugs) {
-					if (!haveAug.includes(requiredAug)) {
-						haveThem = false;
-						break;
-					}
-				}
-				if (!haveThem) {
-					if (requiredAugs.length == 1) {
-						var requiredAug = requiredAugs[0];
-						var reqIdx = toPurchase.findIndex(a => a.name == requiredAug);
-						if (reqIdx < 0) {
-							continue;
-						}
-						sortc = (toPurchase[reqIdx].sortc + 1.9 * sortc) / 2.9;
-						updateRequiredChain(toPurchase, requiredAug, sortc);
-					}
+export function getAugmentationsToPurchase(ns, database, factionGoals) {
+	var toPurchase = [];
+	for (var goal of factionGoals) {
+		var faction = database.factions.find(a=>a.name==goal.name);
+		for (var augName of faction.augmentations) {
+			var augmentation = database.augmentations.find(a => a.name == augName);
+			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+			if (augmentation.reputation <= rep) {
+				if (!toPurchase.includes(augmentation)) {
+					toPurchase.push(augmentation);
+					// ns.tprintf("Aug(%s): %s", goal.name, augName);
 				}
 			}
-			toPurchase.push({ name: augmentation, sortc: sortc, required: requiredAugs });
 		}
-		// await ns.sleep(100);
 	}
-	// ns.tprintf("Augs: %s", JSON.stringify(toPurchase))
-}
-
-function updateRequiredChain(toPurchase, requiredAug, sortc) {
-	toPurchase.forEach(function (a) {
-		if (a.name == requiredAug) {
-			a.sortc = sortc + 1;
-			for (var required of a.required) {
-				updateRequiredChain(toPurchase, required, sortc + 1);
-			}
+	const possibleRequirements = database.owned_augmentations.slice(0);
+	possibleRequirements.push(...(toPurchase.map(a => a.name)));
+	toPurchase = toPurchase.filter(a => a.requirements.every(r => possibleRequirements.includes(r)));
+	for (var aug of toPurchase) {
+		if (aug.sortc == undefined) {
+			aug.sortc = aug.price;
 		}
-	});
+		if (aug.requirements.length) {
+			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
+			if (!requirement) {
+				continue;
+			}
+			var sortc = (1.9 * aug.price + requirement.price) / 2.9;
+			aug.sortc = sortc;
+			requirement.sortc = sortc + 1;
+		}
+	}
+	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
+	return toPurchase;
 }
 
 /** @param {NS} ns **/
 export function reputationNeeded(ns, database, factionName) {
-	const faction = database.factions.find(a=>a.name==factionName);
+	const faction = database.factions.find(a => a.name == factionName);
 	var previousReputation = Math.pow(1.02, faction.favor - 1) * 25500 - 25000;
 	var reputationNeeded = Math.pow(1.02, database.favorToDonate - 1) * 25500 - 25000;
 	return Math.max(0, reputationNeeded - previousReputation);
