@@ -28,11 +28,24 @@ export async function main(ns) {
 	}
 	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
-		ns.printf("Next Aug: %30s %10s %10d %s",
+		ns.tprintf("Next Aug: %30s %10s %10d %s",
 			nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
 			nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
 			break;
+		}
+		// Check if existing goals have become obsolete.
+		var additionalAugs = database.augmentations.
+			filter(a => nextAug.faction.augmentations.includes(a.name)).
+			filter(a => a.reputation <= nextAug.reputation);
+		for (var addAug of additionalAugs) {
+			for (var goal of factionGoals) {
+				if (goal.name != nextAug.faction.name && goal.aim == addAug.name) {
+					ns.tprintf("Deleting: %s", JSON.stringify(goal));
+					goal.aim = "";
+					goal.reputation = 0;
+				}
+			}
 		}
 		var existing = factionGoals.find(a => a.name == nextAug.faction.name);
 		if (existing) {
@@ -44,18 +57,6 @@ export async function main(ns) {
 				reputation: nextAug.reputation,
 				aim: nextAug.name
 			});
-			// a new goal. Check if existing goals have become obsolete.
-			var additionalAugs = database.augmentations.
-				filter(a => nextAug.faction.augmentations.includes(a)).
-				filter(a => a.reputation <= nextAug.reputation && a.name != nextAug.name);
-			for (var addAug of additionalAugs) {
-				for (var goal of factionGoals) {
-					if (goal.aim == addAug.name) {
-						goal.aim = "";
-						goal.reputation = 0;
-					}
-				}
-			}
 		}
 		toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 		augmentationCost = estimatePrice(toPurchase);
