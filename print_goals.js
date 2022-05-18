@@ -35,6 +35,7 @@ function augmentationsFrom(ns, database, goal) {
 	var result = "";
 	for (var augName of goal.augmentations) {
 		var augmentation = database.augmentations.find(a => a.name == augName);
+		if (!augmentation) continue;
 		var reputation = goal.reputation;
 		if (goal.reputation) {
 			reputation = Math.max(goal.reputation, ns.getFactionRep(goal.name));
@@ -42,6 +43,7 @@ function augmentationsFrom(ns, database, goal) {
 		else {
 			reputation = ns.getFactionRep(goal.name);
 		}
+		// ns.tprintf("Augmentation: %s", JSON.stringify(augmentation));
 		if (augmentation.reputation <= reputation) {
 			result = result + augmentation.name.substring(0, 14) + ", ";
 		}
