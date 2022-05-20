@@ -10,15 +10,19 @@ export async function main(ns) {
 	var options = ns.flags([["dry-run", false], ["money", 0]]);
 	const database = JSON.parse(ns.read("database.txt"));
 	const factionGoals = [];
-	for (var faction of ns.getPlayer().factions) {
+	for (var factionName of ns.getPlayer().factions) {
+		var faction = database.factions.find(a => a.name == factionName);
+		if (!faction) {
+			continue;
+		}
 		factionGoals.push({
-			...database.factions.find(a => a.name == faction),
+			...faction,
 			reputation: 0,
 			aim: ""
 		});
 	}
-	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
+	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 	var augmentationCost = estimatePrice(toPurchase);
 	// ns.tprintf("Estimated Cost: %s", formatMoney(augmentationCost));
 	var maxMoneyToSpend = Math.max(MIN_MONEY, ns.getServerMoneyAvailable("home"));
@@ -28,9 +32,7 @@ export async function main(ns) {
 	}
 	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
-		ns.tprintf("Next Aug: %30s %10s %10d %s",
-			nextAug.name, formatMoney(nextAug.price), nextAug.reputation,
-			nextAug.faction.name);
+		// ns.tprintf("Next Aug: %30s %10s %10d %s", nextAug.name, formatMoney(nextAug.price), nextAug.reputation, nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
 			break;
 		}
@@ -41,7 +43,7 @@ export async function main(ns) {
 		for (var addAug of additionalAugs) {
 			for (var goal of factionGoals) {
 				if (goal.name != nextAug.faction.name && goal.aim == addAug.name) {
-					ns.tprintf("Deleting: %s", JSON.stringify(goal));
+					// ns.tprintf("Deleting: %s", JSON.stringify(goal));
 					goal.aim = "";
 					goal.reputation = 0;
 				}
