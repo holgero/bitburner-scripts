@@ -13,6 +13,7 @@ export async function main(ns) {
 	for (var factionName of ns.getPlayer().factions) {
 		var faction = database.factions.find(a => a.name == factionName);
 		if (!faction) {
+			ns.tprintf("Unknown faction: %s", factionName);
 			continue;
 		}
 		factionGoals.push({

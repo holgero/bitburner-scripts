@@ -35,6 +35,7 @@ export const SPEAKERS = "Speakers for the Dead";
 // late game factions
 export const DAEDALUS = "Daedalus";
 export const SYNDICATE = "The Syndicate";
+export const BLADEBURNERS = "Bladeburners";
 
 export const ALL_FACTIONS = [
 	...CITIES,
@@ -62,7 +63,8 @@ export const ALL_FACTIONS = [
 	SYNDICATE,
 	"The Covenant",
 	DAEDALUS,
-	"Illuminati"
+	"Illuminati",
+	BLADEBURNERS,
 ];
 
 // working types
