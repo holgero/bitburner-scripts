@@ -343,7 +343,9 @@ async function futureGoalConditions(ns, goals) {
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {
-					await runAndWait(ns, "travel.js", "--city", goal.location);
+					if (ns.getPlayer().hacking > 100) { // stay at home near uni while low on hacking
+						await runAndWait(ns, "travel.js", "--city", goal.location);
+					}
 					return;
 				}
 			}
