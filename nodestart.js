@@ -18,8 +18,15 @@ export async function main(ns) {
 		}
 	}
 
-	if (!ns.scriptRunning("factiongoals.js", "home")) {
-		ns.run("factiongoals.js", 1, ...ns.args);
+	if (!ns.scriptRunning("bladeburner.js", "home")) {
+		// ns.run("bladeburner.js", 1, ...ns.args);
+		await ns.sleep(1000);
+	}
+
+	if (!ns.scriptRunning("bladeburner.js", "home")) {
+		if (!ns.scriptRunning("factiongoals.js", "home")) {
+			ns.run("factiongoals.js", 1, ...ns.args);
+		}
 	}
 
 	// use remaining memory on home machine for hacking foodnstuff
