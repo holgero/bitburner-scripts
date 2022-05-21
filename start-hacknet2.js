@@ -1,58 +1,73 @@
-var maxNodes = 0;
-var maxLevel = 0;
-var maxRam = 0;
-var maxCore = 0;
-
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
-	maxNodes = ns.args[0];
-	maxLevel = ns.args[1];
-	maxRam = ns.args[2];
-	maxCore = ns.args[3];
+	const maxNodes = ns.args[0];
+	const maxLevel = ns.args[1];
+	const maxRam = ns.args[2];
+	const maxCore = ns.args[3];
 	ns.tprintf("starting %d nodes with level %d, %d ram and %d cores.",
 		maxNodes, maxLevel, maxRam, maxCore);
 
-	// purchase the requested number of nodes
-	while (ns.hacknet.numNodes() < maxNodes) {
-		await purchaseMore(ns);
-	}
-	while (ns.hacknet.getNodeStats(maxNodes-1).cores < maxCore) {
-		await purchaseMore(ns);
-	}
-	while (ns.hacknet.getNodeStats(maxNodes-1).ram < maxRam) {
-		await purchaseMore(ns);
-	}
-	while (ns.hacknet.getNodeStats(maxNodes-1).level < maxLevel) {
-		await purchaseMore(ns);
+	while (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore)) {
+		purchaseMoreNodes(ns, maxNodes);
+		purchaseMoreLevels(ns, maxLevel);
+		purchaseMoreRam(ns, maxRam);
+		purchaseMoreCores(ns, maxCore);
+		await ns.sleep(1000);
 	}
 }
 
 /** @param {NS} ns **/
-export async function purchaseMore(ns) {
-	var money = ns.getServerMoneyAvailable("home");
-	// purchase a new node if we have enough money
-	if (ns.hacknet.numNodes() < maxNodes) {
-		if (ns.hacknet.getPurchaseNodeCost() < money) {
-			ns.hacknet.purchaseNode();
-			return;
-		}
-	}
-	// try to upgrade something on the already existing nodes
-	for (var ii=0; ii<ns.hacknet.numNodes() && ii < maxNodes; ii++) {
+function needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore) {
+	if (ns.hacknet.numNodes() < maxNodes) return true;
+	for (var ii = 0; ii < maxNodes; ii++) {
 		var stats = ns.hacknet.getNodeStats(ii);
-		if (stats.level < maxLevel && ns.hacknet.getLevelUpgradeCost(ii, 1) < money) {
-			ns.hacknet.upgradeLevel(ii, 1);
-			return;
-		}
-		if (stats.ram < maxRam && ns.hacknet.getRamUpgradeCost(ii, 1) < money) {
-			ns.hacknet.upgradeRam(ii, 1);
-			return;
-		}
-		if (stats.cores < maxCore && ns.hacknet.getCoreUpgradeCost(ii, 1) < money) {
-			ns.hacknet.upgradeCore(ii, 1);
-			return;
+		if (stats.cores < maxCore) return true;
+		if (stats.ram < maxRam) return true;
+		if (stats.level < maxLevel) return true;
+	}
+	return false;
+}
+
+/** @param {NS} ns **/
+function purchaseMoreNodes(ns, maxNodes) {
+	if (ns.hacknet.numNodes() < maxNodes) {
+		if (ns.hacknet.getPurchaseNodeCost() <
+			ns.getServerMoneyAvailable("home")) {
+			ns.hacknet.purchaseNode();
 		}
 	}
-	await ns.sleep(10000);
+}
+
+/** @param {NS} ns **/
+function purchaseMoreLevels(ns, maxLevel) {
+	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
+		var stats = ns.hacknet.getNodeStats(ii);
+		if (stats.level < maxLevel && ns.hacknet.getLevelUpgradeCost(ii, 1) <
+			ns.getServerMoneyAvailable("home")) {
+			ns.hacknet.upgradeLevel(ii, 1);
+		}
+	}
+}
+
+/** @param {NS} ns **/
+function purchaseMoreRam(ns, maxRam) {
+	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
+		var stats = ns.hacknet.getNodeStats(ii);
+		if (stats.ram < maxRam && ns.hacknet.getRamUpgradeCost(ii, 1) <
+			ns.getServerMoneyAvailable("home")) {
+			ns.hacknet.upgradeRam(ii, 1);
+		}
+	}
+}
+
+/** @param {NS} ns **/
+function purchaseMoreCores(ns, maxCores) {
+	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
+		var stats = ns.hacknet.getNodeStats(ii);
+		if (stats.cores < maxCores && ns.hacknet.getCoreUpgradeCost(ii, 1) <
+			ns.getServerMoneyAvailable("home")) {
+			ns.hacknet.upgradeCore(ii, 1);
+		}
+	}
 }
