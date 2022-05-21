@@ -141,12 +141,13 @@ function costToGet(ns, database, factionGoals, augmentation) {
 	var bestFaction = "";
 	for (var factionName of augmentation.factions) {
 		var faction = database.factions.find(a => a.name == factionName);
-		var existingGoal = factionGoals.find(a => a.name == factionName);
+		var existingGoal = factionGoals.find(a => a.name == factionName && a.reputation > 0);
 		var cost = 10000 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
 			Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
 		if (!existingGoal) {
 			if (faction.backdoor) {
-				cost += 10000 / player.hacking_exp_mult * Math.max(0, ns.getServerRequiredHackingLevel(faction.backdoor) - player.hacking);
+				cost += 10000 / player.hacking_exp_mult * Math.pow(Math.max(0, ns.getServerRequiredHackingLevel(faction.backdoor) - player.hacking), 2);
+				// ns.tprintf("Cost for %s from %s: %d", augmentation.name, factionName, cost);
 			}
 			if (faction.hack) {
 				cost += 10000 / player.hacking_exp_mult * Math.pow(Math.max(0, faction.hack - player.hacking, 2));
