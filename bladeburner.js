@@ -1,19 +1,18 @@
-import { runAndWait } from "helpers.js";
+// import { runAndWait } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	var player;
-	do {
-		await runAndWait(ns, "commit-crimes.js", "--timed", 110);
+	if (!ns.bladeburner.joinBladeburnerDivision()) {
+		ns.tprintf("Not in Bladeburners division");
+		return;
+	}
+	ns.tprintf("Joined Bladeburners division");
+	while (!ns.bladeburner.joinBladeburnerFaction()) {
+		ns.tprintf("Not in Bladeburners faction");
 		await ns.sleep(10000);
-		player = ns.getPlayer();
-	} while (player.strength < 100 || player.defense < 100 || player.dexterity < 100 || player.agility < 100);
-	if (ns.bladeburner.joinBladeburnerDivision()) {
-		ns.tprintf("Joined Bladeburners division");
+		return;
 	}
-	if (ns.bladeburner.joinBladeburnerFaction()) {
-		ns.tprintf("Joined Bladeburners faction");
-	}
+	ns.tprintf("Joined Bladeburners faction");
 	await runContracts(ns);
 }
 

@@ -19,7 +19,7 @@ export async function main(ns) {
 	}
 
 	if (!ns.scriptRunning("bladeburner.js", "home")) {
-		// ns.run("bladeburner.js", 1, ...ns.args);
+		ns.run("bladeburner.js", 1, ...ns.args);
 		await ns.sleep(1000);
 	}
 
