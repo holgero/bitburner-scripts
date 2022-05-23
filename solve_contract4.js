@@ -128,5 +128,10 @@ export async function solveContract(ns, contract) {
 	//ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
 	//  type, server, contract, JSON.stringify(data), JSON.stringify(solution));
 	ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, file, JSON.stringify(data));
-	await runAndWait(ns, "solve_contract5.js", server, file, JSON.stringify(solution));
+	var result = ns.codingcontract.attempt(solution, file, server, { returnReward: true });
+	if (result == "") {
+		ns.tprint("Contract FAILED");
+	} else {
+		ns.tprintf("Success, reward: %s", result);
+	}
 }

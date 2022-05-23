@@ -9,7 +9,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function usage(ns) {
-	ns.tprint("usage: run solve_contract4.js <server> <filename> <solution>...");
+	ns.tprint("usage: run solve_contract5.js <server> <filename> <solution>...");
 }
 
 /** @param {NS} ns **/
