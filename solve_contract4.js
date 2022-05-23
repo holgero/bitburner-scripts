@@ -1,25 +1,132 @@
+import { runAndWait } from "helpers.js";
+import { gridPaths, gridPaths2, shortestPath } from "contractsolver/gridpaths.js";
+import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
+import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
+import { spiralizeMatrix } from "contractsolver/spiralizematrix.js";
+import { arrayJumpingGame, arrayJumpingGame2 } from "contractsolver/arrayjumpinggame.js";
+import { minimalPathSum } from "contractsolver/minimalpathsum.js";
+import { subarraySum } from "contractsolver/subarraysum.js";
+import { totalWaysToSum, totalWaysToSum2 } from "contractsolver/totalwaystosum.js";
+import { generateIpAddress } from "contractsolver/generateipaddress.js";
+import { validExpressions } from "contractsolver/validexpressions.js";
+import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
+import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
+import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
+
+const PATHS1 = "Unique Paths in a Grid I";
+const PATHS2 = "Unique Paths in a Grid II";
+const SHORTEST_PATH = "Shortest Path in a Grid";
+const PRIME = "Find Largest Prime Factor";
+const MERGE = "Merge Overlapping Intervals";
+const SPIRAL = "Spiralize Matrix";
+const GAME = "Array Jumping Game";
+const GAME2 = "Array Jumping Game II";
+const TRIANGLE = "Minimum Path Sum in a Triangle";
+const TRADER1 = "Algorithmic Stock Trader I";
+const TRADER2 = "Algorithmic Stock Trader II";
+const TRADER3 = "Algorithmic Stock Trader III";
+const TRADER4 = "Algorithmic Stock Trader IV";
+const SUBARRAY = "Subarray with Maximum Sum";
+const WAYSUM = "Total Ways to Sum";
+const WAYSUM2 = "Total Ways to Sum II";
+const IPADDR = "Generate IP Addresses";
+const VALID = "Find All Valid Math Expressions";
+const SANITIZE = "Sanitize Parentheses in Expression";
+const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
+const HAMMING_ENCODE = "HammingCodes: Integer to Encoded Binary";
+
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (ns.args.length == 0) {
-		usage(ns);
-		return;
+	const contracts = JSON.parse(ns.read("contracts.txt"));
+	for (var contract of contracts) {
+		await solveContract(ns, contract);
 	}
-	solveContract(ns, ns.args[0], ns.args[1], JSON.parse(ns.args[2]));
 }
 
 /** @param {NS} ns **/
-function usage(ns) {
-	ns.tprint("usage: run solve_contract4.js <server> <filename> <solution>...");
-}
-
-/** @param {NS} ns **/
-function solveContract(ns, server, filename, solution) {
-	// ns.tprintf("solution '%s' for contract '%s' on server '%s'",
-	// 	JSON.stringify(solution), filename, server);
-	var result = ns.codingcontract.attempt(solution, filename, server, { returnReward: true });
-	if (result == "") {
-		ns.tprint("Contract FAILED");
-	} else {
-		ns.tprintf("Success, reward: %s", result);
+export async function solveContract(ns, contract) {
+	const server = contract.server;
+	const type = contract.type;
+	const file = contract.file;
+	const data = contract.data;
+	var solution;
+	
+	switch (type) {
+		case PATHS1:
+			solution = gridPaths(data[0], data[1]);
+			break;
+		case PATHS2:
+			solution = gridPaths2(data.length, data[0].length, data);
+			break;
+		case SHORTEST_PATH:
+			solution = shortestPath(data.length, data[0].length, data);
+			break;
+		case PRIME:
+			solution = +largestPrimeFactor(data);
+			break;
+		case MERGE:
+			solution = mergeOverlappingIntervals(data);
+			break;
+		case SPIRAL:
+			solution = spiralizeMatrix(data);
+			break;
+		case GAME:
+			solution = +arrayJumpingGame(data);
+			break;
+		case GAME2:
+			solution = +arrayJumpingGame2(data);
+			break;
+		case TRIANGLE:
+			solution = +minimalPathSum(data, 0, 0);
+			break;
+		case SUBARRAY:
+			solution = +subarraySum(data);
+			break;
+		case WAYSUM:
+			solution = +totalWaysToSum(data);
+			break;
+		case WAYSUM2:
+			solution = +totalWaysToSum2(data[0], data[1]);
+			break;
+		case IPADDR:
+			solution = generateIpAddress(data);
+			break;
+		case VALID:
+			solution = validExpressions(data[0], data[1]);
+			break;
+		case SANITIZE:
+			solution = sanitizeParenthesis(data);
+			break;
+		case TRADER1:
+			solution = +stockTraderI(data);
+			break;
+		case TRADER2:
+			solution = +stockTraderII(data);
+			break;
+		case TRADER3:
+			solution = +stockTraderIII(data);
+			break;
+		case TRADER4:
+			solution = +stockTraderIV(ns, data[0], data[1]);
+			if (solution < 0) {
+				ns.tprintf("Did not find a solution.");
+				return;
+			}
+			break;
+		case HAMMING_DECODE:
+			solution = +hammingDecode(data);
+			break;
+		case HAMMING_ENCODE:
+			solution = hammingEncode(data);
+			break;
+		default:
+			ns.tprintf("Cannot solve contract %s on server %s with type %s",
+			file, server, type);
+			return;
 	}
+
+	//ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
+	//  type, server, contract, JSON.stringify(data), JSON.stringify(solution));
+	ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, file, JSON.stringify(data));
+	await runAndWait(ns, "solve_contract5.js", server, file, JSON.stringify(solution));
 }

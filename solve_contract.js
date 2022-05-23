@@ -1,60 +1,57 @@
-var known;
+import { runAndWait } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (ns.args.length == 0) {
-		usage(ns);
-		return;
-	}
-	ns.disableLog("scan");
-	known = [];
-	known.push("home");
-	if (ns.args[0] == "auto") {
-		traverse(ns, "home", findAndSolveContracts);
-		return;
-	}
-	if (ns.args[0] == "list") {
-		traverse(ns, "home", findContracts);
-		return;
-	}
-}
-
-/** @param {NS} ns **/
-function usage(ns) {
-	ns.tprint("usage: run solve_contract.js [auto|list|solve] <server> <filename> <solution>...");
-}
-
-/** @param {NS} ns **/
-function traverse(ns, startServer, serverProc) {
-	var servers = ns.scan(startServer);
-	for (var i = 0; i < servers.length; i++) {
-		var server = servers[i];
-		if (known.includes(servers[i])) {
-			continue;
-		}
-		known.push(servers[i]);
-		serverProc(ns, server);
-		traverse(ns, server, serverProc);
-	}
-}
-
-/** @param {NS} ns **/
-function findAndSolveContracts(ns, server) {
-	var contracts = ns.ls(server, ".cct");
-	if (contracts.length &&
-		!ns.scriptRunning("solve_contract2.js", "home") &&
-		!ns.scriptRunning("solve_contract3.js", "home") &&
-		!ns.scriptRunning("solve_contract4.js", "home")) {
-		ns.spawn("solve_contract2.js", 1, server, contracts[0]);
-	}
-}
-
-/** @param {NS} ns **/
-function findContracts(ns, server) {
-	var contracts = ns.ls(server, ".cct");
-	if (contracts.length > 0) {
-		for (var contract of contracts) {
-			ns.tprint(server + " " + contract);
+	const options = ns.flags([["auto", false]]);
+	const known = ["home"];
+	const contracts = [];
+	collectContracts(ns, "home", known, contracts);
+	if (contracts.length) {
+		await resolveContractData(ns, contracts);
+		if (options.auto) {
+			solveContracts(ns, contracts);
+		} else {
+			printContracts(ns, contracts);
 		}
 	}
+}
+
+/** @param {NS} ns **/
+function collectContracts(ns, startServer, known, contracts) {
+	addServerContracts(ns, startServer, contracts);
+	const servers = ns.scan(startServer).filter(a => !known.includes(a));
+	known.push(...servers);
+	for (var server of servers) {
+		collectContracts(ns, server, known, contracts);
+	}
+}
+
+/** @param {NS} ns **/
+function addServerContracts(ns, server, contracts) {
+	for (var file of ns.ls(server, ".cct")) {
+		contracts.push({ server: server, file: file });
+	}
+}
+
+/** @param {NS} ns **/
+function printContracts(ns, contracts) {
+	for (var contract of contracts) {
+		ns.tprintf("%s (%s on %s): %s", contract.type, contract.file, contract.server,
+			JSON.stringify(contract.data).substring(0, 20) + "...");
+	}
+}
+
+/** @param {NS} ns **/
+function solveContracts(ns, contracts) {
+	ns.spawn("solve_contract4.js");
+}
+
+/** @param {NS} ns **/
+async function resolveContractData(ns, contracts) {
+	await ns.write("contracts.txt", JSON.stringify(contracts), "w");
+	await runAndWait(ns, "solve_contract2.js");
+	await runAndWait(ns, "solve_contract3.js");
+	const resolved = JSON.parse(ns.read("contracts.txt"));
+	contracts.splice(0, contracts.length);
+	contracts.push(...resolved);
 }
