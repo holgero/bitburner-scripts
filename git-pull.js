@@ -60,6 +60,7 @@ const FILES = [
 	"writeprogram.js"];
 const CONTRACTSOLVER = [
 	"arrayjumpinggame.js",
+	"compression.js",
 	"generateipaddress.js",
 	"gridpaths.js",
 	"hammingcode.js",

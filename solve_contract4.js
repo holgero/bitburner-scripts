@@ -1,4 +1,3 @@
-import { runAndWait } from "helpers.js";
 import { gridPaths, gridPaths2, shortestPath } from "contractsolver/gridpaths.js";
 import { largestPrimeFactor } from "contractsolver/largestprimefactor.js";
 import { mergeOverlappingIntervals } from "contractsolver/mergeoverlappingintervals.js";
@@ -12,6 +11,7 @@ import { validExpressions } from "contractsolver/validexpressions.js";
 import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
 import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
 import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
+import { rleCompression } from "contractsolver/compression.js";
 
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
@@ -34,6 +34,7 @@ const VALID = "Find All Valid Math Expressions";
 const SANITIZE = "Sanitize Parentheses in Expression";
 const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
 const HAMMING_ENCODE = "HammingCodes: Integer to Encoded Binary";
+const RLE_COMPRESSION = "Compression I: RLE Compression";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -50,7 +51,7 @@ export async function solveContract(ns, contract) {
 	const file = contract.file;
 	const data = contract.data;
 	var solution;
-	
+
 	switch (type) {
 		case PATHS1:
 			solution = gridPaths(data[0], data[1]);
@@ -119,9 +120,12 @@ export async function solveContract(ns, contract) {
 		case HAMMING_ENCODE:
 			solution = hammingEncode(data);
 			break;
+		case RLE_COMPRESSION:
+			solution = rleCompression(data);
+			break;
 		default:
 			ns.tprintf("Cannot solve contract %s on server %s with type %s",
-			file, server, type);
+				file, server, type);
 			return;
 	}
 
