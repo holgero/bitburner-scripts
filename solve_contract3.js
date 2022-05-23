@@ -32,7 +32,7 @@ const IPADDR = "Generate IP Addresses";
 const VALID = "Find All Valid Math Expressions";
 const SANITIZE = "Sanitize Parentheses in Expression";
 const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
-const HAMMING_ENCODE = "HammingCodes: Integer to encoded Binary";
+const HAMMING_ENCODE = "HammingCodes: Integer to Encoded Binary";
 
 /** @param {NS} ns **/
 export async function main(ns) {
