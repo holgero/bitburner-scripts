@@ -9,10 +9,10 @@ export async function main(ns) {
 		ns.connect(c.WORLD_DAEMON);
 		await ns.manualHack();
 		await ns.installBackdoor();
+		ns.run("rscan.js", 1, "back");
+		await ns.sleep(30000);
+		ns.tprintf("Next try");
 		ns.run("rscan.js", 1, "nuke");
 		ns.run("rscan.js", 1, "hack");
-		ns.run("rscan.js", 1, "back");
-		await ns.sleep(3000);
-		ns.tprintf("Next try");
 	}
 }

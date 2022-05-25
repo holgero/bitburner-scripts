@@ -1,3 +1,5 @@
+import { runAndWait, goalCompletion } from "helpers.js";
+
 var known;
 var path;
 var hackingLevel;
@@ -168,7 +170,7 @@ async function printBackdoorRoutes(ns, options, server) {
 		}
 		if (ns.getServerRequiredHackingLevel(server) <= hackingLevel) {
 			if (!ns.getServer(server).backdoorInstalled) {
-				ns.spawn("installbackdoor.js", 1, JSON.stringify(path));
+				await runAndWait(ns, "installbackdoor.js", JSON.stringify(path));
 			}
 		}
 	}
