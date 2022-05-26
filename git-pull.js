@@ -8,6 +8,7 @@ const FILES = [
 	"create-database4.js",
 	"create-database5.js",
 	"create-database6.js",
+	"create-database7.js",
 	"create-database.js",
 	"database.js",
 	"commit-crimes.js",
