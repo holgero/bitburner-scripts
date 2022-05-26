@@ -105,9 +105,9 @@ export const STORY_LINE = [
         { name: BLACK_HAND, backdoor: "I.I.I.I", work: HACKING, location: "" },
         { name: BITRUNNERS, backdoor: "run4theh111z", work: HACKING, location: "" },
         { name: SYNDICATE, backdoor: "", money: 10000000, stats: 200, work: HACKING, location: SECTOR12 },
-        { name: NWO, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
-        { name: ECORP, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
-        { name: CLARKE, backdoor: "", company: true, money: 0, stats: 0, work: HACKING, location: "" },
+        { name: NWO, backdoor: "", company: true, money: 0, hack: 250, stats: 0, work: HACKING, location: "" },
+        { name: ECORP, backdoor: "", company: true, money: 0, hack: 250, stats: 0, work: HACKING, location: "" },
+        { name: CLARKE, backdoor: "", company: true, money: 0, hack: 225, stats: 0, work: HACKING, location: "" },
         { name: SPEAKERS, backdoor: "", money: 0, stats: 300, work: HACKING, location: "" },
         { name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, work: HACKING, location: "" }
 ];

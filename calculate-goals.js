@@ -146,11 +146,11 @@ function costToGet(ns, database, factionGoals, augmentation) {
 			Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
 		if (!existingGoal) {
 			if (faction.backdoor) {
-				cost += 10000 / player.hacking_exp_mult * Math.pow(Math.max(0, ns.getServerRequiredHackingLevel(faction.backdoor) - player.hacking), 2);
-				// ns.tprintf("Cost for %s from %s: %d", augmentation.name, factionName, cost);
+				cost += 10000 * reachHackingLevelCost(ns, database, player, ns.getServerRequiredHackingLevel(faction.backdoor));
+				// ns.tprintf("Costs for %s from %s: %d / %d", augmentation.name, factionName, cost_old, cost_new);
 			}
 			if (faction.hack) {
-				cost += 10000 / player.hacking_exp_mult * Math.pow(Math.max(0, faction.hack - player.hacking, 2));
+				cost += 10000 * reachHackingLevelCost(ns, database, player, faction.hack);
 			}
 			if (faction.company) {
 				cost += 20000 * (100 / (100 + faction.companyFavor)) *
@@ -174,6 +174,16 @@ function costToGet(ns, database, factionGoals, augmentation) {
 	}
 	var cost = bestFactionCost + 0.1 * augmentation.price;
 	return { cost: bestFactionCost, faction: bestFaction };
+}
+
+function reachHackingLevelCost(ns, database, player, level) {
+	const delta = Math.max(0, level - player.hacking);
+	var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	if (database.bitnodemultipliers) {
+		weighted /= database.bitnodemultipliers.HackingLevelMultiplier;
+		weighted /= database.bitnodemultipliers.HackExpGain;
+	}
+	return Math.pow(weighted, 3);
 }
 
 /** @param {NS} ns **/
