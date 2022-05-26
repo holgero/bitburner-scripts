@@ -12,6 +12,7 @@ import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
 import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
 import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
 import { rleCompression } from "contractsolver/compression.js";
+import { graphColoring } from "contractsolver/graphcoloring.js";
 
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
@@ -35,6 +36,7 @@ const SANITIZE = "Sanitize Parentheses in Expression";
 const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
 const HAMMING_ENCODE = "HammingCodes: Integer to Encoded Binary";
 const RLE_COMPRESSION = "Compression I: RLE Compression";
+const GRAPH_COLOR = "Proper 2-Coloring of a Graph";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -123,15 +125,19 @@ export async function solveContract(ns, contract) {
 		case RLE_COMPRESSION:
 			solution = rleCompression(data);
 			break;
+		case GRAPH_COLOR:
+			solution = graphColoring(data[0], data[1]);
+			break;
 		default:
-			ns.tprintf("Cannot solve contract %s on server %s with type %s",
-				file, server, type);
+			ns.tprintf("Cannot solve contract: %s %s '%s' '%s'",
+				server, file, type, JSON.stringify(data));
 			return;
 	}
 
-	//ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
-	//  type, server, contract, JSON.stringify(data), JSON.stringify(solution));
-	ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, file, JSON.stringify(data));
+	await ns.sleep(500);
+	ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
+	  type, server, file, JSON.stringify(data), JSON.stringify(solution));
+	// ns.tprintf("Solving: %s, on %s %s with data %s.", type, server, file, JSON.stringify(data));
 	var result = ns.codingcontract.attempt(solution, file, server, { returnReward: true });
 	if (result == "") {
 		ns.tprint("Contract FAILED");

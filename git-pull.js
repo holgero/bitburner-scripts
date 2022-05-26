@@ -62,6 +62,7 @@ const CONTRACTSOLVER = [
 	"arrayjumpinggame.js",
 	"compression.js",
 	"generateipaddress.js",
+	"graphcoloring.js",
 	"gridpaths.js",
 	"hammingcode.js",
 	"largestprimefactor.js",
