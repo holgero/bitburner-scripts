@@ -24,6 +24,7 @@ export async function main(ns) {
 		// too much money left, do a re-spawn once
 		ns.spawn("factiongoals.js", 1, "--runagain", "" + (+options.runagain + 1));
 	}
+	await ns.write("stopselling.txt", "{reason:'shutdown'}", "w");
 
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
