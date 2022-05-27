@@ -17,6 +17,8 @@ export async function main(ns) {
 			ns.run("corporation.js");
 		}
 	}
+	await runAndWait(ns, "create-database.js");
+	await runAndWait(ns, "calculate-goals.js");
 
 	await runHomeScripts(ns);
 
@@ -108,6 +110,7 @@ async function progressHackingLevels(ns) {
 		}
 		// check for coding contracts
 		await runAndWait(ns, "solve_contract.js", "--auto");
+		await runAndWait(ns, "joinfactions.js");
 		await ns.sleep(30000);
 	}
 }

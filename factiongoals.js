@@ -5,12 +5,10 @@ import { runAndWait, reputationNeeded } from "helpers.js";
 export async function main(ns) {
 	var options = ns.flags([["restart", false], ["runagain", 0]]);
 	ns.disableLog("sleep");
-	ns.tprintf("Start at %s", new Date());
 
 	if (!options.restart) {
 		ns.rm("stopselling.txt");
 		// determine goals for this run
-		await runAndWait(ns, "create-database.js");
 		await runAndWait(ns, "calculate-goals.js");
 	}
 	await runAndWait(ns, "print_goals.js");
@@ -158,7 +156,6 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			await runAndWait(ns, "travel.js", "--city", goal.location);
 		}
 		await installBackdoorIfNeeded(ns, goal.backdoor);
-		await runAndWait(ns, "joinfactions.js");
 		// how to spend our time
 		if (ns.getPlayer().hacking < 50) {
 			// don't waste time with other stuff while our hacking level is low
