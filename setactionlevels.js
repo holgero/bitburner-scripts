@@ -9,7 +9,7 @@ export async function main(ns) {
 		a => constructAction("Operation", a)));
 
 	// ns.tprintf("%s", JSON.stringify(actionDb));
-	setActionLevels(ns, actionDb, 0.5);
+	setActionLevels(ns, actionDb, 0.75);
 	await ns.write("actiondb.txt", JSON.stringify(actionDb), "w");
 }
 
