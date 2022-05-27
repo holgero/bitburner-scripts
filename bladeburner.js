@@ -8,65 +8,39 @@ export async function main(ns) {
 		ns.tprintf("Neither on bitnode 6 or 7 (%d)", player.bitNodeN);
 		return;
 	}
-	await prepareAndJoin(ns);
-	await runContracts(ns);
-}
-
-async function prepareAndJoin(ns) {
-	var player = ns.getPlayer();
-	while (!player.inBladeburner) {
-		ns.stopAction();
-		await runAndWait(ns, "commit-crimes.js", "--until_stats", "100", "--timed", "120");
-		player = ns.getPlayer();
-		if (player.strength < 100) {
-			await workout(ns, "Strength");
-		}
-		if (player.agility < 100) {
-			await workout(ns, "Agility");
-		}
-		if (player.defense < 100) {
-			await workout(ns, "Defense");
-		}
-		if (player.dexterity < 100) {
-			await workout(ns, "Dexterity");
-		}
-		if (ns.bladeburner.joinBladeburnerDivision()) {
-			break;
-		}
-	}
+	await runAndWait(ns, "joinbladeburner.js");
+	await runActions(ns);
 }
 
 /** @param {NS} ns */
-async function workout(ns, stat) {
-	await runAndWait(ns, "workout.js", stat, ns.isFocused());
-}
-
-/** @param {NS} ns */
-async function runContracts(ns) {
+async function runActions(ns) {
 	while (true) {
 		const [current, max] = ns.bladeburner.getStamina();
 		if (current > max / 2) {
-			const contracts = ns.bladeburner.getContractNames();
-			var bestChance = 0;
-			var bestContract = "";
-			for (var contract of contracts) {
-				if (ns.bladeburner.getActionCountRemaining("Contract", contract) <= 0) {
+			await runAndWait(ns, "setactionlevels.js");
+			const actionDb = JSON.parse(ns.read("actiondb.txt"));
+			const minChance = 0.25;
+			var bestExpected = 0;
+			var bestAction;
+			for (var action of actionDb.actions) {
+				if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
 					continue;
 				}
-				var chances = ns.bladeburner.getActionEstimatedSuccessChance("Contract", contract);
-				if (chances[0] > bestChance) {
-					bestChance = chances[0];
-					bestContract = contract;
+				var chance = (action.chances[0] + action.chances[1]) / 2;
+				if (chance >= minChance &&
+					(chance * action.reputation / action.time > bestExpected)) {
+					bestExpected = chance * action.reputation / action.time;
+					bestAction = action;
 				}
 			}
-			if (bestContract) {
+			if (bestAction) {
 				var { type, name } = ns.bladeburner.getCurrentAction();
-				if (type != "Contract" || name != bestContract) {
-					ns.printf("Current type %s, action %s, changing to %s", type, name, bestContract);
+				if (type != bestAction.type || name != bestAction.name) {
+					ns.printf("Current %s %s, changing to %s %s", type, name, bestAction.type, bestAction.name);
 					ns.bladeburner.stopBladeburnerAction();
-					ns.bladeburner.startAction("Contract", bestContract);
+					ns.bladeburner.startAction(bestAction.type, bestAction.name);
 				}
-				await ns.sleep(ns.bladeburner.getActionTime("Contract", bestContract));
+				await ns.sleep(bestAction.time);
 			}
 		} else {
 			var { type, name } = ns.bladeburner.getCurrentAction();
