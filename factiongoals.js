@@ -155,7 +155,6 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 		if (!ns.getPlayer().factions.includes(goal.name) && goal.location) {
 			await runAndWait(ns, "travel.js", "--city", goal.location);
 		}
-		await installBackdoorIfNeeded(ns, goal.backdoor);
 		// how to spend our time
 		if (ns.getPlayer().hacking < 50) {
 			// don't waste time with other stuff while our hacking level is low
@@ -321,23 +320,12 @@ async function buffStatsToNeeded(ns, stats, focus) {
 }
 
 /** @param {NS} ns **/
-async function installBackdoorIfNeeded(ns, server) {
-	if (server && !ns.getServer(server).backdoorInstalled) {
-		if (ns.getServerRequiredHackingLevel(server) <= ns.getPlayer().hacking) {
-			ns.printf("Install backdoor on %s", server);
-			await runAndWait(ns, "rscan.js", "back", "--quiet");
-		}
-	}
-}
-
-/** @param {NS} ns **/
 async function futureGoalConditions(ns, goals) {
 	for (var goal of goals) {
-		ns.printf("Checking future goal %s", goal.name);
 		if (ns.getPlayer().factions.includes(goal.name)) {
 			continue;
 		}
-		await installBackdoorIfNeeded(ns, goal.backdoor);
+		ns.printf("Checking future goal %s", goal.name);
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {

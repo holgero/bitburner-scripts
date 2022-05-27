@@ -108,7 +108,7 @@ async function progressHackingLevels(ns) {
 			await runAndWait(ns, "purchase-ram.js", 2048);
 			ns.run("corporation.js");
 		}
-		// check for coding contracts
+		await runAndWait(ns, "rscan.js", "back", "--quiet");
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "joinfactions.js");
 		await ns.sleep(30000);
