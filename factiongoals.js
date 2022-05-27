@@ -3,25 +3,17 @@ import { runAndWait, reputationNeeded } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["restart", false], ["runagain", 0]]);
 	ns.disableLog("sleep");
 
-	if (!options.restart) {
-		ns.rm("stopselling.txt");
-		// determine goals for this run
-		await runAndWait(ns, "calculate-goals.js");
+	for (var ii = 0; ii < 3; ii++) {
+		const database = JSON.parse(ns.read("database.txt"));
+		const config = JSON.parse(ns.read("factiongoals.txt"));
+		await workOnGoals(ns, database, config);
+		if (ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
+			runAndWait(ns, "calculate-goals.js");
+		}
 	}
-	await runAndWait(ns, "print_goals.js");
 
-	const database = JSON.parse(ns.read("database.txt"));
-	const config = JSON.parse(ns.read("factiongoals.txt"));
-
-	await workOnGoals(ns, database, config);
-
-	if (options.runagain < 3 && ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
-		// too much money left, do a re-spawn once
-		ns.spawn("factiongoals.js", 1, "--runagain", "" + (+options.runagain + 1));
-	}
 	await ns.write("stopselling.txt", "{reason:'shutdown'}", "w");
 
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
@@ -56,6 +48,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, database, config) {
+	runAndWait(ns, "print_goals.js");
 	if (config.factionGoals.some(a => a.reputation)) {
 		if (!await workOnGoalsPercentage(ns, database, config, 0.25)) return;
 		if (!await workOnGoalsPercentage(ns, database, config, 0.50)) return;

@@ -44,7 +44,7 @@ export async function runAndWait(ns, script, ...args) {
 export function getAugmentationsToPurchase(ns, database, factionGoals) {
 	var toPurchase = [];
 	for (var goal of factionGoals) {
-		var faction = database.factions.find(a=>a.name==goal.name);
+		var faction = database.factions.find(a => a.name == goal.name);
 		for (var augName of faction.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
 			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
@@ -97,13 +97,16 @@ export function goalCompletion(ns, factionGoals) {
 		}
 	}
 
-	return  1 - repNeeded / totalRep;
+	if (totalRep) {
+		return 1 - repNeeded / totalRep;
+	}
+	return 1;
 }
 
 /** @param {NS} ns **/
 export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 	var factor = 1.0;
-	for (var ii=0; ii < toPurchase.length; ii++) {
+	for (var ii = 0; ii < toPurchase.length; ii++) {
 		var augmentation = toPurchase[ii];
 		var toPay = factor * augmentation.price;
 		if (toPay > moneyToSpend) {
