@@ -16,6 +16,7 @@ export async function main(ns) {
 async function runActions(ns) {
 	while (true) {
 		const [current, max] = ns.bladeburner.getStamina();
+		var bestAction = undefined;
 		if (current > max / 2) {
 			await runAndWait(ns, "setactionlevels.js");
 			const actionDb = JSON.parse(ns.read("actiondb.txt"));
@@ -33,15 +34,15 @@ async function runActions(ns) {
 					bestAction = action;
 				}
 			}
-			if (bestAction) {
-				var { type, name } = ns.bladeburner.getCurrentAction();
-				if (type != bestAction.type || name != bestAction.name) {
-					ns.printf("Current %s %s, changing to %s %s", type, name, bestAction.type, bestAction.name);
-					ns.bladeburner.stopBladeburnerAction();
-					ns.bladeburner.startAction(bestAction.type, bestAction.name);
-				}
-				await ns.sleep(bestAction.time);
+		}
+		if (bestAction) {
+			var { type, name } = ns.bladeburner.getCurrentAction();
+			if (type != bestAction.type || name != bestAction.name) {
+				ns.printf("Current %s %s, changing to %s %s", type, name, bestAction.type, bestAction.name);
+				ns.bladeburner.stopBladeburnerAction();
+				ns.bladeburner.startAction(bestAction.type, bestAction.name);
 			}
+			await ns.sleep(bestAction.time);
 		} else {
 			var { type, name } = ns.bladeburner.getCurrentAction();
 			if (type != "General" || name != "Training") {
