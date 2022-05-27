@@ -160,7 +160,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 		await installBackdoorIfNeeded(ns, goal.backdoor);
 		await runAndWait(ns, "joinfactions.js");
 		// how to spend our time
-		if (ns.getPlayer().hacking < 100) {
+		if (ns.getPlayer().hacking < 50) {
 			// don't waste time with other stuff while our hacking level is low
 			await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
 			await ns.sleep(60000);

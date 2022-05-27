@@ -177,7 +177,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 }
 
 function reachHackingLevelCost(ns, database, player, level) {
-	const delta = Math.max(0, level - player.hacking);
+	const delta = Math.max(0, level - Math.max(50, player.hacking));
 	var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
 	if (database.bitnodemultipliers) {
 		weighted /= database.bitnodemultipliers.HackingLevelMultiplier;
