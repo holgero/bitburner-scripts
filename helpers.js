@@ -99,3 +99,20 @@ export function goalCompletion(ns, factionGoals) {
 
 	return  1 - repNeeded / totalRep;
 }
+
+/** @param {NS} ns **/
+export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
+	var factor = 1.0;
+	for (var ii=0; ii < toPurchase.length; ii++) {
+		var augmentation = toPurchase[ii];
+		var toPay = factor * augmentation.price;
+		if (toPay > moneyToSpend) {
+			toPurchase.splice(ii, 1);
+			ii--;
+			continue;
+		}
+		moneyToSpend -= toPay;
+		factor = factor * 1.9;
+	}
+	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
+}

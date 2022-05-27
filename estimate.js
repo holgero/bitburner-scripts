@@ -1,5 +1,5 @@
-import { getAugmentationsToPurchase } from "helpers.js";
-import { formatMoney } from "helpers.js";
+import { formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
+	from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -31,27 +31,24 @@ export async function main(ns) {
 	}
 	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
-	var toPurchase = getAugmentationsToPurchase(ns, database, factions);
-	if (options.affordable) {
-		filterExpensiveAugmentations(ns, toPurchase);
-	}
+	const toPurchase = getAugmentationsToPurchase(ns, database, factions);
 	var haveMoney = ns.getServerMoneyAvailable("home");
+	if (options.affordable) {
+		filterExpensiveAugmentations(ns, toPurchase, haveMoney);
+	}
+	haveMoney = ns.getServerMoneyAvailable("home");
 	var factor = 1.0;
 	var sum = 0;
 	if (!options.write) {
-		ns.tprintf("%55s  %10s  %10s", "Augmentation", "Price", "Total");
+		ns.tprintf("%55s  %10s  %10s  %10s", "Augmentation", "Base", "Price", "Total");
 	}
 	for (var augmentation of toPurchase) {
 		var toPay = factor * augmentation.price;
-		if (options.affordable) {
-			if (toPay > haveMoney) {
-				continue;
-			}
-			haveMoney -= toPay;
-		}
 		sum += toPay;
 		if (!options.write) {
-			ns.tprintf("%55s: %10s  %10s", augmentation.name, formatMoney(toPay), formatMoney(sum));
+			ns.tprintf("%55s: %10s  %10s  %10s",
+				augmentation.name, formatMoney(augmentation.price),
+				formatMoney(toPay), formatMoney(sum));
 		}
 		factor = factor * 1.9;
 	}
@@ -59,26 +56,4 @@ export async function main(ns) {
 	if (options.write) {
 		await ns.write("estimate.txt", JSON.stringify({ estimatedPrice: sum }), "w");
 	}
-}
-
-function filterExpensiveAugmentations(ns, toPurchase) {
-	var haveMoney = ns.getServerMoneyAvailable("home");
-	var factor = 1.0;
-	var sum = 0;
-	for (var ii; ii < toPurchase.length; ii++) {
-		var augmentation = toPurchase[ii];
-		var toPay = factor * augmentation.price;
-		if (toPay > haveMoney) {
-			toPurchase.splice(ii, 1);
-			ii--;
-			continue;
-		}
-		haveMoney -= toPay;
-		sum += toPay;
-		if (!options.write) {
-			ns.tprintf("%55s: %10s  %10s", augmentation.name, formatMoney(toPay), formatMoney(sum));
-		}
-		factor = factor * 1.9;
-	}
-	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
 }
