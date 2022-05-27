@@ -18,40 +18,45 @@ export async function main(ns) {
 		}
 	}
 
-	if (!ns.scriptRunning("bladeburner.js", "home")) {
-		ns.run("bladeburner.js", 1, ...ns.args);
-		await ns.sleep(1000);
-	}
-
-	if (!ns.scriptRunning("bladeburner.js", "home")) {
-		if (!ns.scriptRunning("factiongoals.js", "home")) {
-			ns.run("factiongoals.js", 1, ...ns.args);
-		}
-	}
-
-	// use remaining memory on home machine for hacking foodnstuff
-	if (!ns.scriptRunning("instrument.js", "home")) {
-		ns.run("instrument.js", 1, "--target", "foodnstuff");
-	}
+	await runHomeScripts(ns);
 
 	await runAndWait(ns, "start-hacknet.js", 1);
 	await progressHackingLevels(ns);
 }
 
 /** @param {NS} ns **/
+async function runHomeScripts(ns) {
+	if (!ns.scriptRunning("bladeburner.js", "home")) {
+		ns.run("bladeburner.js", 1, ...ns.args);
+		await ns.sleep(1000);
+	}
+
+	if (ns.scriptRunning("bladeburner.js", "home")) {
+		if (ns.scriptRunning("factiongoals.js", "home")) {
+			ns.scriptKill("factiongoals.js", "home");
+		}
+	} else {
+		if (!ns.scriptRunning("factiongoals.js", "home")) {
+			ns.run("factiongoals.js", 1, ...ns.args);
+		}
+	}
+
+	if (!ns.scriptRunning("instrument.js", "home")) {
+		ns.run("instrument.js", 1);
+	}
+}
+
+/** @param {NS} ns **/
 async function progressHackingLevels(ns) {
-	var nextProgram = 0;
 	var hacknetLevel = 8;
 	var completion = 1;
 	while (true) {
+		var nextProgram = 0;
 		if (ns.fileExists("factiongoals.txt")) {
 			completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
 		}
-		if (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
-			while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
-				nextProgram++;
-			}
-			await startHacking(ns);
+		while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
+			nextProgram++;
 		}
 		var currentMoney = ns.getServerMoneyAvailable("home");
 		// how to spend our money: first priority is to buy all programs
@@ -78,9 +83,7 @@ async function progressHackingLevels(ns) {
 			if (ns.getServerMaxRam("home") < 64) {
 				await runAndWait(ns, "upgradehomeserver.js", 64);
 				if (ns.getServerMaxRam("home") >= 64) {
-					if (!ns.scriptRunning("instrument.js", "home")) {
-						ns.run("instrument.js", 1, "foodnstuff");
-					}
+					await runHomeScripts(ns);
 				}
 			}
 		}

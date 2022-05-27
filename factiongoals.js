@@ -222,7 +222,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 						ns.printf("Not working");
 						// not working for a faction: kill a few people
 						await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-						await ns.sleep(10000);
+						await ns.sleep(15000);
 					}
 				}
 			} else {
@@ -232,7 +232,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				} else {
 					// not working for a faction: kill a few people
 					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-					await ns.sleep(10000);
+					await ns.sleep(15000);
 				}
 			}
 			focus = ns.isFocused();
