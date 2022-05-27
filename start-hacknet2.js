@@ -5,8 +5,10 @@ export async function main(ns) {
 	const maxLevel = ns.args[1];
 	const maxRam = ns.args[2];
 	const maxCore = ns.args[3];
-	ns.tprintf("starting %d nodes with level %d, %d ram and %d cores.",
-		maxNodes, maxLevel, maxRam, maxCore);
+	if (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore)) {
+		ns.tprintf("starting %d nodes with level %d, %d ram and %d cores.",
+			maxNodes, maxLevel, maxRam, maxCore);
+	}
 
 	while (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore)) {
 		purchaseMoreNodes(ns, maxNodes);

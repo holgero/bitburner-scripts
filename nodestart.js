@@ -49,69 +49,86 @@ async function runHomeScripts(ns) {
 }
 
 /** @param {NS} ns **/
+function canSpendMoney(ns) {
+	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
+		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+		if (corporationInfo.issuedShares > 0) {
+			return false;
+		}
+	}
+	if (ns.fileExists("factiongoals.txt")) {
+		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+		if (completion > 0.8) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/** @param {NS} ns **/
 async function progressHackingLevels(ns) {
-	var hacknetLevel = 8;
-	var completion = 1;
 	while (true) {
 		var nextProgram = 0;
-		if (ns.fileExists("factiongoals.txt")) {
-			completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-		}
 		while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 			nextProgram++;
 		}
-		var currentMoney = ns.getServerMoneyAvailable("home");
-		// how to spend our money: first priority is to buy all programs
-		// the first program is a special case as we must also account fo the tor router
-		if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
-			await runAndWait(ns, "writeprogram.js", nextProgram++);
-			currentMoney = ns.getServerMoneyAvailable("home");
-			await startHacking(ns);
-			await runAndWait(ns, "start-hacknet.js", 2);
-		}
-		if (nextProgram > 0 &&
-			nextProgram < c.programs.length &&
-			currentMoney > c.programs[nextProgram].cost) {
-			while (nextProgram < c.programs.length && currentMoney > c.programs[nextProgram].cost) {
-				await runAndWait(ns, "writeprogram.js", nextProgram++);
-				currentMoney = ns.getServerMoneyAvailable("home");
-			}
-			// use our new programs
-			await startHacking(ns);
-			await runAndWait(ns, "start-hacknet.js", 4);
-		}
-		// upgrade home pc
-		if (nextProgram > 2) {
-			if (ns.getServerMaxRam("home") < 64) {
-				await runAndWait(ns, "upgradehomeserver.js", 64);
-				if (ns.getServerMaxRam("home") >= 64) {
-					await runHomeScripts(ns);
-				}
-			}
-		}
-		// upgrade server farm
-		if (completion < 0.8 && nextProgram > 3) {
-			if (hacknetLevel < 9) {
-				await runAndWait(ns, "start-hacknet.js", hacknetLevel++);
-			}
-			if (!ns.serverExists("pserv-0") || ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
-				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
-				if (ns.getPlayer().hacking > 2000) {
-					await runAndWait(ns, "optimize-hacking.js");
-				}
-			}
-		}
-		currentMoney = ns.getServerMoneyAvailable("home");
-		if (nextProgram >= c.programs.length &&
-			(ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
-			!ns.scriptRunning("corporation.js", "home")) {
-			await runAndWait(ns, "purchase-ram.js", 2048);
-			ns.run("corporation.js");
+		if (canSpendMoney(ns)) {
+			await improveInfrastructure(ns, nextProgram);
 		}
 		await runAndWait(ns, "rscan.js", "back", "--quiet");
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "joinfactions.js");
 		await ns.sleep(30000);
+	}
+}
+
+/** @param {NS} ns **/
+async function improveInfrastructure(ns, nextProgram) {
+	var currentMoney = ns.getServerMoneyAvailable("home");
+	// how to spend our money: first priority is to buy all programs
+	// the first program is a special case as we must also account fo the tor router
+	if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
+		await runAndWait(ns, "writeprogram.js", nextProgram++);
+		currentMoney = ns.getServerMoneyAvailable("home");
+		await startHacking(ns);
+		await runAndWait(ns, "start-hacknet.js", 2);
+	}
+	if (nextProgram > 0 &&
+		nextProgram < c.programs.length &&
+		currentMoney > c.programs[nextProgram].cost) {
+		while (nextProgram < c.programs.length && currentMoney > c.programs[nextProgram].cost) {
+			await runAndWait(ns, "writeprogram.js", nextProgram++);
+			currentMoney = ns.getServerMoneyAvailable("home");
+		}
+		// use our new programs
+		await startHacking(ns);
+		await runAndWait(ns, "start-hacknet.js", 4);
+	}
+	// upgrade home pc
+	if (nextProgram > 2) {
+		if (ns.getServerMaxRam("home") < 64) {
+			await runAndWait(ns, "upgradehomeserver.js", 64);
+			if (ns.getServerMaxRam("home") >= 64) {
+				await runHomeScripts(ns);
+			}
+		}
+	}
+	// upgrade server farm
+	if (nextProgram > 3) {
+		await runAndWait(ns, "start-hacknet.js", 8);
+		if (!ns.serverExists("pserv-0") || ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
+			await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+			if (ns.getPlayer().hacking > 2000) {
+				await runAndWait(ns, "optimize-hacking.js");
+			}
+		}
+	}
+	currentMoney = ns.getServerMoneyAvailable("home");
+	if (nextProgram >= c.programs.length &&
+		(ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
+		!ns.scriptRunning("corporation.js", "home")) {
+		await runAndWait(ns, "purchase-ram.js", 2048);
+		ns.run("corporation.js");
 	}
 }
 
