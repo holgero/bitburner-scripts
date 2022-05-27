@@ -17,10 +17,10 @@ export function graphColoring(nodes, edges) {
 			result[ii] = 0;
 			// ns.tprintf("array: %s", JSON.stringify(result));
 			if (!checkEdges(result, edges)) {
-				return [];
+				return "[]";
 			}
 			if (!checkEdges(result, edges)) {
-				return [];
+				return "[]";
 			}
 		}
 	}
