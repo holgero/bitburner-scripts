@@ -25,7 +25,7 @@ export async function main(ns) {
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
 	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
 	var augmentationCost = estimatePrice(toPurchase);
-	ns.tprintf("Estimated cost at start: %s", formatMoney(augmentationCost));
+	// ns.tprintf("Estimated cost at start: %s", formatMoney(augmentationCost));
 	var maxMoneyToSpend = Math.max(MIN_MONEY, ns.getServerMoneyAvailable("home"));
 	maxMoneyToSpend = Math.min(MAX_MONEY, maxMoneyToSpend);
 	if (options.money) {
@@ -33,7 +33,7 @@ export async function main(ns) {
 	}
 	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
-		ns.tprintf("Next Aug: %30s %10s %10d %s", nextAug.name, formatMoney(nextAug.price), nextAug.reputation, nextAug.faction.name);
+		// ns.tprintf("Next Aug: %30s %10s %10d %s", nextAug.name, formatMoney(nextAug.price), nextAug.reputation, nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
 			break;
 		}
@@ -71,7 +71,7 @@ export async function main(ns) {
 		// await ns.sleep(3000);
 	}
 	// ns.printf("Goals: %s", JSON.stringify(factionGoals));
-	ns.tprintf("Estimated cost with new goals: %s", formatMoney(augmentationCost));
+	// ns.tprintf("Estimated cost with new goals: %s", formatMoney(augmentationCost));
 	capGoalsAtFavorToDonate(ns, database, factionGoals);
 	// no goals
 	do {
