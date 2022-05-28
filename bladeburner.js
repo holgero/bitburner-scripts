@@ -17,10 +17,11 @@ async function runActions(ns) {
 	while (true) {
 		const [current, max] = ns.bladeburner.getStamina();
 		var bestAction = undefined;
-		if (current > max / 2) {
+		if (current > 0.6 * max) {
+			await runAndWait(ns, "bbselectcity.js");
 			await runAndWait(ns, "setactionlevels.js");
 			const actionDb = JSON.parse(ns.read("actiondb.txt"));
-			const minChance = 0.25;
+			const minChance = 0.3;
 			var bestExpected = 0;
 			var bestAction;
 			for (var action of actionDb.actions) {
@@ -36,23 +37,12 @@ async function runActions(ns) {
 			}
 		}
 		if (bestAction) {
-			var { type, name } = ns.bladeburner.getCurrentAction();
-			if (type != bestAction.type || name != bestAction.name) {
-				ns.printf("Current %s %s, changing to %s %s", type, name, bestAction.type, bestAction.name);
-				ns.bladeburner.stopBladeburnerAction();
-				ns.bladeburner.startAction(bestAction.type, bestAction.name);
-			}
-			await ns.sleep(bestAction.time);
+			await executeAction(ns, bestAction.type, bestAction.name);
 		} else {
-			var { type, name } = ns.bladeburner.getCurrentAction();
-			if (type != "General" || name != "Training") {
-				ns.printf("Current type %s, action %s, changing to Training", type, name);
-				ns.bladeburner.stopBladeburnerAction();
-				ns.bladeburner.startAction("General", "Training");
-			}
-			await ns.sleep(ns.bladeburner.getActionTime("General", "Training"));
+			await executeAction(ns, "General", "Training");
+			await executeAction(ns, "General", "Field Analysis");
 		}
-		await ns.sleep(500);
+		await ns.sleep(100);
 		for (var skill of ns.bladeburner.getSkillNames()) {
 			if (ns.bladeburner.getSkillUpgradeCost(skill) <= ns.bladeburner.getSkillPoints()) {
 				ns.tprintf("Spending %d skillpoints on %s",
@@ -61,4 +51,16 @@ async function runActions(ns) {
 			}
 		}
 	}
+}
+
+/** @param {NS} ns */
+async function executeAction(ns, type, name) {
+	var current = ns.bladeburner.getCurrentAction();
+	if (type != current.type || name != current.name) {
+		ns.printf("Current action %s %s, changing to %s %s",
+			current.type, current.name, type, name);
+		ns.bladeburner.stopBladeburnerAction();
+		ns.bladeburner.startAction(type, name);
+	}
+	await ns.sleep(ns.bladeburner.getActionTime(type, name));
 }
