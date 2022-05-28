@@ -15,6 +15,10 @@ function getMissingInfo(ns, augmentations) {
 
 /** @param {NS} ns **/
 function getTypeOf(ns, augmentation) {
+	if (augmentation.stats.bladeburner_analysis_mult ||
+		augmentation.stats.bladeburner_max_stamina_mult ||
+		augmentation.stats.bladeburner_stamina_gain_mult ||
+		augmentation.stats.bladeburner_success_chance_mult) return "Bladeburner";
 	if (augmentation.stats.hacking_mult ||
 		augmentation.stats.hacking_exp_mult ||
 		augmentation.stats.hacking_grow_mult ||
@@ -37,6 +41,9 @@ function getTypeOf(ns, augmentation) {
 	if (augmentation.stats.hacknet_node_money_mult ||
 		augmentation.stats.hacknet_node_purchase_cost_mult ||
 		augmentation.stats.hacknet_node_level_cost_mult) return "Hacknet";
+	if (augmentation.stats.crime_money_mult ||
+		augmentation.stats.crime_success_mult) return "Crime";
+
 	ns.print(JSON.stringify(augmentation));
 	return "";
 }

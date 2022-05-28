@@ -198,7 +198,11 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	ownedAugs.push(...database.owned_augmentations);
 	ownedAugs.push(...augsToIgnore);
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
-	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", ""];
+	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", "Crime", "Bladeburner", ""];
+	var player = ns.getPlayer();
+	if (player.bitNodeN == 6 || player.bitNodeN == 7) {
+		prios.unshift("Bladeburner", "Combat");
+	}
 	var candidates = [];
 	for (var prio of prios) {
 		candidates = database.augmentations.filter(

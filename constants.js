@@ -71,6 +71,7 @@ export const ALL_FACTIONS = [
 export const HACKING = "Hacking Contracts";
 export const FIELD_WORK = "Field Work";
 export const SECURITY_WORK = "Security Work";
+export const BLADEACTIONS = "Bladeburner Actions";
 
 // augmentations
 export const GOVERNOR = "NeuroFlux Governor";
@@ -109,5 +110,6 @@ export const STORY_LINE = [
         { name: ECORP, backdoor: "", company: true, money: 0, hack: 250, stats: 0, work: HACKING, location: "" },
         { name: CLARKE, backdoor: "", company: true, money: 0, hack: 225, stats: 0, work: HACKING, location: "" },
         { name: SPEAKERS, backdoor: "", money: 0, stats: 300, work: HACKING, location: "" },
+        { name: BLADEBURNERS, backdoor: "", money: 0, work: BLADEACTIONS, stats: 100, location: "" },
         { name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, work: HACKING, location: "" }
 ];
