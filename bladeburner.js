@@ -15,12 +15,20 @@ export async function main(ns) {
 /** @param {NS} ns */
 async function runActions(ns) {
 	while (true) {
+		await runAndWait(ns, "bbselectcity.js");
+		await runAndWait(ns, "setactionlevels.js");
+		const actionDb = JSON.parse(ns.read("actiondb.txt"));
+		var worstDelta = 0;
+		for (var action of actionDb.actions) {
+			var delta = action.chances[1] - action.chances[0];
+			if (delta > worstDelta) {
+				worstDelta = delta;
+			}
+		}
+
 		const [current, max] = ns.bladeburner.getStamina();
 		var bestAction = undefined;
 		if (current > 0.6 * max) {
-			await runAndWait(ns, "bbselectcity.js");
-			await runAndWait(ns, "setactionlevels.js");
-			const actionDb = JSON.parse(ns.read("actiondb.txt"));
 			const minChance = 0.3;
 			var bestExpected = 0;
 			var bestAction;
@@ -40,7 +48,9 @@ async function runActions(ns) {
 			await executeAction(ns, bestAction.type, bestAction.name);
 		} else {
 			await executeAction(ns, "General", "Training");
-			await executeAction(ns, "General", "Field Analysis");
+			if (worstDelta > 0.1) {
+				await executeAction(ns, "General", "Field Analysis");
+			}
 		}
 		await ns.sleep(100);
 		for (var skill of ns.bladeburner.getSkillNames()) {
