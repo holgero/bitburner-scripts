@@ -43,7 +43,7 @@ export async function main(ns) {
 		}
 	}
 
-	ns.spawn("plan-augmentations.js", 1, "--run_purchase", "--affordable");
+	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
 
 /** @param {NS} ns **/
