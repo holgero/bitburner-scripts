@@ -78,6 +78,7 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "rscan.js", "back", "--quiet");
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "joinfactions.js");
+		await travelToGoalLocations(ns);
 		await ns.sleep(30000);
 	}
 }
@@ -136,4 +137,25 @@ async function improveInfrastructure(ns, nextProgram) {
 async function startHacking(ns) {
 	await runAndWait(ns, "rscan.js", "nuke", "--quiet");
 	await runAndWait(ns, "rscan.js", "hack", "--quiet");
+}
+
+/** @param {NS} ns **/
+async function travelToGoalLocations(ns) {
+	if (!ns.fileExists("factiongoals.txt")) {
+		return;
+	}
+	const player = ns.getPlayer();
+	if (player.hacking < 50) return;
+	const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	const factions = player.factions;
+	var goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
+	for (var goal of goals.filter(a => a.location && !factions.includes(a.name))) {
+		if (player.city != goal.location) {
+			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
+				if (!goal.stats || goal.stats < minStat) {
+					await runAndWait(ns, "travel.js", "--city", goal.location);
+				}
+			}
+		}
+	}
 }
