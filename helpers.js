@@ -36,7 +36,7 @@ export function statsGainFactor(ns) {
 export async function runAndWait(ns, script, ...args) {
 	ns.run(script, 1, ...args);
 	while (ns.scriptRunning(script, "home")) {
-		await ns.sleep(1000);
+		await ns.sleep(100);
 	}
 }
 
