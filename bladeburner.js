@@ -51,15 +51,12 @@ async function runActions(ns) {
 			if (worstDelta > 0.1) {
 				await executeAction(ns, "General", "Field Analysis");
 			}
-		}
-		await ns.sleep(100);
-		for (var skill of ns.bladeburner.getSkillNames()) {
-			if (ns.bladeburner.getSkillUpgradeCost(skill) <= ns.bladeburner.getSkillPoints()) {
-				ns.tprintf("Spending %d skillpoints on %s",
-					ns.bladeburner.getSkillUpgradeCost(skill), skill)
-				ns.bladeburner.upgradeSkill(skill);
+			if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity())>50) {
+				await executeAction(ns, "General", "Diplomacy");
 			}
 		}
+		await ns.sleep(100);
+		await runAndWait(ns, "bbskills.js");
 	}
 }
 
