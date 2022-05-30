@@ -29,16 +29,22 @@ async function runActions(ns) {
 		const [current, max] = ns.bladeburner.getStamina();
 		var bestAction = undefined;
 		if (current > 0.6 * max) {
-			const minChance = 0.3;
 			var bestExpected = 0;
 			var bestAction;
+			var minChance = 0.3;
 			for (var action of actionDb.actions) {
 				if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
 					continue;
 				}
+				switch (action.type) {
+					case "Contract": minChance = 0.3;
+						break;
+					case "Operation": minChance = 0.45;
+						break;
+				}
 				var chance = (action.chances[0] + action.chances[1]) / 2;
 				if (chance >= minChance &&
-					(chance * action.reputation / action.time > bestExpected)) {
+					((chance - minChance) * action.reputation / action.time > bestExpected)) {
 					bestExpected = chance * action.reputation / action.time;
 					bestAction = action;
 				}
@@ -51,7 +57,7 @@ async function runActions(ns) {
 			if (worstDelta > 0.1) {
 				await executeAction(ns, "General", "Field Analysis");
 			}
-			if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity())>50) {
+			if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
 				await executeAction(ns, "General", "Diplomacy");
 			}
 		}
