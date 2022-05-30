@@ -41,8 +41,7 @@ export async function runAndWait(ns, script, ...args) {
 }
 
 /** @param {NS} ns **/
-export function getAugmentationsToPurchase(ns, database, factionGoals) {
-	var toPurchase = [];
+function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase) {
 	for (var goal of factionGoals) {
 		var faction = database.factions.find(a => a.name == goal.name);
 		for (var augName of faction.augmentations) {
@@ -50,29 +49,24 @@ export function getAugmentationsToPurchase(ns, database, factionGoals) {
 			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
 			if (augmentation.reputation <= rep) {
 				if (!toPurchase.includes(augmentation)) {
-					toPurchase.push(augmentation);
-					// ns.tprintf("Aug(%s): %s", goal.name, augName);
+					if (augmentation.requirements.every(a => dependencies.includes(a))) {
+						toPurchase.push(augmentation);
+						dependencies.push(augmentation.name);
+					}
 				}
 			}
 		}
 	}
-	const possibleRequirements = database.owned_augmentations.slice(0);
-	possibleRequirements.push(...(toPurchase.map(a => a.name)));
-	toPurchase = toPurchase.filter(a => a.requirements.every(r => possibleRequirements.includes(r)));
-	for (var aug of toPurchase) {
-		if (aug.sortc == undefined) {
-			aug.sortc = aug.price;
-		}
-		if (aug.requirements.length) {
-			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
-			if (!requirement) {
-				continue;
-			}
-			var sortc = (1.9 * aug.price + requirement.price) / 2.9;
-			aug.sortc = sortc;
-			requirement.sortc = sortc + 1;
-		}
-	}
+}
+
+/** @param {NS} ns **/
+export function getAugmentationsToPurchase(ns, database, factionGoals) {
+	const toPurchase = [];
+	const dependencies = database.owned_augmentations.slice(0);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
+	setSortc(toPurchase);
 	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
 	return toPurchase;
 }
@@ -103,19 +97,48 @@ export function goalCompletion(ns, factionGoals) {
 	return 1;
 }
 
+function setSortc(toPurchase) {
+	toPurchase.forEach(a => a.sortc = undefined);
+	for (var aug of toPurchase) {
+		if (aug.sortc == undefined) {
+			aug.sortc = aug.price;
+		}
+		if (aug.requirements.length) {
+			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
+			if (requirement) {
+				var sortc = (1.9 * aug.price + requirement.price) / 2.9;
+				aug.sortc = sortc;
+				requirement.sortc = requirement.sortc ? Math.max(requirement.sortc, sortc + 1) : sortc + 1;
+			}
+		}
+	}
+}
+
 /** @param {NS} ns **/
 export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
-	var factor = 1.0;
-	for (var ii = 0; ii < toPurchase.length; ii++) {
-		var augmentation = toPurchase[ii];
-		var toPay = factor * augmentation.price;
-		if (toPay > moneyToSpend) {
-			toPurchase.splice(ii, 1);
-			ii--;
-			continue;
+	do {
+		var factor = 1.0;
+		var sum = 0;
+		var repeat = false;
+		var toRemove;
+		for (var ii = 0; ii < toPurchase.length; ii++) {
+			var augmentation = toPurchase[ii];
+			var toPay = factor * augmentation.price;
+			if (sum + toPay > moneyToSpend) {
+				toRemove = toPurchase.filter(a=>a.requirements.includes(augmentation.name)).map(a=>a.name);
+				toRemove.push(augmentation.name);
+				repeat = true;
+				break;
+			}
+			sum += toPay;
+			factor = factor * 1.9;
 		}
-		moneyToSpend -= toPay;
-		factor = factor * 1.9;
-	}
-	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
+		if (repeat) {
+			var toKeep = toPurchase.filter(a=>!toRemove.includes(a.name));
+			toPurchase.splice(0, toPurchase.length);
+			toPurchase.push(...toKeep);
+			setSortc(toPurchase);
+			toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
+		}
+	} while (repeat);
 }

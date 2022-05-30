@@ -3,7 +3,11 @@ import { formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["goal", false], ["write", false], ["affordable", false]]);
+	var options = ns.flags([
+		["goal", false],
+		["write", false],
+		["affordable", false],
+		["maxprice", 0]]);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
 	if (options._.length > 0) {
@@ -32,6 +36,11 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions);
+	if (options.maxprice) {
+		const toKeep = toPurchase.filter(a=>a.price <= options.maxprice);
+		toPurchase.splice(0, toPurchase.length);
+		toPurchase.push(...toKeep);
+	}
 	var haveMoney = ns.getServerMoneyAvailable("home");
 	if (options.affordable) {
 		filterExpensiveAugmentations(ns, toPurchase, haveMoney);
