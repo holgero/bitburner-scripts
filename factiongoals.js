@@ -10,7 +10,7 @@ export async function main(ns) {
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);
 		if (ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
-			runAndWait(ns, "calculate-goals.js");
+			await runAndWait(ns, "calculate-goals.js");
 		}
 	}
 
@@ -48,7 +48,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, database, config) {
-	runAndWait(ns, "print_goals.js");
+	await runAndWait(ns, "print_goals.js");
 	if (config.factionGoals.some(a => a.reputation)) {
 		if (!await workOnGoalsPercentage(ns, database, config, 0.25)) return;
 		if (!await workOnGoalsPercentage(ns, database, config, 0.50)) return;
