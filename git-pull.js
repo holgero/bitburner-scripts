@@ -1,6 +1,7 @@
 const FILES = [
 	"bbselectcity.js",
 	"bbskills.js",
+	"blackops.js",
 	"bladeburner.js",
 	"bonus.js",
 	"calculate-goals.js",

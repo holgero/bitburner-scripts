@@ -54,15 +54,16 @@ async function runActions(ns) {
 			await executeAction(ns, bestAction.type, bestAction.name);
 		} else {
 			await executeAction(ns, "General", "Training");
-			if (worstDelta > 0.1) {
-				await executeAction(ns, "General", "Field Analysis");
-			}
-			if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
-				await executeAction(ns, "General", "Diplomacy");
-			}
+		}
+		if (worstDelta > 0.1) {
+			await executeAction(ns, "General", "Field Analysis");
+		}
+		if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
+			await executeAction(ns, "General", "Diplomacy");
 		}
 		await ns.sleep(100);
 		await runAndWait(ns, "bbskills.js");
+		await runAndWait(ns, "blackops.js");
 	}
 }
 
