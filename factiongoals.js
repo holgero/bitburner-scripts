@@ -19,6 +19,7 @@ export async function main(ns) {
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		if (corporationInfo.shareSaleCooldown) {
+			const config = JSON.parse(ns.read("factiongoals.txt"));
 			for (var goal of config.factionGoals.filter(a => a.company)) {
 				if (!ns.getPlayer().factions.includes(goal.name)) {
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "[]", "true");
@@ -191,6 +192,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 						percentage > 0.999 &&
 						percentComplete > 90) {
 						await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
+					} else {
+						await ns.rm("stopselling.txt");
 					}
 					if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 						ns.printf("Start working at company");
