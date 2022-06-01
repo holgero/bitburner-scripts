@@ -23,14 +23,14 @@ export async function main(ns) {
 		});
 	}
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
-	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
-	var augmentationCost = estimatePrice(toPurchase);
-	// ns.tprintf("Estimated cost at start: %s", formatMoney(augmentationCost));
 	var maxMoneyToSpend = Math.max(MIN_MONEY, ns.getServerMoneyAvailable("home"));
 	maxMoneyToSpend = Math.min(MAX_MONEY, maxMoneyToSpend);
 	if (options.money) {
 		maxMoneyToSpend = options.money;
 	}
+	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals, maxMoneyToSpend);
+	var augmentationCost = estimatePrice(toPurchase);
+	// ns.tprintf("Estimated cost at start: %s", formatMoney(augmentationCost));
 	while (maxMoneyToSpend > augmentationCost) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxMoneyToSpend);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s", nextAug.name, formatMoney(nextAug.price), nextAug.reputation, nextAug.faction.name);
@@ -61,7 +61,7 @@ export async function main(ns) {
 				aim: nextAug.name
 			});
 		}
-		toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+		toPurchase = getAugmentationsToPurchase(ns, database, factionGoals, maxMoneyToSpend);
 		augmentationCost = estimatePrice(toPurchase);
 		if (toPurchase.length > MAX_AUGS) {
 			break;
@@ -86,7 +86,7 @@ export async function main(ns) {
 			}
 		}
 	} while (foundOne);
-	toPurchase = getAugmentationsToPurchase(ns, database, factionGoals);
+	toPurchase = getAugmentationsToPurchase(ns, database, factionGoals, maxMoneyToSpend);
 	ns.printf("Augmentations to purchase: %s", JSON.stringify(toPurchase));
 	augmentationCost = estimatePrice(toPurchase);
 	var result = JSON.stringify({
@@ -192,7 +192,7 @@ function getPossibleFactions(ns, database, factionGoals) {
 
 /** @param {NS} ns **/
 function findNextAugmentation(ns, database, factionGoals, maxPrice) {
-	const augsToIgnore = getAugmentationsToPurchase(ns, database, factionGoals).map(a => a.name);
+	const augsToIgnore = getAugmentationsToPurchase(ns, database, factionGoals, maxPrice).map(a => a.name);
 	// ns.tprintf("Augs to ignore: %s", JSON.stringify(augsToIgnore));
 	const ownedAugs = [];
 	ownedAugs.push(...database.owned_augmentations);

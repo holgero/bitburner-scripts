@@ -7,7 +7,7 @@ export async function main(ns) {
 		["goal", false],
 		["write", false],
 		["affordable", false],
-		["maxprice", 0]]);
+		["maxprice", 1e99]]);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
 	if (options._.length > 0) {
@@ -35,12 +35,7 @@ export async function main(ns) {
 	}
 	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
-	const toPurchase = getAugmentationsToPurchase(ns, database, factions);
-	if (options.maxprice) {
-		const toKeep = toPurchase.filter(a=>a.price <= options.maxprice);
-		toPurchase.splice(0, toPurchase.length);
-		toPurchase.push(...toKeep);
-	}
+	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	var haveMoney = ns.getServerMoneyAvailable("home");
 	if (options.affordable) {
 		filterExpensiveAugmentations(ns, toPurchase, haveMoney);

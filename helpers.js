@@ -41,13 +41,13 @@ export async function runAndWait(ns, script, ...args) {
 }
 
 /** @param {NS} ns **/
-function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase) {
+function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice) {
 	for (var goal of factionGoals) {
 		var faction = database.factions.find(a => a.name == goal.name);
 		for (var augName of faction.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
 			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
-			if (augmentation.reputation <= rep) {
+			if (augmentation.reputation <= rep && augmentation.price <= maxprice) {
 				if (!toPurchase.includes(augmentation)) {
 					if (augmentation.requirements.every(a => dependencies.includes(a))) {
 						toPurchase.push(augmentation);
@@ -60,12 +60,12 @@ function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPu
 }
 
 /** @param {NS} ns **/
-export function getAugmentationsToPurchase(ns, database, factionGoals) {
+export function getAugmentationsToPurchase(ns, database, factionGoals, maxprice) {
 	const toPurchase = [];
 	const dependencies = database.owned_augmentations.slice(0);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
 	setSortc(toPurchase);
 	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
 	return toPurchase;

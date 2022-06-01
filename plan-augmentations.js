@@ -2,10 +2,10 @@ import { getAugmentationsToPurchase, filterExpensiveAugmentations } from "helper
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["run_purchase", false]]);
+	var options = ns.flags([["run_purchase", false], ["maxprice", 1e99]]);
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	const database = JSON.parse(ns.read("database.txt"));
-	const toPurchase = getAugmentationsToPurchase(ns, database, factions);
+	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	var haveMoney = ns.getServerMoneyAvailable("home");
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
 	const augNames = toPurchase.map(a=>a.name);
