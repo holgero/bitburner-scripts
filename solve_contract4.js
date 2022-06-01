@@ -11,7 +11,7 @@ import { validExpressions } from "contractsolver/validexpressions.js";
 import { sanitizeParenthesis } from "contractsolver/sanitizeparenthesis.js";
 import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "contractsolver/stocktrader.js";
 import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
-import { rleCompression, lzDecompression } from "contractsolver/compression.js";
+import { rleCompression, lzDecompression, lzCompression } from "contractsolver/compression.js";
 import { graphColoring } from "contractsolver/graphcoloring.js";
 
 const PATHS1 = "Unique Paths in a Grid I";
@@ -37,6 +37,7 @@ const HAMMING_DECODE = "HammingCodes: Encoded Binary to Integer";
 const HAMMING_ENCODE = "HammingCodes: Integer to Encoded Binary";
 const RLE_COMPRESSION = "Compression I: RLE Compression";
 const LZ_DECOMPRESSION = "Compression II: LZ Decompression";
+const LZ_COMPRESSION = "Compression III: LZ Compression";
 const GRAPH_COLOR = "Proper 2-Coloring of a Graph";
 
 /** @param {NS} ns **/
@@ -125,6 +126,9 @@ export async function solveContract(ns, contract) {
 			break;
 		case RLE_COMPRESSION:
 			solution = rleCompression(data);
+			break;
+		case LZ_COMPRESSION:
+			solution = lzCompression(data);
 			break;
 		case LZ_DECOMPRESSION:
 			solution = lzDecompression(data);
