@@ -18,7 +18,6 @@ export async function main(ns) {
 		}
 	}
 	await runAndWait(ns, "create-database.js");
-	await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
 
 	await runHomeScripts(ns);
 
@@ -39,6 +38,7 @@ async function runHomeScripts(ns) {
 		}
 	} else {
 		if (!ns.scriptRunning("factiongoals.js", "home")) {
+			await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
 			ns.run("factiongoals.js", 1, ...ns.args);
 		}
 	}
@@ -56,10 +56,12 @@ function canSpendMoney(ns) {
 			return false;
 		}
 	}
-	if (ns.fileExists("factiongoals.txt")) {
-		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-		if (completion > 0.8) {
-			return false;
+	if (ns.scriptRunning("factiongoals.js", "home")) {
+		if (ns.fileExists("factiongoals.txt")) {
+			var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+			if (completion > 0.8) {
+				return false;
+			}
 		}
 	}
 	return true;
