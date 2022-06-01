@@ -27,44 +27,64 @@ async function runActions(ns) {
 		}
 
 		const [current, max] = ns.bladeburner.getStamina();
-		var bestAction = undefined;
-		if (current > 0.6 * max) {
-			var bestExpected = 0;
-			var bestAction;
-			var minChance = 0.3;
-			for (var action of actionDb.actions) {
-				if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
-					continue;
-				}
-				switch (action.type) {
-					case "Contract": minChance = 0.3;
-						break;
-					case "Operation": minChance = 0.45;
-						break;
-				}
-				var chance = (action.chances[0] + action.chances[1]) / 2;
-				if (chance >= minChance &&
-					((chance - minChance) * action.reputation / action.time > bestExpected)) {
-					bestExpected = chance * action.reputation / action.time;
-					bestAction = action;
-				}
+		if (current > 0.7 * max) {
+			var bestAction = selectAction(ns, actionDb);
+			if (bestAction) {
+				await executeAction(ns, bestAction.type, bestAction.name);
+			} else {
+				await executeAction(ns, "General", "Training");
 			}
-		}
-		if (bestAction) {
-			await executeAction(ns, bestAction.type, bestAction.name);
+			bestAction = selectAction(ns, actionDb, "Contract");
+			if (bestAction) {
+				await executeAction(ns, bestAction.type, bestAction.name);
+			} else {
+				await executeAction(ns, "General", "Training");
+			}
 		} else {
 			await executeAction(ns, "General", "Training");
 		}
 		if (worstDelta > 0.1) {
 			await executeAction(ns, "General", "Field Analysis");
 		}
-		if (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
+		while (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
 			await executeAction(ns, "General", "Diplomacy");
 		}
-		await ns.sleep(100);
 		await runAndWait(ns, "bbskills.js");
 		await runAndWait(ns, "blackops.js");
 	}
+}
+
+/** @param {NS} ns */
+function selectAction(ns, actionDb, type) {
+	var bestAction = undefined;
+	var bestExpected = 0;
+	var minChance = 0.3;
+	for (var action of actionDb.actions) {
+		if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
+			continue;
+		}
+		if (type && action.type != type) {
+			continue;
+		}
+		switch (action.type) {
+			case "Contract":
+				minChance = 0.3;
+				break;
+			case "Operation":
+				minChance = 0.4;
+				if (action.name == "Raid") {
+					minChance = 0.75;
+				}
+				break;
+		}
+		var chance = (action.chances[0] + action.chances[1]) / 2;
+		if (chance >= minChance &&
+			((chance - minChance) * action.reputation / action.time > bestExpected)) {
+			bestExpected = chance * action.reputation / action.time;
+			bestAction = action;
+		}
+	}
+	return bestAction;
 }
 
 /** @param {NS} ns */
@@ -76,5 +96,12 @@ async function executeAction(ns, type, name) {
 		ns.bladeburner.stopBladeburnerAction();
 		ns.bladeburner.startAction(type, name);
 	}
-	await ns.sleep(ns.bladeburner.getActionTime(type, name));
+	var time = ns.bladeburner.getActionTime(type, name);
+	var bonusTime = ns.bladeburner.getBonusTime();
+	if (time > bonusTime) {
+		time = time - bonusTime;
+	} else {
+		time = time / 5 + 500;
+	}
+	await ns.sleep(time);
 }
