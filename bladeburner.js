@@ -58,7 +58,7 @@ async function runActions(ns) {
 function selectAction(ns, actionDb, type) {
 	var bestAction = undefined;
 	var bestExpected = 0;
-	var minChance = 0.3;
+	const minChance = 0.3;
 	for (var action of actionDb.actions) {
 		if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
 			continue;
@@ -66,20 +66,12 @@ function selectAction(ns, actionDb, type) {
 		if (type && action.type != type) {
 			continue;
 		}
-		switch (action.type) {
-			case "Contract":
-				minChance = 0.3;
-				break;
-			case "Operation":
-				minChance = 0.4;
-				if (action.name == "Raid") {
-					minChance = 0.75;
-				}
-				break;
+		if (action.name == "Raid") {
+			if (Math.random() > 0.1) continue;
 		}
 		var chance = (action.chances[0] + action.chances[1]) / 2;
 		if (chance >= minChance &&
-			((chance - minChance) * action.reputation / action.time > bestExpected)) {
+			(chance * action.reputation / action.time > bestExpected)) {
 			bestExpected = chance * action.reputation / action.time;
 			bestAction = action;
 		}
