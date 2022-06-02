@@ -4,7 +4,7 @@ export async function main(ns) {
 		if (ns.bladeburner.getBlackOpRank(op) < ns.bladeburner.getRank() &&
 			ns.bladeburner.getActionCountRemaining("BlackOps", op) > 0) {
 			if (ns.bladeburner.getActionEstimatedSuccessChance("BlackOps", op)[0] > 0.6) {
-				ns.tprintf("Can do BlackOps %s", op);
+				ns.printf("Can do BlackOps %s", op);
 				if (ns.bladeburner.startAction("BlackOps", op)) {
 					ns.tprintf("Executing BlackOps %s", op);
 					var time = ns.bladeburner.getActionTime("BlackOps", op);
