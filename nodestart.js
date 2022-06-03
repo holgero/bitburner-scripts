@@ -70,18 +70,23 @@ function canSpendMoney(ns) {
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
+	var lastHackingLevelRun = 0;
 	while (true) {
 		var nextProgram = 0;
 		while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
 			nextProgram++;
 		}
+		if (nextProgram > lastHackingLevelRun) {
+			await startHacking(ns);
+			lastHackingLevelRun = nextProgram;
+		}
 		if (canSpendMoney(ns)) {
 			await improveInfrastructure(ns, nextProgram);
 		}
-		await runAndWait(ns, "rscan.js", "back", "--quiet");
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "joinfactions.js");
 		await travelToGoalLocations(ns);
+		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
 	}
 }
@@ -94,7 +99,6 @@ async function improveInfrastructure(ns, nextProgram) {
 	if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
 		await runAndWait(ns, "writeprogram.js", nextProgram++);
 		currentMoney = ns.getServerMoneyAvailable("home");
-		await startHacking(ns);
 		await runAndWait(ns, "start-hacknet.js", 2);
 	}
 	if (nextProgram > 0 &&
@@ -104,8 +108,6 @@ async function improveInfrastructure(ns, nextProgram) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
 			currentMoney = ns.getServerMoneyAvailable("home");
 		}
-		// use our new programs
-		await startHacking(ns);
 		await runAndWait(ns, "start-hacknet.js", 4);
 	}
 	// upgrade home pc
@@ -133,6 +135,16 @@ async function improveInfrastructure(ns, nextProgram) {
 		!ns.scriptRunning("corporation.js", "home")) {
 		await runAndWait(ns, "purchase-ram.js", 2048);
 		ns.run("corporation.js");
+	}
+}
+
+/** @param {NS} ns **/
+async function runInstallBackdoor(ns) {
+	var ram = ns.getServerMaxRam("home");
+	if (ram > 32) {
+		await runAndWait(ns, "rscan.js", "back", "--quiet");
+	} else {
+		ns.run("rscan-spawn.js", 1, "back", "--quiet");
 	}
 }
 

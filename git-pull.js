@@ -43,6 +43,7 @@ const FILES = [
 	"purchase-ram.js",
 	"reset.js",
 	"rscan.js",
+	"rscan-spawn.js",
 	"sell-all-stocks.js",
 	"serverinfo.js",
 	"servers-cost.js",
