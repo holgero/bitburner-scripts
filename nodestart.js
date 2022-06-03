@@ -14,6 +14,7 @@ export async function main(ns) {
 	await runAndWait(ns, "purchase-ram.js", 2048);
 	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
 		if (!ns.scriptRunning("corporation.js", "home")) {
+			ns.rm("stopselling.txt");
 			ns.run("corporation.js");
 		}
 	}

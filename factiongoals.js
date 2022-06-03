@@ -44,6 +44,10 @@ export async function main(ns) {
 		}
 	}
 
+	if (ns.getTimeSinceLastAug() < 1e6) {
+		ns.tprintf("Just installed augs %d s before. Exiting.", ns.getTimeSinceLastAug()/1000);
+		return;
+	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
 
