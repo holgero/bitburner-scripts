@@ -30,28 +30,32 @@ async function runActions(ns) {
 		if (current > 0.7 * max) {
 			var bestAction = selectAction(ns, actionDb);
 			if (bestAction) {
-				await executeAction(ns, bestAction.type, bestAction.name);
+				await executeAction(ns, bestAction);
 			} else {
-				await executeAction(ns, "General", "Training");
+				await executeAction(ns, getAction(actionDb, "General", "Training"));
 			}
 			bestAction = selectAction(ns, actionDb, "Contract");
 			if (bestAction) {
-				await executeAction(ns, bestAction.type, bestAction.name);
+				await executeAction(ns, bestAction);
 			} else {
-				await executeAction(ns, "General", "Training");
+				await executeAction(ns, getAction(actionDb, "General", "Training"));
 			}
 		} else {
-			await executeAction(ns, "General", "Training");
+			await executeAction(ns, getAction(actionDb, "General", "Training"));
 		}
 		if (worstDelta > 0.1) {
-			await executeAction(ns, "General", "Field Analysis");
+			await executeAction(ns, getAction(actionDb, "General", "Field Analysis"));
 		}
 		while (ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50) {
-			await executeAction(ns, "General", "Diplomacy");
+			await executeAction(ns, getAction(actionDb, "General", "Diplomacy"));
 		}
 		await runAndWait(ns, "bbskills.js");
 		await runAndWait(ns, "blackops.js");
 	}
+}
+
+function getAction(actionDb, type, name) {
+	return actionDb.actions.find(a=>a.type == type && a.name == name);
 }
 
 /** @param {NS} ns */
@@ -60,7 +64,7 @@ function selectAction(ns, actionDb, type) {
 	var bestExpected = 0;
 	const minChance = 0.3;
 	for (var action of actionDb.actions) {
-		if (ns.bladeburner.getActionCountRemaining(action.type, action.name) <= 0) {
+		if (action.actionCountRemaining <= 0) {
 			continue;
 		}
 		if (type && action.type != type) {
@@ -72,6 +76,7 @@ function selectAction(ns, actionDb, type) {
 		var chance = (action.chances[0] + action.chances[1]) / 2;
 		if (chance >= minChance &&
 			(chance * action.reputation / action.time > bestExpected)) {
+			ns.tprint("Selecting action %s", JSON.stringify(action));
 			bestExpected = chance * action.reputation / action.time;
 			bestAction = action;
 		}
@@ -80,16 +85,16 @@ function selectAction(ns, actionDb, type) {
 }
 
 /** @param {NS} ns */
-async function executeAction(ns, type, name) {
+async function executeAction(ns, action) {
 	var current = ns.bladeburner.getCurrentAction();
-	if (type != current.type || name != current.name) {
+	if (action.type != current.type || action.name != current.name) {
 		ns.printf("Current action %s %s, changing to %s %s",
-			current.type, current.name, type, name);
+			current.type, current.name, action.type, action.name);
 		ns.bladeburner.stopBladeburnerAction();
-		ns.bladeburner.startAction(type, name);
+		ns.bladeburner.startAction(action.type, action.name);
 	}
-	var time = ns.bladeburner.getActionTime(type, name);
 	var bonusTime = ns.bladeburner.getBonusTime();
+	var time = action.time;
 	if (time > bonusTime) {
 		time = time - bonusTime;
 	} else {

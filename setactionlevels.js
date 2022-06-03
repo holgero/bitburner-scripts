@@ -3,6 +3,8 @@ export async function main(ns) {
 	const actionDb = {
 		actions: [],
 	};
+	actionDb.actions.push(...ns.bladeburner.getGeneralActionNames().map(
+		a => constructAction("General", a)));
 	actionDb.actions.push(...ns.bladeburner.getContractNames().map(
 		a => constructAction("Contract", a)));
 	actionDb.actions.push(...ns.bladeburner.getOperationNames().map(
@@ -44,5 +46,6 @@ function setActionLevels(ns, actionDb, minChance) {
 		action.reputation = ns.bladeburner.getActionRepGain(
 			action.type, action.name, action.level);
 		action.time = ns.bladeburner.getActionTime(action.type, action.name);
+		action.actionCountRemaining = ns.bladeburner.getActionCountRemaining(action.type, action.name);
 	}
 }

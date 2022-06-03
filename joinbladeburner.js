@@ -23,6 +23,7 @@ export async function main(ns) {
 			break;
 		}
 	}
+	ns.stopAction();
 }
 
 /** @param {NS} ns */
