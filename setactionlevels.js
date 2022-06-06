@@ -1,3 +1,5 @@
+const KILLING_ACTIONS = ["Bounty Hunter", "Retirement", "Raid"];
+
 /** @param {NS} ns */
 export async function main(ns) {
 	const actionDb = {
@@ -23,6 +25,7 @@ function constructAction(type, name) {
 		level: 1,
 		chances: [],
 		reputation: 0,
+		killing: KILLING_ACTIONS.includes(name),
 	}
 }
 

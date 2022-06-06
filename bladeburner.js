@@ -70,13 +70,13 @@ function selectAction(ns, actionDb, type) {
 		if (type && action.type != type) {
 			continue;
 		}
-		if (action.name == "Raid") {
+		if (action.killing) {
 			if (Math.random() > 0.1) continue;
 		}
 		var chance = (action.chances[0] + action.chances[1]) / 2;
 		if (chance >= minChance &&
 			(chance * action.reputation / action.time > bestExpected)) {
-			ns.tprint("Selecting action %s", JSON.stringify(action));
+			ns.printf("Selecting action %s", JSON.stringify(action));
 			bestExpected = chance * action.reputation / action.time;
 			bestAction = action;
 		}
