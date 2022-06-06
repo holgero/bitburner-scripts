@@ -4,9 +4,10 @@ import { runAndWait, reputationNeeded } from "helpers.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	const database = JSON.parse(ns.read("database.txt"));
 
+	await prepareGoalWork(ns, database);
 	for (var ii = 0; ii < 3; ii++) {
-		const database = JSON.parse(ns.read("database.txt"));
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);
 		if (ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
@@ -45,10 +46,22 @@ export async function main(ns) {
 	}
 
 	if (ns.getTimeSinceLastAug() < 1e6) {
-		ns.tprintf("Just installed augs %d s before. Exiting.", ns.getTimeSinceLastAug()/1000);
+		ns.tprintf("Just installed augs %d s before. Exiting.", ns.getTimeSinceLastAug() / 1000);
 		return;
 	}
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
+}
+
+/** @param {NS} ns **/
+async function prepareGoalWork(ns, database) {
+	var focus = ns.isFocused();
+	// first get hacking level to fifty
+	while (ns.getPlayer().hacking < 50) {
+		await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
+		await ns.sleep(60000);
+		focus = ns.isFocused();
+		ns.stopAction();
+	}
 }
 
 /** @param {NS} ns **/
@@ -154,85 +167,78 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			await runAndWait(ns, "travel.js", "--city", goal.location);
 		}
 		// how to spend our time
-		if (ns.getPlayer().hacking < 50) {
-			// don't waste time with other stuff while our hacking level is low
-			await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
-			await ns.sleep(60000);
-			focus = ns.isFocused();
-			ns.stopAction();
-		} else {
-			if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
-				ns.printf("At start of checks");
-				if (await buffStatsToNeeded(ns, goal.stats, focus)) {
-					ns.printf("No workout needed");
-					ns.stopAction();
-					if (config.estimatedDonations) {
-						var moneyForDonations = Math.max(0,
-							ns.getServerMoneyAvailable("home") - config.estimatedPrice);
-						if (ns.getPlayer().hasCorporation &&
-							ns.fileExists("corporation.txt", "home")) {
-							var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-							if (corporationInfo.issuedShares > 0) {
-								// dont donate money that is needed for buyback
-								moneyForDonations = 0;
-							}
-						}
-						if (moneyForDonations) {
-							ns.printf("Will donate %d", moneyForDonations);
-							await runAndWait(ns, "donate-faction.js",
-								goal.name, percentage * goal.reputation, moneyForDonations);
+		if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
+			ns.printf("At start of checks");
+			if (await buffStatsToNeeded(ns, goal.stats, focus)) {
+				ns.printf("No workout needed");
+				ns.stopAction();
+				if (config.estimatedDonations) {
+					var moneyForDonations = Math.max(0,
+						ns.getServerMoneyAvailable("home") - config.estimatedPrice);
+					if (ns.getPlayer().hasCorporation &&
+						ns.fileExists("corporation.txt", "home")) {
+						var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+						if (corporationInfo.issuedShares > 0) {
+							// dont donate money that is needed for buyback
+							moneyForDonations = 0;
 						}
 					}
-					if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
-						break;
-					}
-					var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
-					ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
-						ns.getFactionRep(goal.name),
-						percentage * goal.reputation,
-						percentComplete);
-					ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
-					if (goals.filter(a => a.reputation > 0 && a.reputation > ns.getFactionRep(a.name)).length == 0 &&
-						percentage > 0.999 &&
-						percentComplete > 90) {
-						await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
-					} else {
-						await ns.rm("stopselling.txt");
-					}
-					if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
-						ns.printf("Start working at company");
-						await runAndWait(ns, "workforcompany.js", goal.name, "IT", focus);
-					}
-					ns.printf("Start working for faction");
-					await runAndWait(ns, "workforfaction.js", goal.name, goal.work, focus);
-					if (goal.name != c.DAEDALUS) {
-						await checkForDaedalus(ns, database, config);
-						if (config.finalGoal) {
-							// we have more important things to do
-							return;
-						}
-					}
-					if (ns.isBusy()) {
-						await ns.sleep(60000);
-					} else {
-						ns.printf("Not working");
-						// not working for a faction: kill a few people
-						await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-						await ns.sleep(15000);
+					if (moneyForDonations) {
+						ns.printf("Will donate %d", moneyForDonations);
+						await runAndWait(ns, "donate-faction.js",
+							goal.name, percentage * goal.reputation, moneyForDonations);
 					}
 				}
-			} else {
-				ns.printf("Not working and nothing to do");
-				if (!ns.fileExists(c.programs[0].name)) {
-					await runAndWait(ns, "writeprogram.js", 0);
+				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+					break;
+				}
+				var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
+					ns.getFactionRep(goal.name),
+					percentage * goal.reputation,
+					percentComplete);
+				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
+				if (goals.filter(a => a.reputation > 0 && a.reputation > ns.getFactionRep(a.name)).length == 0 &&
+					percentage > 0.999 &&
+					percentComplete > 90) {
+					await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
 				} else {
+					await ns.rm("stopselling.txt");
+				}
+				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
+					ns.printf("Start working at company");
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT", focus);
+				}
+				ns.printf("Start working for faction");
+				await runAndWait(ns, "workforfaction.js", goal.name, goal.work, focus);
+				if (goal.name != c.DAEDALUS) {
+					await checkForDaedalus(ns, database, config);
+					if (config.finalGoal) {
+						// we have more important things to do
+						return;
+					}
+				}
+				if (ns.isBusy()) {
+					await ns.sleep(60000);
+				} else {
+					ns.printf("Not working");
 					// not working for a faction: kill a few people
 					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
 					await ns.sleep(15000);
 				}
 			}
-			focus = ns.isFocused();
+		} else {
+			ns.printf("Not working and nothing to do");
+			if (!ns.fileExists(c.programs[0].name)) {
+				await runAndWait(ns, "writeprogram.js", 0);
+			} else {
+				// not working for a faction: kill a few people
+				await runAndWait(ns, "commit-crimes.js", "--timed", 50);
+				await ns.sleep(15000);
+			}
 		}
+		focus = ns.isFocused();
+
 		// join future factions early, if we can
 		await futureGoalConditions(ns, goals);
 		if (!ns.getPlayer().factions.includes(c.DAEDALUS) && goal.name == c.DAEDALUS) {
@@ -329,9 +335,7 @@ async function futureGoalConditions(ns, goals) {
 		if (goal.location && ns.getPlayer().city != goal.location) {
 			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {
-					if (ns.getPlayer().hacking > 100) { // stay at home near uni while low on hacking
-						await runAndWait(ns, "travel.js", "--city", goal.location);
-					}
+					await runAndWait(ns, "travel.js", "--city", goal.location);
 					return;
 				}
 			}
