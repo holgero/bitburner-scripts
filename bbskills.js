@@ -6,8 +6,9 @@ const SKILL_RESTRICTIONS = [
 
 /** @param {NS} ns */
 export async function main(ns) {
-	spendSkillPoints(ns, true);
-	spendSkillPoints(ns, false);
+	if (!spendSkillPoints(ns, true)) {
+		spendSkillPoints(ns, false);
+	}
 }
 
 /** @param {NS} ns */
@@ -29,7 +30,8 @@ function spendSkillPoints(ns, preferedOnly) {
 			}
 			ns.tprintf("Spending %d skillpoints on %s",
 				ns.bladeburner.getSkillUpgradeCost(skill), skill)
-			ns.bladeburner.upgradeSkill(skill);
+			return ns.bladeburner.upgradeSkill(skill);
 		}
 	}
+	return false;
 }
