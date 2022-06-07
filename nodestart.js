@@ -19,6 +19,9 @@ export async function main(ns) {
 		}
 	}
 	await runAndWait(ns, "create-database.js");
+	if (!ns.scriptRunning("factiongoals.js", "home")) {
+		await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
+	}
 
 	await runHomeScripts(ns);
 
