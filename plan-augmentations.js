@@ -1,4 +1,5 @@
 import { getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import { BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -8,12 +9,12 @@ export async function main(ns) {
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	var haveMoney = ns.getServerMoneyAvailable("home");
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
-	const augNames = toPurchase.map(a=>a.name);
+	const augNames = toPurchase.map(a => a.name);
 
 	var governor_faction;
 	var maxRep = 0;
 	for (var faction of factions) {
-		if (faction.reputation > maxRep) {
+		if (faction.name != BLADEBURNERS && (faction.reputation > maxRep)) {
 			governor_faction = faction.name;
 			maxRep = faction.reputation;
 		}
