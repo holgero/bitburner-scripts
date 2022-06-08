@@ -2,6 +2,7 @@ const SKILL_RESTRICTIONS = [
 	{ name:"Datamancer", max:9 },
 	{ name:"Tracer", max:10 },
 	{ name:"Hands of Midas", prefered:true },
+	{ name:"Overclock", prefered:true },
 ]
 
 /** @param {NS} ns */
