@@ -1,4 +1,5 @@
 import { runAndWait } from "helpers.js";
+import * as c from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -28,13 +29,17 @@ async function runActions(ns) {
 
 		const [current, max] = ns.bladeburner.getStamina();
 		if (current > 0.7 * max) {
-			var bestAction = selectAction(ns, actionDb);
+			var bestAction = selectAction(ns, actionDb, "Contract");
 			if (bestAction) {
 				await executeAction(ns, bestAction);
 			} else {
 				await executeAction(ns, getAction(actionDb, "General", "Training"));
 			}
-			bestAction = selectAction(ns, actionDb, "Contract");
+			if (needMoney(ns)) {
+				bestAction = selectAction(ns, actionDb, "Contract");
+			} else {
+				bestAction = selectAction(ns, actionDb);
+			}
 			if (bestAction) {
 				await executeAction(ns, bestAction);
 			} else {
@@ -52,6 +57,25 @@ async function runActions(ns) {
 		await runAndWait(ns, "bbskills.js");
 		await runAndWait(ns, "blackops.js");
 	}
+}
+
+/** @param {NS} ns */
+function needMoney(ns) {
+	const database = JSON.parse(ns.read("database.txt"));
+	const bb = database.factions.find(a => a.name == c.BLADEBURNERS);
+	// ns.tprintf("%s", JSON.stringify(bb));
+	const myMoney = ns.getServerMoneyAvailable("home");
+	const myReputation = ns.getFactionRep(c.BLADEBURNERS);
+	var haveMoney = 0;
+	var haveRep = 0;
+	for (var augName of bb.augmentations) {
+		// ns.tprintf("%s", aug);
+		const aug = database.augmentations.find(a => a.name == augName);
+		if (aug.reputation < myReputation) haveRep++;
+		if (aug.price < myMoney) haveMoney++;
+	}
+	ns.printf("Have rep for %d augs and money for %d augs", haveRep, haveMoney);
+	return haveMoney <= haveRep;
 }
 
 function getAction(actionDb, type, name) {
