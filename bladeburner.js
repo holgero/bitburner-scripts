@@ -29,12 +29,7 @@ async function runActions(ns) {
 
 		const [current, max] = ns.bladeburner.getStamina();
 		if (current > 0.7 * max) {
-			var bestAction = selectAction(ns, actionDb, "Contract");
-			if (bestAction) {
-				await executeAction(ns, bestAction);
-			} else {
-				await executeAction(ns, getAction(actionDb, "General", "Training"));
-			}
+			var bestAction;
 			if (needMoney(ns)) {
 				bestAction = selectAction(ns, actionDb, "Contract");
 			} else {
@@ -84,6 +79,15 @@ function getAction(actionDb, type, name) {
 
 /** @param {NS} ns */
 function selectAction(ns, actionDb, type) {
+	var bestAction = selectActionDetailed(ns, actionDb, type, true);
+	if (bestAction) return bestAction;
+	bestAction = selectActionDetailed(ns, actionDb, undefined, true);
+	if (bestAction) return bestAction;
+	return selectActionDetailed(ns, actionDb, undefined, false);
+}
+
+/** @param {NS} ns */
+function selectActionDetailed(ns, actionDb, type, avoidKilling) {
 	var bestAction = undefined;
 	var bestExpected = 0;
 	const minChance = 0.3;
@@ -94,7 +98,7 @@ function selectAction(ns, actionDb, type) {
 		if (type && action.type != type) {
 			continue;
 		}
-		if (action.killing) {
+		if (avoidKilling && action.killing) {
 			if (Math.random() > 0.1) continue;
 		}
 		var chance = (action.chances[0] + action.chances[1]) / 2;
