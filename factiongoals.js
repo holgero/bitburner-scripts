@@ -4,6 +4,7 @@ import { runAndWait, reputationNeeded } from "helpers.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	ns.rm("stopselling.txt");
 	const database = JSON.parse(ns.read("database.txt"));
 
 	await prepareGoalWork(ns, database);
@@ -39,7 +40,6 @@ export async function main(ns) {
 				ns.tprintf("Share sale cooldown period: %d s", realtime);
 				await ns.sleep(1000 * (realtime - 10));
 			}
-			ns.scriptKill("corporation.js", "home");
 			await ns.sleep(10000);
 			ns.stopAction();
 		}
@@ -203,7 +203,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 					percentComplete > 90) {
 					await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
 				} else {
-					await ns.rm("stopselling.txt");
+					ns.rm("stopselling.txt");
 				}
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					ns.printf("Start working at company");
@@ -231,6 +231,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			ns.printf("Not working and nothing to do");
 			if (!ns.fileExists(c.programs[0].name)) {
 				await runAndWait(ns, "writeprogram.js", 0);
+				await ns.sleep(1000);
 			} else {
 				// not working for a faction: kill a few people
 				await runAndWait(ns, "commit-crimes.js", "--timed", 50);
@@ -245,6 +246,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			// don't wait for DAEDALUS invitation within this loop, do something else instead
 			break;
 		}
+		await ns.sleep(100);
 	}
 }
 

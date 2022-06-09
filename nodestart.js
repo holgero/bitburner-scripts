@@ -14,7 +14,6 @@ export async function main(ns) {
 	await runAndWait(ns, "purchase-ram.js", 2048);
 	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
 		if (!ns.scriptRunning("corporation.js", "home")) {
-			ns.rm("stopselling.txt");
 			ns.run("corporation.js");
 		}
 	}
@@ -31,12 +30,19 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
-	if (!ns.scriptRunning("bladeburner.js", "home")) {
-		await runAndWait(ns, "joinbladeburner.js");
-		ns.run("bladeburner.js", 1, ...ns.args);
-		await ns.sleep(1000);
+	if (ns.scriptRunning("instrument.js", "home")) {
+		ns.scriptKill("instrument.js", "home");
 	}
-
+	if (ns.getServerMaxRam("home") > 32) {
+		if (ns.scriptRunning("factiongoals.js", "home")) {
+			ns.scriptKill("factiongoals.js", "home");
+		}
+		if (!ns.scriptRunning("bladeburner.js", "home")) {
+			await runAndWait(ns, "joinbladeburner.js");
+			ns.run("bladeburner.js", 1, ...ns.args);
+			await ns.sleep(1000);
+		}
+	}
 	if (ns.scriptRunning("bladeburner.js", "home")) {
 		if (ns.scriptRunning("factiongoals.js", "home")) {
 			ns.scriptKill("factiongoals.js", "home");
@@ -47,7 +53,6 @@ async function runHomeScripts(ns) {
 			ns.run("factiongoals.js", 1, ...ns.args);
 		}
 	}
-
 	if (!ns.scriptRunning("instrument.js", "home")) {
 		ns.run("instrument.js", 1);
 	}
