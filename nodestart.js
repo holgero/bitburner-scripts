@@ -32,6 +32,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
 	if (!ns.scriptRunning("bladeburner.js", "home")) {
+		await runAndWait(ns, "joinbladeburner.js");
 		ns.run("bladeburner.js", 1, ...ns.args);
 		await ns.sleep(1000);
 	}

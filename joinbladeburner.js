@@ -3,6 +3,10 @@ import { runAndWait } from "helpers.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	var player = ns.getPlayer();
+	if (player.bitNodeN != 6 && player.bitNodeN != 7) {
+		ns.tprintf("Neither on bitnode 6 or 7 (%d)", player.bitNodeN);
+		return;
+	}
 	while (!player.inBladeburner) {
 		ns.stopAction();
 		await runAndWait(ns, "commit-crimes.js", "--until_stats", "100", "--timed", "120");

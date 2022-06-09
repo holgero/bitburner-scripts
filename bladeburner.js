@@ -9,7 +9,6 @@ export async function main(ns) {
 		ns.tprintf("Neither on bitnode 6 or 7 (%d)", player.bitNodeN);
 		return;
 	}
-	await runAndWait(ns, "joinbladeburner.js");
 	await runActions(ns);
 }
 
