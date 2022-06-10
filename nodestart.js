@@ -159,8 +159,14 @@ async function runInstallBackdoor(ns) {
 
 /** @param {NS} ns **/
 async function startHacking(ns) {
-	await runAndWait(ns, "rscan.js", "nuke", "--quiet");
-	await runAndWait(ns, "rscan.js", "hack", "--quiet");
+	var ram = ns.getServerMaxRam("home");
+	if (ram > 32) {
+		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
+		await runAndWait(ns, "rscan.js", "hack", "--quiet");
+	} else {
+		ns.run("rscan-spawn.js", 1, "nuke", "--quiet");
+		ns.run("rscan-spawn.js", 1, "hack", "--quiet");
+	}
 }
 
 /** @param {NS} ns **/
