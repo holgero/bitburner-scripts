@@ -182,10 +182,8 @@ function getPossibleFactions(ns, database, factionGoals) {
 	const locations = factionGoals.filter(a => (a.name == a.location)).map(a => a.name);
 	locations.push(...ns.getPlayer().factions.filter(a => c.CITIES.includes(a)));
 	// ns.printf("locations: %s", JSON.stringify(locations));
-	const bitNodeN = ns.getPlayer().bitNodeN;
-	const bladeburn = bitNodeN == 6 || bitNodeN == 7 || database.ownedSourceFiles.some(a=>a.level == 6 || a.level == 7);
 	const possibleFactions = database.factions.
-		filter(a => a.name != c.BLADEBURNER || bladeburn).
+		filter(a => a.name != c.BLADEBURNERS).
 		filter(a => c.STORY_LINE.some(b => b.name == a.name)).
 		filter(a => (a.name != a.location) ||
 			locations.every(b => isCompatible(b, a.location)));
