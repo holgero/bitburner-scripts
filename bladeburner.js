@@ -125,7 +125,7 @@ async function executeAction(ns, action) {
 	if (time > bonusTime) {
 		time = time - bonusTime;
 	} else {
-		time = time / 5 + 500;
+		time = time / 5;
 	}
-	await ns.sleep(time);
+	await ns.sleep(time + 1000);
 }
