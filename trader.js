@@ -3,7 +3,6 @@ import { formatMoney, getAvailableMoney } from "helpers.js";
 const PRICE_SIZE = 20;
 const COMISSION = 100e3;
 const RE_INVEST_QUOTE = 0.5;
-const portfolio = [];
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -11,11 +10,6 @@ export async function main(ns) {
 	ns.disableLog("getServerMoneyAvailable");
 
 	await ns.write("reserved-money.txt", JSON.stringify(getAvailableMoney(ns, true)), "w");
-	ns.atExit(function () {
-		for (var stk of portfolio) {
-			ns.stock.sell(stk.symbl, stk.shares);
-		}
-	});
 	await trade(ns);
 }
 
@@ -34,6 +28,7 @@ async function trade(ns) {
 		ns.tprintf("Collected %d of %d prices", ii + 1, PRICE_SIZE);
 	}
 
+	const portfolio = [];
 	while (true) {
 		const mostUp = db.map(a => stockUps(ns, a)).reduce((a, b) => a ? Math.max(a, b) : b);
 		var rising = db.filter(a => stockUps(ns, a) == mostUp);
@@ -56,9 +51,9 @@ async function runTrades(ns, portfolio, rising) {
 			var win = (sellPrice - stk.price) * stk.shares - 2 * COMISSION;
 			ns.tprintf("Sold %d shares of %s at %s, win: %s",
 				stk.shares, stk.symbl, formatMoney(sellPrice), formatMoney(win));
-			reserved += stk.price * stk.shares + COMISSION;
+			reserved += ( sellPrice * stk.shares - COMISSION);
 			// re-invest a part of winnings
-			reserved += Math.max(0, win * RE_INVEST_QUOTE);
+			reserved -= Math.max(0, win * RE_INVEST_QUOTE);
 			portfolio.splice(ii, 1);
 			ii--;
 		}
