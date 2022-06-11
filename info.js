@@ -1,4 +1,4 @@
-import { formatMoney } from "helpers.js";
+import { getAvailableMoney, formatMoney } from "helpers.js";
 import { ALL_FACTIONS } from "constants.js";
 
 
@@ -49,7 +49,7 @@ export async function main(ns) {
 					}
 				}
 				if (options.filter_price) {
-					if (ns.getServerMoneyAvailable("home") < ns.getAugmentationPrice(augmentation)) {
+					if (getAvailableMoney(ns) < ns.getAugmentationPrice(augmentation)) {
 						continue;
 					}
 				}

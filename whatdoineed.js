@@ -1,3 +1,4 @@
+import { getAvailableMoney } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -5,7 +6,7 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	const bb = database.factions.find(a => a.name == c.BLADEBURNERS);
 	// ns.tprintf("%s", JSON.stringify(bb));
-	const myMoney = ns.getServerMoneyAvailable("home");
+	const myMoney = getAvailableMoney(ns);
 	const myReputation = ns.getFactionRep(c.BLADEBURNERS);
 	var haveMoney = 0;
 	var haveRep = 0;

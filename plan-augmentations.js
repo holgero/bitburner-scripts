@@ -1,4 +1,4 @@
-import { getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import { getAvailableMoney, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
 import { BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns **/
@@ -7,7 +7,7 @@ export async function main(ns) {
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	const database = JSON.parse(ns.read("database.txt"));
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
-	var haveMoney = ns.getServerMoneyAvailable("home");
+	var haveMoney = getAvailableMoney(ns);
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
 	const augNames = toPurchase.map(a => a.name);
 

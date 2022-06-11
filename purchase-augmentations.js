@@ -1,3 +1,4 @@
+import { getAvailableMoney } from "helpers.js";
 import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
@@ -17,23 +18,23 @@ export async function main(ns) {
 		}
 	}
 
-	ns.tprintf("Bought planned augmentations, spending remaining money: ", ns.getServerMoneyAvailable("home"));
+	ns.tprintf("Bought planned augmentations, spending remaining money: ", getAvailableMoney(ns, true));
 	// if there is money left, run home upgrades
-	while (ns.getUpgradeHomeCoresCost() < ns.getServerMoneyAvailable("home")) {
+	while (ns.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
 		if (!ns.upgradeHomeCores()) break;
-		ns.tprintf("Bought a core, money left: %d", ns.getServerMoneyAvailable("home"));
+		ns.tprintf("Bought a core, money left: %d", ns.getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
-	while (ns.getUpgradeHomeRamCost() < ns.getServerMoneyAvailable("home")) {
+	while (ns.getUpgradeHomeRamCost() < ns.getAvailableMoney(ns, true)) {
 		if (!ns.upgradeHomeRam()) break;
-		ns.tprintf("Bought ram, money left: %d", ns.getServerMoneyAvailable("home"));
+		ns.tprintf("Bought ram, money left: %d", ns.getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
 
 	// spend the rest of the money on Neural Governor augs
-	while (ns.getServerMoneyAvailable("home") > ns.getAugmentationPrice(GOVERNOR)) {
+	while (ns.getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
 		if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
-			ns.tprintf("Bought governor, money left: %d", ns.getServerMoneyAvailable("home"));
+			ns.tprintf("Bought governor, money left: %d", ns.getAvailableMoney(ns, true));
 			await ns.sleep(500);
 		} else {
 			break;

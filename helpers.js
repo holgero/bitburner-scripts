@@ -1,6 +1,3 @@
-import { GOVERNOR } from "/constants.js";
-import * as db from "/database.js";
-
 /** @param {NS} ns **/
 export function formatMoney(amount) {
 	const suffix = [" ", "k", "m", "b", "t", "q", "Q"];
@@ -14,6 +11,16 @@ export function formatMoney(amount) {
 		magnitude = 0;
 	}
 	return sign + (amount / Math.pow(10, 3 * magnitude)).toFixed(3) + " " + suffix[magnitude];
+}
+
+/** @param {NS} ns **/
+export function getAvailableMoney(ns, ignoreTrading) {
+	const player = ns.getPlayer();
+	const totalMoney = ns.getServerMoneyAvailable("home");
+	if (!ignoreTrading && player.hasTixApiAccess) { // needs money for trading
+		return Math.max(0, totalMoney - 250e6);
+	}
+	return totalMoney;
 }
 
 /** @param {NS} ns **/

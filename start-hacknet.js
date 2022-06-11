@@ -7,6 +7,7 @@ export async function main(ns) {
 	var scriptHost = "joesguns";
 
 	await ns.scp("start-hacknet2.js", scriptHost);
+	await ns.scp("helpers.js", scriptHost);
 	ns.killall(scriptHost);
 	ns.exec("start-hacknet2.js", scriptHost, 1, maxNodes, maxLevel, maxRam, maxCore);
 }

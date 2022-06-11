@@ -1,3 +1,5 @@
+import { getAvailableMoney } from "/helpers.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
@@ -35,7 +37,7 @@ function needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore) {
 function purchaseMoreNodes(ns, maxNodes) {
 	if (ns.hacknet.numNodes() < maxNodes) {
 		if (ns.hacknet.getPurchaseNodeCost() <
-			ns.getServerMoneyAvailable("home")) {
+			getAvailableMoney(ns)) {
 			ns.hacknet.purchaseNode();
 		}
 	}
@@ -45,8 +47,8 @@ function purchaseMoreNodes(ns, maxNodes) {
 function purchaseMoreLevels(ns, maxLevel) {
 	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
 		var stats = ns.hacknet.getNodeStats(ii);
-		if (stats.level < maxLevel && ns.hacknet.getLevelUpgradeCost(ii, 1) <
-			ns.getServerMoneyAvailable("home")) {
+		if (stats.level < maxLevel &&
+			ns.hacknet.getLevelUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
 			ns.hacknet.upgradeLevel(ii, 1);
 		}
 	}
@@ -56,8 +58,8 @@ function purchaseMoreLevels(ns, maxLevel) {
 function purchaseMoreRam(ns, maxRam) {
 	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
 		var stats = ns.hacknet.getNodeStats(ii);
-		if (stats.ram < maxRam && ns.hacknet.getRamUpgradeCost(ii, 1) <
-			ns.getServerMoneyAvailable("home")) {
+		if (stats.ram < maxRam &&
+			ns.hacknet.getRamUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
 			ns.hacknet.upgradeRam(ii, 1);
 		}
 	}
@@ -67,8 +69,8 @@ function purchaseMoreRam(ns, maxRam) {
 function purchaseMoreCores(ns, maxCores) {
 	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
 		var stats = ns.hacknet.getNodeStats(ii);
-		if (stats.cores < maxCores && ns.hacknet.getCoreUpgradeCost(ii, 1) <
-			ns.getServerMoneyAvailable("home")) {
+		if (stats.cores < maxCores &&
+			ns.hacknet.getCoreUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
 			ns.hacknet.upgradeCore(ii, 1);
 		}
 	}

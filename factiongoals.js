@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded } from "helpers.js";
+import { runAndWait, reputationNeeded, getAvailableMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -11,7 +11,7 @@ export async function main(ns) {
 	for (var ii = 0; ii < 3; ii++) {
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);
-		if (ns.getServerMoneyAvailable("home") > 2 * await getEstimation(ns, false)) {
+		if (getAvailableMoney(ns) > 2 * await getEstimation(ns, false)) {
 			await runAndWait(ns, "calculate-goals.js");
 		}
 	}
@@ -137,7 +137,7 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		await workOnGoal(ns, database, goal, percentage, goals, config);
 		if (goal == config.finalGoal) break;
 	}
-	if (Math.max(1e12, ns.getServerMoneyAvailable("home")) < await getEstimation(ns, false)) {
+	if (Math.max(1e12, getAvailableMoney(ns)) < await getEstimation(ns, false)) {
 		return false;
 	}
 	return true;
@@ -174,7 +174,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				ns.stopAction();
 				if (config.estimatedDonations) {
 					var moneyForDonations = Math.max(0,
-						ns.getServerMoneyAvailable("home") - config.estimatedPrice);
+						getAvailableMoney(ns) - config.estimatedPrice);
 					if (ns.getPlayer().hasCorporation &&
 						ns.fileExists("corporation.txt", "home")) {
 						var corporationInfo = JSON.parse(ns.read("corporation.txt"));
@@ -275,7 +275,7 @@ async function selectGoal(ns, goals, config) {
 		return statsFactions[0];
 	}
 	for (var goal of runGoals) {
-		if (!goal.backdoor && !goal.company && !goal.money || goal.money <= 1.1 * ns.getServerMoneyAvailable("home")) {
+		if (!goal.backdoor && !goal.company && !goal.money || goal.money <= 1.1 * getAvailableMoney(ns)) {
 			return goal;
 		}
 	}
@@ -335,7 +335,7 @@ async function futureGoalConditions(ns, goals) {
 		}
 		ns.printf("Checking future goal %s", goal.name);
 		if (goal.location && ns.getPlayer().city != goal.location) {
-			if (!goal.money || ns.getServerMoneyAvailable("home") >= goal.money) {
+			if (!goal.money || getAvailableMoney(ns) >= goal.money) {
 				if (!goal.stats || lowStats(ns, goal.stats).length == 0) {
 					await runAndWait(ns, "travel.js", "--city", goal.location);
 					return;

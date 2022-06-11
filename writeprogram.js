@@ -1,4 +1,5 @@
 import { programs } from "constants.js";
+import { getAvailableMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -10,7 +11,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function writeProgram(ns, program) {
 	while (!ns.fileExists(program.name)) {
-		while (ns.getHackingLevel() < program.level) {
+		while (ns.getPlayer().hacking < program.level) {
 			if (tryToBuyProgram(ns, program)) return;
 			await ns.sleep(60000);
 		}
@@ -21,10 +22,10 @@ async function writeProgram(ns, program) {
 }
 
 function tryToBuyProgram(ns, program) {
-	if (ns.getPlayer().tor && ns.getServerMoneyAvailable("home") > program.cost) {
+	if (ns.getPlayer().tor && getAvailableMoney(ns) > program.cost) {
 		return ns.purchaseProgram(program.name);
 	} else {
-		if (ns.getServerMoneyAvailable("home") > program.cost + 200000) {
+		if (getAvailableMoney(ns) > program.cost + 200000) {
 			ns.purchaseTor();
 			return ns.purchaseProgram(program.name);
 		}

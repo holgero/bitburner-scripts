@@ -1,4 +1,4 @@
-import { formatMoney } from "./helpers.js";
+import { formatMoney, getAvailableMoney } from "./helpers.js";
 import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
@@ -61,23 +61,23 @@ export async function main(ns) {
 		if (corporation.numShares > 0 &&
 			!corporation.shareSaleCooldown &&
 			(corporation.sharePrice > target || (
-				ns.getServerMoneyAvailable("home") < POORMAN_MONEY &&
+				getAvailableMoney(ns) < POORMAN_MONEY &&
 				corporation.sharePrice > 2 * low)) &&
 			!ns.fileExists("stopselling.txt")) {
-			var money = ns.getServerMoneyAvailable("home");
+			var money = getAvailableMoney(ns);
 			ns.corporation.sellShares(corporation.numShares);
 			ns.corporation.issueDividends(1);
-			var earned = ns.getServerMoneyAvailable("home") - money;
+			var earned = getAvailableMoney(ns) - money;
 			ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
 			ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		}
 		if (corporation.issuedShares > 0 && corporation.shareSaleCooldown < 15000 &&
 			corporation.sharePrice < target) {
-			if (corporation.issuedShares * corporation.sharePrice * 1.1 < ns.getServerMoneyAvailable("home")) {
-				var money = ns.getServerMoneyAvailable("home");
+			if (corporation.issuedShares * corporation.sharePrice * 1.1 < getAvailableMoney(ns)) {
+				var money = getAvailableMoney(ns);
 				ns.corporation.issueDividends(0);
 				ns.corporation.buyBackShares(corporation.issuedShares);
-				var spend = money - ns.getServerMoneyAvailable("home");
+				var spend = money - getAvailableMoney(ns);
 				ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
 				ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
 			}

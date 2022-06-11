@@ -1,3 +1,5 @@
+import { getAvailableMoney } from "helpers.js";
+
 const PRICE_SIZE = 20;
 /** @param {NS} ns */
 export async function main(ns) {
@@ -47,7 +49,7 @@ function runTrades(ns, portfolio, rising) {
 	if (portfolio.length == 0 && rising.length > 0) {
 		const stockToBuy = rising[0];
 		const price = ns.stock.getAskPrice(stockToBuy.symbl);
-		const money = 0.9 * ns.getServerMoneyAvailable("home");
+		const money = 0.9 * getAvailableMoney(ns, true);
 		var shares = Math.floor((money - 1e5) / price);
 		while (ns.stock.getPurchaseCost(stockToBuy.symbl, shares, "Long") > money) {
 			shares--;

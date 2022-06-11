@@ -1,4 +1,4 @@
-import { formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
+import { getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
 	from "helpers.js";
 
 /** @param {NS} ns **/
@@ -36,11 +36,11 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
-	var haveMoney = ns.getServerMoneyAvailable("home");
+	var haveMoney = getAvailableMoney(ns);
 	if (options.affordable) {
 		filterExpensiveAugmentations(ns, toPurchase, haveMoney);
 	}
-	haveMoney = ns.getServerMoneyAvailable("home");
+	haveMoney = getAvailableMoney(ns);
 	var factor = 1.0;
 	var sum = 0;
 	if (!options.write) {

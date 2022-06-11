@@ -1,4 +1,4 @@
-import { runAndWait } from "helpers.js";
+import { runAndWait, getAvailableMoney } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -58,7 +58,7 @@ function needMoney(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	const bb = database.factions.find(a => a.name == c.BLADEBURNERS);
 	// ns.tprintf("%s", JSON.stringify(bb));
-	const myMoney = ns.getServerMoneyAvailable("home");
+	const myMoney = getAvailableMoney(ns);
 	const myReputation = ns.getFactionRep(c.BLADEBURNERS);
 	var haveMoney = 0;
 	var haveRep = 0;
@@ -73,7 +73,7 @@ function needMoney(ns) {
 }
 
 function getAction(actionDb, type, name) {
-	return actionDb.actions.find(a=>a.type == type && a.name == name);
+	return actionDb.actions.find(a => a.type == type && a.name == name);
 }
 
 /** @param {NS} ns */

@@ -1,3 +1,5 @@
+import { getAvailableMoney } from "helpers.js";
+
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
 const VICTIMS = [
@@ -30,7 +32,7 @@ export async function main(ns) {
 		if (ns.serverExists(hostname)) {
 			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 8 * ns.getServerMaxRam(hostname));
 		}
-		var money = ns.getServerMoneyAvailable("home");
+		var money = getAvailableMoney(ns);
 		while (ns.getPurchasedServerCost(nextRam * 2) * numberOfServers < money &&
 			nextRam * 2 <= ns.getPurchasedServerMaxRam()) {
 			nextRam *= 2;

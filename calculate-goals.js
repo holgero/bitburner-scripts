@@ -1,4 +1,4 @@
-import { formatMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
+import { getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
 import * as c from "/constants.js";
 
 const MIN_MONEY = 500e6;
@@ -23,7 +23,7 @@ export async function main(ns) {
 		});
 	}
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
-	var maxMoneyToSpend = Math.max(MIN_MONEY, ns.getServerMoneyAvailable("home"));
+	var maxMoneyToSpend = Math.max(MIN_MONEY, getAvailableMoney(ns));
 	maxMoneyToSpend = Math.min(MAX_MONEY, maxMoneyToSpend);
 	if (options.money) {
 		maxMoneyToSpend = options.money;
@@ -155,7 +155,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 				cost += 10000 * statsNeed * statsNeed;
 			}
 			if (faction.money) {
-				cost += 2 * Math.max(0, faction.money - ns.getServerMoneyAvailable("home"));
+				cost += 2 * Math.max(0, faction.money - getAvailableMoney(ns));
 			}
 		}
 		if (cost < bestFactionCost) {
