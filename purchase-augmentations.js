@@ -22,19 +22,19 @@ export async function main(ns) {
 	// if there is money left, run home upgrades
 	while (ns.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
 		if (!ns.upgradeHomeCores()) break;
-		ns.tprintf("Bought a core, money left: %d", ns.getAvailableMoney(ns, true));
+		ns.tprintf("Bought a core, money left: %d", getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
-	while (ns.getUpgradeHomeRamCost() < ns.getAvailableMoney(ns, true)) {
+	while (ns.getUpgradeHomeRamCost() < getAvailableMoney(ns, true)) {
 		if (!ns.upgradeHomeRam()) break;
-		ns.tprintf("Bought ram, money left: %d", ns.getAvailableMoney(ns, true));
+		ns.tprintf("Bought ram, money left: %d", getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
 
 	// spend the rest of the money on Neural Governor augs
-	while (ns.getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
+	while (getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
 		if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
-			ns.tprintf("Bought governor, money left: %d", ns.getAvailableMoney(ns, true));
+			ns.tprintf("Bought governor, money left: %d", getAvailableMoney(ns, true));
 			await ns.sleep(500);
 		} else {
 			break;
