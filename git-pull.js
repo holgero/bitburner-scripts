@@ -58,6 +58,7 @@ const FILES = [
 	"start-servers2.js",
 	"start-servers.js",
 	"test.js",
+	"trader.js",
 	"travel.js",
 	"university.js",
 	"upgradehomeserver.js",
