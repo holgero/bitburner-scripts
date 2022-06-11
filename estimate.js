@@ -36,11 +36,9 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
-	var haveMoney = getAvailableMoney(ns);
 	if (options.affordable) {
-		filterExpensiveAugmentations(ns, toPurchase, haveMoney);
+		filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
 	}
-	haveMoney = getAvailableMoney(ns);
 	var factor = 1.0;
 	var sum = 0;
 	if (!options.write) {
