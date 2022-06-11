@@ -61,7 +61,6 @@ const FILES = [
 	"trader.js",
 	"travel.js",
 	"university.js",
-	"upgradehomeserver.js",
 	"whatdoineed.js",
 	"workforcompany.js",
 	"workforfaction.js",
