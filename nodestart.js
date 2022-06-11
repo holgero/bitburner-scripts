@@ -6,15 +6,16 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
 	ns.tprintf("Start at %s", new Date());
+	await ns.write("reserved-money.txt", JSON.stringify(getAvailableMoney(ns, true)), "w");
 
 	// get all unprotected servers immediately
-	await startHacking(ns);
+	await startHacking(ns, getProgramCount(ns));
 
 	await runAndWait(ns, "create-database.js");
 	if (!ns.scriptRunning("factiongoals.js", "home")) {
 		await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
 	}
-	
+
 	// set up for corporations
 	await runAndWait(ns, "purchase-ram.js", 2048);
 	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
@@ -35,7 +36,9 @@ async function runHomeScripts(ns) {
 		ns.scriptKill("instrument.js", "home");
 	}
 	if (ns.getPlayer().hasTixApiAccess) {
-		ns.run("trader.js");
+		if (!ns.scriptRunning("trader.js", "home")) {
+			ns.run("trader.js");
+		}
 	}
 	if (ns.getServerMaxRam("home") > 32) {
 		if (ns.scriptRunning("factiongoals.js", "home")) {
@@ -52,7 +55,8 @@ async function runHomeScripts(ns) {
 			ns.scriptKill("factiongoals.js", "home");
 		}
 	} else {
-		if (!ns.scriptRunning("factiongoals.js", "home")) {
+		if (!ns.scriptRunning("factiongoals.js", "home") &&
+			(ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home"))) {
 			await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
 			ns.run("factiongoals.js", 1, ...ns.args);
 		}
@@ -85,12 +89,9 @@ function canSpendMoney(ns) {
 async function progressHackingLevels(ns) {
 	var lastHackingLevelRun = 0;
 	while (true) {
-		var nextProgram = 0;
-		while (nextProgram < c.programs.length && ns.fileExists(c.programs[nextProgram].name)) {
-			nextProgram++;
-		}
+		const nextProgram = getProgramCount(ns);
 		if (nextProgram > lastHackingLevelRun) {
-			await startHacking(ns);
+			await startHacking(ns, nextProgram);
 			lastHackingLevelRun = nextProgram;
 		}
 		if (canSpendMoney(ns)) {
@@ -103,6 +104,16 @@ async function progressHackingLevels(ns) {
 		await ns.sleep(30000);
 	}
 }
+
+/** @param {NS} ns **/
+function getProgramCount(ns) {
+	var programs = 0;
+	while (programs < c.programs.length && ns.fileExists(c.programs[programs].name)) {
+		programs++;
+	}
+	return programs;
+}
+
 
 /** @param {NS} ns **/
 async function improveInfrastructure(ns, nextProgram) {
@@ -157,19 +168,19 @@ async function runInstallBackdoor(ns) {
 	if (ram > 32) {
 		await runAndWait(ns, "rscan.js", "back", "--quiet");
 	} else {
-		ns.run("rscan-spawn.js", 1, "back", "--quiet");
+		ns.run("rscan-spawn.js", 1, "back");
 	}
 }
 
 /** @param {NS} ns **/
-async function startHacking(ns) {
+async function startHacking(ns, programs) {
 	var ram = ns.getServerMaxRam("home");
 	if (ram > 32) {
 		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
 		await runAndWait(ns, "rscan.js", "hack", "--quiet");
 	} else {
-		ns.run("rscan-spawn.js", 1, "nuke", "--quiet");
-		ns.run("rscan-spawn.js", 1, "hack", "--quiet");
+		ns.run("rscan-spawn.js", 1, "nuke", programs);
+		ns.run("rscan-spawn.js", 1, "hack", programs);
 	}
 }
 

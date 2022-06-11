@@ -8,6 +8,7 @@ export async function main(ns) {
 
 	await ns.scp("start-hacknet2.js", scriptHost);
 	await ns.scp("helpers.js", scriptHost);
+	await ns.scp("reserved-money.txt", scriptHost);
 	ns.killall(scriptHost);
 	ns.exec("start-hacknet2.js", scriptHost, 1, maxNodes, maxLevel, maxRam, maxCore);
 }

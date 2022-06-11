@@ -18,7 +18,8 @@ export function getAvailableMoney(ns, ignoreTrading) {
 	const player = ns.getPlayer();
 	const totalMoney = ns.getServerMoneyAvailable("home");
 	if (!ignoreTrading && player.hasTixApiAccess) { // needs money for trading
-		return Math.max(0, totalMoney - 250e6);
+		const reservedMoney = JSON.parse(ns.read("reserved-money.txt"));
+		return Math.max(0, totalMoney - reservedMoney);
 	}
 	return totalMoney;
 }
