@@ -34,6 +34,9 @@ async function runHomeScripts(ns) {
 	if (ns.scriptRunning("instrument.js", "home")) {
 		ns.scriptKill("instrument.js", "home");
 	}
+	if (ns.getPlayer().hasTixApiAccess) {
+		ns.run("trader.js");
+	}
 	if (ns.getServerMaxRam("home") > 32) {
 		if (ns.scriptRunning("factiongoals.js", "home")) {
 			ns.scriptKill("factiongoals.js", "home");
