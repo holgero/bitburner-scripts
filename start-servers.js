@@ -20,9 +20,12 @@ export async function main(ns) {
 		["auto-upgrade", false]
 	]);
 
-	if (ns.scriptRunning("start-servers2.js", "home")) {
-		ns.tprint("There is already a server start running");
-		return;
+	const database = JSON.parse(ns.read("database.txt"));
+	if (database.bitnodemultipliers) {
+		if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
+			ns.tprintf("No money from purchased servers, not buying servers");
+			return;
+		}
 	}
 
 	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
@@ -62,6 +65,11 @@ export async function main(ns) {
 
 	var threads = Math.floor(options.ram / ns.getScriptRam(SCRIPT));
 	var cost = ns.getPurchasedServerCost(options.ram);
+
+	if (ns.scriptRunning("start-servers2.js", "home")) {
+		ns.tprint("There is already a server start running");
+		return;
+	}
 
 	ns.tprintf("Starting %d servers with %d GB ram (%d threads). Victims are %s.",
 		numberOfServers, options.ram, threads, victims);

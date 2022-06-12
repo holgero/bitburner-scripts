@@ -1,5 +1,12 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const database = JSON.parse(ns.read("database.txt"));
+	if (database.bitnodemultipliers) {
+		if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
+			ns.tprintf("No money from hacknet, not starting any hacknet nodes");
+			return;
+		}
+	}
 	var maxNodes = Math.min(32, ns.args[0]);
 	var maxLevel = Math.min(200, Math.round(ns.args[0] * 12.5));
 	var maxRam = Math.min(64, Math.round(ns.args[0] / 2));
