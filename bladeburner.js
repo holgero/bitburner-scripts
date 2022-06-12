@@ -1,4 +1,4 @@
-import { runAndWait, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import { runAndWait, getAvailableMoney, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -60,7 +60,7 @@ function needMoney(ns) {
 	const haveRep = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
 
 	factions[0].reputation = 1e99;
-	const myMoney = ns.getServerMoneyAvailable("home");
+	const myMoney = getAvailableMoney(ns, true);
 	const enoughMoney = getAugmentationsToPurchase(ns, database, factions, myMoney);
 	filterExpensiveAugmentations(ns, enoughMoney, myMoney);
 	const haveMoney = enoughMoney.length;
