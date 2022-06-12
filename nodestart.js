@@ -6,7 +6,11 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
 	ns.tprintf("Start at %s", new Date());
-	await ns.write("reserved-money.txt", JSON.stringify(getAvailableMoney(ns, true)), "w");
+	if (ns.getPlayer().bitNodeN == 8 && !ns.fileExists("reserved-money.txt")) {
+		// take a share of the initial money to develop hacking a bit faster 
+		var money = Math.min(240e6, getAvailableMoney(ns, true));
+		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+	}
 
 	// get all unprotected servers immediately
 	await startHacking(ns, getProgramCount(ns));
@@ -37,7 +41,8 @@ async function runHomeScripts(ns) {
 	}
 	if (ns.getPlayer().hasTixApiAccess) {
 		if (!ns.scriptRunning("trader.js", "home")) {
-			ns.run("trader.js");
+			var money = Math.min(240e6, getAvailableMoney(ns, true));
+			ns.run("trader.js", 1, "--budget", money);
 		}
 	}
 	if (ns.getServerMaxRam("home") > 32) {
@@ -146,7 +151,8 @@ async function improveInfrastructure(ns, nextProgram) {
 	// upgrade server farm
 	if (nextProgram > 3) {
 		await runAndWait(ns, "start-hacknet.js", 8);
-		if (!ns.serverExists("pserv-0") || ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
+		if (!ns.serverExists("pserv-0") ||
+			ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
 			await runAndWait(ns, "start-servers.js", "--auto-upgrade");
 			if (ns.getPlayer().hacking > 2000) {
 				await runAndWait(ns, "optimize-hacking.js");
