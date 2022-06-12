@@ -1,20 +1,16 @@
-import { getAvailableMoney } from "helpers.js";
+import { getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const bb = database.factions.find(a => a.name == c.BLADEBURNERS);
-	// ns.tprintf("%s", JSON.stringify(bb));
-	const myMoney = getAvailableMoney(ns);
-	const myReputation = ns.getFactionRep(c.BLADEBURNERS);
-	var haveMoney = 0;
-	var haveRep = 0;
-	for (var augName of bb.augmentations) {
-		// ns.tprintf("%s", aug);
-		const aug = database.augmentations.find(a => a.name == augName);
-		if (aug.reputation < myReputation) haveRep++;
-		if (aug.price < myMoney) haveMoney++;
-	}
-	ns.tprintf("Have rep for %d augs and money for %d augs", haveRep, haveMoney);
+	const factions = [ { name:c.BLADEBURNERS, reputation:ns.getFactionRep(c.BLADEBURNERS)}];
+	const enoughRep = getAugmentationsToPurchase(ns, database, factions, 1e99);
+	ns.tprintf("Have enough rep for %d augs", enoughRep.length);
+
+	factions[0].reputation = 1e99;
+	const myMoney = ns.getServerMoneyAvailable("home");
+	const enoughMoney = getAugmentationsToPurchase(ns, database, factions, myMoney);
+	filterExpensiveAugmentations(ns, enoughMoney, myMoney);
+	ns.tprintf("Have enough money for %d augs", enoughMoney.length);
 }

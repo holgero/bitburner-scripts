@@ -1,4 +1,4 @@
-import { runAndWait, getAvailableMoney } from "helpers.js";
+import { runAndWait, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -56,24 +56,21 @@ async function runActions(ns) {
 /** @param {NS} ns */
 function needMoney(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const bb = database.factions.find(a => a.name == c.BLADEBURNERS);
-	// ns.tprintf("%s", JSON.stringify(bb));
-	const myMoney = getAvailableMoney(ns);
-	const myReputation = ns.getFactionRep(c.BLADEBURNERS);
-	var haveMoney = 0;
-	var haveRep = 0;
-	for (var augName of bb.augmentations) {
-		// ns.tprintf("%s", aug);
-		const aug = database.augmentations.find(a => a.name == augName);
-		if (aug.reputation < myReputation) haveRep++;
-		if (aug.price < myMoney) haveMoney++;
-	}
+	const factions = [ { name:c.BLADEBURNERS, reputation:ns.getFactionRep(c.BLADEBURNERS)}];
+	const haveRep = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
+
+	factions[0].reputation = 1e99;
+	const myMoney = ns.getServerMoneyAvailable("home");
+	const enoughMoney = getAugmentationsToPurchase(ns, database, factions, myMoney);
+	filterExpensiveAugmentations(ns, enoughMoney, myMoney);
+	const haveMoney = enoughMoney.length;
+
 	ns.printf("Have rep for %d augs and money for %d augs", haveRep, haveMoney);
 	return haveMoney <= haveRep;
 }
 
 function getAction(actionDb, type, name) {
-	return actionDb.actions.find(a => a.type == type && a.name == name);
+	return actionDb.actions.find(a=>a.type == type && a.name == name);
 }
 
 /** @param {NS} ns */
