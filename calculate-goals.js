@@ -1,7 +1,7 @@
 import { getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
 import * as c from "/constants.js";
 
-const MIN_MONEY = 500e6;
+const MIN_MONEY = 100e6;
 const MAX_MONEY = 500e12;
 const MAX_AUGS = 12;
 

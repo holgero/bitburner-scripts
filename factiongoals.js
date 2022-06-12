@@ -163,8 +163,15 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 	var focus = true;
 	ns.tprintf("goal: %s %d", goal.name, percentage * goal.reputation);
 	while (true) {
-		if (!ns.getPlayer().factions.includes(goal.name) && goal.location) {
-			await runAndWait(ns, "travel.js", "--city", goal.location);
+		if (!ns.getPlayer().factions.includes(goal.name) &&
+			goal.location && goal.location != ns.getPlayer().city) {
+			if (!goal.money || getAvailableMoney(ns) > goal.money + 200e3) {
+				await runAndWait(ns, "travel.js", "--city", goal.location);
+			} else {
+				ns.tprintf("Cant work on goal %s, needs traveling", goal.name);
+				await ns.sleep(15000);
+				return;
+			}
 		}
 		// how to spend our time
 		if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
@@ -275,7 +282,7 @@ async function selectGoal(ns, goals, config) {
 		return statsFactions[0];
 	}
 	for (var goal of runGoals) {
-		if (!goal.backdoor && !goal.company && !goal.money || goal.money <= 1.1 * getAvailableMoney(ns)) {
+		if (!goal.backdoor && !goal.company && !goal.money || goal.money < getAvailableMoney(ns)) {
 			return goal;
 		}
 	}
