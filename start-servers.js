@@ -23,7 +23,7 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	if (database.bitnodemultipliers) {
 		if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
-			ns.tprintf("No money from purchased servers, not buying servers");
+			ns.printf("No money from purchased servers, not buying servers");
 			return;
 		}
 	}
