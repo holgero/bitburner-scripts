@@ -1,6 +1,5 @@
-import { formatMoney, getAvailableMoney } from "helpers.js";
+import { formatMoney } from "helpers.js";
 
-const PRICE_SIZE = 20;
 const COMISSION = 100e3;
 const RE_INVEST_QUOTE = 0.5;
 
@@ -8,13 +7,26 @@ const RE_INVEST_QUOTE = 0.5;
 export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMoneyAvailable");
-
-	await ns.write("reserved-money.txt", JSON.stringify(getAvailableMoney(ns, true)), "w");
-	await trade(ns);
+	const options = ns.flags([
+		["size", 24],
+		["budget", 0],
+		["lockFile", "reserved-money.txt"]]);
+	if (options.budget < 100e6) {
+		ns.tprintf("Budget for trading too small (%s, need %s)",
+			formatMoney(options.budget), formatMoney(100e6));
+		return;
+	}
+	await writeLockFile(ns, options, options.budget);
+	await trade(ns, options);
 }
 
 /** @param {NS} ns */
-async function trade(ns) {
+async function writeLockFile(ns, options, budget) {
+	await ns.write(options.lockFile, budget, "w");
+}
+
+/** @param {NS} ns */
+async function trade(ns, options) {
 	const db = ns.stock.getSymbols().map(a => {
 		return {
 			symbl: a,
@@ -22,26 +34,26 @@ async function trade(ns) {
 			shares: 0,
 		}
 	});
-	for (var ii = 0; ii < PRICE_SIZE; ii++) {
+	for (var ii = 0; ii < options.size; ii++) {
 		await ns.sleep(6000);
-		updateStocks(ns, db);
-		ns.tprintf("Collected %d of %d prices", ii + 1, PRICE_SIZE);
+		updateStocks(ns, options, db);
+		ns.tprintf("Collected %d of %d prices", ii + 1, options.size);
 	}
 
 	const portfolio = [];
 	while (true) {
 		const mostUp = db.map(a => stockUps(ns, a)).reduce((a, b) => a ? Math.max(a, b) : b);
 		var rising = db.filter(a => stockUps(ns, a) == mostUp);
-		ns.printf("Most up is %d, by %s", mostUp, rising.map(a => a.symbl));
-		await runTrades(ns, portfolio, rising);
+		// ns.printf("Most up is %d, by %s", mostUp, rising.map(a => a.symbl));
+		await runTrades(ns, options, portfolio, rising);
 		await ns.sleep(6000);
-		updateStocks(ns, db);
+		updateStocks(ns, options, db);
 	}
 }
 
 /** @param {NS} ns */
-async function runTrades(ns, portfolio, rising) {
-	var reserved = JSON.parse(ns.read("reserved-money.txt"));
+async function runTrades(ns, options, portfolio, rising) {
+	var reserved = JSON.parse(ns.read(options.lockFile));
 	for (var ii = 0; ii < portfolio.length; ii++) {
 		const stk = portfolio[ii];
 		const ups = stockUps(ns, stk);
@@ -51,9 +63,10 @@ async function runTrades(ns, portfolio, rising) {
 			var win = (sellPrice - stk.price) * stk.shares - 2 * COMISSION;
 			ns.tprintf("Sold %d shares of %s at %s, win: %s",
 				stk.shares, stk.symbl, formatMoney(sellPrice), formatMoney(win));
-			reserved += ( sellPrice * stk.shares - COMISSION);
+			reserved += (sellPrice * stk.shares - COMISSION);
 			// re-invest a part of winnings
 			reserved -= Math.max(0, win * RE_INVEST_QUOTE);
+			ns.tprintf("Trader %d has %s", options.size, formatMoney(reserved));
 			portfolio.splice(ii, 1);
 			ii--;
 		}
@@ -77,15 +90,15 @@ async function runTrades(ns, portfolio, rising) {
 		reserved -= (stockToBuy.shares * stockToBuy.price + COMISSION);
 		reserved = Math.max(0, reserved);
 	}
-	await ns.write("reserved-money.txt", JSON.stringify(reserved), "w");
+	await writeLockFile(ns, options, reserved);
 }
 
 /** @param {NS} ns */
-function updateStocks(ns, db) {
+function updateStocks(ns, options, db) {
 	for (var stk of db) {
 		const price = ns.stock.getPrice(stk.symbl);
 		stk.prices.push(price);
-		while (stk.prices.length > PRICE_SIZE) {
+		while (stk.prices.length > options.size) {
 			stk.prices.shift();
 		}
 	}
@@ -93,8 +106,9 @@ function updateStocks(ns, db) {
 
 /** @param {NS} ns */
 function stockUps(ns, stk) {
-	const avg = stk.prices.slice(0, PRICE_SIZE / 2).reduce((a, b) => a + b, 0) / (PRICE_SIZE / 2);
-	const ups = stk.prices.slice(PRICE_SIZE / 2).reduce((a, b) => a + ((b > avg) ? +1 : -1), 0);
+	const size = stk.prices.length;
+	const avg = stk.prices.slice(0, size / 2).reduce((a, b) => a + b, 0) / (size / 2);
+	const ups = stk.prices.slice(size / 2).reduce((a, b) => a + ((b > avg) ? +1 : -1), 0);
 	// ns.tprintf("Avg of %s is %d, ups: %d", JSON.stringify(stk), avg, ups);
 	return ups;
 }
