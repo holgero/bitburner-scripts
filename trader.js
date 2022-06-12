@@ -9,14 +9,15 @@ export async function main(ns) {
 	ns.disableLog("getServerMoneyAvailable");
 	const options = ns.flags([
 		["size", 24],
-		["budget", 0],
 		["lockFile", "reserved-money.txt"]]);
-	if (options.budget < 100e6) {
+	const budget = JSON.parse(ns.read(options.lockFile));
+	
+	if (budget < 100e6) {
 		ns.tprintf("Budget for trading too small (%s, need %s)",
-			formatMoney(options.budget), formatMoney(100e6));
+			formatMoney(budget), formatMoney(100e6));
 		return;
 	}
-	await writeLockFile(ns, options, options.budget);
+	await writeLockFile(ns, options, budget);
 	await trade(ns, options);
 }
 

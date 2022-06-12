@@ -6,26 +6,45 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
 	ns.tprintf("Start at %s", new Date());
-	if (ns.getPlayer().bitNodeN == 8 && !ns.fileExists("reserved-money.txt")) {
-		// take a share of the initial money to develop hacking a bit faster 
-		var money = Math.min(240e6, getAvailableMoney(ns, true));
-		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+
+	var startState;
+	const player = ns.getPlayer();
+	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
+		ns.tprintf("Fresh start in a new bitnode");
+		startState = "fresh";
+	} else if (player.playtimeSinceLastAug < 1000) {
+		ns.tprintf("Start after installing augmentations");
+		startState = "augs";
+	} else {
+		ns.tprintf("Restart during a run. Killing all home scripts");
+		ns.scriptKill("instrument.js", "home");
+		ns.scriptKill("factiongoals.js", "home");
+		ns.scriptKill("trader.js", "home");
+		ns.scriptKill("bladerunner.js", "home");
+		ns.scriptKill("corporation.js", "home");
+		await runAndWait(ns, "sell-all-stocks.js");
+		startState = "restart";
 	}
 
-	// get all unprotected servers immediately
-	await startHacking(ns, getProgramCount(ns));
+	if (ns.getPlayer().bitNodeN == 8) {
+		// take a share of the initial money to develop hacking a bit faster 
+		var money = getAvailableMoney(ns, true) - 10e6;
+		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+	} else {
+		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
+	}
 
-	await runAndWait(ns, "create-database.js");
-	if (!ns.scriptRunning("factiongoals.js", "home")) {
-		await runAndWait(ns, "calculate-goals.js", "--money", 10e6);
+	if (startState != "restart") {
+		// get all unprotected servers immediately
+		await startHacking(ns, getProgramCount(ns));
+		await runAndWait(ns, "create-database.js");
+		await runAndWait(ns, "calculate-goals.js");
 	}
 
 	// set up for corporations
 	await runAndWait(ns, "purchase-ram.js", 2048);
 	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
-		if (!ns.scriptRunning("corporation.js", "home")) {
-			ns.run("corporation.js");
-		}
+		ns.run("corporation.js");
 	}
 
 	await runHomeScripts(ns);
@@ -39,10 +58,9 @@ async function runHomeScripts(ns) {
 	if (ns.scriptRunning("instrument.js", "home")) {
 		ns.scriptKill("instrument.js", "home");
 	}
-	if (ns.getPlayer().hasTixApiAccess) {
+	if (ns.getPlayer().bitNodeN == 8) {
 		if (!ns.scriptRunning("trader.js", "home")) {
-			var money = Math.min(240e6, getAvailableMoney(ns, true));
-			ns.run("trader.js", 1, "--budget", money);
+			ns.run("trader.js");
 		}
 	}
 	if (ns.getServerMaxRam("home") > 32) {
@@ -62,8 +80,14 @@ async function runHomeScripts(ns) {
 	} else {
 		if (!ns.scriptRunning("factiongoals.js", "home") &&
 			(ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home"))) {
-			await runAndWait(ns, "calculate-goals.js", "--money", 500e6);
 			ns.run("factiongoals.js", 1, ...ns.args);
+		}
+	}
+	if (!ns.scriptRunning("trader.js", "home")) {
+		if (ns.getPlayer().hasTixApiAccess && getAvailableMoney(ns) > 200e6) {
+			var money = getAvailableMoney(ns, true) - 10e6;
+			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+			ns.run("trader.js");
 		}
 	}
 	if (!ns.scriptRunning("instrument.js", "home")) {
