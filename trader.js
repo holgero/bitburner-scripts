@@ -1,7 +1,7 @@
 import { formatMoney } from "helpers.js";
 
 const COMISSION = 100e3;
-const RE_INVEST_QUOTE = 0.5;
+const DIVIDEND = 0.2;
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -60,12 +60,12 @@ async function runTrades(ns, options, portfolio, rising) {
 		if (ups < 0) {
 			var sellPrice = ns.stock.sell(stk.symbl, stk.shares);
 			var win = (sellPrice - stk.price) * stk.shares - 2 * COMISSION;
-			ns.tprintf("Sold %d shares of %s at %s, win: %s",
+			ns.printf("Sold %d shares of %s at %s, win: %s",
 				stk.shares, stk.symbl, formatMoney(sellPrice), formatMoney(win));
 			reserved += (sellPrice * stk.shares - COMISSION);
-			// re-invest a part of winnings
-			reserved -= Math.max(0, win * RE_INVEST_QUOTE);
-			ns.tprintf("Trader %d has %s", options.size, formatMoney(reserved));
+			// distribute a part of the winnings
+			reserved -= Math.max(0, win * DIVIDEND);
+			ns.tprintf("Trader has %s", formatMoney(reserved));
 			portfolio.splice(ii, 1);
 			ii--;
 		}
@@ -82,7 +82,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		while ((boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
 			shares--;
 		}
-		ns.tprintf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
+		ns.printf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
 		stockToBuy.shares = shares;
 		stockToBuy.price = boughtPrice;
 		portfolio.push(stockToBuy);
