@@ -22,7 +22,10 @@ export async function main(ns) {
 		ns.scriptKill("trader.js", "home");
 		ns.scriptKill("bladerunner.js", "home");
 		ns.scriptKill("corporation.js", "home");
-		await runAndWait(ns, "sell-all-stocks.js");
+		ns.scriptKill("do-weaken.js", "home");
+		ns.scriptKill("do-hack.js", "home");
+		ns.scriptKill("do-grow.js", "home");
+		if (player.hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
 		startState = "restart";
 	}
 
