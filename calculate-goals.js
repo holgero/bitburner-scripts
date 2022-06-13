@@ -23,7 +23,7 @@ export async function main(ns) {
 		});
 	}
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
-	var maxMoneyToSpend = Math.max(MIN_MONEY, getAvailableMoney(ns));
+	var maxMoneyToSpend = Math.max(MIN_MONEY, getAvailableMoney(ns, true));
 	maxMoneyToSpend = Math.min(MAX_MONEY, maxMoneyToSpend);
 	if (options.money) {
 		maxMoneyToSpend = options.money;
