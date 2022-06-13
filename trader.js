@@ -11,7 +11,7 @@ export async function main(ns) {
 		["size", 24],
 		["lockFile", "reserved-money.txt"]]);
 	const budget = JSON.parse(ns.read(options.lockFile));
-	
+
 	if (budget < 100e6) {
 		ns.tprintf("Budget for trading too small (%s, need %s)",
 			formatMoney(budget), formatMoney(100e6));
@@ -36,8 +36,7 @@ async function trade(ns, options) {
 		}
 	});
 	for (var ii = 0; ii < options.size; ii++) {
-		await ns.sleep(6000);
-		updateStocks(ns, options, db);
+		await updateStocks(ns, options, db);
 		ns.tprintf("Collected %d of %d prices", ii + 1, options.size);
 	}
 
@@ -47,8 +46,7 @@ async function trade(ns, options) {
 		var rising = db.filter(a => stockUps(ns, a) == mostUp);
 		// ns.printf("Most up is %d, by %s", mostUp, rising.map(a => a.symbl));
 		await runTrades(ns, options, portfolio, rising);
-		await ns.sleep(6000);
-		updateStocks(ns, options, db);
+		await updateStocks(ns, options, db);
 	}
 }
 
@@ -95,7 +93,23 @@ async function runTrades(ns, options, portfolio, rising) {
 }
 
 /** @param {NS} ns */
-function updateStocks(ns, options, db) {
+async function updateStocks(ns, options, db) {
+	var count = 0;
+	while (true) {
+		await ns.sleep(2000);
+		var changed = false;
+		for (var stk of db) {
+			const price = ns.stock.getPrice(stk.symbl);
+			if (stk.prices[stk.prices.length - 1] != price) {
+				// ns.printf("Price change %d -> %d for stock %s", stk.prices[stk.prices.length - 1], price, stk.symbl);
+				changed = true;
+				break;
+			}
+		}
+		if (changed) break;
+		count++;
+	}
+	// ns.printf("Price change after %d seconds", 2 * count);
 	for (var stk of db) {
 		const price = ns.stock.getPrice(stk.symbl);
 		stk.prices.push(price);
