@@ -33,6 +33,7 @@ async function trade(ns, options) {
 			symbl: a,
 			prices: [ns.stock.getPrice(a)],
 			shares: 0,
+			cost: 0,
 		}
 	});
 	for (var ii = 0; ii < options.size; ii++) {
@@ -56,37 +57,42 @@ async function runTrades(ns, options, portfolio, rising) {
 	for (var ii = 0; ii < portfolio.length; ii++) {
 		const stk = portfolio[ii];
 		const ups = stockUps(ns, stk);
-		ns.printf("Holding %d shares of %s, tendency %d", stk.shares, stk.symbl, ups);
 		if (ups < 0) {
-			var sellPrice = ns.stock.sell(stk.symbl, stk.shares);
-			var win = (sellPrice - stk.price) * stk.shares - 2 * COMISSION;
-			ns.printf("Sold %d shares of %s at %s, win: %s",
-				stk.shares, stk.symbl, formatMoney(sellPrice), formatMoney(win));
-			reserved += (sellPrice * stk.shares - COMISSION);
+			const sellPrice = ns.stock.sell(stk.symbl, stk.shares);
+			const gainedMoney = sellPrice * stk.shares - COMISSION;
+			const win = gainedMoney - stk.cost;
+			ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
+				stk.shares, stk.symbl, formatMoney(gainedMoney),
+				formatMoney(sellPrice), formatMoney(win));
+			stk.shares = 0;
+			stk.cost = 0;
+			reserved += gainedMoney;
 			// distribute a part of the winnings
 			reserved -= Math.max(0, win * DIVIDEND);
-			ns.tprintf("Trader has %s", formatMoney(reserved));
 			portfolio.splice(ii, 1);
 			ii--;
 		}
+		ns.printf("Holding %d shares of %s, tendency %d", stk.shares, stk.symbl, ups);
 	}
-	if (portfolio.length == 0 && rising.length > 0) {
-		const stockToBuy = rising[0];
+	ns.printf("Trader has %s", formatMoney(reserved));
+	while (rising.length > 0 && reserved > 100 * COMISSION) {
+		const stockToBuy = rising.shift();
 		const price = ns.stock.getPrice(stockToBuy.symbl);
 		const money = reserved;
-		var shares = Math.floor((money - 1e5) / price);
-		while (ns.stock.getPurchaseCost(stockToBuy.symbl, shares, "Long") > money) {
-			shares--;
-		}
+		var shares = Math.min(Math.floor((money - COMISSION) / price),
+			ns.stock.getMaxShares(stockToBuy.symbl) - stockToBuy.shares);
 		var boughtPrice;
 		while ((boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
 			shares--;
 		}
-		ns.printf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
-		stockToBuy.shares = shares;
-		stockToBuy.price = boughtPrice;
-		portfolio.push(stockToBuy);
-		reserved -= (stockToBuy.shares * stockToBuy.price + COMISSION);
+		ns.tprintf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
+		const moneySpent = boughtPrice * shares + COMISSION;
+		stockToBuy.cost += moneySpent;
+		stockToBuy.shares += shares;
+		if (!portfolio.find(a=>a.symbl == stockToBuy.symbl)) {
+			portfolio.push(stockToBuy);
+		}
+		reserved -= moneySpent;
 		reserved = Math.max(0, reserved);
 	}
 	await writeLockFile(ns, options, reserved);
