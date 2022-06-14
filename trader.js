@@ -82,8 +82,11 @@ async function runTrades(ns, options, portfolio, rising) {
 		var shares = Math.min(Math.floor((money - COMISSION) / price),
 			ns.stock.getMaxShares(stockToBuy.symbl) - stockToBuy.shares);
 		var boughtPrice;
-		while ((boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
+		while (shares > 0 && (boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
 			shares--;
+		}
+		if (shares <= 0) {
+			continue;
 		}
 		ns.tprintf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
 		const moneySpent = boughtPrice * shares + COMISSION;
