@@ -1,7 +1,7 @@
 const SKILL_RESTRICTIONS = [
 	{ name: "Datamancer", max: 9 },
 	{ name: "Tracer", max: 10 },
-	{ name: "Hands of Midas", prefer: 3 },
+	{ name: "Hands of Midas", max: 100, prefer: 2.5 },
 	{ name: "Overclock", max: 90, prefer: 2 },
 ]
 
@@ -15,6 +15,9 @@ export async function main(ns) {
 /** @param {NS} ns */
 function spendPrefered(ns) {
 	for (var skill of SKILL_RESTRICTIONS.filter(a => a.prefer).sort((a, b) => a.prefer - b.prefer).reverse()) {
+		if (ns.bladeburner.getSkillLevel(skill.name) >= skill.max) {
+			continue;
+		}
 		var preferFactor = skill.prefer;
 		if (ns.bladeburner.getSkillUpgradeCost(skill.name) <= preferFactor * ns.bladeburner.getSkillPoints()) {
 			while (ns.bladeburner.getSkillUpgradeCost(skill.name) <= ns.bladeburner.getSkillPoints()) {
@@ -31,6 +34,7 @@ function spendPrefered(ns) {
 
 /** @param {NS} ns */
 function spendSkillPoints(ns) {
+	var possibleSkills = [];
 	for (var skill of ns.bladeburner.getSkillNames()) {
 		const restriction = SKILL_RESTRICTIONS.find(a => a.name == skill);
 		if (restriction) {
@@ -41,9 +45,17 @@ function spendSkillPoints(ns) {
 			}
 		}
 		if (ns.bladeburner.getSkillUpgradeCost(skill) <= ns.bladeburner.getSkillPoints()) {
-			ns.tprintf("Spending %d skillpoints on %s",
-				ns.bladeburner.getSkillUpgradeCost(skill), skill)
-			return ns.bladeburner.upgradeSkill(skill);
+			possibleSkills.push({
+				name: skill,
+				cost:ns.bladeburner.getSkillUpgradeCost(skill),
+			});
+		}
+	}
+	possibleSkills.sort((a,b)=>a.cost-b.cost);
+	for (var skill of possibleSkills) {
+		if (skill.cost <= ns.bladeburner.getSkillPoints()) {
+			if (!ns.bladeburner.upgradeSkill(skill.name)) break;
+			ns.tprintf("Spent %d skillpoints on %s", skill.cost, skill.name);
 		}
 	}
 }
