@@ -75,6 +75,7 @@ export const BLADEACTIONS = "Bladeburner Actions";
 
 // augmentations
 export const GOVERNOR = "NeuroFlux Governor";
+export const BLADE_SIMUL = "The Blade's Simulacrum";
 export const RED_PILL = "The Red Pill";
 
 // servers

@@ -12,7 +12,7 @@ export async function main(ns) {
 	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
 		ns.tprintf("Fresh start in a new bitnode");
 		startState = "fresh";
-	} else if (player.playtimeSinceLastAug < 1000) {
+	} else if (player.playtimeSinceLastAug < 60*1000) {
 		ns.tprintf("Start after installing augmentations");
 		startState = "augs";
 	} else {
@@ -58,6 +58,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
+	const database = JSON.parse(ns.read("database.txt"));
 	if (ns.scriptRunning("instrument.js", "home")) {
 		ns.scriptKill("instrument.js", "home");
 	}
@@ -76,7 +77,8 @@ async function runHomeScripts(ns) {
 			await ns.sleep(1000);
 		}
 	}
-	if (ns.scriptRunning("bladeburner.js", "home")) {
+	if (ns.scriptRunning("bladeburner.js", "home") &&
+		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
 		if (ns.scriptRunning("factiongoals.js", "home")) {
 			ns.scriptKill("factiongoals.js", "home");
 		}
