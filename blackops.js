@@ -15,7 +15,7 @@ export async function main(ns) {
 					} else {
 						time = time - bonus;
 					}
-					await ns.sleep(time);
+					await ns.sleep(time*1.05);
 					await ns.sleep(1000);
 					break;
 				}
