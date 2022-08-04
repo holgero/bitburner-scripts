@@ -3,7 +3,9 @@ import { BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["run_purchase", false], ["maxprice", 1e99]]);
+	var options = ns.flags([["run_purchase", false],
+	["maxprice", 1e99],
+	["keep", 0]]);
 	if (options.run_purchase) {
 		ns.scriptKill("trader.js", "home");
 		if (ns.getPlayer().hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
@@ -11,7 +13,7 @@ export async function main(ns) {
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	const database = JSON.parse(ns.read("database.txt"));
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
-	var haveMoney = getAvailableMoney(ns, true);
+	var haveMoney = getAvailableMoney(ns, true) - options.keep;
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
 	const augNames = toPurchase.map(a => a.name);
 
