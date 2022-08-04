@@ -6,7 +6,7 @@ export async function main(ns) {
 	var options = ns.flags([["run_purchase", false], ["maxprice", 1e99]]);
 	if (options.run_purchase) {
 		ns.scriptKill("trader.js", "home");
-		await runAndWait(ns, "sell-all-stocks.js");
+		if (ns.getPlayer().hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
 	}
 	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
 	const database = JSON.parse(ns.read("database.txt"));
