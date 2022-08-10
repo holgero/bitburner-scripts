@@ -12,7 +12,7 @@ export async function main(ns) {
 	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
 		ns.tprintf("Fresh start in a new bitnode");
 		startState = "fresh";
-	} else if (player.playtimeSinceLastAug < 60*1000) {
+	} else if (player.playtimeSinceLastAug < 60 * 1000) {
 		ns.tprintf("Start after installing augmentations");
 		startState = "augs";
 	} else {
@@ -31,7 +31,7 @@ export async function main(ns) {
 
 	if (ns.getPlayer().bitNodeN == 8) {
 		// take a share of the initial money to develop hacking a bit faster 
-		var money = getAvailableMoney(ns, true) - 10e6;
+		var money = Math.min(1e12, getAvailableMoney(ns, true) - 10e6);
 		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
 	} else {
 		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
@@ -44,10 +44,12 @@ export async function main(ns) {
 		await runAndWait(ns, "calculate-goals.js");
 	}
 
-	// set up for corporations
-	await runAndWait(ns, "purchase-ram.js", 2048);
-	if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
-		ns.run("corporation.js");
+	if (ns.getPlayer().bitNodeN != 8) {
+		// set up for corporations
+		await runAndWait(ns, "purchase-ram.js", 2048);
+		if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
+			ns.run("corporation.js");
+		}
 	}
 
 	await runHomeScripts(ns);
@@ -108,12 +110,10 @@ function canSpendMoney(ns) {
 			return false;
 		}
 	}
-	if (ns.scriptRunning("factiongoals.js", "home")) {
-		if (ns.fileExists("factiongoals.txt")) {
-			var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-			if (completion > 0.8) {
-				return false;
-			}
+	if (ns.fileExists("factiongoals.txt")) {
+		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+		if (completion > 0.5) {
+			return false;
 		}
 	}
 	return true;
@@ -130,8 +130,12 @@ async function progressHackingLevels(ns) {
 		}
 		if (canSpendMoney(ns)) {
 			await improveInfrastructure(ns, nextProgram);
+		} else {
+			ns.scriptKill("start-hacknet.js", "home");
+			ns.scriptKill("start-hacknet2.js", "joesguns");
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
+		await runAndWait(ns, "spend-hashes.js");
 		await runAndWait(ns, "joinfactions.js");
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
@@ -166,7 +170,7 @@ async function improveInfrastructure(ns, nextProgram) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
 			currentMoney = getAvailableMoney(ns);
 		}
-		await runAndWait(ns, "start-hacknet.js", 4);
+		await runAndWait(ns, "start-hacknet.js", 3);
 	}
 	// upgrade home pc
 	if (nextProgram > 2) {
@@ -179,7 +183,7 @@ async function improveInfrastructure(ns, nextProgram) {
 	}
 	// upgrade server farm
 	if (nextProgram > 3) {
-		await runAndWait(ns, "start-hacknet.js", 8);
+		await runAndWait(ns, "start-hacknet.js", 4);
 		if (!ns.serverExists("pserv-0") ||
 			ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
 			await runAndWait(ns, "start-servers.js", "--auto-upgrade");
@@ -189,11 +193,13 @@ async function improveInfrastructure(ns, nextProgram) {
 		}
 	}
 	currentMoney = getAvailableMoney(ns);
-	if (nextProgram >= c.programs.length &&
-		(ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
-		!ns.scriptRunning("corporation.js", "home")) {
-		await runAndWait(ns, "purchase-ram.js", 2048);
-		ns.run("corporation.js");
+	if (nextProgram >= c.programs.length) {
+		await runAndWait(ns, "start-hacknet.js", 6);
+		if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
+			!ns.scriptRunning("corporation.js", "home")) {
+			await runAndWait(ns, "purchase-ram.js", 2048);
+			ns.run("corporation.js");
+		}
 	}
 }
 

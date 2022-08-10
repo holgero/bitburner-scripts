@@ -200,6 +200,10 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	ownedAugs.push(...augsToIgnore);
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
 	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", "Crime", "Bladeburner", ""];
+	if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
+		// hacknet stuff is worthless, delete it from prios
+		prios.splice(2, 1);
+	}
 	var player = ns.getPlayer();
 	if (player.bitNodeN == 6 || player.bitNodeN == 7) {
 		prios.unshift("Bladeburner", "Combat");

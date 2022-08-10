@@ -6,6 +6,7 @@ export async function main(ns) {
 	var options = ns.flags([["reboot", false]]);
 	var toPurchase = JSON.parse(options._[0]);
 	var governor_faction = options._[1];
+	var needReset = false;
 
 	ns.tprintf("Augmentations to buy: %v", toPurchase);
 	ns.tprintf("Faction to buy governors from: %s", governor_faction);
@@ -13,6 +14,7 @@ export async function main(ns) {
 	for (var augmentation of toPurchase) {
 		for (var faction of ns.getPlayer().factions) {
 			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
+				needReset = true;
 				if (ns.purchaseAugmentation(faction, augmentation)) break;
 			}
 		}
@@ -34,6 +36,7 @@ export async function main(ns) {
 	// spend the rest of the money on Neural Governor augs
 	while (getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
 		if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
+			needReset = true;
 			ns.tprintf("Bought governor, money left: %d", getAvailableMoney(ns, true));
 			await ns.sleep(500);
 		} else {
@@ -42,6 +45,7 @@ export async function main(ns) {
 	}
 
 	if (options.reboot) {
-		ns.spawn("reset.js");
+		if (needReset) ns.spawn("reset.js");
+		ns.spawn("nodestart.js");
 	}
 }

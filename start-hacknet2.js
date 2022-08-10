@@ -13,6 +13,9 @@ export async function main(ns) {
 	}
 
 	while (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore)) {
+		if (ns.hacknet.numHashes() > ns.hacknet.hashCost("Sell for Money")) {
+			ns.hacknet.spendHashes("Sell for Money");
+		}
 		purchaseMoreNodes(ns, maxNodes);
 		purchaseMoreLevels(ns, maxLevel);
 		purchaseMoreRam(ns, maxRam);
@@ -24,7 +27,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore) {
 	if (ns.hacknet.numNodes() < maxNodes) return true;
-	for (var ii = 0; ii < maxNodes; ii++) {
+	for (var ii = 0; ii < ns.hacknet.numNodes(); ii++) {
 		var stats = ns.hacknet.getNodeStats(ii);
 		if (stats.cores < maxCore) return true;
 		if (stats.ram < maxRam) return true;

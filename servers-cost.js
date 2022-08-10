@@ -2,6 +2,10 @@ import { getAvailableMoney, formatMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	if (ns.getPurchasedServerLimit() <= 0) {
+		ns.tprintf("Cannot buy any servers.");
+		return;
+	}
 	if (ns.serverExists("pserv-0")) {
 		ns.tprintf("Current memory of server pserv-0: %d GB", ns.getServerMaxRam("pserv-0"));
 	}

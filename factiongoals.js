@@ -49,6 +49,7 @@ export async function main(ns) {
 		ns.tprintf("Just installed augs %d s before. Exiting.", ns.getTimeSinceLastAug() / 1000);
 		return;
 	}
+	ns.killall("home", true);
 	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
 }
 
@@ -240,9 +241,13 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				await runAndWait(ns, "writeprogram.js", 0);
 				await ns.sleep(1000);
 			} else {
-				// not working for a faction: kill a few people
-				await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-				await ns.sleep(15000);
+				if (ns.isBusy()) {
+					await ns.sleep(60000);
+				} else {
+					// not working for a faction: kill a few people
+					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
+					await ns.sleep(15000);
+				}
 			}
 		}
 		focus = ns.isFocused();

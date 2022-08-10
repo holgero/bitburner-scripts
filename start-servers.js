@@ -29,6 +29,10 @@ export async function main(ns) {
 	}
 
 	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
+	if (numberOfServers == 0) {
+		ns.printf("Cannot buy any servers.");
+		return;
+	}
 	if (options["auto-upgrade"]) {
 		var hostname = SERVER_PREFIX + "0";
 		var nextRam = 32;

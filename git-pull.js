@@ -55,6 +55,7 @@ const FILES = [
 	"solve_contract4.js",
 	"solve_contract5.js",
 	"solve_contract.js",
+	"spend-hashes.js",
 	"start-hacknet2.js",
 	"start-hacknet.js",
 	"start-servers2.js",
