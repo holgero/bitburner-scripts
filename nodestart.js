@@ -194,7 +194,12 @@ async function improveInfrastructure(ns, nextProgram) {
 	}
 	currentMoney = getAvailableMoney(ns);
 	if (nextProgram >= c.programs.length) {
-		await runAndWait(ns, "start-hacknet.js", 6);
+		if (currentMoney < 1e9) {
+			await runAndWait(ns, "start-hacknet.js", 6);
+		} else {
+			// might have a bit more money to spend on hacknet nodes
+			await runAndWait(ns, "start-hacknet.js", 8);
+		}
 		if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
 			!ns.scriptRunning("corporation.js", "home")) {
 			await runAndWait(ns, "purchase-ram.js", 2048);

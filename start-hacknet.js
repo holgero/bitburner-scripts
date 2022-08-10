@@ -15,7 +15,7 @@ export async function main(ns) {
 	}
 	var maxNodes = Math.min(32, ns.args[0]);
 	var maxLevel = Math.min(200, Math.round(maxNodes * 6.25));
-	var maxRam = Math.min(64, Math.round(ns.args[0] * 4));
+	var maxRam = Math.min(64, Math.round(ns.args[0] * 8));
 	var maxCore = Math.min(16, Math.round(ns.args[0] * 1.5));
 
 	await ns.scp(scriptName, scriptHost);
