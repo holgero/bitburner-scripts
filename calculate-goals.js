@@ -133,7 +133,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 	for (var factionName of augmentation.factions) {
 		var faction = database.factions.find(a => a.name == factionName);
 		var existingGoal = factionGoals.find(a => a.name == factionName && a.reputation > 0);
-		var cost = 10000 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
+		var cost = 100 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
 			Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
 		if (!existingGoal && !player.factions.includes(factionName)) {
 			if (faction.backdoor) {
@@ -216,6 +216,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 				a.type == prio &&
 				a.factions.some(b => possibleFactions.includes(b)) &&
 				a.price < maxPrice);
+		// ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
 		for (var candidate of candidates) {
 			candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
 		}
