@@ -46,6 +46,7 @@ async function traverse(ns, startServer, serverProc) {
 
 /** @param {NS} ns **/
 async function nukeServer(ns, server) {
+	// ns.printf("rscan-spawn: on %s", server);
 	if (ns.hasRootAccess(server)) {
 		return;
 	}
@@ -65,6 +66,7 @@ async function nukeServer(ns, server) {
 		case 1:
 			ns.brutessh(server);
 	}
+	ns.printf("rscan-spawn: nuking %s", server);
 	ns.nuke(server);
 }
 

@@ -220,8 +220,8 @@ async function startHacking(ns, programs) {
 		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
 		await runAndWait(ns, "rscan.js", "hack", "--quiet");
 	} else {
-		ns.run("rscan-spawn.js", 1, "nuke", programs);
-		ns.run("rscan-spawn.js", 1, "hack", programs);
+		await runAndWait(ns, "rscan-spawn.js", "nuke", programs);
+		await runAndWait(ns, "rscan-spawn.js", "hack", programs);
 	}
 }
 
