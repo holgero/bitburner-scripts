@@ -28,6 +28,7 @@ const FILES = [
 	"evaluate-traders.js",
 	"factiongoals.js",
 	"git-pull.js",
+	"hacknet.js",
 	"hack-server.js",
 	"helpers.js",
 	"info.js",
