@@ -47,21 +47,21 @@ function usage(ns) {
 
 /** @param {NS} ns **/
 function findBestVictim(ns) {
-	var victims = [ "megacorp", "ecorp", "b-and-a", "nwo", "clarkinc", "4sigma", "kuai-gong",
+	var victims = ["megacorp", "ecorp", "b-and-a", "nwo", "clarkinc", "4sigma", "kuai-gong",
 		"blade", "omnitek", "fulcrumtech", "deltaone", "global-pharm", "zeus-med",
 		"nova-med", "univ-energy", "aerocorp", "unitalife", "stormtech", "zb-institute",
 		"solaris", "lexo-corp", "alpha-ent", "rho-construction", "syscore", "catalyst",
 		"aevum-police", "summit-uni", "netlink", "rothman-uni", "the-hub",
-		"johnson-ortho",  "omega-net", "crush-fitness", "silver-helix", "phantasy",
+		"johnson-ortho", "omega-net", "crush-fitness", "silver-helix", "phantasy",
 		"iron-gym", "max-hardware", "joesguns"];
 
-        for (var ii=0; ii<victims.length; ii++) {
-                if (ns.getServerRequiredHackingLevel(victims[ii]) < hackingLevel
-					&& ns.hasRootAccess(victims[ii])) {
-                    return victims[ii];
-                }
-        }
-        return "n00dles";
+	for (var ii = 0; ii < victims.length; ii++) {
+		if (ns.getServerRequiredHackingLevel(victims[ii]) < hackingLevel
+			&& ns.hasRootAccess(victims[ii])) {
+			return victims[ii];
+		}
+	}
+	return "n00dles";
 }
 
 /** @param {NS} ns **/
@@ -89,12 +89,12 @@ async function nukeServer(ns, options, server) {
 		return;
 	}
 	var nports = ns.getServerNumPortsRequired(server);
-	if (nports>0) {
-		if (nports>1) {
-			if (nports>2) {
-				if (nports>3) {
-					if (nports>4) {
-						if (nports>5) {
+	if (nports > 0) {
+		if (nports > 1) {
+			if (nports > 2) {
+				if (nports > 3) {
+					if (nports > 4) {
+						if (nports > 5) {
 							ns.tprint("too many ports required for ", server, " (", nports, ")");
 							return;
 						}
@@ -186,12 +186,13 @@ async function printRoute(ns, options, server) {
 /** @param {NS} ns **/
 async function runHack(ns, options, server) {
 	if (!ns.hasRootAccess(server)) {
-			return;
+		return;
 	}
-	ns.scriptKill(hackScript,server);
+	ns.scriptKill("do-hack.js", server);
+	ns.scriptKill("hack-server.js", server);
 	var availableRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
 	var neededRam = ns.getScriptRam(hackScript);
-	var threads = Math.floor(availableRam/neededRam);
+	var threads = Math.floor(availableRam / neededRam);
 	var victim = server;
 	if (ns.getServerRequiredHackingLevel(server) > hackingLevel ||
 		ns.getServerMaxMoney(server) < 1000000 ||
