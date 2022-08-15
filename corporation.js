@@ -33,6 +33,7 @@ const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 const POORMAN_MONEY = 1e9;
+const RICHMAN_MONEY = 1e15;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
@@ -60,9 +61,11 @@ export async function main(ns) {
 
 		if (corporation.numShares > 0 &&
 			!corporation.shareSaleCooldown &&
-			(corporation.sharePrice > target || (
-				getAvailableMoney(ns) < POORMAN_MONEY &&
-				corporation.sharePrice > 2 * low)) &&
+			(corporation.sharePrice > target &&
+				getAvailableMoney(ns) < RICHMAN_MONEY ||
+				(
+					getAvailableMoney(ns) < POORMAN_MONEY &&
+					corporation.sharePrice > 2 * low)) &&
 			!ns.fileExists("stopselling.txt")) {
 			var money = getAvailableMoney(ns);
 			ns.corporation.sellShares(corporation.numShares);
