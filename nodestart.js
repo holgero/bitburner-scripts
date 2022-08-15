@@ -45,17 +45,28 @@ export async function main(ns) {
 	}
 
 	if (ns.getPlayer().bitNodeN != 8) {
-		// set up for corporations
-		await runAndWait(ns, "purchase-ram.js", 2048);
-		if (ns.getServerMaxRam("home") > ns.getScriptRam("corporation.js")) {
-			ns.run("corporation.js");
-		}
+		await setUpForCorporations(ns);
 	}
 
 	await runHomeScripts(ns);
 
 	await runAndWait(ns, "start-hacknet.js", 1);
 	await progressHackingLevels(ns);
+}
+
+async function setUpForCorporations(ns) {
+	var currentMoney = getAvailableMoney(ns);
+	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
+		!ns.scriptRunning("corporation.js", "home")) {
+		await runAndWait(ns, "purchase-ram.js", 2048);
+		if (ns.getServerMaxRam("home") >= 2048) {
+			currentMoney = getAvailableMoney(ns);
+			if (currentMoney > 150e9) {
+				ns.run("corporation.js");
+				await ns.sleep(1000);
+			}
+		}
+	}
 }
 
 /** @param {NS} ns **/
@@ -196,15 +207,22 @@ async function improveInfrastructure(ns, nextProgram) {
 	if (nextProgram >= c.programs.length) {
 		if (currentMoney < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
-		} else {
+		} else if (currentMoney < 1e12) {
 			// might have a bit more money to spend on hacknet nodes
-			await runAndWait(ns, "start-hacknet.js", 8);
+			await runAndWait(ns, "start-hacknet.js", 10);
+			// and for the home server
+			await runAndWait(ns, "purchase-ram.js", 256);
+			if (ns.getServerMaxRam("home") >= 256) {
+				await runHomeScripts(ns);
+			}
+		} else if (currentMoney < 1e15) {
+			// might have quite a bit more money to spend on hacknet nodes
+			await runAndWait(ns, "start-hacknet.js", 12);
+		} else {
+			// pull out all stops
+			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
 		}
-		if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
-			!ns.scriptRunning("corporation.js", "home")) {
-			await runAndWait(ns, "purchase-ram.js", 2048);
-			ns.run("corporation.js");
-		}
+		await setUpForCorporations(ns);
 	}
 }
 
