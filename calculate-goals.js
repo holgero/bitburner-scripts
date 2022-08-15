@@ -199,6 +199,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	ownedAugs.push(...database.owned_augmentations);
 	ownedAugs.push(...augsToIgnore);
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
+	// ns.printf("Possible factions: %s", possibleFactions);
 	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", "Crime", "Bladeburner", ""];
 	if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
 		// hacknet stuff is worthless, delete it from prios
@@ -216,7 +217,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 				a.type == prio &&
 				a.factions.some(b => possibleFactions.includes(b)) &&
 				a.price < maxPrice);
-		// ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
+		ns.printf("Candidates with prio %s: %s", prio, JSON.stringify(candidates.map(a => a.name)));
 		for (var candidate of candidates) {
 			candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
 		}
@@ -233,7 +234,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 		}
 	}
 	candidates.sort((a, b) => a.cost - b.cost);
-	ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
+	// ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
 	return candidates[0];
 }
 
