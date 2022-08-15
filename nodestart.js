@@ -31,7 +31,7 @@ export async function main(ns) {
 
 	if (ns.getPlayer().bitNodeN == 8) {
 		// take a share of the initial money to develop hacking a bit faster 
-		var money = Math.min(1e12, getAvailableMoney(ns, true) - 10e6);
+		var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
 		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
 	} else {
 		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
@@ -92,7 +92,7 @@ async function runHomeScripts(ns) {
 	}
 	if (!ns.scriptRunning("trader.js", "home")) {
 		if (ns.getPlayer().hasTixApiAccess && getAvailableMoney(ns) > 200e6) {
-			var money = getAvailableMoney(ns, true) - 10e6;
+			var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
 			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
 			ns.run("trader.js");
 		}
