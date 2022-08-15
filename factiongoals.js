@@ -24,7 +24,7 @@ export async function main(ns) {
 			const config = JSON.parse(ns.read("factiongoals.txt"));
 			for (var goal of config.factionGoals.filter(a => a.company)) {
 				if (!ns.getPlayer().factions.includes(goal.name)) {
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "[]", "true");
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "true");
 					break;
 				}
 			}
