@@ -5,8 +5,11 @@ import * as c from "constants.js";
 export async function main(ns) {
 	ns.disableLog("sleep");
 	const player = ns.getPlayer();
-	if (player.bitNodeN != 6 && player.bitNodeN != 7) {
-		ns.tprintf("Neither on bitnode 6 or 7 (%d)", player.bitNodeN);
+	const database = JSON.parse(ns.read("database.txt"));
+	if (player.bitNodeN != 6 && player.bitNodeN != 7 &&
+		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
+		ns.tprintf("Neither on bitnode 6 or 7 (%d) and nor have the %s",
+			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
 	await runActions(ns);
@@ -56,7 +59,7 @@ async function runActions(ns) {
 /** @param {NS} ns */
 function needMoney(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const factions = [ { name:c.BLADEBURNERS, reputation:ns.getFactionRep(c.BLADEBURNERS)}];
+	const factions = [{ name: c.BLADEBURNERS, reputation: ns.getFactionRep(c.BLADEBURNERS) }];
 	const haveRep = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
 
 	factions[0].reputation = 1e99;
@@ -70,7 +73,7 @@ function needMoney(ns) {
 }
 
 function getAction(actionDb, type, name) {
-	return actionDb.actions.find(a=>a.type == type && a.name == name);
+	return actionDb.actions.find(a => a.type == type && a.name == name);
 }
 
 /** @param {NS} ns */
