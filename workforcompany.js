@@ -7,6 +7,8 @@ export async function main(ns) {
 	for (var ii = 0; ii < 3; ii++) {
 		ns.applyToCompany(company, job);
 		if (ns.workForCompany(company, focus)) {
+			var completion = ((100.0 * ns.getCompanyRep(company)) / 200000).toFixed(1);
+			ns.toast("Company " + company + " completion: " + completion + " %", "success", 5000);
 			break;
 		}
 		await ns.sleep(5000);
