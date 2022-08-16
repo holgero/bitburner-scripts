@@ -8,7 +8,7 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 
 	await prepareGoalWork(ns, database);
-	for (var ii = 0; ii < 3; ii++) {
+	for (var ii = 0; ii < 10; ii++) {
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);
 		if (getAvailableMoney(ns) > 2 * await getEstimation(ns, false)) {
@@ -129,14 +129,16 @@ async function checkForDaedalus(ns, database, config) {
 async function workOnGoalsPercentage(ns, database, config, percentage) {
 	ns.tprintf("Round of goals at %d %%", percentage * 100);
 	const goals = config.factionGoals;
+	const alreadyTried = [];
 	while (true) {
 		await checkForDaedalus(ns, database, config);
 		goals.forEach(a => a.achieved = a.reputation ?
 			ns.getFactionRep(a.name) / percentage : 0);
-		var goal = await selectGoal(ns, goals, config);
+		var goal = await selectGoal(ns, goals, alreadyTried, config);
 		if (!goal) break;
 		await workOnGoal(ns, database, goal, percentage, goals, config);
 		if (goal == config.finalGoal) break;
+		alreadyTried.push(goal);
 	}
 	if (Math.max(1e12, getAvailableMoney(ns)) < await getEstimation(ns, false)) {
 		return false;
@@ -163,6 +165,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 	}
 	var focus = true;
 	ns.tprintf("goal: %s %d", goal.name, percentage * goal.reputation);
+	var attempts = 0;
 	while (true) {
 		if (!ns.getPlayer().factions.includes(goal.name) &&
 			goal.location && goal.location != ns.getPlayer().city) {
@@ -234,6 +237,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
 					await ns.sleep(15000);
 				}
+			} else {
+				await ns.sleep(15000);
 			}
 		} else {
 			ns.printf("Not working and nothing to do");
@@ -254,23 +259,31 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 
 		// join future factions early, if we can
 		await futureGoalConditions(ns, goals);
-		if (!ns.getPlayer().factions.includes(c.DAEDALUS) && goal.name == c.DAEDALUS) {
-			// don't wait for DAEDALUS invitation within this loop, do something else instead
-			break;
+
+		// if there is no progress towards the goal give up.
+		if (!ns.getPlayer().factions.includes(goal.name)) {
+			if (!goal.company || !ns.getPlayer().company) {
+				attempts++;
+				if (attempts >= 3) {
+					ns.printf("No progress towards %s, try again later", goal.name);
+					return;
+				}
+			}
 		}
+
 		await ns.sleep(100);
 	}
 }
 
 /** @param {NS} ns **/
-async function selectGoal(ns, goals, config) {
+async function selectGoal(ns, goals, alreadyTried, config) {
 	if (config.finalGoal) {
 		return config.finalGoal;
 	}
 	goals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	goals.reverse();
 	var factions = ns.getPlayer().factions;
-	var runGoals = goals.filter(a => (a.reputation - a.achieved) > 0);
+	var runGoals = goals.filter(a => !alreadyTried.includes(a) && (a.reputation - a.achieved) > 0);
 	if (runGoals.length == 0) {
 		return undefined;
 	}
