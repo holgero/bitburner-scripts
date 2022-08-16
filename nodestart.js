@@ -58,13 +58,17 @@ async function setUpForCorporations(ns) {
 	var currentMoney = getAvailableMoney(ns);
 	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
 		!ns.scriptRunning("corporation.js", "home")) {
+		var ramBefore = ns.getServerMaxRam("home");
 		await runAndWait(ns, "purchase-ram.js", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
 			currentMoney = getAvailableMoney(ns);
-			if (currentMoney > 150e9) {
+			if (ns.getPlayer().hasCorporation || currentMoney > 150e9) {
 				ns.run("corporation.js");
 				await ns.sleep(1000);
 			}
+		}
+		if (ns.getServerMaxRam("home") != ramBefore) {
+			await runHomeScripts(ns);
 		}
 	}
 }
@@ -211,9 +215,11 @@ async function improveInfrastructure(ns, nextProgram) {
 			// might have a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 10);
 			// and for the home server
-			await runAndWait(ns, "purchase-ram.js", 256);
-			if (ns.getServerMaxRam("home") >= 256) {
-				await runHomeScripts(ns);
+			if (ns.getServerMaxRam("home") < 256) {
+				await runAndWait(ns, "purchase-ram.js", 256);
+				if (ns.getServerMaxRam("home") >= 256) {
+					await runHomeScripts(ns);
+				}
 			}
 		} else if (currentMoney < 1e15) {
 			// might have quite a bit more money to spend on hacknet nodes
