@@ -3,6 +3,7 @@ import { getAvailableMoney } from "/helpers.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
+	ns.disableLog("getServerMoneyAvailable");
 	const maxNodes = ns.args[0];
 	const maxLevel = ns.args[1];
 	const maxRam = ns.args[2];
@@ -44,6 +45,7 @@ function purchaseMoreNodes(ns, maxNodes) {
 	if (ns.hacknet.numNodes() < maxNodes) {
 		if (ns.hacknet.getPurchaseNodeCost() <
 			getAvailableMoney(ns)) {
+			ns.printf("starting a new node");
 			ns.hacknet.purchaseNode();
 		}
 	}
@@ -55,6 +57,7 @@ function purchaseMoreLevels(ns, maxLevel) {
 		var stats = ns.hacknet.getNodeStats(ii);
 		if (stats.level < maxLevel &&
 			ns.hacknet.getLevelUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
+			ns.printf("increase level of node %d", ii);
 			ns.hacknet.upgradeLevel(ii, 1);
 		}
 	}
@@ -66,6 +69,7 @@ function purchaseMoreRam(ns, maxRam) {
 		var stats = ns.hacknet.getNodeStats(ii);
 		if (stats.ram < maxRam &&
 			ns.hacknet.getRamUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
+			ns.printf("install ram on node %d", ii);
 			ns.hacknet.upgradeRam(ii, 1);
 		}
 	}
@@ -77,6 +81,7 @@ function purchaseMoreCores(ns, maxCores) {
 		var stats = ns.hacknet.getNodeStats(ii);
 		if (stats.cores < maxCores &&
 			ns.hacknet.getCoreUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
+			ns.printf("install core on node %d", ii);
 			ns.hacknet.upgradeCore(ii, 1);
 		}
 	}
@@ -88,6 +93,7 @@ function purchaseMoreCache(ns, maxCache) {
 		var stats = ns.hacknet.getNodeStats(ii);
 		if (stats.cache < maxCache &&
 			ns.hacknet.getCacheUpgradeCost(ii, 1) < getAvailableMoney(ns)) {
+			ns.printf("install cache on node %d", ii);
 			ns.hacknet.upgradeCache(ii, 1);
 		}
 	}
