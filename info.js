@@ -18,7 +18,7 @@ export async function main(ns) {
 			factions = ns.getPlayer().factions;
 		} else {
 			if (options.invites) {
-				factions = ns.checkFactionInvitations();
+				factions = ns.singularity.checkFactionInvitations();
 			} else {
 				if (options.goal) {
 					const config = JSON.parse(ns.read("factiongoals.txt"));
@@ -34,32 +34,32 @@ export async function main(ns) {
 	}
 	var skip;
 	if (!options.owned) {
-		skip = ns.getOwnedAugmentations(true);
+		skip = ns.singularity.getOwnedAugmentations(true);
 	} else {
 		skip = ["NeuroFlux Governor"];
 	}
 	var augmentations = [];
 	for (var faction of factions) {
-		var faction_augmentations = ns.getAugmentationsFromFaction(faction);
+		var faction_augmentations = ns.singularity.getAugmentationsFromFaction(faction);
 		for (var augmentation of faction_augmentations) {
 			if (!skip.includes(augmentation)) {
 				if (options.filter_reputation) {
-					if (ns.getFactionRep(faction) < ns.getAugmentationRepReq(augmentation)) {
+					if (ns.singularity.getFactionRep(faction) < ns.singularity.getAugmentationRepReq(augmentation)) {
 						continue;
 					}
 				}
 				if (options.filter_price) {
-					if (getAvailableMoney(ns) < ns.getAugmentationPrice(augmentation)) {
+					if (getAvailableMoney(ns) < ns.singularity.getAugmentationPrice(augmentation)) {
 						continue;
 					}
 				}
 				// skip.push(augmentation);
 				augmentations.push({
 					name: augmentation,
-					price: ns.getAugmentationPrice(augmentation),
-					reputation: ns.getAugmentationRepReq(augmentation),
-					enough: ns.getFactionRep(faction) >= ns.getAugmentationRepReq(augmentation) ? "*" : " ",
-					have: ns.getOwnedAugmentations().includes(augmentation) ? "*" : " ",
+					price: ns.singularity.getAugmentationPrice(augmentation),
+					reputation: ns.singularity.getAugmentationRepReq(augmentation),
+					enough: ns.singularity.getFactionRep(faction) >= ns.singularity.getAugmentationRepReq(augmentation) ? "*" : " ",
+					have: ns.singularity.getOwnedAugmentations().includes(augmentation) ? "*" : " ",
 					faction: faction
 				});
 			}

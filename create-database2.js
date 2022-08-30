@@ -16,7 +16,7 @@ function buildFactionAugmentations(ns, factions, owned_augmentations) {
 		if (!faction) {
 			faction = { name: faction_name }
 		}
-		var augmentations = ns.getAugmentationsFromFaction(faction_name).
+		var augmentations = ns.singularity.getAugmentationsFromFaction(faction_name).
 			filter(a => !ignore.includes(a));
 		factions.push({ ...faction, augmentations: augmentations });
 	}

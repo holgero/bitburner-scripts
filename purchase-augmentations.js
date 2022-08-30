@@ -13,29 +13,29 @@ export async function main(ns) {
 
 	for (var augmentation of toPurchase) {
 		for (var faction of ns.getPlayer().factions) {
-			if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
+			if (ns.singularity.getAugmentationsFromFaction(faction).includes(augmentation)) {
 				needReset = true;
-				if (ns.purchaseAugmentation(faction, augmentation)) break;
+				if (ns.singularity.purchaseAugmentation(faction, augmentation)) break;
 			}
 		}
 	}
 
 	ns.tprintf("Bought planned augmentations, spending remaining money: ", getAvailableMoney(ns, true));
 	// if there is money left, run home upgrades
-	while (ns.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
-		if (!ns.upgradeHomeCores()) break;
+	while (ns.singularity.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
+		if (!ns.singularity.upgradeHomeCores()) break;
 		ns.tprintf("Bought a core, money left: %d", getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
-	while (ns.getUpgradeHomeRamCost() < getAvailableMoney(ns, true)) {
-		if (!ns.upgradeHomeRam()) break;
+	while (ns.singularity.getUpgradeHomeRamCost() < getAvailableMoney(ns, true)) {
+		if (!ns.singularity.upgradeHomeRam()) break;
 		ns.tprintf("Bought ram, money left: %d", getAvailableMoney(ns, true));
 		await ns.sleep(500);
 	}
 
 	// spend the rest of the money on Neural Governor augs
-	while (getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
-		if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
+	while (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {
+		if (ns.singularity.purchaseAugmentation(governor_faction, GOVERNOR)) {
 			needReset = true;
 			ns.tprintf("Bought governor, money left: %d", getAvailableMoney(ns, true));
 			await ns.sleep(500);

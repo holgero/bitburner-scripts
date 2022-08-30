@@ -8,7 +8,7 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function getMissingInfo(ns, augmentations) {
 	for (var augmentation of augmentations) {
-		augmentation.stats = ns.getAugmentationStats(augmentation.name);
+		augmentation.stats = ns.singularity.getAugmentationStats(augmentation.name);
 		augmentation.type = getTypeOf(ns, augmentation);
 	}
 }

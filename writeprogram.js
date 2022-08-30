@@ -11,23 +11,23 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function writeProgram(ns, program) {
 	while (!ns.fileExists(program.name)) {
-		while (ns.getPlayer().hacking < program.level) {
+		while (ns.getPlayer().skills.hacking < program.level) {
 			if (tryToBuyProgram(ns, program)) return;
 			await ns.sleep(60000);
 		}
 		if (tryToBuyProgram(ns, program)) return;
-		ns.createProgram(program.name, true);
+		ns.singularity.createProgram(program.name, true);
 		await ns.sleep(60000);
 	}
 }
 
 function tryToBuyProgram(ns, program) {
 	if (ns.getPlayer().tor && getAvailableMoney(ns) > program.cost) {
-		return ns.purchaseProgram(program.name);
+		return ns.singularity.purchaseProgram(program.name);
 	} else {
 		if (getAvailableMoney(ns) > program.cost + 200000) {
-			ns.purchaseTor();
-			return ns.purchaseProgram(program.name);
+			ns.singularity.purchaseTor();
+			return ns.singularity.purchaseProgram(program.name);
 		}
 	}
 }

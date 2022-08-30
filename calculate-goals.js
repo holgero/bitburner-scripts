@@ -134,7 +134,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 		var faction = database.factions.find(a => a.name == factionName);
 		var existingGoal = factionGoals.find(a => a.name == factionName && a.reputation > 0);
 		var cost = 100 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
-			Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
+			Math.max(ns.singularity.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
 		if (!existingGoal && !player.factions.includes(factionName)) {
 			if (faction.backdoor) {
 				cost += 5000 * reachHackingLevelCost(ns, database, player, ns.getServerRequiredHackingLevel(faction.backdoor));
@@ -145,13 +145,14 @@ function costToGet(ns, database, factionGoals, augmentation) {
 			}
 			if (faction.company) {
 				cost += 20000 * (100 / (100 + faction.companyFavor)) *
-					Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
+					Math.max(0, 200000 - ns.singularity.getCompanyRep(factionName)) / 
+							player.mults.company_rep;
 			}
 			if (faction.stats) {
-				var statsNeed = Math.max(0, faction.stats - player.defense) / player.defense_exp_mult;
-				statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
-				statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
-				statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
+				var statsNeed = Math.max(0, faction.stats - player.defense) / player.mults.defense_exp;
+				statsNeed += Math.max(0, faction.stats - player.dexterity) / player.mults.dexterity_exp;
+				statsNeed += Math.max(0, faction.stats - player.strength) / player.mults.strength_exp;
+				statsNeed += Math.max(0, faction.stats - player.agility) / player.mults.agility_exp;
 				cost += 5000 * Math.pow(statsNeed, 3);
 			}
 			if (faction.money) {
@@ -168,8 +169,8 @@ function costToGet(ns, database, factionGoals, augmentation) {
 }
 
 function reachHackingLevelCost(ns, database, player, level) {
-	const delta = Math.max(0, level - Math.max(50, player.hacking));
-	var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	const delta = Math.max(0, level - Math.max(50, player.skills.hacking));
+	var weighted = delta / player.mults.hacking_exp / player.mults.hacking;
 	if (database.bitnodemultipliers) {
 		weighted /= database.bitnodemultipliers.HackingLevelMultiplier;
 		weighted /= database.bitnodemultipliers.HackExpGain;
@@ -242,10 +243,10 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 function estimateDonations(ns, database, factionGoals) {
 	var sum = 0;
 	var donateFavor = database.favorToDonate;
-	var mult = ns.getPlayer().faction_rep_mult;
+	var mult = ns.getPlayer().mults.faction_rep;
 	for (var goal of factionGoals) {
 		if (goal.reputation && goal.favor > donateFavor) {
-			sum += 1e6 * Math.max(0, goal.reputation - ns.getFactionRep(goal.name)) / mult;
+			sum += 1e6 * Math.max(0, goal.reputation - ns.singularity.getFactionRep(goal.name)) / mult;
 		}
 	}
 	return sum;

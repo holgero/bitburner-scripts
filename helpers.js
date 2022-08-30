@@ -28,15 +28,15 @@ export function getAvailableMoney(ns, ignoreTrading) {
 export function statsGainFactor(ns) {
 	var player = ns.getPlayer();
 	var stats_mult = Math.min(
-		player.strength_mult,
-		player.defense_mult,
-		player.dexterity_mult,
-		player.agility_mult);
+		player.mults.strength,
+		player.mults.defense,
+		player.mults.dexterity,
+		player.mults.agility);
 	var stats_exp_mult = Math.min(
-		player.strength_exp_mult,
-		player.defense_exp_mult,
-		player.dexterity_exp_mult,
-		player.agility_exp_mult);
+		player.mults.strength_exp,
+		player.mults.defense_exp,
+		player.mults.dexterity_exp,
+		player.mults.agility_exp);
 	return stats_mult * stats_exp_mult;
 }
 
@@ -54,7 +54,7 @@ function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPu
 		var faction = database.factions.find(a => a.name == goal.name);
 		for (var augName of faction.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
-			var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+			var rep = Math.max(goal.reputation, ns.singularity.getFactionRep(goal.name));
 			if (augmentation.reputation <= rep && augmentation.price <= maxprice) {
 				if (!toPurchase.includes(augmentation)) {
 					if (augmentation.requirements.every(a => dependencies.includes(a))) {
@@ -95,7 +95,7 @@ export function goalCompletion(ns, factionGoals) {
 	for (var goal of factionGoals) {
 		if (goal.reputation) {
 			totalRep += goal.reputation;
-			repNeeded += Math.max(0, goal.reputation - ns.getFactionRep(goal.name));
+			repNeeded += Math.max(0, goal.reputation - ns.singularity.getFactionRep(goal.name));
 		}
 	}
 

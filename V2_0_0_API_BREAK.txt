@@ -1,0 +1,837 @@
+This file contains the list of potential API break. A pattern was used to look through all your files and note the spots where you might have a problem. Not everything here is broken./ns\.workForCompany/g
+workForCompany argument companyName is now not-optional.
+
+	workforcompany.js
+		Line 9 if (ns.workForCompany(company, focus)) {
+
+
+/ns\.scp/g
+scp arguments were switch, it is now scp(files, destination, optionally_source). If you were using 2 argument (not 3) this doesn't affect you.
+
+	rscan.js
+		Line 203 await ns.scp(hackScript, server);
+	start-hacknet.js
+		Line 26 await ns.scp(scriptName, scriptHost);
+		Line 27 await ns.scp("helpers.js", scriptHost);
+		Line 28 await ns.scp("reserved-money.txt", scriptHost);
+	start-servers2.js
+		Line 25 await ns.scp(script, hostname);
+	optimize-hack.js
+		Line 10 await ns.scp("do-hack.js", hostname);
+	rscan-spawn.js
+		Line 107 await ns.scp(hackScript, server);
+
+
+/ns\.stock\.buy/g
+buy is a very common word so in order to avoid ram costs it was renamed ns.stock.buyStock
+
+	trader.js
+		Line 117 while (shares > 0 && (boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
+
+
+/ns\.stock\.sell/g
+sell is a very common word so in order to avoid ram costs it was renamed ns.stock.sellStock
+
+	sell-all-stocks.js
+		Line 5 if (have[0] > 0) ns.stock.sell(sym, have[0]);
+		Line 6 if (have[2] > 0) ns.stock.sellShort(sym, have[2]);
+	trader.js
+		Line 67 const sellPrice = ns.stock.sell(stk.symbl, stk.shares);
+		Line 87 const sellPrice = ns.stock.sell(stk.symbl, stk.shares);
+
+
+/ns.applyToCompany/g
+ns.applyToCompany was moved to ns.singularity.applyToCompany
+
+	workforcompany.js
+		Line 8 ns.applyToCompany(company, job);
+
+
+/ns.checkFactionInvitations/g
+ns.checkFactionInvitations was moved to ns.singularity.checkFactionInvitations
+
+	info.js
+		Line 21 factions = ns.checkFactionInvitations();
+	joinfactions.js
+		Line 5 const invites = ns.checkFactionInvitations();
+
+
+/ns.commitCrime/g
+ns.commitCrime was moved to ns.singularity.commitCrime
+
+	commit-crimes.js
+		Line 27 ns.commitCrime(crime);
+
+
+/ns.connect/g
+ns.connect was moved to ns.singularity.connect
+
+	installbackdoor.js
+		Line 5 ns.connect(host);
+		Line 13 ns.connect(host);
+		Line 15 ns.connect("home");
+	kill-world.js
+		Line 9 ns.connect(c.WORLD_DAEMON);
+
+
+/ns.createProgram/g
+ns.createProgram was moved to ns.singularity.createProgram
+
+	writeprogram.js
+		Line 19 ns.createProgram(program.name, true);
+
+
+/ns.donateToFaction/g
+ns.donateToFaction was moved to ns.singularity.donateToFaction
+
+	donate-faction.js
+		Line 7 ns.donateToFaction(faction, Math.min(money, maximum));
+
+
+/ns.getAugmentationPrereq/g
+ns.getAugmentationPrereq was moved to ns.singularity.getAugmentationPrereq
+
+	create-database5.js
+		Line 11 augmentation.requirements = ns.getAugmentationPrereq(augmentation.name);
+
+
+/ns.getAugmentationPrice/g
+ns.getAugmentationPrice was moved to ns.singularity.getAugmentationPrice
+
+	purchase-augmentations.js
+		Line 37 while (getAvailableMoney(ns, true) > ns.getAugmentationPrice(GOVERNOR)) {
+	info.js
+		Line 52 if (getAvailableMoney(ns) < ns.getAugmentationPrice(augmentation)) {
+		Line 59 price: ns.getAugmentationPrice(augmentation),
+	create-database4.js
+		Line 19 price: ns.getAugmentationPrice(augmentation),
+
+
+/ns.getAugmentationRepReq/g
+ns.getAugmentationRepReq was moved to ns.singularity.getAugmentationRepReq
+
+	info.js
+		Line 47 if (ns.getFactionRep(faction) < ns.getAugmentationRepReq(augmentation)) {
+		Line 60 reputation: ns.getAugmentationRepReq(augmentation),
+		Line 61 enough: ns.getFactionRep(faction) >= ns.getAugmentationRepReq(augmentation) ? "*" : " ",
+	create-database4.js
+		Line 18 reputation: ns.getAugmentationRepReq(augmentation),
+
+
+/ns.getAugmentationsFromFaction/g
+ns.getAugmentationsFromFaction was moved to ns.singularity.getAugmentationsFromFaction
+
+	purchase-augmentations.js
+		Line 16 if (ns.getAugmentationsFromFaction(faction).includes(augmentation)) {
+	info.js
+		Line 43 var faction_augmentations = ns.getAugmentationsFromFaction(faction);
+	create-database2.js
+		Line 19 var augmentations = ns.getAugmentationsFromFaction(faction_name).
+
+
+/ns.getAugmentationStats/g
+ns.getAugmentationStats was moved to ns.singularity.getAugmentationStats
+
+	create-database6.js
+		Line 11 augmentation.stats = ns.getAugmentationStats(augmentation.name);
+
+
+/ns.getCompanyFavor/g
+ns.getCompanyFavor was moved to ns.singularity.getCompanyFavor
+
+	create-database3.js
+		Line 14 faction.companyFavor = ns.getCompanyFavor(faction.name);
+
+
+/ns.getCompanyRep/g
+ns.getCompanyRep was moved to ns.singularity.getCompanyRep
+
+	workforcompany.js
+		Line 10 var completion = ((100.0 * ns.getCompanyRep(company)) / 200000).toFixed(1);
+	calculate-goals.js
+		Line 148 Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
+
+
+/ns.getCrimeChance/g
+ns.getCrimeChance was moved to ns.singularity.getCrimeChance
+
+	commit-crimes.js
+		Line 9 while (ns.getCrimeChance(HOMICIDE) < 0.5) {
+		Line 10 while (ns.getCrimeChance(MUG) < 0.5) {
+
+
+/ns.getFactionFavor/g
+ns.getFactionFavor was moved to ns.singularity.getFactionFavor
+
+	donate-faction.js
+		Line 12 if (ns.getFactionFavor(faction) < ns.getFavorToDonate()) {
+	create-database3.js
+		Line 12 faction.favor = ns.getFactionFavor(faction.name);
+
+
+/ns.getFactionRep/g
+ns.getFactionRep was moved to ns.singularity.getFactionRep
+
+	info.js
+		Line 47 if (ns.getFactionRep(faction) < ns.getAugmentationRepReq(augmentation)) {
+		Line 61 enough: ns.getFactionRep(faction) >= ns.getAugmentationRepReq(augmentation) ? "*" : " ",
+	estimate.js
+		Line 33 factions.push({ name: arg, reputation: ns.getFactionRep(arg) });
+	helpers.js
+		Line 57 var rep = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+		Line 98 repNeeded += Math.max(0, goal.reputation - ns.getFactionRep(goal.name));
+	plan-augmentations.js
+		Line 14 var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
+	print_goals.js
+		Line 20 ns.getFactionRep(goal.name),
+		Line 21 (100 * ns.getFactionRep(goal.name) / goal.reputation).toFixed(1) + " %",
+		Line 24 ns.tprintf("%22s %10s %10d %10s  %s", goal.name, "", ns.getFactionRep(goal.name), "",
+		Line 41 reputation = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+		Line 44 reputation = ns.getFactionRep(goal.name);
+	test.js
+		Line 11 // var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
+	donate-faction.js
+		Line 15 var needed = Math.max(0, reputation - ns.getFactionRep(faction));
+	calculate-goals.js
+		Line 137 Math.max(ns.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
+		Line 248 sum += 1e6 * Math.max(0, goal.reputation - ns.getFactionRep(goal.name)) / mult;
+	factiongoals.js
+		Line 136 ns.getFactionRep(a.name) / percentage : 0);
+		Line 163 if (!goal.reputation || ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
+		Line 203 if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+		Line 206 var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+		Line 208 ns.getFactionRep(goal.name),
+		Line 212 if (goals.filter(a => a.reputation > 0 && a.reputation > ns.getFactionRep(a.name)).length == 0 &&
+	bladeburner.js
+		Line 62 const factions = [{ name: c.BLADEBURNERS, reputation: ns.getFactionRep(c.BLADEBURNERS) }];
+	whatdoineed.js
+		Line 7 const factions = [ { name:c.BLADEBURNERS, reputation:ns.getFactionRep(c.BLADEBURNERS)}];
+
+
+/ns.getOwnedAugmentations/g
+ns.getOwnedAugmentations was moved to ns.singularity.getOwnedAugmentations
+
+	info.js
+		Line 37 skip = ns.getOwnedAugmentations(true);
+		Line 62 have: ns.getOwnedAugmentations().includes(augmentation) ? "*" : " ",
+	create-database1.js
+		Line 4 owned_augmentations: ns.getOwnedAugmentations(true),
+
+
+/ns.getOwnedSourceFiles/g
+ns.getOwnedSourceFiles was moved to ns.singularity.getOwnedSourceFiles
+
+	test.js
+		Line 10 // ns.tprintf("%s", JSON.stringify(ns.getOwnedSourceFiles()));
+	create-database7.js
+		Line 10 database.ownedSourceFiles = ns.getOwnedSourceFiles();
+
+
+/ns.getUpgradeHomeCoresCost/g
+ns.getUpgradeHomeCoresCost was moved to ns.singularity.getUpgradeHomeCoresCost
+
+	purchase-augmentations.js
+		Line 25 while (ns.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
+
+
+/ns.getUpgradeHomeRamCost/g
+ns.getUpgradeHomeRamCost was moved to ns.singularity.getUpgradeHomeRamCost
+
+	purchase-augmentations.js
+		Line 30 while (ns.getUpgradeHomeRamCost() < getAvailableMoney(ns, true)) {
+	purchase-ram.js
+		Line 7 ns.getUpgradeHomeRamCost() < getAvailableMoney(ns)) {
+
+
+/ns.gymWorkout/g
+ns.gymWorkout was moved to ns.singularity.gymWorkout
+
+	workout.js
+		Line 7 if (ns.gymWorkout("Powerhouse Gym", lowStatName, focus) ||
+		Line 8 ns.gymWorkout("Snap Fitness Gym", lowStatName, focus) ||
+		Line 9 ns.gymWorkout("Millenium Fitness Gym", lowStatName, focus)) {
+		Line 13 if (!ns.gymWorkout("Powerhouse Gym", lowStatName, focus)) {
+
+
+/ns.installAugmentations/g
+ns.installAugmentations was moved to ns.singularity.installAugmentations
+
+	reset.js
+		Line 3 ns.installAugmentations("nodestart.js");
+
+
+/ns.installBackdoor/g
+ns.installBackdoor was moved to ns.singularity.installBackdoor
+
+	installbackdoor.js
+		Line 9 await ns.installBackdoor();
+	kill-world.js
+		Line 11 await ns.installBackdoor();
+
+
+/ns.isBusy/g
+ns.isBusy was moved to ns.singularity.isBusy
+
+	commit-crimes.js
+		Line 24 if (ns.isBusy()) {
+		Line 29 while (ns.isBusy()) {
+	factiongoals.js
+		Line 232 if (ns.isBusy()) {
+		Line 249 if (ns.isBusy()) {
+
+
+/ns.isFocused/g
+ns.isFocused was moved to ns.singularity.isFocused
+
+	factiongoals.js
+		Line 58 var focus = ns.isFocused();
+		Line 63 focus = ns.isFocused();
+		Line 258 focus = ns.isFocused();
+	joinbladeburner.js
+		Line 35 await runAndWait(ns, "workout.js", stat, ns.isFocused());
+
+
+/ns.joinFaction/g
+ns.joinFaction was moved to ns.singularity.joinFaction
+
+	joinfactions.js
+		Line 8 ns.joinFaction(invite);
+
+
+/ns.manualHack/g
+ns.manualHack was moved to ns.singularity.manualHack
+
+	kill-world.js
+		Line 10 await ns.manualHack();
+
+
+/ns.purchaseAugmentation/g
+ns.purchaseAugmentation was moved to ns.singularity.purchaseAugmentation
+
+	purchase-augmentations.js
+		Line 18 if (ns.purchaseAugmentation(faction, augmentation)) break;
+		Line 38 if (ns.purchaseAugmentation(governor_faction, GOVERNOR)) {
+
+
+/ns.purchaseProgram/g
+ns.purchaseProgram was moved to ns.singularity.purchaseProgram
+
+	writeprogram.js
+		Line 26 return ns.purchaseProgram(program.name);
+		Line 30 return ns.purchaseProgram(program.name);
+
+
+/ns.purchaseTor/g
+ns.purchaseTor was moved to ns.singularity.purchaseTor
+
+	writeprogram.js
+		Line 29 ns.purchaseTor();
+
+
+/ns.softReset/g
+ns.softReset was moved to ns.singularity.softReset
+
+	reset.js
+		Line 4 ns.softReset("nodestart.js");
+
+
+/ns.stopAction/g
+ns.stopAction was moved to ns.singularity.stopAction
+
+	factiongoals.js
+		Line 44 ns.stopAction();
+		Line 64 ns.stopAction();
+		Line 185 ns.stopAction();
+	kill-world.js
+		Line 5 ns.stopAction();
+	joinbladeburner.js
+		Line 11 ns.stopAction();
+		Line 30 ns.stopAction();
+
+
+/ns.travelToCity/g
+ns.travelToCity was moved to ns.singularity.travelToCity
+
+	travel.js
+		Line 8 ns.travelToCity(options.city);
+	workout.js
+		Line 12 ns.travelToCity(c.SECTOR12);
+
+
+/ns.universityCourse/g
+ns.universityCourse was moved to ns.singularity.universityCourse
+
+	university.js
+		Line 21 if (ns.universityCourse(uni, course, focus)) return;
+
+
+/ns.upgradeHomeCores/g
+ns.upgradeHomeCores was moved to ns.singularity.upgradeHomeCores
+
+	purchase-augmentations.js
+		Line 26 if (!ns.upgradeHomeCores()) break;
+
+
+/ns.upgradeHomeRam/g
+ns.upgradeHomeRam was moved to ns.singularity.upgradeHomeRam
+
+	purchase-augmentations.js
+		Line 31 if (!ns.upgradeHomeRam()) break;
+	purchase-ram.js
+		Line 8 if (!ns.upgradeHomeRam()) break;
+
+
+/ns.workForCompany/g
+ns.workForCompany was moved to ns.singularity.workForCompany
+
+	workforcompany.js
+		Line 9 if (ns.workForCompany(company, focus)) {
+
+
+/ns.workForFaction/g
+ns.workForFaction was moved to ns.singularity.workForFaction
+
+	workforfaction.js
+		Line 6 ns.workForFaction(faction, worktype, focus);
+
+
+/hacking_chance_mult/g
+ns.getPlayer().hacking_chance_mult was moved to ns.getPlayer().mults.hacking_chance
+
+	create-database6.js
+		Line 25 augmentation.stats.hacking_chance_mult ||
+
+
+/hacking_speed_mult/g
+ns.getPlayer().hacking_speed_mult was moved to ns.getPlayer().mults.hacking_speed
+
+	create-database6.js
+		Line 26 augmentation.stats.hacking_speed_mult ||
+
+
+/hacking_money_mult/g
+ns.getPlayer().hacking_money_mult was moved to ns.getPlayer().mults.hacking_money
+
+	create-database6.js
+		Line 27 augmentation.stats.hacking_money_mult) return "Hacking";
+
+
+/hacking_grow_mult/g
+ns.getPlayer().hacking_grow_mult was moved to ns.getPlayer().mults.hacking_grow
+
+	create-database6.js
+		Line 24 augmentation.stats.hacking_grow_mult ||
+
+
+/hacking_mult/g
+ns.getPlayer().hacking_mult was moved to ns.getPlayer().mults.hacking
+
+	calculate-goals.js
+		Line 172 var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	create-database6.js
+		Line 22 if (augmentation.stats.hacking_mult ||
+
+
+/hacking_exp_mult/g
+ns.getPlayer().hacking_exp_mult was moved to ns.getPlayer().mults.hacking_exp
+
+	calculate-goals.js
+		Line 172 var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	create-database6.js
+		Line 23 augmentation.stats.hacking_exp_mult ||
+
+
+/strength_mult/g
+ns.getPlayer().strength_mult was moved to ns.getPlayer().mults.strength
+
+	helpers.js
+		Line 31 player.strength_mult,
+	create-database6.js
+		Line 29 if (augmentation.stats.strength_mult ||
+
+
+/strength_exp_mult/g
+ns.getPlayer().strength_exp_mult was moved to ns.getPlayer().mults.strength_exp
+
+	helpers.js
+		Line 36 player.strength_exp_mult,
+	calculate-goals.js
+		Line 153 statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
+	create-database6.js
+		Line 30 augmentation.stats.strength_exp_mult ||
+
+
+/defense_mult/g
+ns.getPlayer().defense_mult was moved to ns.getPlayer().mults.defense
+
+	helpers.js
+		Line 32 player.defense_mult,
+	create-database6.js
+		Line 31 augmentation.stats.defense_mult ||
+
+
+/defense_exp_mult/g
+ns.getPlayer().defense_exp_mult was moved to ns.getPlayer().mults.defense_exp
+
+	helpers.js
+		Line 37 player.defense_exp_mult,
+	calculate-goals.js
+		Line 151 var statsNeed = Math.max(0, faction.stats - player.defense) / player.defense_exp_mult;
+	create-database6.js
+		Line 32 augmentation.stats.defense_exp_mult ||
+
+
+/dexterity_mult/g
+ns.getPlayer().dexterity_mult was moved to ns.getPlayer().mults.dexterity
+
+	helpers.js
+		Line 33 player.dexterity_mult,
+	create-database6.js
+		Line 33 augmentation.stats.dexterity_mult ||
+
+
+/dexterity_exp_mult/g
+ns.getPlayer().dexterity_exp_mult was moved to ns.getPlayer().mults.dexterity_exp
+
+	helpers.js
+		Line 38 player.dexterity_exp_mult,
+	calculate-goals.js
+		Line 152 statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
+	create-database6.js
+		Line 34 augmentation.stats.dexterity_exp_mult ||
+
+
+/agility_mult/g
+ns.getPlayer().agility_mult was moved to ns.getPlayer().mults.agility
+
+	helpers.js
+		Line 34 player.agility_mult);
+	create-database6.js
+		Line 35 augmentation.stats.agility_mult ||
+
+
+/agility_exp_mult/g
+ns.getPlayer().agility_exp_mult was moved to ns.getPlayer().mults.agility_exp
+
+	helpers.js
+		Line 39 player.agility_exp_mult);
+	calculate-goals.js
+		Line 154 statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
+	create-database6.js
+		Line 36 augmentation.stats.agility_exp_mult) return "Combat";
+
+
+/charisma_mult/g
+ns.getPlayer().charisma_mult was moved to ns.getPlayer().mults.charisma
+
+	create-database6.js
+		Line 37 if (augmentation.stats.charisma_mult ||
+
+
+/charisma_exp_mult/g
+ns.getPlayer().charisma_exp_mult was moved to ns.getPlayer().mults.charisma_exp
+
+	create-database6.js
+		Line 40 augmentation.stats.charisma_exp_mult) return "Company";
+
+
+/hacknet_node_money_mult/g
+ns.getPlayer().hacknet_node_money_mult was moved to ns.getPlayer().mults.hacknet_node_money
+
+	create-database6.js
+		Line 41 if (augmentation.stats.hacknet_node_money_mult ||
+
+
+/hacknet_node_purchase_cost_mult/g
+ns.getPlayer().hacknet_node_purchase_cost_mult was moved to ns.getPlayer().mults.hacknet_node_purchase_cost
+
+	create-database6.js
+		Line 42 augmentation.stats.hacknet_node_purchase_cost_mult ||
+
+
+/hacknet_node_level_cost_mult/g
+ns.getPlayer().hacknet_node_level_cost_mult was moved to ns.getPlayer().mults.hacknet_node_level_cost
+
+	create-database6.js
+		Line 43 augmentation.stats.hacknet_node_level_cost_mult) return "Hacknet";
+
+
+/company_rep_mult/g
+ns.getPlayer().company_rep_mult was moved to ns.getPlayer().mults.company_rep
+
+	calculate-goals.js
+		Line 148 Math.max(0, 200000 - ns.getCompanyRep(factionName)) / player.company_rep_mult;
+	create-database6.js
+		Line 38 augmentation.stats.company_rep_mult ||
+
+
+/faction_rep_mult/g
+ns.getPlayer().faction_rep_mult was moved to ns.getPlayer().mults.faction_rep
+
+	donate-faction.js
+		Line 16 var cost = 1000000 * needed / ns.getPlayer().faction_rep_mult;
+	calculate-goals.js
+		Line 245 var mult = ns.getPlayer().faction_rep_mult;
+	create-database6.js
+		Line 28 if (augmentation.stats.faction_rep_mult) return "Reputation";
+
+
+/work_money_mult/g
+ns.getPlayer().work_money_mult was moved to ns.getPlayer().mults.work_money
+
+	create-database6.js
+		Line 39 augmentation.stats.work_money_mult ||
+
+
+/crime_success_mult/g
+ns.getPlayer().crime_success_mult was moved to ns.getPlayer().mults.crime_success
+
+	create-database6.js
+		Line 45 augmentation.stats.crime_success_mult) return "Crime";
+
+
+/crime_money_mult/g
+ns.getPlayer().crime_money_mult was moved to ns.getPlayer().mults.crime_money
+
+	create-database6.js
+		Line 44 if (augmentation.stats.crime_money_mult ||
+
+
+/bladeburner_max_stamina_mult/g
+ns.getPlayer().bladeburner_max_stamina_mult was moved to ns.getPlayer().mults.bladeburner_max_stamina
+
+	create-database6.js
+		Line 19 augmentation.stats.bladeburner_max_stamina_mult ||
+
+
+/bladeburner_stamina_gain_mult/g
+ns.getPlayer().bladeburner_stamina_gain_mult was moved to ns.getPlayer().mults.bladeburner_stamina_gain
+
+	create-database6.js
+		Line 20 augmentation.stats.bladeburner_stamina_gain_mult ||
+
+
+/bladeburner_analysis_mult/g
+ns.getPlayer().bladeburner_analysis_mult was moved to ns.getPlayer().mults.bladeburner_analysis
+
+	create-database6.js
+		Line 18 if (augmentation.stats.bladeburner_analysis_mult ||
+
+
+/bladeburner_success_chance_mult/g
+ns.getPlayer().bladeburner_success_chance_mult was moved to ns.getPlayer().mults.bladeburner_success_chance
+
+	create-database6.js
+		Line 21 augmentation.stats.bladeburner_success_chance_mult) return "Bladeburner";
+
+
+/hacking/g
+The work system is completely reworked and ns.getPlayer().hacking no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	rscan.js
+		Line 5 var hackingLevel;
+		Line 21 hackingLevel = ns.getHackingLevel();
+		Line 59 if (ns.getServerRequiredHackingLevel(victims[ii]) < hackingLevel
+		Line 142 if (ns.getServerRequiredHackingLevel(server) > hackingLevel) {
+		Line 173 if (ns.getServerRequiredHackingLevel(server) <= hackingLevel) {
+		Line 197 if (ns.getServerRequiredHackingLevel(server) > hackingLevel ||
+	commit-crimes.js
+		Line 42 if (options.until_hack && player.hacking >= options.until_hack) {
+	writeprogram.js
+		Line 14 while (ns.getPlayer().hacking < program.level) {
+	start-servers.js
+		Line 57 var currentHackingSkill = ns.getPlayer().hacking;
+	nodestart.js
+		Line 33 // take a share of the initial money to develop hacking a bit faster
+		Line 205 if (ns.getPlayer().hacking > 2000) {
+		Line 206 await runAndWait(ns, "optimize-hacking.js");
+		Line 263 if (player.hacking < 50) return;
+	constants.js
+		Line 16 // hacking factions
+	optimize-hack.js
+		Line 4 ns.tprint("No servers running to optimize for hacking...");
+	calculate-goals.js
+		Line 171 const delta = Math.max(0, level - Math.max(50, player.hacking));
+		Line 172 var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	create-database6.js
+		Line 22 if (augmentation.stats.hacking_mult ||
+		Line 23 augmentation.stats.hacking_exp_mult ||
+		Line 24 augmentation.stats.hacking_grow_mult ||
+		Line 25 augmentation.stats.hacking_chance_mult ||
+		Line 26 augmentation.stats.hacking_speed_mult ||
+		Line 27 augmentation.stats.hacking_money_mult) return "Hacking";
+	factiongoals.js
+		Line 59 // first get hacking level to fifty
+		Line 60 while (ns.getPlayer().hacking < 50) {
+		Line 86 if (ns.getPlayer().hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+	rscan-spawn.js
+		Line 3 var hackingLevel;
+		Line 15 hackingLevel = ns.getHackingLevel();
+		Line 85 if (ns.getServer(server).requiredHackingSkill <= hackingLevel) {
+		Line 102 if (ns.getServer(server).requiredHackingSkill > hackingLevel ||
+
+
+/strength/g
+The work system is completely reworked and ns.getPlayer().strength no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	commit-crimes.js
+		Line 54 if (player.strength >= stats) {
+	helpers.js
+		Line 31 player.strength_mult,
+		Line 36 player.strength_exp_mult,
+	nodestart.js
+		Line 264 const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	calculate-goals.js
+		Line 153 statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
+	create-database6.js
+		Line 29 if (augmentation.stats.strength_mult ||
+		Line 30 augmentation.stats.strength_exp_mult ||
+	factiongoals.js
+		Line 331 if (player.strength < stats) {
+	joinbladeburner.js
+		Line 14 if (player.strength < 100) {
+
+
+/defense/g
+The work system is completely reworked and ns.getPlayer().defense no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	commit-crimes.js
+		Line 57 if (player.defense >= stats) {
+	helpers.js
+		Line 32 player.defense_mult,
+		Line 37 player.defense_exp_mult,
+	nodestart.js
+		Line 264 const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	calculate-goals.js
+		Line 151 var statsNeed = Math.max(0, faction.stats - player.defense) / player.defense_exp_mult;
+	create-database6.js
+		Line 31 augmentation.stats.defense_mult ||
+		Line 32 augmentation.stats.defense_exp_mult ||
+	factiongoals.js
+		Line 328 if (player.defense < stats) {
+	joinbladeburner.js
+		Line 20 if (player.defense < 100) {
+
+
+/dexterity/g
+The work system is completely reworked and ns.getPlayer().dexterity no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	commit-crimes.js
+		Line 51 if (player.dexterity >= stats) {
+	helpers.js
+		Line 33 player.dexterity_mult,
+		Line 38 player.dexterity_exp_mult,
+	nodestart.js
+		Line 264 const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	calculate-goals.js
+		Line 152 statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
+	create-database6.js
+		Line 33 augmentation.stats.dexterity_mult ||
+		Line 34 augmentation.stats.dexterity_exp_mult ||
+	factiongoals.js
+		Line 325 if (player.dexterity < stats) {
+	joinbladeburner.js
+		Line 23 if (player.dexterity < 100) {
+
+
+/agility/g
+The work system is completely reworked and ns.getPlayer().agility no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	commit-crimes.js
+		Line 48 if (player.agility >= stats) {
+	helpers.js
+		Line 34 player.agility_mult);
+		Line 39 player.agility_exp_mult);
+	nodestart.js
+		Line 264 const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	calculate-goals.js
+		Line 154 statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
+	create-database6.js
+		Line 35 augmentation.stats.agility_mult ||
+		Line 36 augmentation.stats.agility_exp_mult) return "Combat";
+	factiongoals.js
+		Line 322 if (player.agility < stats) {
+	joinbladeburner.js
+		Line 17 if (player.agility < 100) {
+
+
+/charisma/g
+The work system is completely reworked and ns.getPlayer().charisma no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	create-database6.js
+		Line 37 if (augmentation.stats.charisma_mult ||
+		Line 40 augmentation.stats.charisma_exp_mult) return "Company";
+
+
+/hacking_exp/g
+The work system is completely reworked and ns.getPlayer().hacking_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	calculate-goals.js
+		Line 172 var weighted = delta / player.hacking_exp_mult / player.hacking_mult;
+	create-database6.js
+		Line 23 augmentation.stats.hacking_exp_mult ||
+
+
+/strength_exp/g
+The work system is completely reworked and ns.getPlayer().strength_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	helpers.js
+		Line 36 player.strength_exp_mult,
+	calculate-goals.js
+		Line 153 statsNeed += Math.max(0, faction.stats - player.strength) / player.strength_exp_mult;
+	create-database6.js
+		Line 30 augmentation.stats.strength_exp_mult ||
+
+
+/defense_exp/g
+The work system is completely reworked and ns.getPlayer().defense_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	helpers.js
+		Line 37 player.defense_exp_mult,
+	calculate-goals.js
+		Line 151 var statsNeed = Math.max(0, faction.stats - player.defense) / player.defense_exp_mult;
+	create-database6.js
+		Line 32 augmentation.stats.defense_exp_mult ||
+
+
+/dexterity_exp/g
+The work system is completely reworked and ns.getPlayer().dexterity_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	helpers.js
+		Line 38 player.dexterity_exp_mult,
+	calculate-goals.js
+		Line 152 statsNeed += Math.max(0, faction.stats - player.dexterity) / player.dexterity_exp_mult;
+	create-database6.js
+		Line 34 augmentation.stats.dexterity_exp_mult ||
+
+
+/agility_exp/g
+The work system is completely reworked and ns.getPlayer().agility_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	helpers.js
+		Line 39 player.agility_exp_mult);
+	calculate-goals.js
+		Line 154 statsNeed += Math.max(0, faction.stats - player.agility) / player.agility_exp_mult;
+	create-database6.js
+		Line 36 augmentation.stats.agility_exp_mult) return "Combat";
+
+
+/charisma_exp/g
+The work system is completely reworked and ns.getPlayer().charisma_exp no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	create-database6.js
+		Line 40 augmentation.stats.charisma_exp_mult) return "Company";
+
+
+/hasTixApiAccess/g
+The work system is completely reworked and ns.getPlayer().hasTixApiAccess no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+	helpers.js
+		Line 20 if (!ignoreTrading && player.hasTixApiAccess) { // needs money for trading
+	plan-augmentations.js
+		Line 11 if (ns.getPlayer().hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
+	nodestart.js
+		Line 28 if (player.hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
+		Line 109 if (ns.getPlayer().hasTixApiAccess && getAvailableMoney(ns) > 200e6) {
+
+

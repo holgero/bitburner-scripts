@@ -54,7 +54,7 @@ export async function main(ns) {
 		options.upgrade = ns.serverExists(hostname);
 	}
 
-	var currentHackingSkill = ns.getPlayer().hacking;
+	var currentHackingSkill = ns.getPlayer().skills.hacking;
 
 	var victims = VICTIMS.filter(
 		victim => ns.getServer(victim).hasAdminRights &&

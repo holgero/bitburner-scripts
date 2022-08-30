@@ -8,29 +8,29 @@ export async function main(ns) {
 		return;
 	}
 	while (!player.inBladeburner) {
-		ns.stopAction();
+		ns.singularity.stopAction();
 		await runAndWait(ns, "commit-crimes.js", "--until_stats", "100", "--timed", "120");
 		player = ns.getPlayer();
-		if (player.strength < 100) {
+		if (player.skills.strength < 100) {
 			await workout(ns, "Strength");
 		}
-		if (player.agility < 100) {
+		if (player.skills.agility < 100) {
 			await workout(ns, "Agility");
 		}
-		if (player.defense < 100) {
+		if (player.skills.defense < 100) {
 			await workout(ns, "Defense");
 		}
-		if (player.dexterity < 100) {
+		if (player.skills.dexterity < 100) {
 			await workout(ns, "Dexterity");
 		}
 		if (ns.bladeburner.joinBladeburnerDivision()) {
 			break;
 		}
 	}
-	ns.stopAction();
+	ns.singularity.stopAction();
 }
 
 /** @param {NS} ns */
 async function workout(ns, stat) {
-	await runAndWait(ns, "workout.js", stat, ns.isFocused());
+	await runAndWait(ns, "workout.js", stat, ns.singularity.isFocused());
 }

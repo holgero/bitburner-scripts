@@ -30,7 +30,7 @@ export async function main(ns) {
 			var idx = arg.indexOf(":");
 			factions.push({ name: arg.substring(0, idx), reputation: arg.substring(idx + 1) });
 		} else {
-			factions.push({ name: arg, reputation: ns.getFactionRep(arg) });
+			factions.push({ name: arg, reputation: ns.singularity.getFactionRep(arg) });
 		}
 	}
 	const database = JSON.parse(ns.read("database.txt"));

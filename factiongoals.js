@@ -41,7 +41,7 @@ export async function main(ns) {
 				await ns.sleep(1000 * (realtime - 10));
 			}
 			await ns.sleep(10000);
-			ns.stopAction();
+			ns.singularity.stopAction();
 		}
 	}
 
@@ -55,13 +55,13 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function prepareGoalWork(ns, database) {
-	var focus = ns.isFocused();
+	var focus = ns.singularity.isFocused();
 	// first get hacking level to fifty
-	while (ns.getPlayer().hacking < 50) {
+	while (ns.getPlayer().skills.hacking < 50) {
 		await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
 		await ns.sleep(60000);
-		focus = ns.isFocused();
-		ns.stopAction();
+		focus = ns.singularity.isFocused();
+		ns.singularity.stopAction();
 	}
 }
 
@@ -83,7 +83,7 @@ async function workOnGoals(ns, database, config) {
 async function checkForDaedalus(ns, database, config) {
 	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
 	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
-		if (ns.getPlayer().hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		if (ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
 			ns.spawn("kill-world.js");
 		}
 	}
@@ -133,7 +133,7 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 	while (true) {
 		await checkForDaedalus(ns, database, config);
 		goals.forEach(a => a.achieved = a.reputation ?
-			ns.getFactionRep(a.name) / percentage : 0);
+			ns.singularity.getFactionRep(a.name) / percentage : 0);
 		var goal = await selectGoal(ns, goals, alreadyTried, config);
 		if (!goal) break;
 		await workOnGoal(ns, database, goal, percentage, goals, config);
@@ -160,7 +160,7 @@ async function getEstimation(ns, goal) {
 
 /** @param {NS} ns **/
 async function workOnGoal(ns, database, goal, percentage, goals, config) {
-	if (!goal.reputation || ns.getFactionRep(goal.name) >= percentage * goal.reputation) {
+	if (!goal.reputation || ns.singularity.getFactionRep(goal.name) >= percentage * goal.reputation) {
 		return;
 	}
 	var focus = true;
@@ -182,7 +182,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			ns.printf("At start of checks");
 			if (await buffStatsToNeeded(ns, goal.stats, focus)) {
 				ns.printf("No workout needed");
-				ns.stopAction();
+				ns.singularity.stopAction();
 				if (config.estimatedDonations) {
 					var moneyForDonations = Math.max(0,
 						getAvailableMoney(ns) - config.estimatedPrice);
@@ -200,16 +200,16 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 							goal.name, percentage * goal.reputation, moneyForDonations);
 					}
 				}
-				if (ns.getFactionRep(goal.name) > percentage * goal.reputation) {
+				if (ns.singularity.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
-				var percentComplete = (100.0 * ns.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+				var percentComplete = (100.0 * ns.singularity.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
 				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
-					ns.getFactionRep(goal.name),
+					ns.singularity.getFactionRep(goal.name),
 					percentage * goal.reputation,
 					percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
-				if (goals.filter(a => a.reputation > 0 && a.reputation > ns.getFactionRep(a.name)).length == 0 &&
+				if (goals.filter(a => a.reputation > 0 && a.reputation > ns.singularity.getFactionRep(a.name)).length == 0 &&
 					percentage > 0.999 &&
 					percentComplete > 90) {
 					await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
@@ -229,7 +229,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 						return;
 					}
 				}
-				if (ns.isBusy()) {
+				if (ns.singularity.isBusy()) {
 					await ns.sleep(60000);
 				} else {
 					ns.printf("Not working");
@@ -246,7 +246,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				await runAndWait(ns, "writeprogram.js", 0);
 				await ns.sleep(1000);
 			} else {
-				if (ns.isBusy()) {
+				if (ns.singularity.isBusy()) {
 					await ns.sleep(60000);
 				} else {
 					// not working for a faction: kill a few people
@@ -255,7 +255,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				}
 			}
 		}
-		focus = ns.isFocused();
+		focus = ns.singularity.isFocused();
 
 		// join future factions early, if we can
 		await futureGoalConditions(ns, goals);
@@ -319,16 +319,16 @@ async function selectGoal(ns, goals, alreadyTried, config) {
 function lowStats(ns, stats) {
 	var player = ns.getPlayer();
 	var result = [];
-	if (player.agility < stats) {
+	if (player.skills.agility < stats) {
 		result.push("Agility");
 	}
-	if (player.dexterity < stats) {
+	if (player.skills.dexterity < stats) {
 		result.push("Dexterity");
 	}
-	if (player.defense < stats) {
+	if (player.skills.defense < stats) {
 		result.push("Defense");
 	}
-	if (player.strength < stats) {
+	if (player.skills.strength < stats) {
 		result.push("Strength");
 	}
 	return result;

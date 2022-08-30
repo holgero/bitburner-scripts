@@ -202,7 +202,7 @@ async function improveInfrastructure(ns, nextProgram) {
 		if (!ns.serverExists("pserv-0") ||
 			ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
 			await runAndWait(ns, "start-servers.js", "--auto-upgrade");
-			if (ns.getPlayer().hacking > 2000) {
+			if (ns.getPlayer().skills.hacking > 2000) {
 				await runAndWait(ns, "optimize-hacking.js");
 			}
 		}
@@ -260,8 +260,9 @@ async function travelToGoalLocations(ns) {
 		return;
 	}
 	const player = ns.getPlayer();
-	if (player.hacking < 50) return;
-	const minStat = Math.min(player.strength, player.dexterity, player.defense, player.agility);
+	if (player.skills.hacking < 50) return;
+	const minStat = Math.min(player.skills.strength, player.skills.dexterity,
+		player.skills.defense, player.skills.agility);
 	const factions = player.factions;
 	var goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
 	for (var goal of goals.filter(a => a.location && !factions.includes(a.name))) {

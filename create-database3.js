@@ -9,9 +9,9 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function addFactionInformation(ns, factions) {
 	for (var faction of factions) {
-		faction.favor = ns.getFactionFavor(faction.name);
+		faction.favor = ns.singularity.getFactionFavor(faction.name);
 		if (faction.company) {
-			faction.companyFavor = ns.getCompanyFavor(faction.name);
+			faction.companyFavor = ns.singularity.getCompanyFavor(faction.name);
 		}
 	}
 }

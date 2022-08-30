@@ -15,8 +15,8 @@ function buildAugmentations(ns, factions, augmentations) {
 			} else {
 				augmentations.push({
 					name: augmentation,
-					reputation: ns.getAugmentationRepReq(augmentation),
-					price: ns.getAugmentationPrice(augmentation),
+					reputation: ns.singularity.getAugmentationRepReq(augmentation),
+					price: ns.singularity.getAugmentationPrice(augmentation),
 					factions: [faction.name],
 				});
 			}

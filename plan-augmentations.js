@@ -11,7 +11,7 @@ export async function main(ns) {
 		if (ns.getPlayer().hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
 		await runAndWait(ns, "spend-hashes.js", "--all");
 	}
-	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.getFactionRep(f) }));
+	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.singularity.getFactionRep(f) }));
 	const database = JSON.parse(ns.read("database.txt"));
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	var haveMoney = getAvailableMoney(ns, true) - options.keep;

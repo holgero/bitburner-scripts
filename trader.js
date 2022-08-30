@@ -64,7 +64,7 @@ async function trade(ns, options) {
 async function sellAll(ns, options, portfolio) {
 	var valuation = 0;
 	for (var stk of portfolio) {
-		const sellPrice = ns.stock.sell(stk.symbl, stk.shares);
+		const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
 		const gainedMoney = sellPrice * stk.shares - COMISSION;
 		const win = gainedMoney - stk.cost;
 		ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
@@ -84,7 +84,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		const stk = portfolio[ii];
 		const ups = options.stockUps(ns, stk);
 		if (ups < 0) {
-			const sellPrice = ns.stock.sell(stk.symbl, stk.shares);
+			const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
 			const gainedMoney = sellPrice * stk.shares - COMISSION;
 			const win = gainedMoney - stk.cost;
 			ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
@@ -114,7 +114,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		var shares = Math.min(Math.floor((money - COMISSION) / price),
 			ns.stock.getMaxShares(stockToBuy.symbl) - stockToBuy.shares);
 		var boughtPrice;
-		while (shares > 0 && (boughtPrice = ns.stock.buy(stockToBuy.symbl, shares)) == 0) {
+		while (shares > 0 && (boughtPrice = ns.stock.buyStock(stockToBuy.symbl, shares)) == 0) {
 			shares--;
 		}
 		if (shares <= 0) {

@@ -59,7 +59,7 @@ async function runActions(ns) {
 /** @param {NS} ns */
 function needMoney(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const factions = [{ name: c.BLADEBURNERS, reputation: ns.getFactionRep(c.BLADEBURNERS) }];
+	const factions = [{ name: c.BLADEBURNERS, reputation: ns.singularity.getFactionRep(c.BLADEBURNERS) }];
 	const haveRep = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
 
 	factions[0].reputation = 1e99;

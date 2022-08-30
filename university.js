@@ -18,7 +18,7 @@ export async function main(ns) {
 		}
 		var focus = JSON.parse(options.focus);
 		for (var course of courses) {
-			if (ns.universityCourse(uni, course, focus)) return;
+			if (ns.singularity.universityCourse(uni, course, focus)) return;
 		}
 	}
 }

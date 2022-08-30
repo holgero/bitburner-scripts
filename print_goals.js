@@ -17,11 +17,11 @@ export async function main(ns) {
 			ns.tprintf("%22s %10d %10d %10s  %s",
 				goal.name,
 				goal.reputation,
-				ns.getFactionRep(goal.name),
-				(100 * ns.getFactionRep(goal.name) / goal.reputation).toFixed(1) + " %",
+				ns.singularity.getFactionRep(goal.name),
+				(100 * ns.singularity.getFactionRep(goal.name) / goal.reputation).toFixed(1) + " %",
 				augmentationsFrom(ns, database, goal));
 		} else {
-			ns.tprintf("%22s %10s %10d %10s  %s", goal.name, "", ns.getFactionRep(goal.name), "",
+			ns.tprintf("%22s %10s %10d %10s  %s", goal.name, "", ns.singularity.getFactionRep(goal.name), "",
 				augmentationsFrom(ns, database, goal));
 		}
 	}
@@ -38,10 +38,10 @@ function augmentationsFrom(ns, database, goal) {
 		if (!augmentation) continue;
 		var reputation = goal.reputation;
 		if (goal.reputation) {
-			reputation = Math.max(goal.reputation, ns.getFactionRep(goal.name));
+			reputation = Math.max(goal.reputation, ns.singularity.getFactionRep(goal.name));
 		}
 		else {
-			reputation = ns.getFactionRep(goal.name);
+			reputation = ns.singularity.getFactionRep(goal.name);
 		}
 		// ns.tprintf("Augmentation: %s", JSON.stringify(augmentation));
 		if (augmentation.reputation <= reputation) {

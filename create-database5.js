@@ -8,6 +8,6 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function getMissingInfo(ns, augmentations) {
 	for (var augmentation of augmentations) {
-		augmentation.requirements = ns.getAugmentationPrereq(augmentation.name);
+		augmentation.requirements = ns.singularity.getAugmentationPrereq(augmentation.name);
 	}
 }

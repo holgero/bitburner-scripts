@@ -6,8 +6,8 @@ const SHOPLIFT = "Shoplift";
 export async function main(ns) {
 	var options = ns.flags([["until_hack", 0], ["until_stats", 0], ["timed", 0]]);
 	var startTime = ns.getPlayer().playtimeSinceLastAug;
-	while (ns.getCrimeChance(HOMICIDE) < 0.5) {
-		while (ns.getCrimeChance(MUG) < 0.5) {
+	while (ns.singularity.getCrimeChance(HOMICIDE) < 0.5) {
+		while (ns.singularity.getCrimeChance(MUG) < 0.5) {
 			await commitCrime(ns, SHOPLIFT);
 			if (checkCondition(ns, options, startTime))  return;
 		}
@@ -21,12 +21,12 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function commitCrime(ns, crime) {
-	if (ns.isBusy()) {
+	if (ns.singularity.isBusy()) {
 		await ns.sleep(1000);
 	} else {
-		ns.commitCrime(crime);
+		ns.singularity.commitCrime(crime);
 		await ns.sleep(500);
-		while (ns.isBusy()) {
+		while (ns.singularity.isBusy()) {
 			await ns.sleep(500);
 		}
 	}
@@ -39,22 +39,22 @@ function checkCondition(ns, options, startTime) {
 		// ns.printf("Timed option: %d", options.timed);
 		if ((now - startTime)/1000 > options.timed) return true;
 	}
-	if (options.until_hack && player.hacking >= options.until_hack) {
+	if (options.until_hack && player.skills.hacking >= options.until_hack) {
 		return true;
 	}
 	if (options.until_stats) {
 		var stats = options.until_stats;
 		var count = 0;
-		if (player.agility >= stats) {
+		if (player.skills.agility >= stats) {
 			count++;
 		}
-		if (player.dexterity >= stats) {
+		if (player.skills.dexterity >= stats) {
 			count++;
 		}
-		if (player.strength >= stats) {
+		if (player.skills.strength >= stats) {
 			count++;
 		}
-		if (player.defense >= stats) {
+		if (player.skills.defense >= stats) {
 			count++;
 		}
 		return count >= 3;
