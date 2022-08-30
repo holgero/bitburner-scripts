@@ -262,7 +262,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 
 		// if there is no progress towards the goal give up.
 		if (!ns.getPlayer().factions.includes(goal.name)) {
-			if (!goal.company || !ns.getPlayer().company) {
+			if (!goal.company || ns.getPlayer().company == "") {
 				attempts++;
 				if (attempts >= 3) {
 					ns.printf("No progress towards %s, try again later", goal.name);
