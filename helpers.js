@@ -7,6 +7,9 @@ export function formatMoney(amount) {
 		amount = - amount;
 	}
 	var magnitude = Math.min(suffix.length - 1, Math.floor(Math.log10(amount) / 3));
+	if (magnitude < 0) {
+		magnitude = 0;
+	}
 	if (amount == 0) {
 		magnitude = 0;
 	}
