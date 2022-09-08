@@ -73,6 +73,7 @@ const FILES = [
 const CONTRACTSOLVER = [
 	"arrayjumpinggame.js",
 	"compression.js",
+	"encryption.js",
 	"generateipaddress.js",
 	"graphcoloring.js",
 	"gridpaths.js",

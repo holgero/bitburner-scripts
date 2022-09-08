@@ -13,6 +13,7 @@ import { stockTraderI, stockTraderII, stockTraderIII, stockTraderIV } from "cont
 import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
 import { rleCompression, lzDecompression, lzCompression } from "contractsolver/compression.js";
 import { graphColoring } from "contractsolver/graphcoloring.js";
+import { caesarEncryption, vignereEncryption } from "contractsolver/encryption.js";
 
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
@@ -39,6 +40,8 @@ const RLE_COMPRESSION = "Compression I: RLE Compression";
 const LZ_DECOMPRESSION = "Compression II: LZ Decompression";
 const LZ_COMPRESSION = "Compression III: LZ Compression";
 const GRAPH_COLOR = "Proper 2-Coloring of a Graph";
+const ENCRYPT_CAESAR = "Encryption I";
+const ENCRYPT_VIGNERE = "Encryption II";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -135,6 +138,12 @@ export async function solveContract(ns, contract) {
 			break;
 		case GRAPH_COLOR:
 			solution = graphColoring(data[0], data[1]);
+			break;
+		case ENCRYPT_CAESAR:
+			solution = caesarEncryption(data[0], data[1]);
+			break;
+		case ENCRYPT_VIGNERE:
+			solution = vignereEncryption(data[0], data[1]);
 			break;
 		default:
 			ns.tprintf("Cannot solve contract: %s %s '%s' '%s'",
