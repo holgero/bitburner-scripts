@@ -180,7 +180,7 @@ async function printBackdoorRoutes(ns, options, server) {
 
 /** @param {NS} ns **/
 async function printRoute(ns, options, server) {
-	ns.tprint("home; connect ", path.join("; connect "));
+	ns.tprintf("%s: home; connect %s", server, path.join("; connect "));
 }
 
 /** @param {NS} ns **/
