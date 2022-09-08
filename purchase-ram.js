@@ -5,7 +5,7 @@ export async function main(ns) {
 	var goal = +ns.args[0];
 	while (ns.getServerMaxRam("home") < goal && 
 			ns.singularity.getUpgradeHomeRamCost() < getAvailableMoney(ns)) {
-		if (!ns.upgradeHomeRam()) break;
+		if (!ns.singularity.upgradeHomeRam()) break;
 	}
 	ns.tprintf("Home server ram: %d GB", ns.getServerMaxRam("home"));
 }

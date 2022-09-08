@@ -13,6 +13,6 @@ function costToBribeTo(ns, faction, reputation) {
 		return 0;
 	}
 	var needed = Math.max(0, reputation - ns.singularity.getFactionRep(faction));
-	var cost = 1000000 * needed / ns.getPlayer().faction_rep_mult;
+	var cost = 1000000 * needed / ns.getPlayer().mults.faction_rep;
 	return cost;
 }
