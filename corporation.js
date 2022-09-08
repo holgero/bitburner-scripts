@@ -34,6 +34,7 @@ const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e15;
+const MINIMUM_SHARE_PRICE = 10;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
@@ -43,7 +44,7 @@ export async function main(ns) {
 	while (true) {
 		var player = ns.getPlayer();
 		if (!player.hasCorporation) {
-			if (!ns.corporation.createCorporation("ACME", player.bitNodeN != 3)) {
+			if (!ns.corporation.createCorporation("ACME", player.bitNodeN == 3)) {
 				await ns.sleep(60000);
 				continue;
 			}
@@ -61,6 +62,7 @@ export async function main(ns) {
 
 		if (corporation.numShares > 0 &&
 			!corporation.shareSaleCooldown &&
+			corporation.sharePrice > MINIMUM_SHARE_PRICE &&
 			(corporation.sharePrice > target &&
 				getAvailableMoney(ns) < RICHMAN_MONEY ||
 				(
