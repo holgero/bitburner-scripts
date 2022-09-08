@@ -25,10 +25,6 @@ async function commitCrime(ns, crime) {
 		await ns.sleep(1000);
 	} else {
 		ns.singularity.commitCrime(crime);
-		await ns.sleep(500);
-		while (ns.singularity.isBusy()) {
-			await ns.sleep(500);
-		}
 	}
 }
 
