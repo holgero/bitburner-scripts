@@ -11,8 +11,10 @@ export async function main(ns) {
 	for (var ii = 0; ii < 10; ii++) {
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);
-		if (getAvailableMoney(ns) > 2 * await getEstimation(ns, false)) {
+		if (getAvailableMoney(ns) > await getEstimation(ns, false)) {
 			await runAndWait(ns, "calculate-goals.js");
+		} else {
+			break;
 		}
 	}
 
