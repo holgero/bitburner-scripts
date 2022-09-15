@@ -2,6 +2,11 @@
 export async function main(ns) {
 	var faction = ns.args[0];
 	var worktype = ns.args[1];
-	var focus = JSON.parse(ns.args[2]);
-	ns.singularity.workForFaction(faction, worktype, focus);
+	const current = ns.singularity.getCurrentWork();
+	if (current != null && current.type == "FACTION" && current.factionName == faction) {
+		ns.printf("Already working for %s", current.factionName);
+		return;
+	}
+	ns.singularity.workForFaction(faction, worktype);
 }
+// {"type":"FACTION","cyclesWorked":159,"factionWorkType":"HACKING","factionName":"CyberSec"}

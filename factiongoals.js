@@ -43,7 +43,6 @@ export async function main(ns) {
 				await ns.sleep(1000 * (realtime - 10));
 			}
 			await ns.sleep(10000);
-			ns.singularity.stopAction();
 		}
 	}
 
@@ -63,7 +62,6 @@ async function prepareGoalWork(ns, database) {
 		await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
 		await ns.sleep(60000);
 		focus = ns.singularity.isFocused();
-		ns.singularity.stopAction();
 	}
 }
 
@@ -180,11 +178,14 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			}
 		}
 		// how to spend our time
+		if (!ns.singularity.isBusy()) {
+			// default way to spend the time is to commit a few crimes
+			await runAndWait(ns, "commit-crimes.js");
+		}
 		if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
 			ns.printf("At start of checks");
 			if (await buffStatsToNeeded(ns, goal.stats, focus)) {
 				ns.printf("No workout needed");
-				ns.singularity.stopAction();
 				if (config.estimatedDonations) {
 					var moneyForDonations = Math.max(0,
 						getAvailableMoney(ns) - config.estimatedPrice);
@@ -220,10 +221,10 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				}
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					ns.printf("Start working at company");
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT", focus);
+					await runAndWait(ns, "workforcompany.js", goal.name, "IT");
 				}
 				ns.printf("Start working for faction");
-				await runAndWait(ns, "workforfaction.js", goal.name, goal.work, focus);
+				await runAndWait(ns, "workforfaction.js", goal.name, goal.work);
 				if (goal.name != c.DAEDALUS) {
 					await checkForDaedalus(ns, database, config);
 					if (config.finalGoal) {
@@ -231,30 +232,15 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 						return;
 					}
 				}
-				if (ns.singularity.isBusy()) {
-					await ns.sleep(60000);
-				} else {
-					ns.printf("Not working");
-					// not working for a faction: kill a few people
-					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-					await ns.sleep(15000);
-				}
-			} else {
-				await ns.sleep(15000);
 			}
+			await ns.sleep(60000);
 		} else {
 			ns.printf("Not working and nothing to do");
 			if (!ns.fileExists(c.programs[0].name)) {
 				await runAndWait(ns, "writeprogram.js", 0);
 				await ns.sleep(1000);
 			} else {
-				if (ns.singularity.isBusy()) {
-					await ns.sleep(60000);
-				} else {
-					// not working for a faction: kill a few people
-					await runAndWait(ns, "commit-crimes.js", "--timed", 50);
-					await ns.sleep(15000);
-				}
+				await ns.sleep(60000);
 			}
 		}
 		focus = ns.singularity.isFocused();
@@ -348,8 +334,6 @@ async function buffStatsToNeeded(ns, stats, focus) {
 	ns.printf("Too low on stats: %s", JSON.stringify(statsTooLow));
 	if (statsTooLow.length == 1) {
 		await runAndWait(ns, "workout.js", statsTooLow[0], focus);
-	} else {
-		await runAndWait(ns, "commit-crimes.js", "--until_stats", stats, "--timed", 60);
 	}
 	return false;
 }

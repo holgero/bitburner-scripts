@@ -7,12 +7,8 @@ export async function main(ns) {
 	if (ns.singularity.gymWorkout("Powerhouse Gym", lowStatName, focus) ||
 		ns.singularity.gymWorkout("Snap Fitness Gym", lowStatName, focus) ||
 		ns.singularity.gymWorkout("Millenium Fitness Gym", lowStatName, focus)) {
-		await ns.sleep(60000);
-	} else {
-		ns.singularity.travelToCity(c.SECTOR12);
-		if (!ns.singularity.gymWorkout("Powerhouse Gym", lowStatName, focus)) {
-			ns.spawn("commit-crimes.js", 1, "--timed", 60);
-		}
+		return;
 	}
-	return;
+	ns.singularity.travelToCity(c.SECTOR12);
+	ns.singularity.gymWorkout("Powerhouse Gym", lowStatName, focus);
 }
