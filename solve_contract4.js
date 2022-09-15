@@ -40,8 +40,8 @@ const RLE_COMPRESSION = "Compression I: RLE Compression";
 const LZ_DECOMPRESSION = "Compression II: LZ Decompression";
 const LZ_COMPRESSION = "Compression III: LZ Compression";
 const GRAPH_COLOR = "Proper 2-Coloring of a Graph";
-const ENCRYPT_CAESAR = "Encryption I";
-const ENCRYPT_VIGNERE = "Encryption II";
+const ENCRYPT_CAESAR = "Encryption I: Caesar Cipher";
+const ENCRYPT_VIGNERE = "Encryption II: Vigenère Cipher";
 
 /** @param {NS} ns **/
 export async function main(ns) {
