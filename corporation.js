@@ -33,7 +33,7 @@ const MAX_SELL = "MAX";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 const POORMAN_MONEY = 1e9;
-const RICHMAN_MONEY = 1e15;
+const RICHMAN_MONEY = 1e12;
 const MINIMUM_SHARE_PRICE = 10;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
@@ -54,43 +54,69 @@ export async function main(ns) {
 			ns.corporation.goPublic(1e9);
 		}
 		await setupCorporation(ns);
-		corporation = ns.corporation.getCorporation();
-		var value = valuation(ns, corporation);
-		var low = value / (2 * corporation.totalShares);
-		var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
-		var target = (low + high) / 2;
-
-		if (corporation.numShares > 0 &&
-			!corporation.shareSaleCooldown &&
-			corporation.sharePrice > MINIMUM_SHARE_PRICE &&
-			(corporation.sharePrice > target &&
-				getAvailableMoney(ns) < RICHMAN_MONEY ||
-				(
-					getAvailableMoney(ns) < POORMAN_MONEY &&
-					corporation.sharePrice > 2 * low)) &&
-			!ns.fileExists("stopselling.txt")) {
-			var money = getAvailableMoney(ns);
-			ns.corporation.sellShares(corporation.numShares);
-			ns.corporation.issueDividends(1);
-			var earned = getAvailableMoney(ns) - money;
-			ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
-			ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
-		}
-		if (corporation.issuedShares > 0 && corporation.shareSaleCooldown < 15000 &&
-			corporation.sharePrice < target) {
-			if (corporation.issuedShares * corporation.sharePrice * 1.1 < getAvailableMoney(ns)) {
-				var money = getAvailableMoney(ns);
-				ns.corporation.issueDividends(0);
-				ns.corporation.buyBackShares(corporation.issuedShares);
-				var spend = money - getAvailableMoney(ns);
-				ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
-				ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
-			}
-		}
-
+		tradeCorporationShares(ns);
 		await printCorporationInfo(ns);
 		await ns.sleep(10000);
 	}
+}
+
+function tradeCorporationShares(ns) {
+	var corporation = ns.corporation.getCorporation();
+	var value = valuation(ns, corporation);
+	var low = value / (2 * corporation.totalShares);
+	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
+	var target = (low + high) / 2;
+
+	if (shouldSell(ns, corporation, target, low)) {
+		var money = getAvailableMoney(ns);
+		ns.corporation.sellShares(corporation.numShares);
+		ns.corporation.issueDividends(1);
+		var earned = getAvailableMoney(ns) - money;
+		ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
+		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
+	}
+	if (shouldBuy(ns, corporation, target)) {
+		var money = getAvailableMoney(ns);
+		ns.corporation.issueDividends(0);
+		ns.corporation.buyBackShares(corporation.issuedShares);
+		var spend = money - getAvailableMoney(ns);
+		ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
+		ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
+	}
+}
+
+function shouldSell(ns, corporation, target, low) {
+	if (ns.fileExists("stopselling.txt")) {
+		return false;
+	}
+	if (corporation.numShares <= 0 || corporation.shareSaleCooldown) {
+		return false;
+	}
+	if (corporation.sharePrice < MINIMUM_SHARE_PRICE) {
+		return false;
+	}
+	if (getAvailableMoney(ns) > RICHMAN_MONEY) {
+		return false;
+	}
+	return (corporation.sharePrice > target ||
+		(corporation.sharePrice > low && getAvailableMoney(ns) < POORMAN_MONEY));
+}
+
+function shouldBuy(ns, corporation, target) {
+	if (corporation.issuedShares <= 0) {
+		return false;
+	}
+	if (getAvailableMoney(ns) > RICHMAN_MONEY) {
+		return true;
+	}
+	if (corporation.shareSaleCooldown > 15000) {
+		return false;
+	}
+	if (corporation.sharePrice < target &&
+		(corporation.issuedShares * corporation.sharePrice * 1.1 < getAvailableMoney(ns))) {
+		return true;
+	}
+	return false;
 }
 
 /** @param {NS} ns **/
