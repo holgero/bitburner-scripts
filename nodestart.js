@@ -17,14 +17,7 @@ export async function main(ns) {
 		startState = "augs";
 	} else {
 		ns.tprintf("Restart during a run. Killing all home scripts");
-		ns.scriptKill("instrument.js", "home");
-		ns.scriptKill("factiongoals.js", "home");
-		ns.scriptKill("trader.js", "home");
-		ns.scriptKill("bladerunner.js", "home");
-		ns.scriptKill("corporation.js", "home");
-		ns.scriptKill("do-weaken.js", "home");
-		ns.scriptKill("do-hack.js", "home");
-		ns.scriptKill("do-grow.js", "home");
+		killOthers(ns);
 		if (player.hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
 		startState = "restart";
 	}
@@ -54,6 +47,17 @@ export async function main(ns) {
 	await progressHackingLevels(ns);
 }
 
+function killOthers(ns) {
+	ns.scriptKill("instrument.js", "home");
+	ns.scriptKill("factiongoals.js", "home");
+	ns.scriptKill("trader.js", "home");
+	ns.scriptKill("bladerunner.js", "home");
+	ns.scriptKill("corporation.js", "home");
+	ns.scriptKill("do-weaken.js", "home");
+	ns.scriptKill("do-hack.js", "home");
+	ns.scriptKill("do-grow.js", "home");
+}
+
 async function setUpForCorporations(ns) {
 	var currentMoney = getAvailableMoney(ns);
 	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
@@ -63,8 +67,10 @@ async function setUpForCorporations(ns) {
 		if (ns.getServerMaxRam("home") >= 2048) {
 			currentMoney = getAvailableMoney(ns);
 			if (ns.getPlayer().hasCorporation || currentMoney > 150e9) {
+				killOthers(ns);
 				ns.run("corporation.js");
 				await ns.sleep(1000);
+				await runHomeScripts(ns);
 			}
 		}
 		if (ns.getServerMaxRam("home") != ramBefore) {
@@ -89,7 +95,10 @@ async function runHomeScripts(ns) {
 			ns.scriptKill("factiongoals.js", "home");
 		}
 		if (!ns.scriptRunning("bladeburner.js", "home")) {
-			await runAndWait(ns, "joinbladeburner.js");
+			if (ns.getServerMaxRam("home") > 1024 &&
+				ns.getPlayer().hasCorporation) {
+				await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
+			}
 			ns.run("bladeburner.js", 1, ...ns.args);
 			await ns.sleep(1000);
 		}
@@ -152,6 +161,7 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "spend-hashes.js");
 		await runAndWait(ns, "joinfactions.js");
+		await runAndWait(ns, "joinbladeburner.js", "--faction");
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
