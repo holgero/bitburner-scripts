@@ -15,6 +15,10 @@ export async function main(ns) {
 	}
 
 	while (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore, maxCache)) {
+		if (ns.scriptRunning("start-servers2.js", "home")) {
+			ns.tprintf("Server installation running, stoping hacknet expansion.");
+			return;
+		}
 		while (ns.hacknet.numHashes() > ns.hacknet.hashCost("Sell for Money")) {
 			ns.hacknet.spendHashes("Sell for Money");
 		}
