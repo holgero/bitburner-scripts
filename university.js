@@ -1,22 +1,28 @@
-const UNIS = [ "ZB Institute of Technology", "Summit University", "Rothman University"];
-// const CS_COURSES = [ "Algorithms", "Networks", "Data Structures", "Computer Science"];
-const CS_COURSES = [ "Study Computer Science"];
-const BA_COURSES = [ "Leadership", "Management"];
+import { getAvailableMoney } from "./helpers.js";
+
+const UNIS = ["ZB Institute of Technology", "Summit University", "Rothman University"];
+const CS_COURSES = ["Algorithms", "Networks", "Data Structures", "Study Computer Science"];
+const CHEAP_CS_COURSES = ["Study Computer Science"];
+const BA_COURSES = ["Leadership", "Management"];
 
 /** @param {NS} ns */
 export async function main(ns) {
-	var options = ns.flags([["course", "CS"], ["focus", "false"]]);
-	for (var uni of UNIS) {
-		var courses;
-		switch (options.course) {
-			case "CS":
-			courses = CS_COURSES;
+	const options = ns.flags([["course", "CS"], ["focus", "false"]]);
+	const focus = JSON.parse(options.focus);
+	var courses;
+	switch (options.course) {
+		case "CS":
+			if (getAvailableMoney(ns) > 1e9) {
+				courses = CS_COURSES;
+			} else {
+				courses = CHEAP_CS_COURSES;
+			}
 			break;
-			case "BA":
+		case "BA":
 			courses = BA_COURSES;
 			break;
-		}
-		var focus = JSON.parse(options.focus);
+	}
+	for (var uni of UNIS) {
 		for (var course of courses) {
 			if (ns.singularity.universityCourse(uni, course, focus)) return;
 		}
