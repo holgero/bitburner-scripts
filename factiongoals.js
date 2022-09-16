@@ -206,10 +206,10 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				if (ns.singularity.getFactionRep(goal.name) > percentage * goal.reputation) {
 					break;
 				}
-				var percentComplete = (100.0 * ns.singularity.getFactionRep(goal.name) / (percentage * goal.reputation)).toFixed(1);
+				var percentComplete = (100.0 * ns.singularity.getFactionRep(goal.name) / goal.reputation).toFixed(1);
 				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
 					ns.singularity.getFactionRep(goal.name),
-					percentage * goal.reputation,
+					goal.reputation,
 					percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
 				if (goals.filter(a => a.reputation > 0 && a.reputation > ns.singularity.getFactionRep(a.name)).length == 0 &&
