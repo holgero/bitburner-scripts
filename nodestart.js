@@ -18,7 +18,9 @@ export async function main(ns) {
 	} else {
 		ns.tprintf("Restart during a run. Killing all home scripts");
 		killOthers(ns);
-		if (player.hasTixApiAccess) await runAndWait(ns, "sell-all-stocks.js");
+		if (ns.stock.hasTIXAPIAccess()) {
+			await runAndWait(ns, "sell-all-stocks.js");
+		}
 		startState = "restart";
 	}
 
@@ -115,7 +117,7 @@ async function runHomeScripts(ns) {
 		}
 	}
 	if (!ns.scriptRunning("trader.js", "home")) {
-		if (ns.getPlayer().hasTixApiAccess && getAvailableMoney(ns) > 200e6) {
+		if (ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 200e6) {
 			var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
 			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
 			ns.run("trader.js");
