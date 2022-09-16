@@ -15,8 +15,11 @@ export async function main(ns) {
 	} else {
 		if (options.goal) {
 			const config = JSON.parse(ns.read("factiongoals.txt"));
-			loopOver = [];
 			for (var goal of config.factionGoals) {
+				if (loopOver.includes(goal.name)) {
+					var idx = loopOver.indexOf(goal.name);
+					loopOver.splice(idx, 1);
+				}
 				if (goal.reputation) {
 					loopOver.push(goal.name + ":" + goal.reputation);
 				} else {
