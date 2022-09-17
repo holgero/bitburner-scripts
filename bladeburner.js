@@ -59,10 +59,19 @@ async function runActions(ns) {
 /** @param {NS} ns */
 function needMoney(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
-	const factions = [{ name: c.BLADEBURNERS, reputation: ns.singularity.getFactionRep(c.BLADEBURNERS) }];
+	const factions = [{
+		name: c.BLADEBURNERS,
+		reputation: 1e99,
+	}];
+	const allAugs = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
+	if (allAugs == 0) {
+		// own all augmentations but still might be poor
+		return getAvailableMoney(ns) < 100e9;
+	}
+
+	factions[0].reputation = ns.singularity.getFactionRep(c.BLADEBURNERS)
 	const haveRep = getAugmentationsToPurchase(ns, database, factions, 1e99).length;
 
-	factions[0].reputation = 1e99;
 	const myMoney = getAvailableMoney(ns, true);
 	const enoughMoney = getAugmentationsToPurchase(ns, database, factions, myMoney);
 	filterExpensiveAugmentations(ns, enoughMoney, myMoney);
