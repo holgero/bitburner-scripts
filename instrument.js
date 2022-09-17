@@ -10,11 +10,8 @@ export async function main(ns) {
 	ns.scriptKill(GROW_SCRIPT, "home");
 	ns.scriptKill(HACK_SCRIPT, "home");
 
-	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - options.spare;
-	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
-		ns.tprintf("Not enough ram, exiting");
-		return;
-	}
+	var availableRam = ramAvailable(ns, options.spare);
+	if (availableRam < 0) return;
 	var serverData = {
 		moneyMin: ns.getServerMaxMoney(options.target) * 0.75,
 		moneyMax: ns.getServerMaxMoney(options.target) * 0.95,
@@ -29,6 +26,8 @@ export async function main(ns) {
 		options.target, serverData.weakenThreads, serverData.growThreads)
 
 	while (true) {
+		var availableRam = ramAvailable(ns, options.spare);
+		if (availableRam < 0) return;
 		var hackThreads = Math.max(0, Math.floor((availableRam
 			- serverData.growThreads * ns.getScriptRam(GROW_SCRIPT)
 			- serverData.weakenThreads * ns.getScriptRam(WEAKEN_SCRIPT)) /
@@ -84,4 +83,13 @@ export async function main(ns) {
 		ns.scriptKill(GROW_SCRIPT, "home");
 		ns.scriptKill(HACK_SCRIPT, "home");
 	}
+}
+
+function ramAvailable(ns, spare) {
+	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - spare;
+	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
+		ns.tprintf("Not enough ram, exiting");
+		return -1;
+	}
+	return availableRam;
 }
