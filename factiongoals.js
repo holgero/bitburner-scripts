@@ -238,10 +238,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 			ns.printf("Not working and nothing to do");
 			if (!ns.fileExists(c.programs[0].name)) {
 				await runAndWait(ns, "writeprogram.js", 0);
-				await ns.sleep(1000);
-			} else {
-				await ns.sleep(60000);
 			}
+			await ns.sleep(60000);
 		}
 		focus = ns.singularity.isFocused();
 

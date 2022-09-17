@@ -5,19 +5,17 @@ import { getAvailableMoney } from "helpers.js";
 export async function main(ns) {
 	var program = programs[ns.args[0]];
 
-	await writeProgram(ns, program);
-}
-
-/** @param {NS} ns **/
-async function writeProgram(ns, program) {
-	while (!ns.fileExists(program.name)) {
-		while (ns.getPlayer().skills.hacking < program.level) {
-			if (tryToBuyProgram(ns, program)) return;
-			await ns.sleep(60000);
+	if (!ns.fileExists(program.name)) {
+		if (tryToBuyProgram(ns, program)) {
+			 return;
 		}
-		if (tryToBuyProgram(ns, program)) return;
+		const current = ns.singularity.getCurrentWork();
+		if (current != null &&
+			current.type == "CREATE_PROGRAM" && current.programName == program.name) {
+			ns.printf("Already coding %s", current.programName);
+			return;
+		}
 		ns.singularity.createProgram(program.name, true);
-		await ns.sleep(60000);
 	}
 }
 
