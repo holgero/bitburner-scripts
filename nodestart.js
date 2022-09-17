@@ -65,7 +65,7 @@ async function setUpForCorporations(ns) {
 	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
 		!ns.scriptRunning("corporation.js", "home")) {
 		var ramBefore = ns.getServerMaxRam("home");
-		await runAndWait(ns, "purchase-ram.js", 2048);
+		await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
 			currentMoney = getAvailableMoney(ns);
 			if (ns.getPlayer().hasCorporation || currentMoney > 150e9) {
@@ -202,7 +202,7 @@ async function improveInfrastructure(ns, nextProgram) {
 	// upgrade home pc
 	if (nextProgram > 2) {
 		if (ns.getServerMaxRam("home") < 64) {
-			await runAndWait(ns, "purchase-ram.js", 64);
+			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
 			if (ns.getServerMaxRam("home") >= 64) {
 				await runHomeScripts(ns);
 			}
@@ -228,7 +228,7 @@ async function improveInfrastructure(ns, nextProgram) {
 			await runAndWait(ns, "start-hacknet.js", 10);
 			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
-				await runAndWait(ns, "purchase-ram.js", 256);
+				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 				if (ns.getServerMaxRam("home") >= 256) {
 					await runHomeScripts(ns);
 				}
@@ -241,6 +241,15 @@ async function improveInfrastructure(ns, nextProgram) {
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
 		}
 		await setUpForCorporations(ns);
+		currentMoney = getAvailableMoney(ns);
+		if (currentMoney > 1e15 && ns.getPlayer().hasCorporation &&
+			ns.scriptRunning("corporation.js", "home") && 
+			!ns.scriptRunning("start-hacknet2.js", "home") && 
+			!ns.scriptRunning("start-servers.js", "home") && 
+			!ns.scriptRunning("start-servers2.js", "home")) {
+			await runAndWait(ns, "purchase-cores.js", "--reserve", 100e12);
+			await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 100e12);
+		}
 	}
 }
 

@@ -1,4 +1,4 @@
-import { getAvailableMoney } from "helpers.js";
+import { getAvailableMoney, runAndWait } from "helpers.js";
 import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
@@ -22,16 +22,8 @@ export async function main(ns) {
 
 	ns.tprintf("Bought planned augmentations, spending remaining money: ", getAvailableMoney(ns, true));
 	// if there is money left, run home upgrades
-	while (ns.singularity.getUpgradeHomeCoresCost() < getAvailableMoney(ns, true)) {
-		if (!ns.singularity.upgradeHomeCores()) break;
-		ns.tprintf("Bought a core, money left: %d", getAvailableMoney(ns, true));
-		await ns.sleep(500);
-	}
-	while (ns.singularity.getUpgradeHomeRamCost() < getAvailableMoney(ns, true)) {
-		if (!ns.singularity.upgradeHomeRam()) break;
-		ns.tprintf("Bought ram, money left: %d", getAvailableMoney(ns, true));
-		await ns.sleep(500);
-	}
+	await runAndWait(ns, "purchase-cores.js", "unlimited");
+	await runAndWait(ns, "purchase-ram.js", "unlimited");
 
 	// spend the rest of the money on Neural Governor augs
 	while (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {

@@ -43,6 +43,7 @@ const FILES = [
 	"playerinfo.js",
 	"print_goals.js",
 	"purchase-augmentations.js",
+	"purchase-cores.js",
 	"purchase-ram.js",
 	"reset.js",
 	"rscan.js",
