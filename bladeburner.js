@@ -6,12 +6,13 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	const player = ns.getPlayer();
 	const database = JSON.parse(ns.read("database.txt"));
-	if (player.bitNodeN != 6 && player.bitNodeN != 7 &&
+	if (player.bitNodeN != 6 && player.bitNodeN != 7 && player.bitNodeN != 11 &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.tprintf("Neither on bitnode 6 or 7 (%d) and nor have the %s",
+		ns.tprintf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
+	await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
 	await runActions(ns);
 }
 
