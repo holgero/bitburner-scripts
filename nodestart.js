@@ -17,7 +17,7 @@ export async function main(ns) {
 		startState = "augs";
 	} else {
 		ns.tprintf("Restart during a run. Killing all home scripts");
-		killOthers(ns);
+		await killOthers(ns);
 		if (ns.stock.hasTIXAPIAccess()) {
 			await runAndWait(ns, "sell-all-stocks.js");
 		}
@@ -46,15 +46,15 @@ export async function main(ns) {
 	await progressHackingLevels(ns);
 }
 
-function killOthers(ns) {
+async function killOthers(ns) {
 	ns.scriptKill("instrument.js", "home");
 	ns.scriptKill("factiongoals.js", "home");
-	ns.scriptKill("trader.js", "home");
 	ns.scriptKill("bladerunner.js", "home");
 	ns.scriptKill("corporation.js", "home");
 	ns.scriptKill("do-weaken.js", "home");
 	ns.scriptKill("do-hack.js", "home");
 	ns.scriptKill("do-grow.js", "home");
+	await stopTrader(ns);
 }
 
 async function setUpForCorporations(ns) {
@@ -69,15 +69,36 @@ async function setUpForCorporations(ns) {
 		if (ns.getServerMaxRam("home") >= 2048) {
 			currentMoney = getAvailableMoney(ns);
 			if (ns.getPlayer().hasCorporation || currentMoney > 150e9) {
-				killOthers(ns);
+				await killOthers(ns);
 				ns.run("corporation.js");
 				await ns.sleep(1000);
 				await runHomeScripts(ns);
+				return;
 			}
 		}
 		if (ns.getServerMaxRam("home") != ramBefore) {
 			await runHomeScripts(ns);
 		}
+	}
+}
+
+/** @param {NS} ns **/
+async function startTrader(ns) {
+	if (!ns.scriptRunning("trader.js", "home")) {
+		if (ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 200e6) {
+			var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
+			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+			ns.run("trader.js");
+		}
+	}
+}
+
+/** @param {NS} ns **/
+async function stopTrader(ns) {
+	if (ns.scriptRunning("trader.js", "home")) {
+		ns.scriptKill("trader.js", "home");
+		await runAndWait(ns, "sell-all-stocks.js");
+		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
 	}
 }
 
@@ -90,7 +111,7 @@ async function runHomeScripts(ns) {
 	}
 	if (ns.getPlayer().bitNodeN == 8) {
 		if (!ns.scriptRunning("trader.js", "home")) {
-			ns.run("trader.js");
+			await startTrader(ns);
 		}
 	}
 	if (ns.getServerMaxRam("home") > 32) {
@@ -121,13 +142,7 @@ async function runHomeScripts(ns) {
 			ns.run("factiongoals.js", 1, ...ns.args);
 		}
 	}
-	if (!ns.scriptRunning("trader.js", "home")) {
-		if (ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 200e6) {
-			var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
-			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
-			ns.run("trader.js");
-		}
-	}
+	await startTrader(ns);
 	if (!ns.scriptRunning("instrument.js", "home")) {
 		ns.run("instrument.js", 1);
 	}
@@ -227,6 +242,7 @@ async function improveInfrastructure(ns, nextProgram) {
 	}
 	currentMoney = getAvailableMoney(ns);
 	if (nextProgram >= c.programs.length) {
+		await startTrader(ns);
 		if (currentMoney < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
 		} else if (currentMoney < 1e12) {
@@ -248,9 +264,9 @@ async function improveInfrastructure(ns, nextProgram) {
 		}
 		currentMoney = getAvailableMoney(ns);
 		if (currentMoney > 1e15 && ns.getPlayer().hasCorporation &&
-			ns.scriptRunning("corporation.js", "home") && 
-			!ns.scriptRunning("start-hacknet2.js", "home") && 
-			!ns.scriptRunning("start-servers.js", "home") && 
+			ns.scriptRunning("corporation.js", "home") &&
+			!ns.scriptRunning("start-hacknet2.js", "home") &&
+			!ns.scriptRunning("start-servers.js", "home") &&
 			!ns.scriptRunning("start-servers2.js", "home")) {
 			await runAndWait(ns, "purchase-cores.js", "--reserve", 100e12);
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 100e12);
