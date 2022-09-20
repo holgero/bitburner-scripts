@@ -4,7 +4,7 @@ const HACK_SCRIPT = "do-hack.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["target", "foodnstuff"], ["spare", 35]]);
+	var options = ns.flags([["target", "foodnstuff"], ["spare", 42]]);
 
 	ns.scriptKill(WEAKEN_SCRIPT, "home");
 	ns.scriptKill(GROW_SCRIPT, "home");
