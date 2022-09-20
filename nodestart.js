@@ -39,10 +39,7 @@ export async function main(ns) {
 		await runAndWait(ns, "calculate-goals.js");
 	}
 
-	if (ns.getPlayer().bitNodeN != 8) {
-		await setUpForCorporations(ns);
-	}
-
+	await setUpForCorporations(ns);
 	await runHomeScripts(ns);
 
 	await runAndWait(ns, "start-hacknet.js", 1);
@@ -61,6 +58,9 @@ function killOthers(ns) {
 }
 
 async function setUpForCorporations(ns) {
+	if (ns.getPlayer().bitNodeN == 8) {
+		return;
+	}
 	var currentMoney = getAvailableMoney(ns);
 	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
 		!ns.scriptRunning("corporation.js", "home")) {
@@ -169,6 +169,7 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "spend-hashes.js");
 		await runAndWait(ns, "joinfactions.js");
 		await runAndWait(ns, "joinbladeburner.js", "--faction");
+		await setUpForCorporations(ns);
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
@@ -245,7 +246,6 @@ async function improveInfrastructure(ns, nextProgram) {
 			// pull out all stops
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
 		}
-		await setUpForCorporations(ns);
 		currentMoney = getAvailableMoney(ns);
 		if (currentMoney > 1e15 && ns.getPlayer().hasCorporation &&
 			ns.scriptRunning("corporation.js", "home") && 
