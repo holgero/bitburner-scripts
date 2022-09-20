@@ -10,8 +10,10 @@ export async function main(ns) {
 	const options = ns.flags([["course", "CS"], ["focus", "false"]]);
 	const focus = JSON.parse(options.focus);
 	var courses;
+	var classType;
 	switch (options.course) {
 		case "CS":
+			classType = "STUDYCOMPUTERSCIENCE";
 			if (getAvailableMoney(ns) > 1e9) {
 				courses = CS_COURSES;
 			} else {
@@ -24,7 +26,15 @@ export async function main(ns) {
 	}
 	for (var uni of UNIS) {
 		for (var course of courses) {
-			if (ns.singularity.universityCourse(uni, course, focus)) return;
+			// {"type":"CLASS","cyclesWorked":226,"classType":"STUDYCOMPUTERSCIENCE","location":"Rothman University"}
+			const current = ns.singularity.getCurrentWork();
+			if (current != null && current.type == "CLASS" && current.classType == classType) {
+				ns.printf("Already %s", current.classType);
+				return;
+			}
+			if (ns.singularity.universityCourse(uni, course, focus)) {
+				return;
+			}
 		}
 	}
 }
