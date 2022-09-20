@@ -83,6 +83,7 @@ async function setUpForCorporations(ns) {
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
+	ns.tprint("Run home scripts");
 	const database = JSON.parse(ns.read("database.txt"));
 	if (ns.scriptRunning("instrument.js", "home")) {
 		ns.scriptKill("instrument.js", "home");
@@ -93,14 +94,18 @@ async function runHomeScripts(ns) {
 		}
 	}
 	if (ns.getServerMaxRam("home") > 32) {
+		ns.tprint("More than 32 GB");
 		if (ns.scriptRunning("factiongoals.js", "home")) {
 			ns.scriptKill("factiongoals.js", "home");
 		}
 		if (!ns.scriptRunning("bladeburner.js", "home")) {
+			ns.tprint("Bladeburner not running");
 			if (ns.getServerMaxRam("home") > 1024 &&
 				ns.getPlayer().hasCorporation) {
+				ns.tprint("Joining bladeburner");
 				await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
 			}
+			ns.tprint("Running bladeburner");
 			ns.run("bladeburner.js", 1, ...ns.args);
 			await ns.sleep(1000);
 		}
