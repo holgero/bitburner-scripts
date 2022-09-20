@@ -10,21 +10,37 @@ export async function main(ns) {
 			await runAndWait(ns, "commit-crimes.js");
 			await ns.sleep(60000);
 			player = ns.getPlayer();
+			var countLowSkills = 0;
 			if (player.skills.strength < 100) {
-				await workout(ns, "Strength");
-				await ns.sleep(15000);
+				countLowSkills++;
 			}
 			if (player.skills.agility < 100) {
-				await workout(ns, "Agility");
-				await ns.sleep(15000);
+				countLowSkills++;
 			}
 			if (player.skills.defense < 100) {
-				await workout(ns, "Defense");
-				await ns.sleep(15000);
+				countLowSkills++;
 			}
 			if (player.skills.dexterity < 100) {
-				await workout(ns, "Dexterity");
-				await ns.sleep(15000);
+				countLowSkills++;
+			}
+			if (countLowSkills > 0) {
+				const delay = 60000 / countLowSkills;
+				if (player.skills.strength < 100) {
+					await workout(ns, "Strength");
+					await ns.sleep(delay);
+				}
+				if (player.skills.agility < 100) {
+					await workout(ns, "Agility");
+					await ns.sleep(delay);
+				}
+				if (player.skills.defense < 100) {
+					await workout(ns, "Defense");
+					await ns.sleep(delay);
+				}
+				if (player.skills.dexterity < 100) {
+					await workout(ns, "Dexterity");
+					await ns.sleep(delay);
+				}
 			}
 			if (ns.bladeburner.joinBladeburnerDivision()) {
 				ns.printf("Joined Bladeburners division");
