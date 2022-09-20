@@ -52,6 +52,7 @@ export async function main(ns) {
 		var corporation = ns.corporation.getCorporation();
 		if (!corporation.public) {
 			ns.corporation.goPublic(1e9);
+			ns.corporation.issueDividends(1);
 		}
 		await setupCorporation(ns);
 		tradeCorporationShares(ns);
