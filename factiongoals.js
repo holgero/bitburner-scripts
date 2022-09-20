@@ -57,7 +57,12 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function prepareGoalWork(ns, database) {
 	var focus = ns.singularity.isFocused();
-	// first get hacking level to fifty
+	// first make sure we have some money
+	while (getAvailableMoney(ns) < 500e3) {
+		await runAndWait(ns, "commit-crimes.js");
+		await ns.sleep(60000);
+	}
+	// now get hacking level to fifty
 	while (ns.getPlayer().skills.hacking < 50) {
 		await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
 		await ns.sleep(60000);
