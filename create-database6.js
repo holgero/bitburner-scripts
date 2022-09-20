@@ -15,34 +15,35 @@ function getMissingInfo(ns, augmentations) {
 
 /** @param {NS} ns **/
 function getTypeOf(ns, augmentation) {
-	if (augmentation.stats.bladeburner_analysis_mult ||
-		augmentation.stats.bladeburner_max_stamina_mult ||
-		augmentation.stats.bladeburner_stamina_gain_mult ||
-		augmentation.stats.bladeburner_success_chance_mult) return "Bladeburner";
-	if (augmentation.stats.hacking_mult ||
-		augmentation.stats.hacking_exp_mult ||
-		augmentation.stats.hacking_grow_mult ||
-		augmentation.stats.hacking_chance_mult ||
-		augmentation.stats.hacking_speed_mult ||
-		augmentation.stats.hacking_money_mult) return "Hacking";
-	if (augmentation.stats.faction_rep_mult) return "Reputation";
-	if (augmentation.stats.strength_mult ||
-		augmentation.stats.strength_exp_mult ||
-		augmentation.stats.defense_mult ||
-		augmentation.stats.defense_exp_mult ||
-		augmentation.stats.dexterity_mult ||
-		augmentation.stats.dexterity_exp_mult ||
-		augmentation.stats.agility_mult ||
-		augmentation.stats.agility_exp_mult) return "Combat";
-	if (augmentation.stats.charisma_mult ||
-		augmentation.stats.company_rep_mult ||
-		augmentation.stats.work_money_mult ||
-		augmentation.stats.charisma_exp_mult) return "Company";
-	if (augmentation.stats.hacknet_node_money_mult ||
-		augmentation.stats.hacknet_node_purchase_cost_mult ||
-		augmentation.stats.hacknet_node_level_cost_mult) return "Hacknet";
-	if (augmentation.stats.crime_money_mult ||
-		augmentation.stats.crime_success_mult) return "Crime";
+	const stats = augmentation.stats;
+	if (stats.bladeburner_analysis > 1 ||
+		stats.bladeburner_max_stamina > 1 ||
+		stats.bladeburner_stamina_gain > 1 ||
+		stats.bladeburner_success_chance > 1) return "Bladeburner";
+	if (stats.hacking > 1 ||
+		stats.hacking_exp > 1 ||
+		stats.hacking_grow > 1 ||
+		stats.hacking_chance > 1 ||
+		stats.hacking_speed > 1 ||
+		stats.hacking_money > 1) return "Hacking";
+	if (stats.faction_rep > 1) return "Reputation";
+	if (stats.strength > 1 ||
+		stats.strength_exp > 1 ||
+		stats.defense > 1 ||
+		stats.defense_exp > 1 ||
+		stats.dexterity > 1 ||
+		stats.dexterity_exp > 1 ||
+		stats.agility > 1 ||
+		stats.agility_exp > 1) return "Combat";
+	if (stats.charisma > 1 ||
+		stats.company_rep > 1 ||
+		stats.work_money > 1 ||
+		stats.charisma_exp > 1) return "Company";
+	if (stats.hacknet_node_money > 1 ||
+		stats.hacknet_node_purchase_cost > 1 ||
+		stats.hacknet_node_level_cost > 1) return "Hacknet";
+	if (stats.crime_money > 1 ||
+		stats.crime_success > 1) return "Crime";
 
 	ns.print(JSON.stringify(augmentation));
 	return "";
