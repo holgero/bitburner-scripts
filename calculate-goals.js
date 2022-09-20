@@ -128,7 +128,7 @@ function estimatePrice(toPurchase) {
 /** @param {NS} ns **/
 function costToGet(ns, database, factionGoals, augmentation) {
 	const player = ns.getPlayer();
-	var bestFactionCost = 1e12;
+	var bestFactionCost = 1e99;
 	var bestFaction = "";
 	for (var factionName of augmentation.factions) {
 		var faction = database.factions.find(a => a.name == factionName);
