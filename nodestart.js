@@ -18,9 +18,6 @@ export async function main(ns) {
 	} else {
 		ns.tprintf("Restart during a run. Killing all home scripts");
 		await killOthers(ns);
-		if (ns.stock.hasTIXAPIAccess()) {
-			await runAndWait(ns, "sell-all-stocks.js");
-		}
 		startState = "restart";
 	}
 
@@ -97,9 +94,11 @@ async function startTrader(ns) {
 async function stopTrader(ns) {
 	if (ns.scriptRunning("trader.js", "home")) {
 		ns.scriptKill("trader.js", "home");
-		await runAndWait(ns, "sell-all-stocks.js");
-		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
 	}
+	if (ns.stock.hasTIXAPIAccess()) {
+		await runAndWait(ns, "sell-all-stocks.js");
+	}
+	await ns.write("reserved-money.txt", JSON.stringify(0), "w");
 }
 
 /** @param {NS} ns **/
@@ -142,7 +141,6 @@ async function runHomeScripts(ns) {
 			ns.run("factiongoals.js", 1, ...ns.args);
 		}
 	}
-	await startTrader(ns);
 	if (!ns.scriptRunning("instrument.js", "home")) {
 		ns.run("instrument.js", 1);
 	}
@@ -242,12 +240,13 @@ async function improveInfrastructure(ns, nextProgram) {
 	}
 	currentMoney = getAvailableMoney(ns);
 	if (nextProgram >= c.programs.length) {
-		await startTrader(ns);
 		if (currentMoney < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
+			await startTrader(ns);
 		} else if (currentMoney < 1e12) {
 			// might have a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 10);
+			await startTrader(ns);
 			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
@@ -258,9 +257,17 @@ async function improveInfrastructure(ns, nextProgram) {
 		} else if (currentMoney < 1e15) {
 			// might have quite a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 12);
+			if (ns.getPlayer().bitNodeN != 8) {
+				// don't bother with stock trading
+				await stopTrader(ns);
+			}
 		} else {
 			// pull out all stops
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
+			if (ns.getPlayer().bitNodeN != 8) {
+				// don't bother with stock trading
+				await stopTrader(ns);
+			}
 		}
 		currentMoney = getAvailableMoney(ns);
 		if (currentMoney > 1e15 && ns.getPlayer().hasCorporation &&
