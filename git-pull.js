@@ -15,6 +15,7 @@ const FILES = [
 	"create-database7.js",
 	"create-database.js",
 	"database.js",
+	"destroy-world.js",
 	"commit-crimes.js",
 	"constants.js",
 	"corporation.js",
