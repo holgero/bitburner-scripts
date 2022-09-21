@@ -99,6 +99,9 @@ export function goalCompletion(ns, factionGoals) {
 		if (goal.reputation) {
 			totalRep += goal.reputation;
 			repNeeded += Math.max(0, goal.reputation - ns.singularity.getFactionRep(goal.name));
+		} else {
+			const rep = ns.singularity.getFactionRep(goal.name);
+			totalRep += rep;
 		}
 	}
 
