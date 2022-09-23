@@ -39,7 +39,6 @@ export async function main(ns) {
 	await setUpForCorporations(ns);
 	await runHomeScripts(ns);
 
-	await runAndWait(ns, "start-hacknet.js", 1);
 	await progressHackingLevels(ns);
 }
 
@@ -165,6 +164,7 @@ function canSpendMoney(ns) {
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
+	await runAndWait(ns, "start-hacknet.js", 1);
 	var lastHackingLevelRun = 0;
 	while (true) {
 		const nextProgram = getProgramCount(ns);
