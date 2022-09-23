@@ -156,3 +156,14 @@ export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 		}
 	} while (repeat);
 }
+
+/** @param {NS} ns **/
+export function getStartState(ns ) {
+	const player = ns.getPlayer();
+	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
+		return "fresh";
+	} else if (player.playtimeSinceLastAug < 60 * 1000) {
+		return "augs";
+	}
+	return "restart";
+}

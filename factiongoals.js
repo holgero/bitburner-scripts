@@ -1,13 +1,17 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded, getAvailableMoney } from "helpers.js";
+import { runAndWait, reputationNeeded, getAvailableMoney, getStartState } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	const startState = getStartState(ns);
 	ns.disableLog("sleep");
 	ns.rm("stopselling.txt");
 	const database = JSON.parse(ns.read("database.txt"));
 
 	await prepareGoalWork(ns, database);
+	if (startState != "restart") {
+		await runAndWait(ns, "calculate-goals.js");
+	}
 	for (var ii = 0; ii < 10; ii++) {
 		const config = JSON.parse(ns.read("factiongoals.txt"));
 		await workOnGoals(ns, database, config);

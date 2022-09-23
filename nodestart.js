@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, goalCompletion, getAvailableMoney } from "helpers.js";
+import { runAndWait, goalCompletion, getAvailableMoney, getStartState } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -7,18 +7,22 @@ export async function main(ns) {
 	ns.disableLog("getServerMaxRam");
 	ns.tprintf("Start at %s", new Date());
 
-	var startState;
-	const player = ns.getPlayer();
-	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
-		ns.tprintf("Fresh start in a new bitnode");
-		startState = "fresh";
-	} else if (player.playtimeSinceLastAug < 60 * 1000) {
-		ns.tprintf("Start after installing augmentations");
-		startState = "augs";
-	} else {
-		ns.tprintf("Restart during a run. Killing all home scripts");
-		await killOthers(ns);
-		startState = "restart";
+	const startState = getStartState(ns);
+	switch (startState) {
+		case "fresh":
+			ns.tprintf("Fresh start in a new bitnode");
+			await runAndWait(ns, "create-database.js");
+			await startHacking(ns, getProgramCount(ns));
+			break;
+		case "augs":
+			ns.tprintf("Start after installing augmentations");
+			await runAndWait(ns, "create-database.js");
+			await startHacking(ns, getProgramCount(ns));
+			break;
+		case "restart":
+			ns.tprintf("Restart during a run. Killing all home scripts");
+			await killOthers(ns);
+			break;
 	}
 
 	if (ns.getPlayer().bitNodeN == 8) {
@@ -27,13 +31,6 @@ export async function main(ns) {
 		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
 	} else {
 		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
-	}
-
-	if (startState != "restart") {
-		// get all unprotected servers immediately
-		await startHacking(ns, getProgramCount(ns));
-		await runAndWait(ns, "create-database.js");
-		await runAndWait(ns, "calculate-goals.js");
 	}
 
 	await setUpForCorporations(ns);
