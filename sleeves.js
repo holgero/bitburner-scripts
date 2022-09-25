@@ -28,10 +28,11 @@ async function runSleeves(ns) {
 		const skills = ns.sleeve.getSleeveStats(ii);
 		if (skills.sync < 100) {
 			ns.sleeve.setToSynchronize(ii);
-		} else {
-			if (skills.shock > 0) {
-				ns.sleeve.setToShockRecovery(ii);
-			}
+			continue;
+		}
+		if (skills.shock > 0) {
+			ns.sleeve.setToShockRecovery(ii);
+			continue;
 		}
 	}
 }
