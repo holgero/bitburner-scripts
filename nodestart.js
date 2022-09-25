@@ -110,13 +110,18 @@ async function runHomeScripts(ns) {
 			ns.scriptKill("factiongoals.js", "home");
 		}
 	} else {
-		if (!ns.scriptRunning("factiongoals.js", "home") &&
-			(ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home"))) {
-			ns.run("factiongoals.js", 1, ...ns.args);
+		if (ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home")) {
+			startHomeScript(ns, "factiongoals.js");
 		}
 	}
-	if (!ns.scriptRunning("instrument.js", "home")) {
-		ns.run("instrument.js", 1);
+	startHomeScript(ns, "sleeves.js");
+	startHomeScript(ns, "instrument.js");
+}
+
+/** @param {NS} ns **/
+function startHomeScript(ns, scriptName) {
+	if (!ns.scriptRunning(scriptName, "home")) {
+		ns.run(scriptName, 1);
 	}
 }
 
