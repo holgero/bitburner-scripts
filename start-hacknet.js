@@ -15,6 +15,10 @@ export async function main(ns) {
 		ns.printf("Still installing");
 		return;
 	}
+	if (ns.scriptRunning("start-servers2.js", "home")) {
+		ns.printf("Server installation running");
+		return;
+	}
 	var maxNodes = Math.min(32, ns.args[0]);
 	var maxLevel = Math.min(200, Math.round(maxNodes * 6.25));
 	var maxRam = Math.min(128, Math.round(ns.args[0] * 8));
