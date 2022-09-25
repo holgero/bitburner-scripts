@@ -3,10 +3,10 @@ import { getAvailableMoney } from "helpers.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["install", false], ["maxTime", 60]]);
-	// if (getAvailableMoney(ns) < 1e15) {
-	// ns.tprintf("Too poor");
-	// return;
-	// }
+	if (getAvailableMoney(ns) < 1e15) {
+		ns.tprintf("Too poor");
+		return;
+	}
 	const database = JSON.parse(ns.read("database.txt"));
 	const augs = ns.grafting.getGraftableAugmentations();
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
