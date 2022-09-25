@@ -1,5 +1,6 @@
 import * as c from "constants.js";
-import { runAndWait, goalCompletion, getAvailableMoney, getStartState } from "helpers.js";
+import { runAndWait, goalCompletion,
+ getAvailableMoney, getStartState, getDatabase } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -7,8 +8,10 @@ export async function main(ns) {
 	await killOthers(ns);
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
+	await runAndWait(ns, "commit-crimes.js");
 
 	if (getStartState(ns) != "restart") {
+		await runAndWait(ns, "clean-files.js");
 		await runAndWait(ns, "create-database.js");
 		await startHacking(ns, getProgramCount(ns));
 	}
@@ -17,6 +20,10 @@ export async function main(ns) {
 	await runHomeScripts(ns);
 
 	await progressHackingLevels(ns);
+
+	await killOthers(ns);
+	await runAndWait(ns, "spend-hashes.js", "--all");
+	await runAndWait(ns, "plan-augmentations.js", "--run_purchase");
 }
 
 async function killOthers(ns) {
@@ -80,39 +87,18 @@ async function stopTrader(ns) {
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
 	ns.tprint("Run home scripts");
-	const database = JSON.parse(ns.read("database.txt"));
-	if (ns.scriptRunning("instrument.js", "home")) {
-		ns.scriptKill("instrument.js", "home");
-	}
 	if (ns.getPlayer().bitNodeN == 8) {
 		await startTrader(ns);
 	}
-	if (ns.getServerMaxRam("home") > 32) {
-		ns.tprint("More than 32 GB");
-		if (ns.scriptRunning("factiongoals.js", "home")) {
-			ns.scriptKill("factiongoals.js", "home");
-		}
-		if (!ns.scriptRunning("bladeburner.js", "home")) {
-			ns.tprint("Bladeburner not running");
-			if (ns.getServerMaxRam("home") > 1024 &&
-				ns.getPlayer().hasCorporation) {
-				ns.tprint("Joining bladeburner");
-				await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
-			}
-			ns.tprint("Running bladeburner");
-			ns.run("bladeburner.js", 1, ...ns.args);
-			await ns.sleep(1000);
+	startHomeScript(ns, "bladeburner.js");
+	await ns.sleep(1000);
+	if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
+		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
+			await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
 		}
 	}
-	if (ns.scriptRunning("bladeburner.js", "home") &&
-		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		if (ns.scriptRunning("factiongoals.js", "home")) {
-			ns.scriptKill("factiongoals.js", "home");
-		}
-	} else {
-		if (ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home")) {
-			startHomeScript(ns, "factiongoals.js");
-		}
+	if (ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home")) {
+		startHomeScript(ns, "factiongoals.js");
 	}
 	startHomeScript(ns, "sleeves.js");
 	startHomeScript(ns, "instrument.js");
@@ -157,6 +143,18 @@ async function progressHackingLevels(ns) {
 		} else {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
+			const minMoney = Math.max(5, getDatabase(ns).owned_augmentations.length) * 10e9;
+			if (await getEstimation(ns, false) > Math.max(minMoney, getAvailableMoney(ns, true))) {
+				if (!ns.getPlayer().hasCorporation) {
+					return;
+				}
+				var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+				if (corporationInfo &&
+					corporationInfo.issuedShares == 0 &&
+					corporationInfo.shareSaleCooldown == 0) {
+					return;
+				}
+			}
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		await runAndWait(ns, "spend-hashes.js");
@@ -166,6 +164,12 @@ async function progressHackingLevels(ns) {
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
+		if (ns.fileExists("factiongoals.txt")) {
+			var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+			if (completion >= 1) {
+				startHomeScript(ns, "factiongoals.js");
+			}
+		}
 	}
 }
 
@@ -307,4 +311,12 @@ async function travelToGoalLocations(ns) {
 			}
 		}
 	}
+}
+
+/** @param {NS} ns **/
+async function getEstimation(ns) {
+	await ns.write("estimate.txt", "", "w");
+	await runAndWait(ns, "estimate.js", "--write");
+	var estimation = JSON.parse(ns.read("estimate.txt"));
+	return estimation.estimatedPrice;
 }

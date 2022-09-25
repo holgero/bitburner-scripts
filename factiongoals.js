@@ -1,61 +1,23 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded, getAvailableMoney, getStartState } from "helpers.js";
+import { runAndWait, reputationNeeded, getAvailableMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	const startState = getStartState(ns);
 	ns.disableLog("sleep");
-	ns.rm("stopselling.txt");
 	const database = JSON.parse(ns.read("database.txt"));
-
-	await prepareGoalWork(ns, database);
-	if (startState != "restart") {
-		await runAndWait(ns, "calculate-goals.js");
-	}
-	for (var ii = 0; ii < 10; ii++) {
-		const config = JSON.parse(ns.read("factiongoals.txt"));
-		await workOnGoals(ns, database, config);
-		if (getAvailableMoney(ns) > await getEstimation(ns, false)) {
-			await runAndWait(ns, "calculate-goals.js");
-		} else {
-			break;
-		}
-	}
-
-	await ns.write("stopselling.txt", "{reason:'shutdown'}", "w");
-
-	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
-		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-		if (corporationInfo.shareSaleCooldown) {
-			const config = JSON.parse(ns.read("factiongoals.txt"));
-			for (var goal of config.factionGoals.filter(a => a.company)) {
-				if (!ns.getPlayer().factions.includes(goal.name)) {
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT", "true");
-					break;
-				}
-			}
-			var cooldown = corporationInfo.shareSaleCooldown / 5;
-			var bonus = corporationInfo.bonusTime / 1000;
-			var realtime;
-			if (cooldown > 10 * bonus / 9) {
-				realtime = cooldown - bonus;
-			} else {
-				realtime = cooldown / 10;
-			}
-			if (realtime > 10) {
-				ns.tprintf("Share sale cooldown period: %d s", realtime);
-				await ns.sleep(1000 * (realtime - 10));
-			}
-			await ns.sleep(10000);
-		}
-	}
-
-	if (ns.getTimeSinceLastAug() < 1e6) {
-		ns.tprintf("Just installed augs %d s before. Exiting.", ns.getTimeSinceLastAug() / 1000);
+	const player = ns.getPlayer();
+	if ((player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) &&
+		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
+		ns.tprintf("On bitnode 6, 7 or 11 (%d) and do not have the %s",
+			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
-	ns.killall("home", true);
-	ns.spawn("plan-augmentations.js", 1, "--run_purchase");
+	await prepareGoalWork(ns, database);
+	await runAndWait(ns, "calculate-goals.js");
+	await runAndWait(ns, "print_goals.js");
+	const config = JSON.parse(ns.read("factiongoals.txt"));
+	await workOnGoals(ns, database, config);
+	await runAndWait(ns, "commit-crimes.js");
 }
 
 /** @param {NS} ns **/
@@ -109,7 +71,6 @@ async function checkForDaedalus(ns, database, config) {
 		if (goal.reputation == 0) {
 			if (goal.favor < database.favorToDonate) {
 				goal.reputation = reputationNeeded(ns, database, goal.name);
-				await ns.write("stopselling.txt", "{goal:Daedalus}", "w");
 				config.estimatedDonations = 0;
 			}
 		}
@@ -157,13 +118,13 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 
 /** @param {NS} ns **/
 async function getEstimation(ns, goal) {
+	await ns.write("estimate.txt", "", "w");
 	if (goal) {
 		await runAndWait(ns, "estimate.js", "--write", "--goal");
 	} else {
 		await runAndWait(ns, "estimate.js", "--write");
 	}
 	var estimation = JSON.parse(ns.read("estimate.txt"));
-	ns.rm("estimate.txt", "home");
 	return estimation.estimatedPrice;
 }
 
@@ -221,13 +182,6 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 					goal.reputation,
 					percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
-				if (goals.filter(a => a.reputation > 0 && a.reputation > ns.singularity.getFactionRep(a.name)).length == 0 &&
-					percentage > 0.999 &&
-					percentComplete > 90) {
-					await ns.write("stopselling.txt", "{lastgoal:" + percentComplete + "}", "w");
-				} else {
-					ns.rm("stopselling.txt");
-				}
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					ns.printf("Start working at company");
 					await runAndWait(ns, "workforcompany.js", goal.name, "IT");

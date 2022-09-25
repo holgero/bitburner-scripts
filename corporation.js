@@ -87,9 +87,6 @@ function tradeCorporationShares(ns) {
 }
 
 function shouldSell(ns, corporation, target, low) {
-	if (ns.fileExists("stopselling.txt")) {
-		return false;
-	}
 	if (corporation.numShares <= 0 || corporation.shareSaleCooldown) {
 		return false;
 	}

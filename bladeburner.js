@@ -12,6 +12,14 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
+	if (ns.getServerMaxRam("home") <= 32) {
+		ns.tprintf("Need more than 32 GB ram to work properly");
+		return;
+	}
+	if (!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
+		ns.tprintf("Need %s to work in conjunction with factiongoals", c.BLADE_SIMUL);
+		ns.scriptKill("factiongoals.js", "home");
+	}
 	await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
 	await runActions(ns);
 }
