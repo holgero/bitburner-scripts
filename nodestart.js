@@ -3,34 +3,14 @@ import { runAndWait, goalCompletion, getAvailableMoney, getStartState } from "he
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	ns.tprintf("Start at %s", new Date());
+	await killOthers(ns);
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
-	ns.tprintf("Start at %s", new Date());
 
-	const startState = getStartState(ns);
-	switch (startState) {
-		case "fresh":
-			ns.tprintf("Fresh start in a new bitnode");
-			await runAndWait(ns, "create-database.js");
-			await startHacking(ns, getProgramCount(ns));
-			break;
-		case "augs":
-			ns.tprintf("Start after installing augmentations");
-			await runAndWait(ns, "create-database.js");
-			await startHacking(ns, getProgramCount(ns));
-			break;
-		case "restart":
-			ns.tprintf("Restart during a run. Killing all home scripts");
-			await killOthers(ns);
-			break;
-	}
-
-	if (ns.getPlayer().bitNodeN == 8) {
-		// take a share of the initial money to develop hacking a bit faster 
-		var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
-		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
-	} else {
-		await ns.write("reserved-money.txt", JSON.stringify(0), "w");
+	if (getStartState(ns) != "restart") {
+		await runAndWait(ns, "create-database.js");
+		await startHacking(ns, getProgramCount(ns));
 	}
 
 	await setUpForCorporations(ns);
@@ -105,9 +85,7 @@ async function runHomeScripts(ns) {
 		ns.scriptKill("instrument.js", "home");
 	}
 	if (ns.getPlayer().bitNodeN == 8) {
-		if (!ns.scriptRunning("trader.js", "home")) {
-			await startTrader(ns);
-		}
+		await startTrader(ns);
 	}
 	if (ns.getServerMaxRam("home") > 32) {
 		ns.tprint("More than 32 GB");
