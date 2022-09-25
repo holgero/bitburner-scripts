@@ -43,7 +43,7 @@ function getCrimeType(ns, sleeveNo) {
 	if (skills.agility < 25 || skills.dexterity < 25) {
 		return "Shoplift";
 	}
-	if (skills.strength < 30 || skills.defense < 30) {
+	if (skills.strength < 40 || skills.defense < 40) {
 		return "Mug";
 	}
 	return "Homicide";
