@@ -93,7 +93,7 @@ async function checkForDaedalus(ns, database, config) {
 	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
 	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
 		if (ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
-			ns.spawn("kill-world.js");
+			ns.spawn("destroy-world.js");
 		}
 	}
 	if (config.finalGoal) {
