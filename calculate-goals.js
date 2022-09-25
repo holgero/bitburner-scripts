@@ -3,6 +3,7 @@ import * as c from "/constants.js";
 
 const MIN_MONEY = 100e6;
 const MAX_MONEY = 500e12;
+const MAX_EFFORT = 1e15;
 const MAX_AUGS = 12;
 
 /** @param {NS} ns **/
@@ -128,7 +129,7 @@ function estimatePrice(toPurchase) {
 /** @param {NS} ns **/
 function costToGet(ns, database, factionGoals, augmentation) {
 	const player = ns.getPlayer();
-	var bestFactionCost = 1e99;
+	var bestFactionCost = MAX_EFFORT;
 	var bestFaction = "";
 	for (var factionName of augmentation.factions) {
 		var faction = database.factions.find(a => a.name == factionName);
@@ -145,8 +146,8 @@ function costToGet(ns, database, factionGoals, augmentation) {
 			}
 			if (faction.company) {
 				cost += 20000 * (100 / (100 + faction.companyFavor)) *
-					Math.max(0, 200000 - ns.singularity.getCompanyRep(factionName)) / 
-							player.mults.company_rep;
+					Math.max(0, 200000 - ns.singularity.getCompanyRep(factionName)) /
+					player.mults.company_rep;
 			}
 			if (faction.stats) {
 				var statsNeed = Math.max(0, faction.stats - player.defense) / player.mults.defense_exp;
@@ -235,7 +236,9 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 		}
 	}
 	candidates.sort((a, b) => a.cost - b.cost);
-	// ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => a.name)));
+	ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => {
+		return { "name": a.name, "cost": a.cost }
+	})));
 	return candidates[0];
 }
 
