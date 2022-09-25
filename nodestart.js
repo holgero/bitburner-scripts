@@ -242,7 +242,7 @@ async function improveInfrastructure(ns, nextProgram) {
 			await startTrader(ns);
 		} else if (currentMoney < 1e12) {
 			// might have a bit more money to spend on hacknet nodes
-			await runAndWait(ns, "start-hacknet.js", 10);
+			await runAndWait(ns, "start-hacknet.js", 8);
 			await startTrader(ns);
 			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
@@ -251,6 +251,10 @@ async function improveInfrastructure(ns, nextProgram) {
 					await runHomeScripts(ns);
 				}
 			}
+		} else if (currentMoney < 50e12) {
+			// might have even a bit more money to spend on hacknet nodes
+			await runAndWait(ns, "start-hacknet.js", 10);
+			await startTrader(ns);
 		} else if (currentMoney < 1e15) {
 			// might have quite a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 12);
