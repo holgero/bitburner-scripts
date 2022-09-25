@@ -2,11 +2,11 @@ import { getAvailableMoney } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["install", false]]);
-	if (getAvailableMoney(ns) < 1e15) {
-		ns.tprintf("Too poor");
-		return;
-	}
+	const options = ns.flags([["install", false], ["maxTime", 60]]);
+	// if (getAvailableMoney(ns) < 1e15) {
+	// ns.tprintf("Too poor");
+	// return;
+	// }
 	const database = JSON.parse(ns.read("database.txt"));
 	const augs = ns.grafting.getGraftableAugmentations();
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
@@ -16,12 +16,15 @@ export async function main(ns) {
 		// ns.scriptKill("bladerunner.js", "home");
 	}
 	for (var aug of augs) {
+		if (ns.grafting.getAugmentationGraftPrice(aug) > getAvailableMoney(ns)) {
+			continue;
+		}
 		const requirements = database.augmentations.find(a => a.name == aug).requirements;
 		if (requirements.every(r => database.owned_augmentations.includes(r))) {
-			var graftTime = ns.grafting.getAugmentationGraftTime(aug);
-			//			if (graftTime > 30 * 60 * 1000) {
-			//				continue;
-			//			}
+			const graftTime = ns.grafting.getAugmentationGraftTime(aug);
+			if (graftTime > options.maxTime * 60 * 1000) {
+				continue;
+			}
 			ns.tprintf("Grafting '%s', will take %02d:%02d h",
 				aug, graftTime / 3600e3, (graftTime / 60e3) % 60);
 			if (options.install) {
