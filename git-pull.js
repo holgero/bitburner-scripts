@@ -6,6 +6,7 @@ const FILES = [
 	"bonus.js",
 	"budget.js",
 	"calculate-goals.js",
+	"clean-files.js",
 	"create-database1.js",
 	"create-database2.js",
 	"create-database3.js",
