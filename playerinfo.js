@@ -17,10 +17,10 @@ export async function main(ns) {
   if (playerInfo.tor) {
     ns.tprintf("%30s: %s", "Tor router", "yes");
   }
-  if (playerInfo.tor) {
+  if (playerInfo.inBladeburner) {
     ns.tprintf("%30s: %s", "In bladeburner", "yes");
   }
-  if (playerInfo.tor) {
+  if (playerInfo.hasCorporation) {
     ns.tprintf("%30s: %s", "Has corporation", "yes");
   }
   ns.tprintf("%30s: %s", "Factions", playerInfo.factions.join(", "));
