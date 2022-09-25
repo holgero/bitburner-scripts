@@ -1,4 +1,9 @@
 /** @param {NS} ns **/
+export function getDatabase(ns) {
+	return JSON.parse(ns.read("database.txt"));
+}
+
+/** @param {NS} ns **/
 export function formatMoney(amount) {
 	const suffix = [" ", "k", "m", "b", "t", "q", "Q"];
 	var sign = " ";
