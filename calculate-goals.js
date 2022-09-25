@@ -1,4 +1,5 @@
 import { getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
+import { effortForSkillLevel } from "./skill-helper.js";
 import * as c from "/constants.js";
 
 const MIN_MONEY = 100e6;
@@ -138,11 +139,10 @@ function costToGet(ns, database, factionGoals, augmentation) {
 			Math.max(ns.singularity.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
 		if (!existingGoal && !player.factions.includes(factionName)) {
 			if (faction.backdoor) {
-				cost += 1000 * reachHackingLevelCost(ns, database, player, ns.getServerRequiredHackingLevel(faction.backdoor));
-				// ns.tprintf("Costs for %s from %s: %d / %d", augmentation.name, factionName, cost_old, cost_new);
+				cost += 1000 * effortForSkillLevel(ns, database, "hacking", ns.getServerRequiredHackingLevel(faction.backdoor));
 			}
 			if (faction.hack) {
-				cost += 1000 * reachHackingLevelCost(ns, database, player, faction.hack);
+				cost += 1000 * effortForSkillLevel(ns, database, "hacking", faction.hack);
 			}
 			if (faction.company) {
 				cost += 20000 * (100 / (100 + faction.companyFavor)) *
@@ -150,11 +150,10 @@ function costToGet(ns, database, factionGoals, augmentation) {
 					player.mults.company_rep;
 			}
 			if (faction.stats) {
-				var statsNeed = Math.max(0, faction.stats - player.defense) / player.mults.defense_exp;
-				statsNeed += Math.max(0, faction.stats - player.dexterity) / player.mults.dexterity_exp;
-				statsNeed += Math.max(0, faction.stats - player.strength) / player.mults.strength_exp;
-				statsNeed += Math.max(0, faction.stats - player.agility) / player.mults.agility_exp;
-				cost += 5000 * Math.pow(statsNeed, 3);
+				cost += 1000 * effortForSkillLevel(ns, database, "strength", faction.stats);
+				cost += 1000 * effortForSkillLevel(ns, database, "defense", faction.stats);
+				cost += 1000 * effortForSkillLevel(ns, database, "dexterity", faction.stats);
+				cost += 1000 * effortForSkillLevel(ns, database, "agility", faction.stats);
 			}
 			if (faction.money) {
 				cost += 2 * Math.max(0, faction.money - getAvailableMoney(ns));
@@ -167,16 +166,6 @@ function costToGet(ns, database, factionGoals, augmentation) {
 	}
 	var cost = bestFactionCost + 0.1 * augmentation.price;
 	return { cost: bestFactionCost, faction: bestFaction };
-}
-
-function reachHackingLevelCost(ns, database, player, level) {
-	const delta = Math.max(0, level - Math.max(50, player.skills.hacking));
-	var weighted = delta / player.mults.hacking_exp / player.mults.hacking;
-	if (database.bitnodemultipliers) {
-		weighted /= database.bitnodemultipliers.HackingLevelMultiplier;
-		weighted /= database.bitnodemultipliers.HackExpGain;
-	}
-	return Math.pow(weighted, 4);
 }
 
 /** @param {NS} ns **/
