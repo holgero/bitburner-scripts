@@ -1,4 +1,4 @@
-import { statsGainFactor,formatMoney } from "/helpers.js";
+import { statsGainFactor, getAvailableMoney, formatMoney } from "/helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -70,5 +70,11 @@ export async function main(ns) {
     ns.tprintf("%30s: %s", "Bladeburner success chance", playerInfo.mults.bladeburner_success_chance.toFixed(2));
   }
   ns.tprintf("%30s: %s", "Karma:", ns.heart.break());
+  const current = ns.getServerMoneyAvailable("home");
+  const available = getAvailableMoney(ns);
+  const total = getAvailableMoney(ns, true);
+  ns.tprintf("%30s: current: %s, available: %s, total: %s",
+    "Money", formatMoney(current), formatMoney(available), formatMoney(total));
+
   ns.tprintf("%30s: %f", "Stats gain factor", statsGainFactor(ns));
 }
