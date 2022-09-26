@@ -173,9 +173,13 @@ function getPossibleFactions(ns, database, factionGoals) {
 	const locations = factionGoals.filter(a => (a.name == a.location)).map(a => a.name);
 	locations.push(...ns.getPlayer().factions.filter(a => c.CITIES.includes(a)));
 	// ns.printf("locations: %s", JSON.stringify(locations));
+	const nAugs = database.owned_augmentations.length;
+	const nKills = ns.getPlayer().numPeopleKilled;
 	const possibleFactions = database.factions.
 		filter(a => a.name != c.BLADEBURNERS).
 		filter(a => c.STORY_LINE.some(b => b.name == a.name)).
+		filter(a => !a.augsNeeded || a.augsNeeded <= nAugs).
+		filter(a => !a.kills || a.kills <= nKills).
 		filter(a => (a.name != a.location) ||
 			locations.every(b => isCompatible(b, a.location)));
 	// ns.printf("Possible factions: %s", JSON.stringify(possibleFactions.map(a=>a.name)));
