@@ -8,16 +8,16 @@ export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	if (player.bitNodeN != 6 && player.bitNodeN != 7 && player.bitNodeN != 11 &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.tprintf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
+		ns.printf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
-		ns.tprintf("Need more than 32 GB ram to work properly");
+		ns.printf("Need more than 32 GB ram to work properly");
 		return;
 	}
 	if (!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.tprintf("Need %s to work in conjunction with factiongoals", c.BLADE_SIMUL);
+		ns.printf("Need %s to work together with factiongoals", c.BLADE_SIMUL);
 		ns.scriptKill("factiongoals.js", "home");
 	}
 	await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
