@@ -13,7 +13,8 @@ export async function main(ns) {
 
 /** @param {NS} ns */
 async function runSleeves(ns) {
-	while (getAvailableMoney(ns) < POOR_MAN) {
+	while (getAvailableMoney(ns) < POOR_MAN ||
+			ns.scriptRunning("joinbladeburner.js", "home")) {
 		for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
 			if (sleeveHasLowSkills(ns, ii)) {
 				if (trainSkills(ns, ii)) {
