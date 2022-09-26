@@ -14,7 +14,7 @@ export async function main(ns) {
 /** @param {NS} ns */
 async function runSleeves(ns) {
 	while (getAvailableMoney(ns) < POOR_MAN ||
-			ns.scriptRunning("joinbladeburner.js", "home")) {
+		ns.scriptRunning("joinbladeburner.js", "home")) {
 		for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
 			if (sleeveHasLowSkills(ns, ii)) {
 				if (trainSkills(ns, ii)) {
@@ -25,6 +25,7 @@ async function runSleeves(ns) {
 		}
 		await ns.sleep(60000);
 	}
+	const available = [];
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
 		const skills = ns.sleeve.getSleeveStats(ii);
 		if (skills.sync < 100) {
@@ -34,6 +35,23 @@ async function runSleeves(ns) {
 		if (skills.shock > 0) {
 			ns.sleeve.setToShockRecovery(ii);
 			continue;
+		}
+		ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii));
+		available.push(ii);
+	}
+
+	if (ns.fileExists("factiongoals.txt")) {
+		const goals = JSON.parse(ns.read("factiongoals.txt"));
+		const factions = ns.getPlayer().factions;
+		const factionsToWorkFor = goals.factionGoals.filter(a => factions.includes(a.name) && ns.singularity.getFactionRep(a.name) < a.reputation);
+		for (var faction of factionsToWorkFor) {
+			for (var idx = 0; idx < available.length; idx++) {
+				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
+					ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
+					available.splice(idx, 1);
+					break;
+				}
+			}
 		}
 	}
 }
