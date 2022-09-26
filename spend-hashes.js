@@ -5,10 +5,14 @@ const blade_rank = "Exchange for Bladeburner Rank";
 const blade_skill = "Exchange for Bladeburner SP";
 const corp_money = "Sell for Corporation Funds";
 const corp_research = "Exchange for Corporation Research";
+const gym_training ="Improve Gym Training";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["all", false]]);
+	const options = ns.flags([["all", false], ["gym", false]]);
+	if (options.gym) {
+		await spendOn(ns, gym_training);
+	}
 	if (!ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) < 10e9) {
 		// we need this money
 		await spendOn(ns, money);
