@@ -53,6 +53,15 @@ async function runSleeves(ns) {
 				}
 			}
 		}
+		const jobsToWorkFor = goals.factionGoals.filter(a => a.company && !factions.includes(a.name));
+		for (var job of jobsToWorkFor) {
+			for (var idx = 0; idx < available.length; idx++) {
+				if (ns.sleeve.setToCompanyWork(available[idx], job.name)) {
+					available.splice(idx, 1);
+					break;
+				}
+			}
+		}
 	}
 }
 

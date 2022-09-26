@@ -188,7 +188,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 					ns.printf("Start working at company");
-					await runAndWait(ns, "workforcompany.js", goal.name, "IT");
+					await runAndWait(ns, "workforcompany.js", "--apply", "--work",
+						"--company", goal.name, "--job", "IT");
 				}
 				ns.printf("Start working for faction");
 				await runAndWait(ns, "workforfaction.js", goal.name, goal.work);
@@ -317,6 +318,12 @@ async function futureGoalConditions(ns, goals) {
 					return;
 				}
 			}
+		}
+		if (goal.company && !ns.getPlayer().jobs[goal.name]) {
+			await runAndWait(ns, "workforcompany.js", "--apply", "--company", goal.name,
+				"--job", "IT");
+			await runAndWait(ns, "workforcompany.js", "--apply", "--company", goal.name,
+				"--job", "Security");
 		}
 	}
 }

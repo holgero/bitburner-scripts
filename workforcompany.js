@@ -1,19 +1,21 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	var company = ns.args[0];
-	var job = ns.args[1];
+	const options = ns.flags([["company", "NWO"], ["job", "IT"], ["apply", false], ["work", false]]);
 
-	if (ns.singularity.applyToCompany(company, job)) {
-		ns.tprintf("Applied successfully at %s for %s job", company, job);
+	if (options.apply && ns.singularity.applyToCompany(options.company, options.job)) {
+		ns.tprintf("Applied successfully at %s for %s job", options.company, options.job);
 	}
-	const current = ns.singularity.getCurrentWork();
-	if (current != null && current.type == "COMPANY" && current.companyName == company) {
-		ns.printf("Already working for %s", current.companyName);
-		toastCompletion(ns, company);
+	if (!options.work) {
 		return;
 	}
-	if (ns.singularity.workForCompany(company)) {
-		ns.tprintf("Now working at %s as %s", company, job);
+	const current = ns.singularity.getCurrentWork();
+	if (current != null && current.type == "COMPANY" && current.companyName == options.company) {
+		ns.printf("Already working for %s", current.companyName);
+		toastCompletion(ns, options.company);
+		return;
+	}
+	if (ns.singularity.workForCompany(options.company)) {
+		ns.tprintf("Now working at %s", options.company);
 	}
 }
 
