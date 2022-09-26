@@ -36,6 +36,7 @@ export async function main(ns) {
 		}
 	}
 
+	await runAndWait(ns, "purchase-sleeve-augs.js");
 	if (options.reboot) {
 		if (needReset) ns.spawn("reset.js");
 		ns.spawn("nodestart.js");
