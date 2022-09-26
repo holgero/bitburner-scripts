@@ -1,4 +1,4 @@
-import { statsGainFactor } from "/helpers.js";
+import { statsGainFactor,formatMoney } from "/helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -21,12 +21,21 @@ export async function main(ns) {
     ns.tprintf("%30s: %s", "In bladeburner", "yes");
   }
   if (playerInfo.hasCorporation) {
-    ns.tprintf("%30s: %s", "Has corporation", "yes");
+    const corporationInfo = JSON.parse(ns.read("corporation.txt"));
+    const profit = corporationInfo.revenue - corporationInfo.expenses;
+    ns.tprintf("%30s: share=%s, funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",
+      "Corporation",
+      formatMoney(corporationInfo.sharePrice),
+      formatMoney(corporationInfo.funds),
+      formatMoney(profit),
+      Math.ceil(corporationInfo.shareSaleCooldown / 5),
+      Math.ceil(corporationInfo.bonusTime / 1000),
+      corporationInfo.issuedShares == 0 ? "*" : "-");
   }
   ns.tprintf("%30s: %s", "Factions", playerInfo.factions.join(", "));
   ns.tprintf("%30s: %s", "Jobs", JSON.stringify(playerInfo.jobs));
   ns.tprintf("%30s: %s", "Work", JSON.stringify(ns.singularity.getCurrentWork()));
-  
+
   if (options.multiplier) {
     ns.tprintf("%30s", "Multiplier");
     ns.tprintf("%30s: %s", "Hacking chance", playerInfo.mults.hacking_chance.toFixed(2));
