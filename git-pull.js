@@ -48,6 +48,7 @@ const FILES = [
 	"purchase-augmentations.js",
 	"purchase-cores.js",
 	"purchase-ram.js",
+	"purchase-sleeve-augs.js",
 	"reset.js",
 	"rscan.js",
 	"rscan-spawn.js",
