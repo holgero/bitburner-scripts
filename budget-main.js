@@ -32,12 +32,12 @@ export async function main(ns) {
 
 	if (options.reserve) {
 		ns.tprintf("Reserving %s for %s", formatMoney(options.reserve), ownerName);
-		await reserveBudget(ns, options.reserve, ownerName);
+		await reserveBudget(ns, ownerName, options.reserve);
 	}
 
 	if (options.release) {
 		ns.tprintf("Releasing %s from %s", formatMoney(options.release), ownerName);
-		if (await releaseBudget(ns, options.release, ownerName)) {
+		if (await releaseBudget(ns, ownerName, options.release)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -46,7 +46,7 @@ export async function main(ns) {
 
 	if (options.use) {
 		ns.tprintf("Using %s from %s", formatMoney(options.use), ownerName);
-		if (await useBudget(ns, options.use, ownerName)) {
+		if (await useBudget(ns, ownerName, options.use)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -55,7 +55,7 @@ export async function main(ns) {
 
 	if (options.unuse) {
 		ns.tprintf("Unusing %s from %s", formatMoney(options.unuse), ownerName);
-		if (await unuseBudget(ns, options.unuse, ownerName)) {
+		if (await unuseBudget(ns, ownerName, options.unuse)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");

@@ -44,7 +44,7 @@ export async function setHolding(ns, ownerName, amount) {
 }
 
 /** @param {NS} ns */
-export async function reserveBudget(ns, amount, ownerName) {
+export async function reserveBudget(ns, ownerName, amount) {
 	const budget = readBudget(ns);
 	var owner = budget.owners.find(a => a.name == ownerName);
 	if (!owner) {
@@ -56,7 +56,7 @@ export async function reserveBudget(ns, amount, ownerName) {
 }
 
 /** @param {NS} ns */
-export async function releaseBudget(ns, amount, ownerName) {
+export async function releaseBudget(ns, ownerName, amount) {
 	const budget = readBudget(ns);
 	const owner = budget.owners.find(a => a.name == ownerName);
 	if (!owner) {
@@ -74,7 +74,7 @@ export async function releaseBudget(ns, amount, ownerName) {
 }
 
 /** @param {NS} ns */
-export async function useBudget(ns, amount, ownerName) {
+export async function useBudget(ns, ownerName, amount) {
 	const budget = readBudget(ns);
 	const owner = budget.owners.find(a => a.name == ownerName);
 	if (!owner) {
@@ -88,7 +88,7 @@ export async function useBudget(ns, amount, ownerName) {
 }
 
 /** @param {NS} ns */
-export async function unuseBudget(ns, amount, ownerName) {
+export async function unuseBudget(ns, ownerName, amount) {
 	const budget = readBudget(ns);
 	const owner = budget.owners.find(a => a.name == ownerName);
 	if (!owner) {

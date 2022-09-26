@@ -64,7 +64,7 @@ async function setUpForCorporations(ns) {
 async function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
 		var money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
-		reserveBudget(ns, money, "stocks");
+		await reserveBudget(ns, "stocks", money);
 		ns.run("trader.js");
 	}
 }
