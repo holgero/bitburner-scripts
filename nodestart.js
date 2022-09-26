@@ -129,7 +129,6 @@ function canSpendMoney(ns) {
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
-	const database = getDatabase(ns);
 	await runAndWait(ns, "start-hacknet.js", 1);
 	var lastHackingLevelRun = 0;
 	while (true) {
@@ -145,24 +144,9 @@ async function progressHackingLevels(ns) {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
 		}
-		const factor = database.bitnodemultipliers ?
-			database.bitnodemultipliers.AugmentationMoneyCost /
-			database.bitnodemultipliers.AugmentationRepCost : 1.0;
-		const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
-		if (await getEstimation(ns, false) > Math.max(minMoney, getAvailableMoney(ns, true))) {
-			if (!ns.getPlayer().hasCorporation) {
-				return;
-			}
-			if (ns.fileExists("corporation.txt", "home")) {
-				var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-				if (corporationInfo &&
-					corporationInfo.issuedShares == 0 &&
-					corporationInfo.shareSaleCooldown == 0) {
-					return;
-				}
-			}
+		if (await wantToEndRun(ns)) {
+			return;
 		}
-
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
 			await runAndWait(ns, "spend-hashes.js");
@@ -173,6 +157,32 @@ async function progressHackingLevels(ns) {
 		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
 	}
+}
+
+/** @param {NS} ns **/
+async function wantToEndRun(ns) {
+	if (ns.fileExists("factiongoals.txt")) {
+		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
+		if (completion < 0.95) {
+			return false;
+		}
+	}
+	const database = getDatabase(ns);
+	const factor = database.bitnodemultipliers ?
+		database.bitnodemultipliers.AugmentationMoneyCost /
+		database.bitnodemultipliers.AugmentationRepCost : 1.0;
+	const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
+	if (await getEstimation(ns, false) < Math.max(minMoney, getAvailableMoney(ns, true))) {
+		return false;
+	}
+	if (ns.getPlayer().hasCorporation &&
+		ns.fileExists("corporation.txt", "home")) {
+		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /** @param {NS} ns **/
