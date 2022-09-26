@@ -1,3 +1,5 @@
+import { getAvailable, getTotal } from "budget.js";
+
 /** @param {NS} ns **/
 export function getDatabase(ns) {
 	return JSON.parse(ns.read("database.txt"));
@@ -22,14 +24,11 @@ export function formatMoney(amount) {
 }
 
 /** @param {NS} ns **/
-export function getAvailableMoney(ns, ignoreTrading) {
-	const player = ns.getPlayer();
-	const totalMoney = ns.getServerMoneyAvailable("home");
-	if (!ignoreTrading && player.hasTixApiAccess) { // needs money for trading
-		const reservedMoney = JSON.parse(ns.read("reserved-money.txt"));
-		return Math.max(0, totalMoney - reservedMoney);
+export function getAvailableMoney(ns, totalMoney = false) {
+	if (totalMoney) {
+		return getTotal(ns);
 	}
-	return totalMoney;
+	return getAvailable(ns);
 }
 
 /** @param {NS} ns **/

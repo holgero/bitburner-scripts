@@ -11,6 +11,39 @@ export function readBudget(ns) {
 }
 
 /** @param {NS} ns */
+export function getBudget(ns, ownerName) {
+	const budget = readBudget(ns);
+	const owner = budget.owners.find(a => a.name == ownerName);
+	if (!owner) {
+		return 0;
+	}
+	return owner.reserved;
+}
+
+/** @param {NS} ns */
+export function getHolding(ns, ownerName) {
+	const budget = readBudget(ns);
+	const owner = budget.owners.find(a => a.name == ownerName);
+	if (!owner) {
+		return 0;
+	}
+	return owner.holding;
+}
+
+/** @param {NS} ns */
+export async function setHolding(ns, ownerName, amount) {
+	const budget = readBudget(ns);
+	const owner = budget.owners.find(a => a.name == ownerName);
+	if (!owner) {
+		ns.printf("Owner %s has no budget.", ownerName);
+		return false;
+	}
+	owner.holding = amount;
+	await writeBudget(ns, budget);
+	return true;
+}
+
+/** @param {NS} ns */
 export async function reserveBudget(ns, amount, ownerName) {
 	const budget = readBudget(ns);
 	var owner = budget.owners.find(a => a.name == ownerName);
@@ -48,12 +81,7 @@ export async function useBudget(ns, amount, ownerName) {
 		ns.printf("Owner %s has no budget.", ownerName);
 		return false;
 	}
-	if (amount > owner.reserved) {
-		ns.printf("Owner %s's budget is too small (%s) to use %s.",
-			ownerName, owner.reserved, amount);
-		return false;
-	}
-	owner.reserved -= amount;
+	owner.reserved = Math.max(0, owner.reserved - amount);
 	owner.holding += amount;
 	await writeBudget(ns, budget);
 	return true;
@@ -67,13 +95,8 @@ export async function unuseBudget(ns, amount, ownerName) {
 		ns.printf("Owner %s has no budget.", ownerName);
 		return false;
 	}
-	if (amount > owner.holding) {
-		ns.printf("Owner %s's holding is too small (%s) to unuse %s.",
-			ownerName, owner.reserved, amount);
-		return false;
-	}
 	owner.reserved += amount;
-	owner.holding -= amount;
+	owner.holding = Math.max(0, owner.holding - amount);
 	await writeBudget(ns, budget);
 	return true;
 }
@@ -83,6 +106,14 @@ export async function cleanBudget(ns) {
 	const budget = readBudget(ns);
 	budget.owners = budget.owners.filter(a => a.reserved != 0 || a.holding != 0);
 	await writeBudget(ns, budget);
+}
+
+/** @param {NS} ns */
+export async function deleteBudget(ns, ownerName) {
+	const budget = readBudget(ns);
+	budget.owners = budget.owners.filter(a => a.name != ownerName);
+	await writeBudget(ns, budget);
+	return true;
 }
 
 /** @param {NS} ns */

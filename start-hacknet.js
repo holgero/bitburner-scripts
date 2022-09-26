@@ -29,7 +29,8 @@ export async function main(ns) {
 
 	await ns.scp(scriptName, scriptHost);
 	await ns.scp("helpers.js", scriptHost);
-	await ns.scp("reserved-money.txt", scriptHost);
+	await ns.scp("budget.js", scriptHost);
+	await ns.scp("budget.txt", scriptHost);
 	ns.killall(scriptHost);
 	ns.exec(scriptName, scriptHost, 1, maxNodes, maxLevel, maxRam, maxCore);
 }

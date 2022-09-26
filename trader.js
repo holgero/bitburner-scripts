@@ -1,4 +1,11 @@
 import { formatMoney } from "helpers.js";
+import {
+	getBudget,
+	setHolding,
+	useBudget,
+	unuseBudget,
+	releaseBudget,
+} from "budget.js";
 
 const COMISSION = 100e3;
 const DIVIDEND = 0.2;
@@ -9,10 +16,10 @@ export async function main(ns) {
 	ns.disableLog("getServerMoneyAvailable");
 	const options = ns.flags([
 		["size", 24],
-		["lockFile", "reserved-money.txt"],
+		["budgetName", "stocks"],
 		["valuationFile", ""],
 		["algo", "count"]]);
-	const budget = JSON.parse(ns.read(options.lockFile));
+	const budget = getBudget(ns, options.budgetName);
 	if (budget < 100e6) {
 		ns.tprintf("Budget for trading too small (%s, need %s)",
 			formatMoney(budget), formatMoney(100e6));
@@ -30,11 +37,6 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns */
-async function writeLockFile(ns, options, budget) {
-	await ns.write(options.lockFile, budget, "w");
-}
-
-/** @param {NS} ns */
 async function trade(ns, options) {
 	const db = ns.stock.getSymbols().map(a => {
 		return {
@@ -49,36 +51,18 @@ async function trade(ns, options) {
 		ns.tprintf("Collected %d of %d prices", ii + 1, options.size);
 	}
 	const portfolio = [];
-	
-	while (ns.fileExists(options.lockFile)) {
+
+	while (true) {
 		const mostUp = db.map(a => options.stockUps(ns, a)).reduce((a, b) => a ? Math.max(a, b) : b);
 		var rising = db.filter(a => options.stockUps(ns, a) == mostUp);
 		ns.printf("Most up is %s, by %s", mostUp, rising.map(a => a.symbl));
 		await runTrades(ns, options, portfolio, rising);
 		await updateStocks(ns, options, db);
 	}
-	sellAll(ns, options, portfolio);
-}
-
-/** @param {NS} ns */
-async function sellAll(ns, options, portfolio) {
-	var valuation = 0;
-	for (var stk of portfolio) {
-		const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
-		const gainedMoney = sellPrice * stk.shares - COMISSION;
-		const win = gainedMoney - stk.cost;
-		ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
-				stk.shares, stk.symbl, formatMoney(gainedMoney),
-				formatMoney(sellPrice), formatMoney(win));
-		stk.shares = 0;
-		stk.cost = 0;
-	}
-	ns.tprintf("Trader%d liquidation: %s", options.size, formatMoney(valuation));
 }
 
 /** @param {NS} ns */
 async function runTrades(ns, options, portfolio, rising) {
-	var reserved = JSON.parse(ns.read(options.lockFile));
 	var valuation = 0;
 	for (var ii = 0; ii < portfolio.length; ii++) {
 		const stk = portfolio[ii];
@@ -86,31 +70,34 @@ async function runTrades(ns, options, portfolio, rising) {
 		if (ups < 0) {
 			const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
 			const gainedMoney = sellPrice * stk.shares - COMISSION;
+			await unuseBudget(ns, options.budgetName, gainedMoney);
 			const win = gainedMoney - stk.cost;
 			ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
 				stk.shares, stk.symbl, formatMoney(gainedMoney),
 				formatMoney(sellPrice), formatMoney(win));
 			stk.shares = 0;
 			stk.cost = 0;
-			reserved += gainedMoney;
 			// distribute a part of the winnings
-			reserved -= Math.max(0, win * DIVIDEND);
+			await releaseBudget(ns, options.budgetName, Math.max(0, win * DIVIDEND));
 			portfolio.splice(ii, 1);
 			ii--;
 		} else {
-			valuation += stk.shares * stk.prices[stk.prices.length-1];
+			valuation += stk.shares * stk.prices[stk.prices.length - 1];
 		}
 		// ns.printf("Holding %d shares of %s, tendency %d", stk.shares, stk.symbl, ups);
 	}
-	valuation += reserved;
-	ns.printf("Trader%d valuation: %s (%s cash)", options.size, formatMoney(valuation), formatMoney(reserved));
+	await setHolding(ns, options.budgetName, valuation);
+	ns.printf("Trader%d valuation: %s", options.size, formatMoney(valuation));
 	if (options.valuationFile) {
-		await ns.write(options.valuationFile, valuation, "w");
+		await ns.write(options.valuationFile, valuation + getBudget(ns, options.budgetName), "w");
 	}
-	while (rising.length > 0 && reserved > 100 * COMISSION) {
+	while (rising.length > 0 && getBudget(ns, options.budgetName) > 100 * COMISSION) {
 		const stockToBuy = rising.shift();
 		const price = ns.stock.getPrice(stockToBuy.symbl);
-		const money = reserved;
+		const money = Math.min(ns.getServerMoneyAvailable("home"), getBudget(ns, options.budgetName));
+		if (money < 100 * COMISSION) {
+			break;
+		}
 		var shares = Math.min(Math.floor((money - COMISSION) / price),
 			ns.stock.getMaxShares(stockToBuy.symbl) - stockToBuy.shares);
 		var boughtPrice;
@@ -120,17 +107,19 @@ async function runTrades(ns, options, portfolio, rising) {
 		if (shares <= 0) {
 			continue;
 		}
-		ns.printf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
 		const moneySpent = boughtPrice * shares + COMISSION;
+		if (!await useBudget(ns, options.budgetName, moneySpent)) {
+			ns.tprintf("Failed to use budget");
+			break;
+		}
+		ns.printf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
 		stockToBuy.cost += moneySpent;
 		stockToBuy.shares += shares;
-		if (!portfolio.find(a=>a.symbl == stockToBuy.symbl)) {
+		if (!portfolio.find(a => a.symbl == stockToBuy.symbl)) {
 			portfolio.push(stockToBuy);
 		}
-		reserved -= moneySpent;
-		reserved = Math.max(0, reserved);
+		await ns.sleep(100);
 	}
-	await writeLockFile(ns, options, reserved);
 }
 
 /** @param {NS} ns */
@@ -166,7 +155,7 @@ function stockUpsAvg(ns, stk) {
 	const oldAvg = stk.prices.slice(0, size / 2).reduce((a, b) => a + b, 0) / (size / 2);
 	const newAvg = stk.prices.slice(size / 2).reduce((a, b) => a + b, 0) / (size / 2);
 
-	return (newAvg - oldAvg)/oldAvg;
+	return (newAvg - oldAvg) / oldAvg;
 }
 
 /** @param {NS} ns */

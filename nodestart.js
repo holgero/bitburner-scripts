@@ -6,6 +6,7 @@ import {
 	getStartState,
 	getDatabase
 } from "helpers.js";
+import { reserveBudget } from "budget.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -62,8 +63,8 @@ async function setUpForCorporations(ns) {
 /** @param {NS} ns **/
 async function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
-		var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
-		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+		var money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
+		reserveBudget(ns, money, "stocks");
 		ns.run("trader.js");
 	}
 }
@@ -76,7 +77,6 @@ async function stopTrader(ns) {
 	if (ns.stock.hasTIXAPIAccess()) {
 		await runAndWait(ns, "sell-all-stocks.js");
 	}
-	await ns.write("reserved-money.txt", JSON.stringify(0), "w");
 }
 
 /** @param {NS} ns **/

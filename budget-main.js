@@ -1,13 +1,18 @@
 import { formatMoney } from "helpers.js";
+
 import {
 	getAvailable,
 	getTotal,
 	readBudget,
 	cleanBudget,
+	getBudget,
+	getHolding,
+	setHolding,
 	useBudget,
 	unuseBudget,
 	reserveBudget,
-	releaseBudget
+	releaseBudget,
+	deleteBudget
 } from "budget.js";
 
 /** @param {NS} ns */
@@ -15,6 +20,10 @@ export async function main(ns) {
 	const options = ns.flags([
 		["print", false],
 		["clean", false],
+		["delete", false],
+		["getBudget", false],
+		["getHolding", false],
+		["setHolding", 0],
 		["reserve", 0],
 		["release", 0],
 		["unuse", 0],
@@ -51,6 +60,28 @@ export async function main(ns) {
 		} else {
 			ns.tprintf("Failed!");
 		}
+	}
+
+	if (options.getBudget) {
+		ns.tprintf("Budget for %s is %s", ownerName, formatMoney(getBudget(ns, ownerName)));
+	}
+
+	if (options.setHolding) {
+		ns.tprintf("Set holding for %s to %s", ownerName, formatMoney(options.setHolding));
+		if (await setHolding(ns, ownerName, options.setHolding)) {
+			ns.tprintf("Success");
+		} else {
+			ns.tprintf("Failed!");
+		}
+	}
+
+	if (options.getHolding) {
+		ns.tprintf("Holding for %s is %s", ownerName, formatMoney(getHolding(ns, ownerName)));
+	}
+
+	if (options.delete) {
+		ns.tprintf("Deleting budget for %s", ownerName);
+		await deleteBudget(ns, ownerName);
 	}
 
 	if (options.clean) {
