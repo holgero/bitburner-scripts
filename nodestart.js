@@ -61,12 +61,10 @@ async function setUpForCorporations(ns) {
 
 /** @param {NS} ns **/
 async function startTrader(ns) {
-	if (!ns.scriptRunning("trader.js", "home")) {
-		if (ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 200e6) {
-			var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
-			await ns.write("reserved-money.txt", JSON.stringify(money), "w");
-			ns.run("trader.js");
-		}
+	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
+		var money = Math.min(100e9, getAvailableMoney(ns, true) - 10e6);
+		await ns.write("reserved-money.txt", JSON.stringify(money), "w");
+		ns.run("trader.js");
 	}
 }
 
@@ -84,7 +82,8 @@ async function stopTrader(ns) {
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
 	ns.print("Run home scripts");
-	if (ns.getPlayer().bitNodeN == 8) {
+	if (ns.getPlayer().bitNodeN == 8 ||
+		(ns.getServerMaxRam("home") > 32 && getAvailableMoney(ns, true) > 1e9)) {
 		await startTrader(ns);
 	}
 	await ns.sleep(1000);
@@ -222,11 +221,9 @@ async function improveInfrastructure(ns, nextProgram) {
 	if (nextProgram >= c.programs.length) {
 		if (getAvailableMoney(ns) < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
-			await startTrader(ns);
 		} else if (getAvailableMoney(ns) < 1e12) {
 			// might have a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 8);
-			await startTrader(ns);
 			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
@@ -234,21 +231,12 @@ async function improveInfrastructure(ns, nextProgram) {
 		} else if (getAvailableMoney(ns) < 50e12) {
 			// might have even a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 10);
-			await startTrader(ns);
 		} else if (getAvailableMoney(ns) < 1e15) {
 			// might have quite a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 12);
-			if (ns.getPlayer().bitNodeN != 8) {
-				// don't bother with stock trading
-				await stopTrader(ns);
-			}
 		} else {
 			// pull out all stops
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
-			if (ns.getPlayer().bitNodeN != 8) {
-				// don't bother with stock trading
-				await stopTrader(ns);
-			}
 		}
 		if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
 			ns.scriptRunning("corporation.js", "home") &&
