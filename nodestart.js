@@ -1,6 +1,11 @@
 import * as c from "constants.js";
-import { runAndWait, goalCompletion,
- getAvailableMoney, getStartState, getDatabase } from "helpers.js";
+import {
+	runAndWait,
+	goalCompletion,
+	getAvailableMoney,
+	getStartState,
+	getDatabase
+} from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -17,7 +22,6 @@ export async function main(ns) {
 	}
 
 	await setUpForCorporations(ns);
-	await runHomeScripts(ns);
 
 	await progressHackingLevels(ns);
 
@@ -29,7 +33,8 @@ export async function main(ns) {
 async function killOthers(ns) {
 	ns.scriptKill("instrument.js", "home");
 	ns.scriptKill("factiongoals.js", "home");
-	ns.scriptKill("bladerunner.js", "home");
+	ns.scriptKill("joinbladeburner.js", "home");
+	ns.scriptKill("bladeburner.js", "home");
 	ns.scriptKill("corporation.js", "home");
 	ns.scriptKill("do-weaken.js", "home");
 	ns.scriptKill("do-hack.js", "home");
@@ -41,23 +46,15 @@ async function setUpForCorporations(ns) {
 	if (ns.getPlayer().bitNodeN == 8) {
 		return;
 	}
-	var currentMoney = getAvailableMoney(ns);
-	if ((ns.getPlayer().hasCorporation || currentMoney > 150e9) &&
+	if ((ns.getPlayer().hasCorporation || getAvailableMoney(ns) > 150e9) &&
 		!ns.scriptRunning("corporation.js", "home")) {
-		var ramBefore = ns.getServerMaxRam("home");
 		await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
-			currentMoney = getAvailableMoney(ns);
-			if (ns.getPlayer().hasCorporation || currentMoney > 150e9) {
+			if (ns.getPlayer().hasCorporation || getAvailableMoney(ns) > 150e9) {
 				await killOthers(ns);
 				ns.run("corporation.js");
-				await ns.sleep(1000);
-				await runHomeScripts(ns);
 				return;
 			}
-		}
-		if (ns.getServerMaxRam("home") != ramBefore) {
-			await runHomeScripts(ns);
 		}
 	}
 }
@@ -86,33 +83,36 @@ async function stopTrader(ns) {
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
-	ns.tprint("Run home scripts");
+	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8) {
 		await startTrader(ns);
 	}
+	await ns.sleep(1000);
 	startHomeScript(ns, "bladeburner.js");
 	await ns.sleep(1000);
 	if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
-		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
-			await runAndWait(ns, "joinbladeburner.js", "--division", "--faction");
-		}
+		startHomeScript(ns, "joinbladeburner.js", "--division", "--faction");
 	}
-	if (ns.getServerMaxRam("home") > 32 || !ns.scriptRunning("trader.js", "home")) {
-		startHomeScript(ns, "factiongoals.js");
-	}
+	await ns.sleep(1000);
+	startHomeScript(ns, "factiongoals.js");
+	await ns.sleep(1000);
 	startHomeScript(ns, "sleeves.js");
+	await ns.sleep(1000);
 	startHomeScript(ns, "instrument.js");
 }
 
 /** @param {NS} ns **/
-function startHomeScript(ns, scriptName) {
+function startHomeScript(ns, scriptName, ...args) {
 	if (!ns.scriptRunning(scriptName, "home")) {
-		ns.run(scriptName, 1);
+		ns.run(scriptName, 1, ...args);
 	}
 }
 
 /** @param {NS} ns **/
 function canSpendMoney(ns) {
+	if (getAvailableMoney(ns) > 1e15) {
+		return true;
+	}
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		if (corporationInfo.issuedShares > 0) {
@@ -130,9 +130,11 @@ function canSpendMoney(ns) {
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
+	const database = getDatabase(ns);
 	await runAndWait(ns, "start-hacknet.js", 1);
 	var lastHackingLevelRun = 0;
 	while (true) {
+		await runHomeScripts(ns);
 		const nextProgram = getProgramCount(ns);
 		if (nextProgram > lastHackingLevelRun) {
 			await startHacking(ns, nextProgram);
@@ -143,11 +145,16 @@ async function progressHackingLevels(ns) {
 		} else {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
-			const minMoney = Math.max(5, getDatabase(ns).owned_augmentations.length) * 10e9;
-			if (await getEstimation(ns, false) > Math.max(minMoney, getAvailableMoney(ns, true))) {
-				if (!ns.getPlayer().hasCorporation) {
-					return;
-				}
+		}
+		const factor = database.bitnodemultipliers ?
+			database.bitnodemultipliers.AugmentationMoneyCost /
+			database.bitnodemultipliers.AugmentationRepCost : 1.0;
+		const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
+		if (await getEstimation(ns, false) > Math.max(minMoney, getAvailableMoney(ns, true))) {
+			if (!ns.getPlayer().hasCorporation) {
+				return;
+			}
+			if (ns.fileExists("corporation.txt", "home")) {
 				var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 				if (corporationInfo &&
 					corporationInfo.issuedShares == 0 &&
@@ -156,20 +163,16 @@ async function progressHackingLevels(ns) {
 				}
 			}
 		}
+
 		await runAndWait(ns, "solve_contract.js", "--auto");
-		await runAndWait(ns, "spend-hashes.js");
+		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
+			await runAndWait(ns, "spend-hashes.js");
+		}
 		await runAndWait(ns, "joinfactions.js");
-		await runAndWait(ns, "joinbladeburner.js", "--faction");
 		await setUpForCorporations(ns);
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
 		await ns.sleep(30000);
-		if (ns.fileExists("factiongoals.txt")) {
-			var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-			if (completion >= 1) {
-				startHomeScript(ns, "factiongoals.js");
-			}
-		}
 	}
 }
 
@@ -185,20 +188,17 @@ function getProgramCount(ns) {
 
 /** @param {NS} ns **/
 async function improveInfrastructure(ns, nextProgram) {
-	var currentMoney = getAvailableMoney(ns);
 	// how to spend our money: first priority is to buy all programs
 	// the first program is a special case as we must also account fo the tor router
-	if (nextProgram == 0 && currentMoney > c.programs[0].cost + 200000) {
+	if (nextProgram == 0 && getAvailableMoney(ns) > c.programs[0].cost + 200000) {
 		await runAndWait(ns, "writeprogram.js", nextProgram++);
-		currentMoney = getAvailableMoney(ns);
 		await runAndWait(ns, "start-hacknet.js", 2);
 	}
 	if (nextProgram > 0 &&
 		nextProgram < c.programs.length &&
-		currentMoney > c.programs[nextProgram].cost) {
-		while (nextProgram < c.programs.length && currentMoney > c.programs[nextProgram].cost) {
+		getAvailableMoney(ns) > c.programs[nextProgram].cost) {
+		while (nextProgram < c.programs.length && getAvailableMoney(ns) > c.programs[nextProgram].cost) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
-			currentMoney = getAvailableMoney(ns);
 		}
 		await runAndWait(ns, "start-hacknet.js", 3);
 	}
@@ -206,9 +206,6 @@ async function improveInfrastructure(ns, nextProgram) {
 	if (nextProgram > 2) {
 		if (ns.getServerMaxRam("home") < 64) {
 			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
-			if (ns.getServerMaxRam("home") >= 64) {
-				await runHomeScripts(ns);
-			}
 		}
 	}
 	// upgrade server farm
@@ -222,27 +219,23 @@ async function improveInfrastructure(ns, nextProgram) {
 			}
 		}
 	}
-	currentMoney = getAvailableMoney(ns);
 	if (nextProgram >= c.programs.length) {
-		if (currentMoney < 1e9) {
+		if (getAvailableMoney(ns) < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
 			await startTrader(ns);
-		} else if (currentMoney < 1e12) {
+		} else if (getAvailableMoney(ns) < 1e12) {
 			// might have a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 8);
 			await startTrader(ns);
 			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
-				if (ns.getServerMaxRam("home") >= 256) {
-					await runHomeScripts(ns);
-				}
 			}
-		} else if (currentMoney < 50e12) {
+		} else if (getAvailableMoney(ns) < 50e12) {
 			// might have even a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 10);
 			await startTrader(ns);
-		} else if (currentMoney < 1e15) {
+		} else if (getAvailableMoney(ns) < 1e15) {
 			// might have quite a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 12);
 			if (ns.getPlayer().bitNodeN != 8) {
@@ -257,8 +250,7 @@ async function improveInfrastructure(ns, nextProgram) {
 				await stopTrader(ns);
 			}
 		}
-		currentMoney = getAvailableMoney(ns);
-		if (currentMoney > 1e15 && ns.getPlayer().hasCorporation &&
+		if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
 			ns.scriptRunning("corporation.js", "home") &&
 			!ns.scriptRunning("start-hacknet2.js", "home") &&
 			!ns.scriptRunning("start-servers.js", "home") &&

@@ -8,7 +8,7 @@ export async function main(ns) {
 	if (options.division) {
 		while (!player.inBladeburner) {
 			await runAndWait(ns, "commit-crimes.js");
-			await ns.sleep(60000);
+			await ns.sleep(45000);
 			player = ns.getPlayer();
 			var countLowSkills = 0;
 			if (player.skills.strength < 100) {
@@ -24,7 +24,8 @@ export async function main(ns) {
 				countLowSkills++;
 			}
 			if (countLowSkills > 0) {
-				const delay = 60000 / countLowSkills;
+				await runAndWait(ns, "spend-hashes.js", "--gym");
+				const delay = 90000 / countLowSkills;
 				if (player.skills.strength < 100) {
 					await workout(ns, "Strength");
 					await ns.sleep(delay);
@@ -50,9 +51,8 @@ export async function main(ns) {
 		}
 	}
 	player = ns.getPlayer();
-	if (options.faction) {
-		if (player.inBladeburner &&
-			!player.factions.includes(c.BLADEBURNERS)) {
+	if (player.inBladeburner && options.faction) {
+		if (!player.factions.includes(c.BLADEBURNERS)) {
 			if (ns.bladeburner.joinBladeburnerFaction()) {
 				ns.printf("Joined Bladeburners faction");
 			}

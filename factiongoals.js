@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded, getAvailableMoney } from "helpers.js";
+import { runAndWait, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -12,16 +12,20 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
-	await prepareGoalWork(ns, database);
-	await runAndWait(ns, "calculate-goals.js");
-	await runAndWait(ns, "print_goals.js");
+	await prepareGoalWork(ns);
+	if (!ns.fileExists("factiongoals.txt") ||
+		goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals) >= 1) {
+		await runAndWait(ns, "calculate-goals.js");
+	} else {
+		ns.tprintf("Keeping existing goals");
+	}
 	const config = JSON.parse(ns.read("factiongoals.txt"));
 	await workOnGoals(ns, database, config);
 	await runAndWait(ns, "commit-crimes.js");
 }
 
 /** @param {NS} ns **/
-async function prepareGoalWork(ns, database) {
+async function prepareGoalWork(ns) {
 	var focus = ns.singularity.isFocused();
 	// first make sure we have some money
 	while (getAvailableMoney(ns) < 500e3) {
