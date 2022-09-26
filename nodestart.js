@@ -221,21 +221,18 @@ async function improveInfrastructure(ns, nextProgram) {
 	if (nextProgram >= c.programs.length) {
 		if (getAvailableMoney(ns) < 1e9) {
 			await runAndWait(ns, "start-hacknet.js", 6);
-		} else if (getAvailableMoney(ns) < 1e12) {
-			// might have a bit more money to spend on hacknet nodes
+		} else if (getAvailableMoney(ns) < 200e9) {
 			await runAndWait(ns, "start-hacknet.js", 8);
-			// and for the home server
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 			}
+		} else if (getAvailableMoney(ns) < 1e12) {
+			await runAndWait(ns, "start-hacknet.js", 9);
 		} else if (getAvailableMoney(ns) < 50e12) {
-			// might have even a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 10);
 		} else if (getAvailableMoney(ns) < 1e15) {
-			// might have quite a bit more money to spend on hacknet nodes
 			await runAndWait(ns, "start-hacknet.js", 12);
 		} else {
-			// pull out all stops
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
 		}
 		if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
