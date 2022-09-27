@@ -1,8 +1,10 @@
+import { getDatabase } from "helpers.js";
+
 const MAX_RAM = 8192;
 /** @param {NS} ns **/
 export async function main(ns) {
 	const options = ns.flags([["maxram", false]]);
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	const scriptHost = "joesguns";
 	const scriptName = "start-hacknet2.js";
 	if (database.bitnodemultipliers) {
@@ -11,6 +13,19 @@ export async function main(ns) {
 			return;
 		}
 	}
+	var levelMultiplier;
+	var coreMultiplier;
+	var ramMultiplier;
+	if (database.ownedSourceFiles && database.ownedSourceFiles.find(a => a.n == 9)) {
+		levelMultiplier = 6.25;
+		ramMultiplier = 8;
+		coreMultiplier = 1.5;
+	} else {
+		levelMultiplier = 25;
+		ramMultiplier = 4;
+		coreMultiplier = 1;
+	}
+
 	if (ns.scriptRunning(scriptName, scriptHost)) {
 		ns.printf("Still installing");
 		return;
@@ -20,17 +35,17 @@ export async function main(ns) {
 		return;
 	}
 	var maxNodes = Math.min(32, ns.args[0]);
-	var maxLevel = Math.min(200, Math.round(maxNodes * 6.25));
-	var maxRam = Math.min(128, Math.round(ns.args[0] * 8));
+	var maxLevel = Math.min(200, Math.round(maxNodes * levelMultiplier));
+	var maxRam = Math.min(128, Math.round(ns.args[0] * ramMultiplier));
 	if (options.maxram) {
 		maxRam = MAX_RAM;
 	}
-	var maxCore = Math.min(16, Math.round(ns.args[0] * 1.5));
+	var maxCore = Math.min(16, Math.round(ns.args[0] * coreMultiplier));
 
-	await ns.scp(scriptName, scriptHost);
-	await ns.scp("helpers.js", scriptHost);
-	await ns.scp("budget.js", scriptHost);
-	await ns.scp("budget.txt", scriptHost);
+	ns.scp(scriptName, scriptHost);
+	ns.scp("helpers.js", scriptHost);
+	ns.scp("budget.js", scriptHost);
+	ns.scp("budget.txt", scriptHost);
 	ns.killall(scriptHost);
 	ns.exec(scriptName, scriptHost, 1, maxNodes, maxLevel, maxRam, maxCore);
 }
