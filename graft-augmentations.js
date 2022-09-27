@@ -29,10 +29,12 @@ export async function main(ns) {
 				aug, graftTime / 3600e3, (graftTime / 60e3) % 60);
 			if (options.install) {
 				ns.grafting.graftAugmentation(aug, true);
-				await ns.sleep(graftTime + 1000);
+				await ns.sleep(graftTime);
+				ns.tprintf("%s grafted.", aug);
+				await ns.sleep(30000);
 			}
 		} else {
-			// ns.tprintf("Can't graft %s, missing requirements %s", aug, requirements);
+			ns.printf("Can't graft %s, missing requirements %s", aug, requirements);
 		}
 	}
 	if (options.install) {
