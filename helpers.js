@@ -2,7 +2,11 @@ import { getAvailable, getTotal } from "budget.js";
 
 /** @param {NS} ns **/
 export function getDatabase(ns) {
-	return JSON.parse(ns.read("database.txt"));
+	const text = ns.read("database.txt");
+	if (text) {
+		return JSON.parse(text);
+	}
+	return "{}";
 }
 
 /** @param {NS} ns **/
@@ -155,7 +159,7 @@ export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 			var augmentation = toPurchase[ii];
 			var toPay = factor * augmentation.price;
 			if (sum + toPay > moneyToSpend) {
-				toRemove = toPurchase.filter(a=>a.requirements.includes(augmentation.name)).map(a=>a.name);
+				toRemove = toPurchase.filter(a => a.requirements.includes(augmentation.name)).map(a => a.name);
 				toRemove.push(augmentation.name);
 				repeat = true;
 				break;
@@ -164,7 +168,7 @@ export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 			factor = factor * 1.9;
 		}
 		if (repeat) {
-			var toKeep = toPurchase.filter(a=>!toRemove.includes(a.name));
+			var toKeep = toPurchase.filter(a => !toRemove.includes(a.name));
 			toPurchase.splice(0, toPurchase.length);
 			toPurchase.push(...toKeep);
 			setSortc(toPurchase);
@@ -174,7 +178,7 @@ export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 }
 
 /** @param {NS} ns **/
-export function getStartState(ns ) {
+export function getStartState(ns) {
 	const player = ns.getPlayer();
 	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
 		return "fresh";
