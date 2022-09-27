@@ -114,9 +114,6 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		if (goal == config.finalGoal) break;
 		alreadyTried.push(goal);
 	}
-	if (Math.max(1e12, getAvailableMoney(ns)) < await getEstimation(ns, false)) {
-		return false;
-	}
 	return true;
 }
 
@@ -177,22 +174,23 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 							goal.name, percentage * goal.reputation, moneyForDonations);
 					}
 				}
-				if (ns.singularity.getFactionRep(goal.name) > percentage * goal.reputation) {
+				const goalRep = goal.reputation + (goal.company ? 400e3 : 0);
+				const repReached = ns.singularity.getFactionRep(goal.name) + (goal.company ? ns.singularity.getCompanyRep(goal.name) : 0);
+				if (repReached > percentage * goalRep) {
 					break;
 				}
-				var percentComplete = (100.0 * ns.singularity.getFactionRep(goal.name) / goal.reputation).toFixed(1);
-				ns.tprintf("Goal completion (%s %d/%d): %s %%", goal.name,
-					ns.singularity.getFactionRep(goal.name),
-					goal.reputation,
-					percentComplete);
+				var percentComplete = (100.0 * repReached / goalRep).toFixed(1);
+				ns.tprintf("Goal completion (%s %d/%d): %s %%",
+					goal.name, repReached, goalRep, percentComplete);
 				ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
 				if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
-					ns.printf("Start working at company");
+					ns.printf("Work for company %s", goal.name);
 					await runAndWait(ns, "workforcompany.js", "--apply", "--work",
 						"--company", goal.name, "--job", "IT");
+				} else {
+					ns.printf("Work for faction %s", goal.name);
+					await runAndWait(ns, "workforfaction.js", goal.name, goal.work);
 				}
-				ns.printf("Start working for faction");
-				await runAndWait(ns, "workforfaction.js", goal.name, goal.work);
 				if (goal.name != c.DAEDALUS) {
 					await checkForDaedalus(ns, database, config);
 					if (config.finalGoal) {
