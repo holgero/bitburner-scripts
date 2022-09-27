@@ -163,7 +163,7 @@ async function progressHackingLevels(ns) {
 async function wantToEndRun(ns) {
 	if (ns.fileExists("factiongoals.txt")) {
 		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-		if (completion < 0.95) {
+		if (completion < 0.5) {
 			return false;
 		}
 	}
