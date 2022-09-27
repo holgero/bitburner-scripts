@@ -1,4 +1,4 @@
-import { getAvailableMoney } from "helpers.js";
+import { getAvailableMoney, getDatabase } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -7,7 +7,7 @@ export async function main(ns) {
 		ns.tprintf("Too poor");
 		return;
 	}
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	const augs = ns.grafting.getGraftableAugmentations();
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
 	augs.reverse();
