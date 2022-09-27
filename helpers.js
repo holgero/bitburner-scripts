@@ -6,6 +6,18 @@ export function getDatabase(ns) {
 }
 
 /** @param {NS} ns **/
+export async function traverse(ns, startServer, known, path, serverProc) {
+	const servers = ns.scan(startServer).filter(a=>!known.includes(a));
+	for (var server of servers) {
+		known.push(server);
+		path.push(server);
+		await serverProc(ns, server, known, path);
+		await traverse(ns, server, known, path, serverProc);
+		path.pop();
+	}
+}
+
+/** @param {NS} ns **/
 export function formatMoney(amount) {
 	const suffix = [" ", "k", "m", "b", "t", "q", "Q"];
 	var sign = " ";
