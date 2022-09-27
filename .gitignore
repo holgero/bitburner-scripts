@@ -1,6 +1,7 @@
 bitburnerSave_*.json
 bitburnerFiles*.zip
 RECOVERY_BITBURNER_*.json
+allowed.txt
 factiongoals.txt
 corporation.txt
 contracts.txt

@@ -19,6 +19,11 @@ export async function main(ns) {
 	if (getStartState(ns) != "restart") {
 		await runAndWait(ns, "clean-files.js");
 		await runAndWait(ns, "create-database.js");
+		ns.write("allowed.txt", JSON.stringify({
+			work: true,
+			travel: true,
+			graft: false
+		}), "w");
 		await startHacking(ns, getProgramCount(ns));
 	}
 
