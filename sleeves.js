@@ -36,27 +36,34 @@ async function runSleeves(ns) {
 			ns.sleeve.setToShockRecovery(ii);
 			continue;
 		}
-		ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii));
-		available.push(ii);
+		if (ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii))) {
+			available.push(ii);
+		}
 	}
-
 	if (ns.fileExists("factiongoals.txt")) {
+		ns.print("Available sleeves for faction work: ", available);
 		const goals = JSON.parse(ns.read("factiongoals.txt"));
 		const factions = ns.getPlayer().factions;
-		const factionsToWorkFor = goals.factionGoals.filter(a => factions.includes(a.name) && ns.singularity.getFactionRep(a.name) < a.reputation);
+		const factionsToWorkFor = goals.factionGoals.
+			filter(a => factions.includes(a.name) && a.reputation &&
+				ns.singularity.getFactionRep(a.name) < a.reputation);
 		for (var faction of factionsToWorkFor) {
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
 					ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
+					ns.printf("Sleeve %d works for faction %s", available[idx], faction.name);
 					available.splice(idx, 1);
 					break;
 				}
 			}
 		}
-		const jobsToWorkFor = goals.factionGoals.filter(a => a.company && !factions.includes(a.name));
+		ns.print("Available sleeves for company work: ", available);
+		const jobsToWorkFor = goals.factionGoals.
+			filter(a => a.company && !factions.includes(a.name));
 		for (var job of jobsToWorkFor) {
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToCompanyWork(available[idx], job.name)) {
+					ns.printf("Sleeve %d works for company %s", available[idx], job.name);
 					available.splice(idx, 1);
 					break;
 				}
