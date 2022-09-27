@@ -1,4 +1,4 @@
-import { getAvailableMoney } from "helpers.js";
+import { getAvailableMoney, getDatabase } from "helpers.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
@@ -20,7 +20,7 @@ export async function main(ns) {
 		["auto-upgrade", false]
 	]);
 
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	if (database.bitnodemultipliers) {
 		if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
 			ns.printf("No money from purchased servers, not buying servers");
