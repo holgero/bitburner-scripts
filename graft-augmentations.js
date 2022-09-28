@@ -2,7 +2,8 @@ import { getAvailableMoney, getDatabase } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["install", false], ["maxTime", 0], ["type", ""]]);
+	ns.disableLog("sleep");
+	const options = ns.flags([["install", false], ["end", false], ["maxTime", 0], ["type", ""]]);
 	if (getAvailableMoney(ns) < 1e15) {
 		ns.tprintf("Too poor");
 		return;
@@ -37,16 +38,19 @@ export async function main(ns) {
 		if (options.maxTime && graftTime > options.maxTime * 60 * 1000) {
 			continue;
 		}
+		if (options.install) {
+			while (ns.singularity.getCurrentWork() != null
+				&& ns.singularity.getCurrentWork().type == "GRAFTING") {
+				ns.printf("Still grafting: %s",
+					ns.singularity.getCurrentWork().augmentation);
+				await ns.sleep(60000);
+			}
+			ns.grafting.graftAugmentation(aug, true);
+		}
 		ns.tprintf("Grafting '%s', will take %02d:%02d h",
 			aug, graftTime / 3600e3, (graftTime / 60e3) % 60);
-		if (options.install) {
-			ns.grafting.graftAugmentation(aug, true);
-			await ns.sleep(graftTime);
-			ns.tprintf("%s grafted.", aug);
-			await ns.sleep(30000);
-		}
 	}
-	if (options.install) {
+	if (options.end || options.install) {
 		ns.write("allowed.txt", JSON.stringify({
 			work: true,
 			travel: true,
