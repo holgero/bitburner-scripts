@@ -2,11 +2,6 @@ import { canRunAction } from "./helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (!canRunAction(ns, "work")) {
-		ns.printf("Cannot work at the moment");
-		return;
-	}
-
 	const options = ns.flags([
 		["company", "NWO"],
 		["job", "IT"],
@@ -17,6 +12,10 @@ export async function main(ns) {
 		ns.tprintf("Applied successfully at %s for %s job", options.company, options.job);
 	}
 	if (!options.work) {
+		return;
+	}
+	if (!canRunAction(ns, "work")) {
+		ns.printf("Cannot work at the moment");
 		return;
 	}
 	const current = ns.singularity.getCurrentWork();
