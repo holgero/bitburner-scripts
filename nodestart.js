@@ -33,6 +33,9 @@ export async function main(ns) {
 
 	await killOthers(ns);
 	await runAndWait(ns, "spend-hashes.js", "--all");
+	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+		runAndWait("destroy-world.js");
+	}
 	await runAndWait(ns, "plan-augmentations.js", "--run_purchase");
 }
 
@@ -166,10 +169,23 @@ async function progressHackingLevels(ns) {
 
 /** @param {NS} ns **/
 async function wantToEndRun(ns) {
+	if (ns.getPlayer().hasCorporation &&
+		ns.fileExists("corporation.txt", "home")) {
+		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
+			return false;
+		}
+	}
 	if (ns.fileExists("factiongoals.txt")) {
 		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
 		if (completion < 0.5) {
 			return false;
+		}
+		if (ns.getPlayer().factions.includes(c.DAEDALUS)) {
+			// endgame
+			if (completion >= 1) {
+				return true;
+			}
 		}
 	}
 	const database = getDatabase(ns);
@@ -179,13 +195,6 @@ async function wantToEndRun(ns) {
 	const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
 	if (await getEstimation(ns, false) < Math.max(minMoney, getAvailableMoney(ns, true))) {
 		return false;
-	}
-	if (ns.getPlayer().hasCorporation &&
-		ns.fileExists("corporation.txt", "home")) {
-		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
-			return false;
-		}
 	}
 	return true;
 }

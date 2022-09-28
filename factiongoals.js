@@ -5,6 +5,10 @@ import { runAndWait, reputationNeeded, getAvailableMoney, goalCompletion } from 
 export async function main(ns) {
 	ns.disableLog("sleep");
 	const database = JSON.parse(ns.read("database.txt"));
+	if (database.owned_augmentations.includes(c.RED_PILL)) {
+		ns.tprintf("Already have the %s", c.RED_PILL);
+		return;
+	}
 	const player = ns.getPlayer();
 	if ((player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
@@ -56,21 +60,17 @@ async function workOnGoals(ns, database, config) {
 
 /** @param {NS} ns **/
 async function checkForDaedalus(ns, database, config) {
-	var daedalus = config.factionGoals.find(a => a.name == c.DAEDALUS);
-	if (!daedalus || !daedalus.augmentations.includes(c.RED_PILL)) {
-		if (ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
-			ns.spawn("destroy-world.js");
-		}
-	}
 	if (config.finalGoal) {
 		return;
 	}
+	if (!ns.getPlayer().factions.includes(c.DAEDALUS)) {
+		return;
+	}
 	const goals = config.factionGoals;
-	if (ns.getPlayer().factions.includes(c.DAEDALUS) &&
-		goals.some(a => a.name == c.DAEDALUS && a.augmentations.includes(c.RED_PILL))) {
+	if (goals.some(a => a.name == c.DAEDALUS && a.augmentations.includes(c.RED_PILL))) {
 		var goal = goals.find(a => a.name == c.DAEDALUS);
-		// single minded now, there are no other goals...
 		config.finalGoal = goal;
+		// single minded now, there are no other goals...
 		goals.forEach(a => a.reputation = 0);
 		if (goal.reputation == 0) {
 			if (goal.favor < database.favorToDonate) {
@@ -83,13 +83,13 @@ async function checkForDaedalus(ns, database, config) {
 			goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
 			config.estimatedDonations = 1;
 		}
-		await ns.write("factiongoals.txt", JSON.stringify({
+		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: 0,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
 		config.estimatedPrice = await getEstimation(ns, true);
-		await ns.write("factiongoals.txt", JSON.stringify({
+		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: config.estimatedPrice,
 			estimatedDonations: config.estimatedDonations
