@@ -19,7 +19,7 @@ export async function main(ns) {
 	if (database.ownedSourceFiles && database.ownedSourceFiles.find(a => a.n == 9)) {
 		levelMultiplier = 6.25;
 		ramMultiplier = 8;
-		coreMultiplier = 1.5;
+		coreMultiplier = 1.6;
 	} else {
 		levelMultiplier = 25;
 		ramMultiplier = 4;
@@ -34,13 +34,13 @@ export async function main(ns) {
 		ns.printf("Server installation running");
 		return;
 	}
-	var maxNodes = Math.min(32, ns.args[0]);
-	var maxLevel = Math.min(200, Math.round(maxNodes * levelMultiplier));
-	var maxRam = Math.min(128, Math.round(ns.args[0] * ramMultiplier));
+	var maxNodes = ns.args[0];
+	var maxLevel = Math.round(maxNodes * levelMultiplier);
+	var maxRam = Math.round(ns.args[0] * ramMultiplier);
 	if (options.maxram) {
 		maxRam = MAX_RAM;
 	}
-	var maxCore = Math.min(16, Math.round(ns.args[0] * coreMultiplier));
+	var maxCore = Math.round(ns.args[0] * coreMultiplier);
 
 	ns.scp(scriptName, scriptHost);
 	ns.scp("helpers.js", scriptHost);
