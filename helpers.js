@@ -1,5 +1,13 @@
 import { getAvailable, getTotal } from "budget.js";
 
+export function millisecondToDHMS(milli) {
+	return sprintf("%3dd %02d:%02d:%02d",
+		Math.floor(milli / (24 * 60 * 60 * 1000)),
+		Math.floor(milli / (60 * 60 * 1000)) % 24,
+		Math.floor(milli / (60 * 1000)) % 60,
+		Math.round(milli / 1000) % 60);
+}
+
 /** @param {NS} ns **/
 export function canRunAction(ns, action) {
 	const text = ns.read("allowed.txt");
@@ -21,7 +29,7 @@ export function getDatabase(ns) {
 
 /** @param {NS} ns **/
 export async function traverse(ns, startServer, known, path, serverProc) {
-	const servers = ns.scan(startServer).filter(a=>!known.includes(a));
+	const servers = ns.scan(startServer).filter(a => !known.includes(a));
 	for (var server of servers) {
 		known.push(server);
 		path.push(server);

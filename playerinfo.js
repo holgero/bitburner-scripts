@@ -1,4 +1,9 @@
-import { statsGainFactor, getAvailableMoney, formatMoney } from "/helpers.js";
+import {
+  statsGainFactor,
+  getAvailableMoney,
+  formatMoney,
+  millisecondToDHMS
+} from "/helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -11,9 +16,9 @@ export async function main(ns) {
   ns.tprintf("%30s: %s", "People killed", playerInfo.numPeopleKilled);
   ns.tprintf("%30s: %s", "City", playerInfo.city);
   ns.tprintf("%30s: %s", "Bit node number", playerInfo.bitNodeN);
-  ns.tprintf("%30s: %s", "Total play time", playerInfo.totalPlaytime);
-  ns.tprintf("%30s: %s", "Play time since Aug", playerInfo.playtimeSinceLastAug);
-  ns.tprintf("%30s: %s", "Play time since bitnode", playerInfo.playtimeSinceLastBitnode);
+  ns.tprintf("%30s: %s", "Play time since Aug", millisecondToDHMS(playerInfo.playtimeSinceLastAug));
+  ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(playerInfo.playtimeSinceLastBitnode));
+  ns.tprintf("%30s: %s", "Total play time", millisecondToDHMS(playerInfo.totalPlaytime));
   if (playerInfo.tor) {
     ns.tprintf("%30s: %s", "Tor router", "yes");
   }
