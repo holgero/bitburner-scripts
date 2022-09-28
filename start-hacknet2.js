@@ -4,9 +4,10 @@ import { getAvailableMoney } from "/helpers.js";
 export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMoneyAvailable");
-	const maxNodes = ns.args[0];
-	const maxLevel = ns.args[1];
-	const maxRam = ns.args[2];
+
+	const maxNodes = Math.min(ns.hacknet.maxNumNodes(), ns.args[0]);
+	const maxLevel = Math.min(200, ns.args[1]);
+	const maxRam = Math.min(8192, ns.args[2]);
 	const maxCore = ns.args[3];
 	const maxCache = Math.max(0, maxNodes - 5);
 	if (needMoreStuff(ns, maxNodes, maxLevel, maxRam, maxCore, maxCache)) {

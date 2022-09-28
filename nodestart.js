@@ -247,8 +247,10 @@ async function improveInfrastructure(ns, nextProgram) {
 			await runAndWait(ns, "start-hacknet.js", 10);
 		} else if (getAvailableMoney(ns) < 1e15) {
 			await runAndWait(ns, "start-hacknet.js", 12);
-		} else {
+		} else if (getAvailableMoney(ns) < 1e18) {
 			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
+		} else {
+			await runAndWait(ns, "start-hacknet.js", 32, "--maxram");
 		}
 		if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
 			ns.scriptRunning("corporation.js", "home") &&
