@@ -1,8 +1,11 @@
+import { useBudget, deleteBudget } from "budget.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
-	var ram = ns.args[0];
-	var script = ns.args[1];
-	var victims = JSON.parse(ns.args[2]);
+	const ram = ns.args[0];
+	const cost = ns.args[1];
+	const script = ns.args[2];
+	const victims = JSON.parse(ns.args[3]);
 
 	for (var ii = 0; ii < victims.length; ii++) {
 		var hostname = "pserv-" + ii;
@@ -10,6 +13,7 @@ export async function main(ns) {
 			while (true) {
 				var result = ns.purchaseServer("pserv-" + ii, ram);
 				if (result == hostname) {
+					useBudget(ns, "servers", cost);
 					break;
 				}
 				if (victims.length == 1) {
@@ -26,4 +30,5 @@ export async function main(ns) {
 		var threads = Math.floor(ns.getServer(hostname).maxRam / ns.getScriptRam(script));
 		ns.exec(script, hostname, threads, victims[ii]);
 	}
+	deleteBudget(ns, "servers");
 }

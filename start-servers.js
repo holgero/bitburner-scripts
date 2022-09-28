@@ -1,4 +1,5 @@
-import { getAvailableMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, formatMoney, getDatabase } from "helpers.js";
+import { reserveBudget } from "budget.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
@@ -67,18 +68,19 @@ export async function main(ns) {
 		victims = victims.slice(0, numberOfServers);
 	}
 
-	var threads = Math.floor(options.ram / ns.getScriptRam(SCRIPT));
-	var cost = ns.getPurchasedServerCost(options.ram);
-
 	if (ns.scriptRunning("start-servers2.js", "home")) {
 		ns.tprint("There is already a server start running");
 		return;
 	}
 
+	var threads = Math.floor(options.ram / ns.getScriptRam(SCRIPT));
+	var cost = ns.getPurchasedServerCost(options.ram);
+	reserveBudget(ns, "servers", numberOfServers * cost);
+
 	ns.tprintf("Starting %d servers with %d GB ram (%d threads). Victims are %s.",
 		numberOfServers, options.ram, threads, victims);
-	ns.tprintf("This will cost %d m per server, in total %d m", Math.ceil(cost / 1000000),
-		Math.ceil(cost * numberOfServers / 1000000));
+	ns.tprintf("This will cost %s per server, in total %s", formatMoney(cost),
+		formatMoney(cost * numberOfServers));
 
 	if (options.upgrade) {
 		ns.tprintf("Removing existing smaller servers");
@@ -89,7 +91,7 @@ export async function main(ns) {
 			freeServers(ns);
 		}
 	}
-	ns.spawn("start-servers2.js", 1, options.ram, SCRIPT, JSON.stringify(victims));
+	ns.spawn("start-servers2.js", 1, options.ram, cost, SCRIPT, JSON.stringify(victims));
 }
 
 /** @param {NS} ns **/
