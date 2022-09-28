@@ -2,7 +2,8 @@ import {
   statsGainFactor,
   getAvailableMoney,
   formatMoney,
-  millisecondToDHMS
+  millisecondToDHMS,
+  getDatabase
 } from "/helpers.js";
 
 /** @param {NS} ns **/
@@ -78,6 +79,7 @@ export async function main(ns) {
   const current = ns.getServerMoneyAvailable("home");
   const available = getAvailableMoney(ns);
   const total = getAvailableMoney(ns, true);
+  ns.tprintf("%30s: %d", "Augmentations", getDatabase(ns).owned_augmentations.length);
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
 
