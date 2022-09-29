@@ -55,11 +55,11 @@ async function setUpForCorporations(ns) {
 	if (ns.getPlayer().bitNodeN == 8) {
 		return;
 	}
-	if ((ns.getPlayer().hasCorporation || getAvailableMoney(ns) > 150e9) &&
+	if ((ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) > 150e9) &&
 		!ns.scriptRunning("corporation.js", "home")) {
 		await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
-			if (ns.getPlayer().hasCorporation || getAvailableMoney(ns) > 150e9) {
+			if (ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) > 150e9) {
 				await killOthers(ns);
 				ns.run("corporation.js");
 				return;
