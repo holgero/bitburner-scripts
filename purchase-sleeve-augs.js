@@ -1,5 +1,9 @@
+import { runAndWait } from "helpers.js";
+
 /** @param {NS} ns */
 export async function main(ns) {
+	await runAndWait(ns, "joinfactions.js", "--all");
+
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
 		const skills = ns.sleeve.getSleeveStats(ii);
 		if (skills.shock == 0) {
