@@ -80,8 +80,27 @@ export async function main(ns) {
   const available = getAvailableMoney(ns);
   const total = getAvailableMoney(ns, true);
   ns.tprintf("%30s: %d", "Augmentations", getDatabase(ns).owned_augmentations.length);
+  ns.tprintf("%30s: %s", "Server", getServerInfo(ns));
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
 
   ns.tprintf("%30s: %f", "Stats gain factor", statsGainFactor(ns));
+}
+
+function getServerInfo(ns) {
+  // 2.7 GB
+  var count = 0;
+  var mem = 0;
+  for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
+    const hostname = "pserv-" + ii;
+    if (ns.serverExists(hostname)) {
+      count++;
+      if (ns.getServerMaxRam(hostname) > mem) {
+        mem = ns.getServerMaxRam(hostname);
+      }
+    }
+
+  }
+  return sprintf("%d/%d (%d GB)",
+   count, ns.getPurchasedServerLimit(), mem);
 }
