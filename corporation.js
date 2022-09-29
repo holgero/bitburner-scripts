@@ -44,7 +44,7 @@ export async function main(ns) {
 	while (true) {
 		var player = ns.getPlayer();
 		if (!player.hasCorporation) {
-			if (!ns.corporation.createCorporation("ACME", player.bitNodeN == 3)) {
+			if (!ns.corporation.createCorporation("ACME", player.bitNodeN != 3)) {
 				await ns.sleep(60000);
 				continue;
 			}
