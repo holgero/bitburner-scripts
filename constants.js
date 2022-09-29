@@ -69,9 +69,9 @@ export const ALL_FACTIONS = [
 ];
 
 // working types
-export const HACKING = "Hacking Contracts";
-export const FIELD_WORK = "Field Work";
-export const SECURITY_WORK = "Security Work";
+export const HACKING = "HACKING";
+export const FIELD_WORK = "FIELD";
+export const SECURITY_WORK = "SECURITY";
 export const BLADEACTIONS = "Bladeburner Actions";
 
 // augmentations

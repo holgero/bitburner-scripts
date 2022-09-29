@@ -189,7 +189,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 						"--company", goal.name, "--job", "IT");
 				} else {
 					ns.printf("Work for faction %s", goal.name);
-					await runAndWait(ns, "workforfaction.js", goal.name, goal.work);
+					await runAndWait(ns, "workforfaction.js", goal.name);
 				}
 				if (goal.name != c.DAEDALUS) {
 					await checkForDaedalus(ns, database, config);
