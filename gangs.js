@@ -46,7 +46,7 @@ function recruitMembers(ns) {
 
 /** @param {NS} ns */
 function ascendMembers(ns) {
-	if (ns.gang.getGangInformation().wantedPenalty < 0.95) {
+	if (ns.gang.getGangInformation().wantedPenalty < 0.9) {
 		return;
 	}
 	for (var name of ns.gang.getMemberNames()) {
@@ -85,10 +85,14 @@ function setMemberTasks(ns) {
 			ns.gang.setMemberTask(name, "Train Hacking");
 		} else if (hackingLevel < 65) {
 			ns.gang.setMemberTask(name, "Ransomware");
-		} else if (hackingLevel < 75 || penalty < 0.95) {
+		} else if (hackingLevel < 75) {
 			ns.gang.setMemberTask(name, "Phishing");
-		} else {
+		} else if (hackingLevel < 500) {
 			ns.gang.setMemberTask(name, "Identity Theft");
+		} else if (hackingLevel < 1500) {
+			ns.gang.setMemberTask(name, "Fraud & Counterfeiting");
+		} else {
+			ns.gang.setMemberTask(name, "Money Laundering");
 		}
 	}
 }
