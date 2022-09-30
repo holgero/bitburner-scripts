@@ -65,6 +65,7 @@ export async function main(ns) {
 			aug, graftTime / 3600e3, (graftTime / 60e3) % 60);
 	}
 	if (options.end || options.install) {
+		await runAndWait(ns, "create-database.js");
 		ns.write("allowed.txt", JSON.stringify({
 			work: true,
 			travel: true,
