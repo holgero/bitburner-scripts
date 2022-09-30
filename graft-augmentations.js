@@ -31,14 +31,18 @@ export async function main(ns) {
 			continue;
 		}
 		const augmentation = database.augmentations.find(a => a.name == aug);
-		const requirements = augmentation.requirements;
-		if (!requirements.every(r => database.owned_augmentations.includes(r))) {
-			ns.printf("Can't graft %s, missing requirements %s", aug, requirements);
-			continue;
-		}
-		if (options.type && augmentation.type != options.type) {
-			ns.printf("Can't graft %s, not of type %s", aug, options.type);
-			continue;
+		if (augmentation) {
+			const requirements = augmentation.requirements;
+			if (!requirements.every(r => database.owned_augmentations.includes(r))) {
+				ns.printf("Can't graft %s, missing requirements %s", aug, requirements);
+				continue;
+			}
+			if (options.type && augmentation.type != options.type) {
+				ns.printf("Can't graft %s, not of type %s", aug, options.type);
+				continue;
+			}
+		} else {
+			ns.tprintf("Unknown augmentation '%s' included unfiltered.", aug);
 		}
 		const graftTime = ns.grafting.getAugmentationGraftTime(aug);
 		if (options.maxTime && graftTime > options.maxTime * 60 * 1000) {
