@@ -105,6 +105,8 @@ async function runHomeScripts(ns) {
 	await ns.sleep(1000);
 	startHomeScript(ns, "sleeves.js");
 	await ns.sleep(1000);
+	startHomeScript(ns, "gangs.js");
+	await ns.sleep(1000);
 	startHomeScript(ns, "instrument.js");
 }
 
