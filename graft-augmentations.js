@@ -17,6 +17,7 @@ export async function main(ns) {
 	const augs = ns.grafting.getGraftableAugmentations();
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
 	augs.reverse();
+	ns.printf("%d augmentations for grafting available", augs.length);
 	if (options.install) {
 		ns.write("allowed.txt", JSON.stringify({
 			work: false,
@@ -58,7 +59,7 @@ export async function main(ns) {
 			ns.grafting.graftAugmentation(aug, true);
 		}
 		count++;
-		if (count > options.maxCount) {
+		if (options.maxCount && count > options.maxCount) {
 			break;
 		}
 		ns.tprintf("Grafting '%s', will take %02d:%02d h",
