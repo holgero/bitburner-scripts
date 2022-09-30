@@ -1,9 +1,14 @@
-import { getAvailableMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, runAndWait, getDatabase } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	ns.disableLog("sleep");
-	const options = ns.flags([["install", false], ["end", false], ["maxTime", 0], ["type", ""]]);
+	const options = ns.flags([
+		["install", false],
+		["end", false],
+		["maxTime", 0],
+		["maxCount", 0],
+		["type", ""]]);
 	if (getAvailableMoney(ns) < 1e15) {
 		ns.tprintf("Too poor");
 		return;
@@ -19,6 +24,7 @@ export async function main(ns) {
 			graft: true
 		}), "w");
 	}
+	var count = 0;
 	for (var aug of augs) {
 		if (ns.grafting.getAugmentationGraftPrice(aug) > getAvailableMoney(ns)) {
 			ns.printf("Can't graft %s, not enough money", aug);
@@ -46,6 +52,10 @@ export async function main(ns) {
 				await ns.sleep(60000);
 			}
 			ns.grafting.graftAugmentation(aug, true);
+		}
+		count++;
+		if (count > options.maxCount) {
+			break;
 		}
 		ns.tprintf("Grafting '%s', will take %02d:%02d h",
 			aug, graftTime / 3600e3, (graftTime / 60e3) % 60);
