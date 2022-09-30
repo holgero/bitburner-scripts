@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { getAvailableMoney } from "helpers.js";
+import { getDatabase, getAvailableMoney } from "helpers.js";
 
 const POOR_MAN = 1e9;
 
@@ -44,9 +44,11 @@ async function runSleeves(ns) {
 		ns.print("Available sleeves for faction work: ", available);
 		const goals = JSON.parse(ns.read("factiongoals.txt"));
 		const factions = ns.getPlayer().factions;
+		const database = getDatabase(ns);
 		const factionsToWorkFor = goals.factionGoals.
 			filter(a => factions.includes(a.name) && a.reputation &&
-				ns.singularity.getFactionRep(a.name) < a.reputation);
+				ns.singularity.getFactionRep(a.name) < a.reputation).
+				filter(a => !database.factions.find(b => a.name == b.name).gang);
 		for (var faction of factionsToWorkFor) {
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
