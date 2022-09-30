@@ -13,5 +13,10 @@ function addFactionInformation(ns, factions) {
 		if (faction.company) {
 			faction.companyFavor = ns.singularity.getCompanyFavor(faction.name);
 		}
+		if (ns.gang.inGang()) {
+			if (faction.name == ns.gang.getGangInformation().faction) {
+				faction.gang = true;
+			}
+		}
 	}
 }

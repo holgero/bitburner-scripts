@@ -46,7 +46,7 @@ function recruitMembers(ns) {
 
 /** @param {NS} ns */
 function ascendMembers(ns) {
-	if (ns.gang.getGangInformation().wantedPenalty < 0.9) {
+	if (ns.gang.getGangInformation().wantedPenalty < 0.95) {
 		return;
 	}
 	for (var name of ns.gang.getMemberNames()) {
@@ -61,15 +61,16 @@ function ascendMembers(ns) {
 
 /** @param {NS} ns */
 function equipMembers(ns) {
-	for (var name of ns.gang.getMemberNames()) {
-		for (var equipment of ns.gang.getEquipmentNames()) {
-			switch (ns.gang.getEquipmentType(equipment)) {
-				case "Rootkit":
-				case "Augmentation":
-					if (ns.gang.getEquipmentCost(equipment) < 0.05 * getAvailableMoney(ns)) {
-						ns.gang.purchaseEquipment(name, equipment);
-					}
-					break;
+	var moneyToSpend = 0.1 * getAvailableMoney(ns);
+	const equipments = ns.gang.getEquipmentNames().
+		filter(a => ns.gang.getEquipmentStats(a).hack && ns.gang.getEquipmentCost(a) < moneyToSpend).
+		sort((a, b) => ns.gang.getEquipmentCost(a) - ns.gang.getEquipmentCost(b)).reverse();
+	for (var equipment of equipments) {
+		for (var name of ns.gang.getMemberNames()) {
+			if (moneyToSpend > 0) {
+				if (ns.gang.purchaseEquipment(name, equipment)) {
+					moneyToSpend -= ns.gang.getEquipmentCost(equipment);
+				}
 			}
 		}
 	}

@@ -3,7 +3,7 @@ import * as c from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	const faction = ns.args[0];
+	const factionName = ns.args[0];
 	if (!canRunAction(ns, "work")) {
 		ns.printf("Cannot work at the moment");
 		return;
@@ -11,34 +11,38 @@ export async function main(ns) {
 	const current = ns.singularity.getCurrentWork();
 	if (current != null &&
 		current.type == "FACTION" &&
-		current.factionName == faction
+		current.factionName == factionName
 	) {
 		ns.printf("Already working for %s", current.factionName);
 		return;
 	}
 
+	const faction = getDatabase(ns).factions.find(a => a.name == factionName);
+	if (faction.gang) {
+		ns.tprintf("Cannot work for gang faction %s", factionName);
+		return;
+	}
 	var bestGain = 0;
-	const favor = getDatabase(ns).factions.find(a => a.name == faction).favor;
 	for (var workType of [c.HACKING, c.SECURITY_WORK, c.FIELD_WORK]) {
 		if (ns.fileExists("Formulas.exe")) {
 			const gain = ns.formulas.work.factionGains(
-				ns.getPlayer(), workType, favor).reputation;
+				ns.getPlayer(), workType, faction.favor).reputation;
 			if (gain > bestGain) {
-				if (ns.singularity.workForFaction(faction, workType)) {
+				if (ns.singularity.workForFaction(factionName, workType)) {
 					ns.printf("Working for faction %s, work type %s, gain %s",
-						faction, workType, gain);
+						factionName, workType, gain);
 					bestGain = gain;
 				}
 			}
 		} else {
-			if (ns.singularity.workForFaction(faction, workType)) {
-				ns.printf("Working for faction %s, work type %s", faction, workType);
+			if (ns.singularity.workForFaction(factionName, workType)) {
+				ns.printf("Working for faction %s, work type %s", factionName, workType);
 				bestGain = 1;
 				break;
 			}
 		}
 	}
 	if (bestGain == 0) {
-		ns.tprintf("Failed to work for faction %s, no suitable work type", faction);
+		ns.tprintf("Failed to work for faction %s, no suitable work type", factionName);
 	}
 }
