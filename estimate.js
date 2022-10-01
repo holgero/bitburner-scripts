@@ -59,6 +59,9 @@ export async function main(ns) {
 	}
 
 	if (options.write) {
-		await ns.write("estimate.txt", JSON.stringify({ estimatedPrice: sum }), "w");
+		ns.write("estimate.txt", JSON.stringify({
+			estimatedPrice: sum,
+			augmentationCount: toPurchase.length
+		}), "w");
 	}
 }

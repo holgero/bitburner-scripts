@@ -14,7 +14,6 @@ export async function main(ns) {
 	await killOthers(ns);
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMaxRam");
-	await runAndWait(ns, "commit-crimes.js");
 
 	if (getStartState(ns) != "restart") {
 		await runAndWait(ns, "clean-files.js");
@@ -120,21 +119,36 @@ function startHomeScript(ns, scriptName, ...args) {
 }
 
 /** @param {NS} ns **/
-function canSpendMoney(ns) {
+async function canSpendMoney(ns) {
+	if (await wantToEndRun(ns)) {
+		return false;
+	}
 	if (getAvailableMoney(ns) > 1e15) {
+		// there's plenty
 		return true;
 	}
 	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
+		// should be replaced with budgeting
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		if (corporationInfo.issuedShares > 0) {
 			return false;
 		}
 	}
 	if (ns.fileExists("factiongoals.txt")) {
-		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-		if (completion > 0.5) {
+		const goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
+		const daedalusGoal = goals.find(a => a.name == c.DAEDALUS);
+		if (daedalusGoal && daedalusGoal.reputation > 0) {
+			// already on endgame goal, no sense in spending money
 			return false;
 		}
+	}
+	const estimation = await getEstimation(ns, false);
+	if (estimation.augmentationCount < 5) {
+		return true;
+	}
+	if (estimation.estimatedPrice > getAvailableMoney(ns, true)) {
+		// money is scarce
+		return false;
 	}
 	return true;
 }
@@ -151,14 +165,14 @@ async function progressHackingLevels(ns) {
 			lastHackingLevelRun = nextProgram;
 		}
 		await purchaseHackingPrograms(ns, nextProgram);
-		if (canSpendMoney(ns)) {
+		if (await wantToEndRun(ns)) {
+			return;
+		}
+		if (await canSpendMoney(ns)) {
 			await improveInfrastructure(ns, nextProgram);
 		} else {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
-		}
-		if (await wantToEndRun(ns)) {
-			return;
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
@@ -176,20 +190,24 @@ async function progressHackingLevels(ns) {
 async function wantToEndRun(ns) {
 	if (ns.getPlayer().hasCorporation &&
 		ns.fileExists("corporation.txt", "home")) {
+		// avoid ending while there are outstanding shares or
+		// shares cant be sold at the start of the next run
 		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
 		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
 			return false;
 		}
-	}
-	if (ns.fileExists("factiongoals.txt")) {
-		var completion = goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals);
-		if (completion < 0.5) {
+		if (corporationInfo.sharePrice < 1e3) {
 			return false;
 		}
-		if (ns.getPlayer().factions.includes(c.DAEDALUS)) {
-			// endgame
-			if (completion >= 1) {
-				return true;
+	}
+	if (ns.getPlayer().factions.includes(c.DAEDALUS)) {
+		// end run fast during endgame, to reach installation of red pill
+		if (ns.fileExists("factiongoals.txt")) {
+			const goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
+			const daedalusGoal = goals.find(a => a.name == c.DAEDALUS);
+			if (daedalusGoal && daedalusGoal.reputation > 0) {
+				const completion = goalCompletion(ns, factionGoals);
+				return completion >= 1;
 			}
 		}
 	}
@@ -197,11 +215,16 @@ async function wantToEndRun(ns) {
 	const factor = database.bitnodemultipliers ?
 		database.bitnodemultipliers.AugmentationMoneyCost /
 		database.bitnodemultipliers.AugmentationRepCost : 1.0;
-	const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
-	if (await getEstimation(ns, false) < Math.max(minMoney, getAvailableMoney(ns, true))) {
-		return false;
+	const minMoney = Math.max(5, Math.floor(2 * Math.sqrt(database.owned_augmentations.length)))
+		* 10e9 * factor;
+	const estimation = await getEstimation(ns, false);
+	if (estimation.estimatedPrice > Math.max(minMoney, getAvailableMoney(ns, true))) {
+		return true;
 	}
-	return true;
+	if (estimation.augmentationCount > 12) {
+		return true;
+	}
+	return false;
 }
 
 /** @param {NS} ns **/
@@ -322,8 +345,8 @@ async function travelToGoalLocations(ns) {
 
 /** @param {NS} ns **/
 async function getEstimation(ns) {
-	await ns.write("estimate.txt", "", "w");
+	ns.write("estimate.txt", "", "w");
 	await runAndWait(ns, "estimate.js", "--write");
 	var estimation = JSON.parse(ns.read("estimate.txt"));
-	return estimation.estimatedPrice;
+	return estimation;
 }

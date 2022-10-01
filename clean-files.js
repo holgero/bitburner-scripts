@@ -5,6 +5,7 @@ const FILES = [
 	"contracts.txt",
 	"corporation.txt",
 	"database.txt",
+	"estimation.txt",
 	"factiongoals.txt",
 	"stopselling.txt"
 ];
