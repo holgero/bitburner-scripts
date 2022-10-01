@@ -1,4 +1,4 @@
-import { useBudget, deleteBudget } from "budget.js";
+import { releaseBudget, deleteBudget } from "budget.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -13,7 +13,7 @@ export async function main(ns) {
 			while (true) {
 				var result = ns.purchaseServer("pserv-" + ii, ram);
 				if (result == hostname) {
-					useBudget(ns, "servers", cost);
+					releaseBudget(ns, "servers", cost);
 					break;
 				}
 				if (victims.length == 1) {
