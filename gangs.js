@@ -51,7 +51,7 @@ function ascendMembers(ns) {
 	}
 	for (var name of ns.gang.getMemberNames()) {
 		const memberInfo = ns.gang.getMemberInformation(name);
-		if (memberInfo.hack_exp > Math.max(5000, memberInfo.hack_asc_points)) {
+		if (memberInfo.hack_exp > Math.max(5000, 2500 + memberInfo.hack_asc_points)) {
 			if (ns.gang.ascendMember(name)) {
 				return;
 			}
