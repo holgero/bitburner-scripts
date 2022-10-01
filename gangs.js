@@ -105,6 +105,9 @@ async function balanceWantedLevel(ns) {
 		}
 		await ns.sleep(1000);
 		const info = ns.gang.getGangInformation();
+		if (info.wantedLevel < 2.0) {
+			continue;
+		}
 		if (info.wantedPenalty < 0.8) {
 			ns.gang.setMemberTask(name, "Ethical Hacking");
 			continue;
