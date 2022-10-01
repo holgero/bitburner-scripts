@@ -78,18 +78,17 @@ function equipMembers(ns) {
 
 /** @param {NS} ns */
 function setMemberTasks(ns) {
-	const penalty = ns.gang.getGangInformation().wantedPenalty;
 	for (var name of ns.gang.getMemberNames()) {
 		const hackingLevel = ns.gang.getMemberInformation(name).hack;
 		if (hackingLevel < 50) {
 			ns.gang.setMemberTask(name, "Train Hacking");
-		} else if (hackingLevel < 65) {
-			ns.gang.setMemberTask(name, "Ransomware");
 		} else if (hackingLevel < 75) {
+			ns.gang.setMemberTask(name, "Ransomware");
+		} else if (hackingLevel < 320) {
 			ns.gang.setMemberTask(name, "Phishing");
-		} else if (hackingLevel < 500) {
+		} else if (hackingLevel < 1200) {
 			ns.gang.setMemberTask(name, "Identity Theft");
-		} else if (hackingLevel < 1500) {
+		} else if (hackingLevel < 1250) {
 			ns.gang.setMemberTask(name, "Fraud & Counterfeiting");
 		} else {
 			ns.gang.setMemberTask(name, "Money Laundering");
