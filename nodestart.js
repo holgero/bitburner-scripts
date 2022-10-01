@@ -19,6 +19,8 @@ export async function main(ns) {
 	if (getStartState(ns) != "restart") {
 		await runAndWait(ns, "clean-files.js");
 		await runAndWait(ns, "create-database.js");
+		// hacky: create a preliminary factiongoals.txt with no actual goals in it
+		await runAndWait(ns, "calculate-goals.js", "--money", 1);
 		ns.write("allowed.txt", JSON.stringify({
 			work: true,
 			travel: true,
@@ -148,6 +150,7 @@ async function progressHackingLevels(ns) {
 			await startHacking(ns, nextProgram);
 			lastHackingLevelRun = nextProgram;
 		}
+		await purchaseHackingPrograms(ns, nextProgram);
 		if (canSpendMoney(ns)) {
 			await improveInfrastructure(ns, nextProgram);
 		} else {
@@ -210,14 +213,10 @@ function getProgramCount(ns) {
 	return programs;
 }
 
-
 /** @param {NS} ns **/
-async function improveInfrastructure(ns, nextProgram) {
-	// how to spend our money: first priority is to buy all programs
-	// the first program is a special case as we must also account fo the tor router
+async function purchaseHackingPrograms(ns, nextProgram) {
 	if (nextProgram == 0 && getAvailableMoney(ns) > c.programs[0].cost + 200000) {
 		await runAndWait(ns, "writeprogram.js", nextProgram++);
-		await runAndWait(ns, "start-hacknet.js", 2);
 	}
 	if (nextProgram > 0 &&
 		nextProgram < c.programs.length &&
@@ -225,52 +224,55 @@ async function improveInfrastructure(ns, nextProgram) {
 		while (nextProgram < c.programs.length && getAvailableMoney(ns) > c.programs[nextProgram].cost) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
 		}
-		await runAndWait(ns, "start-hacknet.js", 3);
 	}
-	// upgrade home pc
-	if (nextProgram > 2) {
-		if (ns.getServerMaxRam("home") < 64) {
-			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
-		}
-	}
-	// upgrade server farm
-	if (nextProgram > 3) {
-		await runAndWait(ns, "start-hacknet.js", 4);
-		if (!ns.serverExists("pserv-0") ||
-			ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
-			await runAndWait(ns, "start-servers.js", "--auto-upgrade");
-			if (ns.getPlayer().skills.hacking > 2000) {
-				await runAndWait(ns, "optimize-hacking.js");
+}
+
+/** @param {NS} ns **/
+async function improveInfrastructure(ns, programsOwned) {
+	await runAndWait(ns, "start-hacknet.js", programsOwned);
+
+	switch (programsOwned) {
+		case 3:
+			if (ns.getServerMaxRam("home") < 64) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 64);
 			}
-		}
-	}
-	if (nextProgram >= c.programs.length) {
-		if (getAvailableMoney(ns) < 1e9) {
-			await runAndWait(ns, "start-hacknet.js", 6);
-		} else if (getAvailableMoney(ns) < 200e9) {
-			await runAndWait(ns, "start-hacknet.js", 8);
+			break;
+		case 4:
+			if (ns.getServerMaxRam("home") < 128) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 128);
+			}
+			if (!ns.serverExists("pserv-0") ||
+				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
+				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+			}
+			break;
+		case 5:
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 			}
-		} else if (getAvailableMoney(ns) < 1e12) {
-			await runAndWait(ns, "start-hacknet.js", 9);
-		} else if (getAvailableMoney(ns) < 50e12) {
-			await runAndWait(ns, "start-hacknet.js", 10);
-		} else if (getAvailableMoney(ns) < 1e15) {
-			await runAndWait(ns, "start-hacknet.js", 12);
-		} else if (getAvailableMoney(ns) < 1e18) {
-			await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
-		} else {
-			await runAndWait(ns, "start-hacknet.js", 32, "--maxram");
-		}
-		if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
-			ns.scriptRunning("corporation.js", "home") &&
-			!ns.scriptRunning("start-hacknet2.js", "home") &&
-			!ns.scriptRunning("start-servers.js", "home") &&
-			!ns.scriptRunning("start-servers2.js", "home")) {
-			await runAndWait(ns, "purchase-cores.js", "--reserve", 100e12);
-			await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 100e12);
-		}
+			if (getAvailableMoney(ns) < 1e9) {
+				await runAndWait(ns, "start-hacknet.js", 6);
+			} else if (getAvailableMoney(ns) < 200e9) {
+				await runAndWait(ns, "start-hacknet.js", 8);
+			} else if (getAvailableMoney(ns) < 1e12) {
+				await runAndWait(ns, "start-hacknet.js", 9);
+			} else if (getAvailableMoney(ns) < 50e12) {
+				await runAndWait(ns, "start-hacknet.js", 10);
+			} else if (getAvailableMoney(ns) < 1e15) {
+				await runAndWait(ns, "start-hacknet.js", 12);
+			} else if (getAvailableMoney(ns) < 1e18) {
+				await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
+			} else {
+				await runAndWait(ns, "start-hacknet.js", 32, "--maxram");
+			}
+			if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
+				ns.scriptRunning("corporation.js", "home") &&
+				!ns.scriptRunning("start-hacknet2.js", "home") &&
+				!ns.scriptRunning("start-servers.js", "home") &&
+				!ns.scriptRunning("start-servers2.js", "home")) {
+				await runAndWait(ns, "purchase-cores.js", "--reserve", 100e12);
+				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 100e12);
+			}
 	}
 }
 

@@ -12,7 +12,7 @@ export async function main(ns) {
 	const player = ns.getPlayer();
 	if ((player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.tprintf("On bitnode 6, 7 or 11 (%d) and do not have the %s",
+		ns.printf("On bitnode 6, 7 or 11 (%d) and do not have the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}

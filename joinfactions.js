@@ -1,3 +1,5 @@
+import { getDatabase, getFactiongoals } from "/helpers.js";
+
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["all", false]]);
@@ -6,15 +8,18 @@ export async function main(ns) {
 			forEach(a => ns.singularity.joinFaction(a));
 		return;
 	}
-	if (!ns.fileExists("factiongoals.txt")) {
-		return;
+	const database = getDatabase(ns);
+	if (database.factions) {
+		ns.singularity.checkFactionInvitations().
+			map(a => database.factions.find(b => b.name == a)).
+			filter(a => !a.location || a.location == "" || a.location != a.name).
+			filter(a => a.augmentations.length > 0).
+			forEach(a => ns.singularity.joinFaction(a.name));
 	}
-	const config = JSON.parse(ns.read("factiongoals.txt"));
-	const factions = config.factionGoals.map(a => a.name);
-	const invites = ns.singularity.checkFactionInvitations();
-	for (var invite of invites) {
-		if (factions.includes(invite)) {
-			ns.singularity.joinFaction(invite);
-		}
+	const factiongoals = getFactiongoals(ns);
+	if (factiongoals.factionGoals) {
+		ns.singularity.checkFactionInvitations().
+			filter(a => factiongoals.factionGoals.some(b => b.name == a)).
+			forEach(a => ns.singularity.joinFaction(a));
 	}
 }

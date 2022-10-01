@@ -202,7 +202,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 		prios.splice(2, 1);
 	}
 	var player = ns.getPlayer();
-	if (player.bitNodeN == 6 || player.bitNodeN == 7) {
+	if (player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) {
 		prios.unshift("Bladeburner", "Combat");
 	}
 	var candidates = [];

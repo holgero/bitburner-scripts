@@ -28,6 +28,15 @@ export function getDatabase(ns) {
 }
 
 /** @param {NS} ns **/
+export function getFactiongoals(ns) {
+	const text = ns.read("factiongoals.txt");
+	if (text) {
+		return JSON.parse(text);
+	}
+	return "{}";
+}
+
+/** @param {NS} ns **/
 export async function traverse(ns, startServer, known, path, serverProc) {
 	const servers = ns.scan(startServer).filter(a => !known.includes(a));
 	for (var server of servers) {

@@ -88,7 +88,7 @@ export async function main(ns) {
 function ramAvailable(ns, spare) {
 	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - spare;
 	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
-		ns.tprintf("Not enough ram, exiting");
+		ns.printf("Not enough ram, exiting");
 		return -1;
 	}
 	return availableRam;
