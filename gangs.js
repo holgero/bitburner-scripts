@@ -86,9 +86,9 @@ function setMemberTasks(ns) {
 			ns.gang.setMemberTask(name, "Ransomware");
 		} else if (hackingLevel < 320) {
 			ns.gang.setMemberTask(name, "Phishing");
-		} else if (hackingLevel < 1200) {
+		} else if (hackingLevel < 700) {
 			ns.gang.setMemberTask(name, "Identity Theft");
-		} else if (hackingLevel < 1250) {
+		} else if (hackingLevel < 1500) {
 			ns.gang.setMemberTask(name, "Fraud & Counterfeiting");
 		} else {
 			ns.gang.setMemberTask(name, "Money Laundering");
