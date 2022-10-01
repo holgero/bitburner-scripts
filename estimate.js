@@ -59,9 +59,13 @@ export async function main(ns) {
 	}
 
 	if (options.write) {
+		const augmentationCount = toPurchase.length;
+		filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
+		const affordableAugmentationCount = toPurchase.length;
 		ns.write("estimate.txt", JSON.stringify({
 			estimatedPrice: sum,
-			augmentationCount: toPurchase.length
+			augmentationCount: augmentationCount,
+			affordableAugmentationCount: affordableAugmentationCount,
 		}), "w");
 	}
 }

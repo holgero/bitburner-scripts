@@ -143,7 +143,7 @@ async function canSpendMoney(ns) {
 		}
 	}
 	const estimation = await getEstimation(ns, false);
-	if (estimation.augmentationCount < 5) {
+	if (estimation.affordableAugmentationCount < 5) {
 		return true;
 	}
 	if (estimation.estimatedPrice > getAvailableMoney(ns, true)) {
@@ -222,7 +222,7 @@ async function wantToEndRun(ns) {
 	if (estimation.estimatedPrice > Math.max(minMoney, getAvailableMoney(ns, true))) {
 		return true;
 	}
-	if (estimation.augmentationCount > 12) {
+	if (estimation.affordableAugmentationCount > 10) {
 		return true;
 	}
 	return false;
