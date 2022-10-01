@@ -176,6 +176,7 @@ async function progressHackingLevels(ns) {
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
+			await runAndWait(ns, "joinbladeburner.js", "--faction");
 			await runAndWait(ns, "spend-hashes.js");
 		}
 		await runAndWait(ns, "joinfactions.js");
