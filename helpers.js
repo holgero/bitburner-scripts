@@ -219,7 +219,9 @@ export function filterExpensiveAugmentations(ns, toPurchase, moneyToSpend) {
 			factor = factor * 1.9;
 		}
 		if (repeat) {
+			// ns.tprintf("Too expensive (would need %s): %s", formatMoney(sum+toPay), toRemove);
 			var toKeep = toPurchase.filter(a => !toRemove.includes(a.name));
+			// ns.tprintf("Retry with: %s", toKeep.map(a=>a.name));
 			toPurchase.splice(0, toPurchase.length);
 			toPurchase.push(...toKeep);
 			setSortc(toPurchase);
