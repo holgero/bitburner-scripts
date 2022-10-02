@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, getDatabase, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
+import { runAndWait, getDatabase, getFactiongoals, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -17,13 +17,13 @@ export async function main(ns) {
 		return;
 	}
 	await prepareGoalWork(ns);
-	if (!ns.fileExists("factiongoals.txt") ||
-		goalCompletion(ns, JSON.parse(ns.read("factiongoals.txt")).factionGoals) >= 1) {
+	var config = getFactiongoals(ns);
+	if (!config.factionGoals || goalCompletion(ns, config.factionGoals) >= 1) {
 		await runAndWait(ns, "calculate-goals.js");
+		config = getFactiongoals(ns);
 	} else {
 		ns.tprintf("Keeping existing goals");
 	}
-	const config = JSON.parse(ns.read("factiongoals.txt"));
 	await workOnGoals(ns, database, config);
 	await runAndWait(ns, "commit-crimes.js");
 }

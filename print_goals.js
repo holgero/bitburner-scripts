@@ -1,4 +1,4 @@
-import { getDatabase, formatMoney, goalCompletion } from "helpers.js";
+import { getDatabase, getFactiongoals, formatMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -7,7 +7,7 @@ export async function main(ns) {
 	if (options.direct) {
 		config = JSON.parse(options.direct);
 	} else {
-		config = JSON.parse(ns.read("factiongoals.txt"));
+		config = getFactiongoals(ns);
 	}
 	const database = getDatabase(ns);
 	ns.tprintf("%22s %10s %10s %10s  %s", "Faction", "Goal",

@@ -1,4 +1,4 @@
-import { getAvailableMoney, formatMoney } from "helpers.js";
+import { getAvailableMoney, getFactiongoals, formatMoney } from "helpers.js";
 import { ALL_FACTIONS } from "constants.js";
 
 
@@ -21,7 +21,7 @@ export async function main(ns) {
 				factions = ns.singularity.checkFactionInvitations();
 			} else {
 				if (options.goal) {
-					const config = JSON.parse(ns.read("factiongoals.txt"));
+					const config = getFactiongoals(ns);
 					factions = [];
 					for (var goal of config.factionGoals) {
 						factions.push(goal.name);

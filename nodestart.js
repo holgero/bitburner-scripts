@@ -4,7 +4,8 @@ import {
 	goalCompletion,
 	getAvailableMoney,
 	getStartState,
-	getDatabase
+	getDatabase,
+	getFactiongoals
 } from "helpers.js";
 import { reserveBudget } from "budget.js";
 
@@ -18,7 +19,7 @@ export async function main(ns) {
 	if (getStartState(ns) != "restart") {
 		await runAndWait(ns, "clean-files.js");
 		await runAndWait(ns, "create-database.js");
-		// hacky: create a preliminary factiongoals.txt with no actual goals in it
+		// hacky: create preliminary empty factiongoals
 		await runAndWait(ns, "calculate-goals.js", "--money", 1);
 		ns.write("allowed.txt", JSON.stringify({
 			work: true,
@@ -119,6 +120,21 @@ function startHomeScript(ns, scriptName, ...args) {
 }
 
 /** @param {NS} ns **/
+function isEndgame(ns) {
+	if (!ns.getPlayer().factions.includes(c.DAEDALUS)) {
+		return false;
+	}
+	const goals = getFactiongoals(ns);
+	if (goals.factionGoals) {
+		const daedalusGoal = goals.factionGoals.find(a => a.name == c.DAEDALUS);
+		if (daedalusGoal && daedalusGoal.reputation > 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/** @param {NS} ns **/
 async function canSpendMoney(ns) {
 	if (await wantToEndRun(ns)) {
 		return false;
@@ -134,13 +150,8 @@ async function canSpendMoney(ns) {
 			return false;
 		}
 	}
-	if (ns.fileExists("factiongoals.txt")) {
-		const goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
-		const daedalusGoal = goals.find(a => a.name == c.DAEDALUS);
-		if (daedalusGoal && daedalusGoal.reputation > 0) {
-			// already on endgame goal, no sense in spending money
-			return false;
-		}
+	if (isEndgame(ns)) {
+		return false;
 	}
 	const estimation = await getEstimation(ns, false);
 	if (estimation.affordableAugmentationCount < 5) {
@@ -201,16 +212,10 @@ async function wantToEndRun(ns) {
 			return false;
 		}
 	}
-	if (ns.getPlayer().factions.includes(c.DAEDALUS)) {
-		// end run fast during endgame, to reach installation of red pill
-		if (ns.fileExists("factiongoals.txt")) {
-			const goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
-			const daedalusGoal = goals.find(a => a.name == c.DAEDALUS);
-			if (daedalusGoal && daedalusGoal.reputation > 0) {
-				const completion = goalCompletion(ns, factionGoals);
-				return completion >= 1;
-			}
-		}
+	if (isEndgame(ns)) {
+		const goals = getFactiongoals(ns).factionGoals;
+		const completion = goalCompletion(ns, goals);
+		return completion >= 1;
 	}
 	const database = getDatabase(ns);
 	const factor = database.bitnodemultipliers ?
@@ -324,7 +329,8 @@ async function startHacking(ns, programs) {
 
 /** @param {NS} ns **/
 async function travelToGoalLocations(ns) {
-	if (!ns.fileExists("factiongoals.txt")) {
+	const goals = getFactiongoals(ns);
+	if (!goals.factionGoals) {
 		return;
 	}
 	const player = ns.getPlayer();
@@ -332,8 +338,7 @@ async function travelToGoalLocations(ns) {
 	const minStat = Math.min(player.skills.strength, player.skills.dexterity,
 		player.skills.defense, player.skills.agility);
 	const factions = player.factions;
-	var goals = JSON.parse(ns.read("factiongoals.txt")).factionGoals;
-	for (var goal of goals.filter(a => a.location && !factions.includes(a.name))) {
+	for (var goal of goals.factionGoals.filter(a => a.location && !factions.includes(a.name))) {
 		if (player.city != goal.location) {
 			if (!goal.money || getAvailableMoney(ns) >= goal.money) {
 				if (!goal.stats || goal.stats < minStat) {

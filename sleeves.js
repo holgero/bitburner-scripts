@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { getDatabase, getAvailableMoney } from "helpers.js";
+import { getDatabase, getFactiongoals, getAvailableMoney } from "helpers.js";
 
 const POOR_MAN = 1e9;
 
@@ -40,9 +40,9 @@ async function runSleeves(ns) {
 			available.push(ii);
 		}
 	}
-	if (ns.fileExists("factiongoals.txt")) {
+	const goals = getFactiongoals(ns);
+	if (goals.factionGoals) {
 		ns.print("Available sleeves for faction work: ", available);
-		const goals = JSON.parse(ns.read("factiongoals.txt"));
 		const factions = ns.getPlayer().factions;
 		const database = getDatabase(ns);
 		const factionsToWorkFor = goals.factionGoals.

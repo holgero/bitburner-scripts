@@ -1,4 +1,4 @@
-import { getDatabase, getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
+import { getDatabase, getFactiongoals, getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
 	from "helpers.js";
 
 /** @param {NS} ns **/
@@ -14,7 +14,7 @@ export async function main(ns) {
 		loopOver = options._;
 	} else {
 		if (options.goal) {
-			const config = JSON.parse(ns.read("factiongoals.txt"));
+			const config = getFactiongoals(ns);
 			for (var goal of config.factionGoals) {
 				if (loopOver.includes(goal.name)) {
 					var idx = loopOver.indexOf(goal.name);
