@@ -1,4 +1,4 @@
-import { getAvailableMoney } from "/helpers.js";
+import { getAvailableMoney, getEstimation } from "/helpers.js";
 
 
 import * as c from "constants.js";
@@ -25,7 +25,7 @@ export async function main(ns) {
 	recruitMembers(ns);
 	ascendMembers(ns);
 	equipMembers(ns);
-	setMemberTasks(ns);
+	await setMemberTasks(ns);
 	await ns.sleep(1000);
 	await balanceWantedLevel(ns);
 	ns.printf("Gang info: %s", JSON.stringify(ns.gang.getGangInformation()));
@@ -77,7 +77,15 @@ function equipMembers(ns) {
 }
 
 /** @param {NS} ns */
-function setMemberTasks(ns) {
+async function setMemberTasks(ns) {
+	const estimation = await getEstimation(ns);
+	var preferMoney;
+	if (estimation.augmentationCount > estimation.affordableAugmentationCount) {
+		preferMoney = true;
+	} else {
+		preferMoney = false;
+	}
+
 	for (var name of ns.gang.getMemberNames()) {
 		const hackingLevel = ns.gang.getMemberInformation(name).hack;
 		if (hackingLevel < 50) {
@@ -90,8 +98,10 @@ function setMemberTasks(ns) {
 			ns.gang.setMemberTask(name, "Identity Theft");
 		} else if (hackingLevel < 1500) {
 			ns.gang.setMemberTask(name, "Fraud & Counterfeiting");
-		} else {
+		} else if (hackingLevel < 6000 || preferMoney) {
 			ns.gang.setMemberTask(name, "Money Laundering");
+		} else {
+			ns.gang.setMemberTask(name, "Cyberterrorism");
 		}
 	}
 }
