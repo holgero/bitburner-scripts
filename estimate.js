@@ -7,7 +7,8 @@ export async function main(ns) {
 		["goal", false],
 		["write", false],
 		["affordable", false],
-		["maxprice", 1e99]]);
+		["maxprice", 1e99],
+		["money", 0]]);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
 	if (options._.length > 0) {
@@ -40,7 +41,7 @@ export async function main(ns) {
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	const augmentationCount = toPurchase.length;
-	const money = getAvailableMoney(ns, true);
+	const money = options.money ? options.money : getAvailableMoney(ns, true);
 	if (options.affordable) {
 		filterExpensiveAugmentations(ns, toPurchase, money);
 	}
@@ -60,7 +61,7 @@ export async function main(ns) {
 		factor = factor * 1.9;
 	}
 
-	filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
+	filterExpensiveAugmentations(ns, toPurchase, money);
 	const affordableAugmentationCount = toPurchase.length;
 
 	if (options.write) {
