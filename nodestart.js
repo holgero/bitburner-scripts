@@ -6,7 +6,8 @@ import {
 	getStartState,
 	getDatabase,
 	getFactiongoals,
-	getCorporationInfo
+	getCorporationInfo,
+	getEstimation
 } from "helpers.js";
 import { reserveBudget } from "budget.js";
 
@@ -224,7 +225,7 @@ async function wantToEndRun(ns) {
 	if (estimation.estimatedPrice > Math.max(minMoney, getAvailableMoney(ns, true))) {
 		return true;
 	}
-	if (estimation.affordableAugmentationCount > 10) {
+	if (estimation.affordableAugmentationCount > 11) {
 		return true;
 	}
 	return false;
@@ -344,12 +345,4 @@ async function travelToGoalLocations(ns) {
 			}
 		}
 	}
-}
-
-/** @param {NS} ns **/
-async function getEstimation(ns) {
-	ns.write("estimate.txt", "", "w");
-	await runAndWait(ns, "estimate.js", "--write");
-	var estimation = JSON.parse(ns.read("estimate.txt"));
-	return estimation;
 }

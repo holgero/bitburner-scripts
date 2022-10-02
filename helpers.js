@@ -46,6 +46,21 @@ export function getCorporationInfo(ns) {
 }
 
 /** @param {NS} ns **/
+export async function getEstimation(ns, goal) {
+	ns.write("estimate.txt", "{}", "w");
+	if (goal) {
+		await runAndWait(ns, "estimate.js", "--write", "--goal");
+	} else {
+		await runAndWait(ns, "estimate.js", "--write");
+	}
+	const text = ns.read("estimate.txt");
+	if (text) {
+		return JSON.parse(text);
+	}
+	return "{}";
+}
+
+/** @param {NS} ns **/
 export async function traverse(ns, startServer, known, path, serverProc) {
 	const servers = ns.scan(startServer).filter(a => !known.includes(a));
 	for (var server of servers) {

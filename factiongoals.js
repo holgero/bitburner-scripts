@@ -1,5 +1,14 @@
 import * as c from "constants.js";
-import { runAndWait, getDatabase, getFactiongoals, getCorporationInfo, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
+import {
+	runAndWait,
+	getDatabase,
+	getFactiongoals,
+	getCorporationInfo,
+	getEstimation,
+	reputationNeeded,
+	getAvailableMoney,
+	goalCompletion
+} from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -88,7 +97,7 @@ async function checkForDaedalus(ns, database, config) {
 			estimatedPrice: 0,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
-		config.estimatedPrice = await getEstimation(ns, true);
+		config.estimatedPrice = await getEstimation(ns, true).estimatedPrice;
 		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: config.estimatedPrice,
@@ -115,18 +124,6 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		alreadyTried.push(goal);
 	}
 	return true;
-}
-
-/** @param {NS} ns **/
-async function getEstimation(ns, goal) {
-	await ns.write("estimate.txt", "", "w");
-	if (goal) {
-		await runAndWait(ns, "estimate.js", "--write", "--goal");
-	} else {
-		await runAndWait(ns, "estimate.js", "--write");
-	}
-	var estimation = JSON.parse(ns.read("estimate.txt"));
-	return estimation.estimatedPrice;
 }
 
 /** @param {NS} ns **/
