@@ -4,7 +4,8 @@ import {
   formatMoney,
   millisecondToDHMS,
   getDatabase,
-  getCorporationInfo
+  getCorporationInfo,
+  getEstimation
 } from "/helpers.js";
 
 /** @param {NS} ns **/
@@ -77,11 +78,14 @@ export async function main(ns) {
     ns.tprintf("%30s: %s", "Bladeburner success chance", playerInfo.mults.bladeburner_success_chance.toFixed(2));
   }
   ns.tprintf("%30s: %s", "Karma:", ns.heart.break());
+  const estimation = await getEstimation(ns);
+  ns.tprintf("%30s: %d (+%d, affordable %d)", "Augmentations",
+    getDatabase(ns).owned_augmentations.length,
+    estimation.augmentationCount, estimation.affordableAugmentationCount);
+  ns.tprintf("%30s: %s", "Server", getServerInfo(ns));
   const current = ns.getServerMoneyAvailable("home");
   const available = getAvailableMoney(ns);
   const total = getAvailableMoney(ns, true);
-  ns.tprintf("%30s: %d", "Augmentations", getDatabase(ns).owned_augmentations.length);
-  ns.tprintf("%30s: %s", "Server", getServerInfo(ns));
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
 
@@ -103,5 +107,5 @@ function getServerInfo(ns) {
 
   }
   return sprintf("%d/%d (%d GB)",
-   count, ns.getPurchasedServerLimit(), mem);
+    count, ns.getPurchasedServerLimit(), mem);
 }
