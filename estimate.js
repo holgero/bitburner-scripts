@@ -39,8 +39,10 @@ export async function main(ns) {
 	const database = getDatabase(ns);
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
+	const augmentationCount = toPurchase.length;
+	const money = getAvailableMoney(ns, true);
 	if (options.affordable) {
-		filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
+		filterExpensiveAugmentations(ns, toPurchase, money);
 	}
 	var factor = 1.0;
 	var sum = 0;
@@ -58,14 +60,17 @@ export async function main(ns) {
 		factor = factor * 1.9;
 	}
 
+	filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
+	const affordableAugmentationCount = toPurchase.length;
+
 	if (options.write) {
-		const augmentationCount = toPurchase.length;
-		filterExpensiveAugmentations(ns, toPurchase, getAvailableMoney(ns, true));
-		const affordableAugmentationCount = toPurchase.length;
 		ns.write("estimate.txt", JSON.stringify({
 			estimatedPrice: sum,
 			augmentationCount: augmentationCount,
 			affordableAugmentationCount: affordableAugmentationCount,
 		}), "w");
+	} else {
+		ns.tprintf("Total price: %s, possible augmentations: %s, affordable augmentations %s",
+			formatMoney(sum), augmentationCount, affordableAugmentationCount);
 	}
 }
