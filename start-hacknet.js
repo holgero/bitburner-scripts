@@ -42,6 +42,16 @@ export async function main(ns) {
 	}
 	var maxCore = Math.round(ns.args[0] * coreMultiplier);
 
+	if (database.bitnodemultipliers) {
+		if (database.bitnodemultipliers.HacknetNodeMoney < 0.25) {
+			maxNodes = Math.min(4, maxNodes);
+			maxLevel = Math.min(25, maxLevel);
+			maxRam = Math.min(2, maxRam);
+			maxCore = 1;
+			ns.printf("Restricted hacknet node creation");
+			return;
+		}
+	}
 	ns.scp(scriptName, scriptHost);
 	ns.scp("helpers.js", scriptHost);
 	ns.scp("budget.js", scriptHost);

@@ -1,6 +1,3 @@
-Adapt server and hacknet start procedures to multipliers, thus avoid
-wasting money 
-
 Focus more on single factions (avoid getting reputation always from the start)
 
 Create a measurement for how expensive it is to get to an augmentation:

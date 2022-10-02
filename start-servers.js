@@ -28,8 +28,7 @@ export async function main(ns) {
 			return;
 		}
 	}
-
-	var numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
+	const numberOfServers = options.single ? 1 : ns.getPurchasedServerLimit();
 	if (numberOfServers == 0) {
 		ns.printf("Cannot buy any servers.");
 		return;
@@ -41,6 +40,13 @@ export async function main(ns) {
 			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 8 * ns.getServerMaxRam(hostname));
 		}
 		var money = getAvailableMoney(ns);
+		if (database.bitnodemultipliers) {
+			const multiplier =database.bitnodemultipliers.ServerMaxMoney;
+			if (multiplier < 0.25) {
+				ns.printf("Reducing money spending according to ServerMaxMoney (%s)", multiplier);
+				money *= multiplier;
+			}
+		}
 		while (ns.getPurchasedServerCost(nextRam * 2) * numberOfServers < money &&
 			nextRam * 2 <= ns.getPurchasedServerMaxRam()) {
 			nextRam *= 2;
