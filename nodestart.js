@@ -225,8 +225,7 @@ async function wantToEndRun(ns) {
 	const factor = database.bitnodemultipliers ?
 		database.bitnodemultipliers.AugmentationMoneyCost /
 		database.bitnodemultipliers.AugmentationRepCost : 1.0;
-	const minMoney = Math.max(5, Math.floor(2 * Math.sqrt(database.owned_augmentations.length)))
-		* 10e9 * factor;
+	const minMoney = Math.max(5, database.owned_augmentations.length) * 10e9 * factor;
 	const estimation = await getEstimation(ns, false);
 	if (estimation.estimatedPrice > Math.max(minMoney, getAvailableMoney(ns, true))) {
 		return true;
