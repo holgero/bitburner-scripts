@@ -2,7 +2,8 @@ import {
 	getDatabase,
 	getAvailableMoney,
 	getAugmentationsToPurchase,
-	filterExpensiveAugmentations
+	filterExpensiveAugmentations,
+	runAndWait,
 } from "helpers.js";
 import { BLADEBURNERS } from "constants.js";
 
@@ -11,6 +12,9 @@ export async function main(ns) {
 	var options = ns.flags([["run_purchase", false],
 	["maxprice", 1e99],
 	["keep", 0]]);
+	if (options.run_purchase && ns.stock.hasTIXAPIAccess()) {
+		await runAndWait(ns, "sell-all-stocks.js");
+	}
 	const database = getDatabase(ns);
 	const factions = ns.getPlayer().factions.
 		map(f => ({
