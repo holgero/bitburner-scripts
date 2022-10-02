@@ -3,7 +3,8 @@ import {
   getAvailableMoney,
   formatMoney,
   millisecondToDHMS,
-  getDatabase
+  getDatabase,
+  getCorporationInfo
 } from "/helpers.js";
 
 /** @param {NS} ns **/
@@ -27,7 +28,7 @@ export async function main(ns) {
     ns.tprintf("%30s: %s", "In bladeburner", "yes");
   }
   if (playerInfo.hasCorporation) {
-    const corporationInfo = JSON.parse(ns.read("corporation.txt"));
+    const corporationInfo = getCorporationInfo(ns);
     const profit = corporationInfo.revenue - corporationInfo.expenses;
     ns.tprintf("%30s: share=%s, funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",
       "Corporation",

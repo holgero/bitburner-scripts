@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { runAndWait, getDatabase, getFactiongoals, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
+import { runAndWait, getDatabase, getFactiongoals, getCorporationInfo, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -160,13 +160,10 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				if (config.estimatedDonations) {
 					var moneyForDonations = Math.max(0,
 						getAvailableMoney(ns) - config.estimatedPrice);
-					if (ns.getPlayer().hasCorporation &&
-						ns.fileExists("corporation.txt", "home")) {
-						var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-						if (corporationInfo.issuedShares > 0) {
-							// dont donate money that is needed for buyback
-							moneyForDonations = 0;
-						}
+					const corporationInfo = getCorporationInfo(ns);
+					if (corporationInfo.issuedShares > 0) {
+						// dont donate money that is needed for buyback
+						moneyForDonations = 0;
 					}
 					if (moneyForDonations) {
 						ns.printf("Will donate %d", moneyForDonations);

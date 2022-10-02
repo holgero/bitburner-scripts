@@ -5,7 +5,8 @@ import {
 	getAvailableMoney,
 	getStartState,
 	getDatabase,
-	getFactiongoals
+	getFactiongoals,
+	getCorporationInfo
 } from "helpers.js";
 import { reserveBudget } from "budget.js";
 
@@ -143,12 +144,9 @@ async function canSpendMoney(ns) {
 		// there's plenty
 		return true;
 	}
-	if (ns.getPlayer().hasCorporation && ns.fileExists("corporation.txt", "home")) {
-		// should be replaced with budgeting
-		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
-		if (corporationInfo.issuedShares > 0) {
-			return false;
-		}
+	const corporationInfo = getCorporationInfo(ns);
+	if (corporationInfo.issuedShares > 0) {
+		return false;
 	}
 	if (isEndgame(ns)) {
 		return false;
@@ -200,11 +198,10 @@ async function progressHackingLevels(ns) {
 
 /** @param {NS} ns **/
 async function wantToEndRun(ns) {
-	if (ns.getPlayer().hasCorporation &&
-		ns.fileExists("corporation.txt", "home")) {
+	if (ns.getPlayer().hasCorporation) {
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
-		var corporationInfo = JSON.parse(ns.read("corporation.txt"));
+		const corporationInfo = getCorporationInfo(ns);
 		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
 			return false;
 		}
