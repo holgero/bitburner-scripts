@@ -277,6 +277,10 @@ async function improveInfrastructure(ns, programsOwned) {
 			if (ns.getServerMaxRam("home") < 256) {
 				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 			}
+			if (!ns.serverExists("pserv-0") ||
+				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
+				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+			}
 			if (getAvailableMoney(ns) < 1e9) {
 				await runAndWait(ns, "start-hacknet.js", 6);
 			} else if (getAvailableMoney(ns) < 200e9) {
