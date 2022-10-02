@@ -73,6 +73,7 @@ async function workOnGoals(ns, database, config) {
 
 /** @param {NS} ns **/
 async function checkForDaedalus(ns, database, config) {
+	// ns.tprintf("Check for daedalus")
 	if (config.finalGoal) {
 		return;
 	}
@@ -96,12 +97,14 @@ async function checkForDaedalus(ns, database, config) {
 			goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
 			config.estimatedDonations = 1;
 		}
+		// ns.tprintf("Writing modified factiongoal");
 		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: 0,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
-		config.estimatedPrice = await getEstimation(ns, true).estimatedPrice;
+		config.estimatedPrice = (await getEstimation(ns, true)).estimatedPrice;
+		// ns.tprintf("Writing modified factiongoal with estimation");
 		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
 			estimatedPrice: config.estimatedPrice,
@@ -227,6 +230,7 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 
 /** @param {NS} ns **/
 async function selectGoal(ns, goals, alreadyTried, config) {
+	// ns.tprintf("Select a goal");
 	if (config.finalGoal) {
 		return config.finalGoal;
 	}
