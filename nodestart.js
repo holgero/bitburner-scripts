@@ -73,10 +73,10 @@ async function setUpForCorporations(ns) {
 }
 
 /** @param {NS} ns **/
-async function startTrader(ns) {
+function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
 		var money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
-		await reserveBudget(ns, "stocks", money);
+		reserveBudget(ns, "stocks", money);
 		ns.run("trader.js");
 	}
 }
@@ -95,8 +95,8 @@ async function stopTrader(ns) {
 async function runHomeScripts(ns) {
 	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8 ||
-		(ns.getServerMaxRam("home") > 32 && getAvailableMoney(ns, true) > 1e9)) {
-		await startTrader(ns);
+		(ns.getServerMaxRam("home") > 32 && getAvailableMoney(ns) > 1e9)) {
+		startTrader(ns);
 	}
 	await ns.sleep(1000);
 	startHomeScript(ns, "bladeburner.js");

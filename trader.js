@@ -70,7 +70,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		if (ups < 0) {
 			const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
 			const gainedMoney = sellPrice * stk.shares - COMISSION;
-			await unuseBudget(ns, options.budgetName, gainedMoney);
+			unuseBudget(ns, options.budgetName, gainedMoney);
 			const win = gainedMoney - stk.cost;
 			ns.printf("Sold %d shares of %s for %s (%s per share), win: %s",
 				stk.shares, stk.symbl, formatMoney(gainedMoney),
@@ -78,7 +78,7 @@ async function runTrades(ns, options, portfolio, rising) {
 			stk.shares = 0;
 			stk.cost = 0;
 			// distribute a part of the winnings
-			await releaseBudget(ns, options.budgetName, Math.max(0, win * DIVIDEND));
+			releaseBudget(ns, options.budgetName, Math.max(0, win * DIVIDEND));
 			portfolio.splice(ii, 1);
 			ii--;
 		} else {
@@ -86,10 +86,10 @@ async function runTrades(ns, options, portfolio, rising) {
 		}
 		// ns.printf("Holding %d shares of %s, tendency %d", stk.shares, stk.symbl, ups);
 	}
-	await setHolding(ns, options.budgetName, valuation);
+	setHolding(ns, options.budgetName, valuation);
 	ns.printf("Trader%d valuation: %s", options.size, formatMoney(valuation));
 	if (options.valuationFile) {
-		await ns.write(options.valuationFile, valuation + getBudget(ns, options.budgetName), "w");
+		ns.write(options.valuationFile, valuation + getBudget(ns, options.budgetName), "w");
 	}
 	while (rising.length > 0 && getBudget(ns, options.budgetName) > 100 * COMISSION) {
 		const stockToBuy = rising.shift();
@@ -108,7 +108,7 @@ async function runTrades(ns, options, portfolio, rising) {
 			continue;
 		}
 		const moneySpent = boughtPrice * shares + COMISSION;
-		if (!await useBudget(ns, options.budgetName, moneySpent)) {
+		if (!useBudget(ns, options.budgetName, moneySpent)) {
 			ns.tprintf("Failed to use budget");
 			break;
 		}

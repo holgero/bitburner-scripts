@@ -32,12 +32,12 @@ export async function main(ns) {
 
 	if (options.reserve) {
 		ns.tprintf("Reserving %s for %s", formatMoney(options.reserve), ownerName);
-		await reserveBudget(ns, ownerName, options.reserve);
+		reserveBudget(ns, ownerName, options.reserve);
 	}
 
 	if (options.release) {
 		ns.tprintf("Releasing %s from %s", formatMoney(options.release), ownerName);
-		if (await releaseBudget(ns, ownerName, options.release)) {
+		if (releaseBudget(ns, ownerName, options.release)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -46,7 +46,7 @@ export async function main(ns) {
 
 	if (options.use) {
 		ns.tprintf("Using %s from %s", formatMoney(options.use), ownerName);
-		if (await useBudget(ns, ownerName, options.use)) {
+		if (useBudget(ns, ownerName, options.use)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -55,7 +55,7 @@ export async function main(ns) {
 
 	if (options.unuse) {
 		ns.tprintf("Unusing %s from %s", formatMoney(options.unuse), ownerName);
-		if (await unuseBudget(ns, ownerName, options.unuse)) {
+		if (unuseBudget(ns, ownerName, options.unuse)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -68,7 +68,7 @@ export async function main(ns) {
 
 	if (options.setHolding) {
 		ns.tprintf("Set holding for %s to %s", ownerName, formatMoney(options.setHolding));
-		if (await setHolding(ns, ownerName, options.setHolding)) {
+		if (setHolding(ns, ownerName, options.setHolding)) {
 			ns.tprintf("Success");
 		} else {
 			ns.tprintf("Failed!");
@@ -81,12 +81,12 @@ export async function main(ns) {
 
 	if (options.delete) {
 		ns.tprintf("Deleting budget for %s", ownerName);
-		await deleteBudget(ns, ownerName);
+		deleteBudget(ns, ownerName);
 	}
 
 	if (options.clean) {
 		ns.tprintf("Cleaning budget");
-		await cleanBudget(ns);
+		cleanBudget(ns);
 	}
 
 	if (options.print) {
