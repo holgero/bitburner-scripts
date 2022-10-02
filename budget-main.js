@@ -63,7 +63,7 @@ export async function main(ns) {
 	}
 
 	if (options.getBudget) {
-		ns.tprintf("Budget for %s is %s", ownerName, formatMoney(getBudget(ns, ownerName)));
+		ns.tprintf("Budget for %s is %s (%s)", ownerName, getBudget(ns, ownerName), formatMoney(getBudget(ns, ownerName)));
 	}
 
 	if (options.setHolding) {

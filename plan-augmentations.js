@@ -1,4 +1,9 @@
-import { getDatabase, getAvailableMoney, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import {
+	getDatabase,
+	getAvailableMoney,
+	getAugmentationsToPurchase,
+	filterExpensiveAugmentations
+} from "helpers.js";
 import { BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns **/

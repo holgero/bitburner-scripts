@@ -9,7 +9,7 @@ import {
 	getCorporationInfo,
 	getEstimation
 } from "helpers.js";
-import { reserveBudget } from "budget.js";
+import { getBudget, getHolding, reserveBudget, deleteBudget } from "budget.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -36,6 +36,7 @@ export async function main(ns) {
 	await progressHackingLevels(ns);
 
 	await killOthers(ns);
+	deleteBudget(ns, "stocks");
 	await runAndWait(ns, "spend-hashes.js", "--all");
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
 		runAndWait("destroy-world.js");
@@ -75,27 +76,32 @@ async function setUpForCorporations(ns) {
 /** @param {NS} ns **/
 function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
-		var money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
-		reserveBudget(ns, "stocks", money);
+		if (getBudget(ns, "stocks") < 100e6) {
+			const money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
+			reserveBudget(ns, "stocks", money);
+		}
 		ns.run("trader.js");
 	}
 }
 
 /** @param {NS} ns **/
 async function stopTrader(ns) {
+	const stockHolding = getHolding(ns, "stocks") + getBudget(ns, "stocks");
 	if (ns.scriptRunning("trader.js", "home")) {
 		ns.scriptKill("trader.js", "home");
 	}
 	if (ns.stock.hasTIXAPIAccess()) {
 		await runAndWait(ns, "sell-all-stocks.js");
 	}
+	reserveBudget(ns, "stocks", stockHolding);
 }
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
 	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8 ||
-		(ns.getServerMaxRam("home") > 32 && getAvailableMoney(ns) > 1e9)) {
+		(ns.getServerMaxRam("home") > 32 &&
+		 (getAvailableMoney(ns) > 1e9 || getBudget(ns, "stocks") > 100e6))) {
 		startTrader(ns);
 	}
 	await ns.sleep(1000);
