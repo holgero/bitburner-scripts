@@ -1,4 +1,4 @@
-import { getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
+import { getDatabase, getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
 import { effortForSkillLevel } from "./skill-helper.js";
 import * as c from "/constants.js";
 
@@ -10,7 +10,7 @@ const MAX_AUGS = 12;
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([["dry-run", false], ["money", 0]]);
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	const factionGoals = [];
 	for (var factionName of ns.getPlayer().factions) {
 		var faction = database.factions.find(a => a.name == factionName);

@@ -1,10 +1,10 @@
 import * as c from "constants.js";
-import { runAndWait, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
+import { runAndWait, getDatabase, reputationNeeded, getAvailableMoney, goalCompletion } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
 	ns.disableLog("sleep");
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	if (database.owned_augmentations.includes(c.RED_PILL)) {
 		ns.tprintf("Already have the %s", c.RED_PILL);
 		return;

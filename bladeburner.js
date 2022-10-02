@@ -1,11 +1,11 @@
-import { runAndWait, getAvailableMoney, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import { runAndWait, getDatabase, getAvailableMoney, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	ns.disableLog("sleep");
 	const player = ns.getPlayer();
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	if (player.bitNodeN != 6 && player.bitNodeN != 7 && player.bitNodeN != 11 &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
 		ns.printf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
@@ -67,7 +67,7 @@ async function runActions(ns) {
 
 /** @param {NS} ns */
 function needMoney(ns) {
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	const factions = [{
 		name: c.BLADEBURNERS,
 		reputation: 1e99,

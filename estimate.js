@@ -1,4 +1,4 @@
-import { getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
+import { getDatabase, getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
 	from "helpers.js";
 
 /** @param {NS} ns **/
@@ -36,7 +36,7 @@ export async function main(ns) {
 			factions.push({ name: arg, reputation: ns.singularity.getFactionRep(arg) });
 		}
 	}
-	const database = JSON.parse(ns.read("database.txt"));
+	const database = getDatabase(ns);
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	if (options.affordable) {
