@@ -117,7 +117,11 @@ async function runHomeScripts(ns) {
 	await ns.sleep(1000);
 	startHomeScript(ns, "gangs.js");
 	await ns.sleep(1000);
-	startHomeScript(ns, "instrument.js");
+	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+		startHomeScript(ns, "instrument.js", "--hack");
+	} else {
+		startHomeScript(ns, "instrument.js");
+	}
 }
 
 /** @param {NS} ns **/
@@ -331,6 +335,9 @@ async function startHacking(ns, programs) {
 	if (ram > 32) {
 		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
 		await runAndWait(ns, "rscan.js", "hack", "--quiet");
+		if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+			await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
+		}
 	} else {
 		await runAndWait(ns, "rscan-spawn.js", "nuke", programs);
 		await runAndWait(ns, "rscan-spawn.js", "hack", programs);

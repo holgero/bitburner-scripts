@@ -4,7 +4,10 @@ const HACK_SCRIPT = "do-hack.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["target", "foodnstuff"], ["spare", 42]]);
+	var options = ns.flags([
+		["target", "foodnstuff"],
+		["hack", false],
+		["spare", 42]]);
 
 	ns.scriptKill(WEAKEN_SCRIPT, "home");
 	ns.scriptKill(GROW_SCRIPT, "home");
@@ -13,8 +16,8 @@ export async function main(ns) {
 	var availableRam = ramAvailable(ns, options.spare);
 	if (availableRam < 0) return;
 	var serverData = {
-		moneyMin: ns.getServerMaxMoney(options.target) * 0.75,
-		moneyMax: ns.getServerMaxMoney(options.target) * 0.95,
+		moneyMin: options.hack ? 0 : ns.getServerMaxMoney(options.target) * 0.75,
+		moneyMax: options.hack ? 0 : ns.getServerMaxMoney(options.target) * 0.95,
 		securityMin: 1.2 * ns.getServerMinSecurityLevel(options.target) + 1,
 		securityMax: 1.4 * ns.getServerMinSecurityLevel(options.target) + 5,
 		growThreads: Math.ceil(availableRam / ns.getScriptRam(GROW_SCRIPT) / 1.5),
@@ -22,6 +25,9 @@ export async function main(ns) {
 		deltaThreads: Math.ceil(availableRam / ns.getScriptRam(GROW_SCRIPT) / 5)
 	};
 
+	if (options.hack) {
+		serverData.growThreads = 0;
+	}
 	ns.tprintf("Starting against target %s, with threads (weaken=%d, grow=%d)",
 		options.target, serverData.weakenThreads, serverData.growThreads)
 
