@@ -78,12 +78,16 @@ function equipMembers(ns) {
 
 /** @param {NS} ns */
 async function setMemberTasks(ns) {
-	const estimation = await getEstimation(ns);
 	var preferMoney;
+	const estimation = await getEstimation(ns);
 	if (estimation.augmentationCount > estimation.affordableAugmentationCount) {
 		preferMoney = true;
 	} else {
 		preferMoney = false;
+	}
+	const money = getAvailableMoney(ns);
+	if (money < 1e9) {
+		preferMoney = true;
 	}
 
 	for (var name of ns.gang.getMemberNames()) {
