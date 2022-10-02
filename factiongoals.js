@@ -34,6 +34,10 @@ export async function main(ns) {
 		ns.tprintf("Keeping existing goals");
 	}
 	await workOnGoals(ns, database, config);
+	if (goalCompletion(ns, config.factionGoals) < 1) {
+		// did not manage to complete goals, force a recalculation on next run
+		ns.write("factiongoals.txt", JSON.stringify({}), "w");
+	}
 	await runAndWait(ns, "commit-crimes.js");
 }
 
@@ -57,10 +61,10 @@ async function prepareGoalWork(ns) {
 async function workOnGoals(ns, database, config) {
 	await runAndWait(ns, "print_goals.js");
 	if (config.factionGoals.some(a => a.reputation)) {
-		if (!await workOnGoalsPercentage(ns, database, config, 0.25)) return;
-		if (!await workOnGoalsPercentage(ns, database, config, 0.50)) return;
-		if (!await workOnGoalsPercentage(ns, database, config, 0.75)) return;
-		if (!await workOnGoalsPercentage(ns, database, config, 1.00)) return;
+		await workOnGoalsPercentage(ns, database, config, 0.25);
+		await workOnGoalsPercentage(ns, database, config, 0.50);
+		await workOnGoalsPercentage(ns, database, config, 0.75);
+		await workOnGoalsPercentage(ns, database, config, 1.00);
 	} else {
 		ns.tprintf("No goals!");
 	}
@@ -123,7 +127,7 @@ async function workOnGoalsPercentage(ns, database, config, percentage) {
 		if (goal == config.finalGoal) break;
 		alreadyTried.push(goal);
 	}
-	return true;
+	return;
 }
 
 /** @param {NS} ns **/
