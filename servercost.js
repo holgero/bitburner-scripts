@@ -18,26 +18,24 @@ export async function main(ns) {
 			money *= multiplier;
 		}
 	}
-	var havePerServer = money / ns.getPurchasedServerLimit();
-	var ram = 64;
-	for (var i = 0; i < 16; i++) {
-		if (ns.getPurchasedServerCost(ram) > havePerServer) {
-			break;
-		}
+	const havePerServer = money / ns.getPurchasedServerLimit();
+	var ram = 8;
+	while (ns.getPurchasedServerCost(ram * 2) < havePerServer &&
+		ram * 2 <= ns.getPurchasedServerMaxRam()) {
 		ram *= 2;
-		if (ram > ns.getPurchasedServerMaxRam()) {
-			break;
-		}
 	}
-	ram = ram / 2;
 	ns.tprintf("Can afford %d servers with %d GB ram.", ns.getPurchasedServerLimit(), ram);
 	printInfo(ns, ram);
+	ram *= 2;
+	if (ram> ns.getPurchasedServerMaxRam()) {
+		return;
+	}
 	ns.tprintf("Next bigger servers:");
-	ram = ram * 2;
-	if (ram > ns.getPurchasedServerMaxRam()) return;
 	printInfo(ns, ram);
-	ram = ram * 2;
-	if (ram > ns.getPurchasedServerMaxRam()) return;
+	ram *= 2;
+	if (ram > ns.getPurchasedServerMaxRam()) {
+		return;
+	}
 	printInfo(ns, ram);
 }
 
