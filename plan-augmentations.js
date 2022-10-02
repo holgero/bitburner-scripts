@@ -11,8 +11,12 @@ export async function main(ns) {
 	var options = ns.flags([["run_purchase", false],
 	["maxprice", 1e99],
 	["keep", 0]]);
-	var factions = ns.getPlayer().factions.map(f => ({ name: f, reputation: ns.singularity.getFactionRep(f) }));
 	const database = getDatabase(ns);
+	const factions = ns.getPlayer().factions.
+		map(f => ({
+			...(database.factions.find(a => a.name == f)),
+			reputation: ns.singularity.getFactionRep(f)
+		}));
 	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	var haveMoney = getAvailableMoney(ns, true) - options.keep;
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
@@ -21,7 +25,7 @@ export async function main(ns) {
 	var governor_faction;
 	var maxRep = 0;
 	for (var faction of factions) {
-		if (faction.name != BLADEBURNERS && (faction.reputation > maxRep)) {
+		if (faction.name != BLADEBURNERS && !faction.gang && (faction.reputation > maxRep)) {
 			governor_faction = faction.name;
 			maxRep = faction.reputation;
 		}

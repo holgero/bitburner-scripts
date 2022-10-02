@@ -69,6 +69,7 @@ export async function main(ns) {
 			estimatedPrice: sum,
 			augmentationCount: augmentationCount,
 			affordableAugmentationCount: affordableAugmentationCount,
+			affordableAugmentations: toPurchase,
 		}), "w");
 	} else {
 		ns.tprintf("Total price: %s, possible augmentations: %s, affordable augmentations %s",

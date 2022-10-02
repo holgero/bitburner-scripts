@@ -101,7 +101,7 @@ async function runHomeScripts(ns) {
 	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8 ||
 		(ns.getServerMaxRam("home") > 32 &&
-		 (getAvailableMoney(ns) > 1e9 || getBudget(ns, "stocks") > 100e6))) {
+			(getAvailableMoney(ns) > 1e9 || getBudget(ns, "stocks") > 100e6))) {
 		startTrader(ns);
 	}
 	await ns.sleep(1000);
@@ -184,11 +184,15 @@ async function progressHackingLevels(ns) {
 		if (await wantToEndRun(ns)) {
 			return;
 		}
-		if (await canSpendMoney(ns)) {
-			await improveInfrastructure(ns, nextProgram);
+		if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+			await runAndWait(ns, "start-servers.js", "--auto-upgrade", "--hack");
 		} else {
-			ns.scriptKill("start-hacknet.js", "home");
-			ns.scriptKill("start-hacknet2.js", "joesguns");
+			if (await canSpendMoney(ns)) {
+				await improveInfrastructure(ns, nextProgram);
+			} else {
+				ns.scriptKill("start-hacknet.js", "home");
+				ns.scriptKill("start-hacknet2.js", "joesguns");
+			}
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
@@ -205,23 +209,30 @@ async function progressHackingLevels(ns) {
 
 /** @param {NS} ns **/
 async function wantToEndRun(ns) {
-	if (ns.getPlayer().hasCorporation) {
+	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
+		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		return true;
+	}
+	const corporationInfo = getCorporationInfo(ns);
+	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
-		const corporationInfo = getCorporationInfo(ns);
-		if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
-			return false;
-		}
-		if (corporationInfo.sharePrice < 1e3) {
-			return false;
-		}
+		return false;
+	}
+	const estimation = await getEstimation(ns, false);
+	if (estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
+		return true;
+	}
+	if (corporationInfo.sharePrice < 1e3) {
+		// it's usually better to continue playing for additional govenors
+		// and start the next run with more cash
+		return false;
 	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;
 		const completion = goalCompletion(ns, goals);
 		return completion >= 1;
 	}
-	const estimation = await getEstimation(ns, false);
 	if (estimation.affordableAugmentationCount > 10) {
 		return true;
 	}

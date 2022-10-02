@@ -15,7 +15,7 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	const database = getDatabase(ns);
 	if (database.owned_augmentations.includes(c.RED_PILL)) {
-		ns.tprintf("Already have the %s", c.RED_PILL);
+		ns.printf("Already have the %s", c.RED_PILL);
 		return;
 	}
 	const player = ns.getPlayer();

@@ -3,6 +3,7 @@ import { reserveBudget } from "budget.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
+const HACK_SCRIPT = "do-hack.js";
 const VICTIMS = [
 	"syscore", "zb-institute", "solaris", "lexo-corp", "alpha-ent",
 	"rho-construction", "catalyst", "aevum-police", "summit-uni", "netlink",
@@ -18,6 +19,7 @@ export async function main(ns) {
 		["single", false],
 		["restart", false],
 		["upgrade", false],
+		["hack", false],
 		["auto-upgrade", false]
 	]);
 
@@ -33,7 +35,7 @@ export async function main(ns) {
 		ns.printf("Cannot buy any servers.");
 		return;
 	}
-	if (options["auto-upgrade"]) {
+	if (options["auto-upgrade"] || options.hack) {
 		var hostname = SERVER_PREFIX + "0";
 		var nextRam = 32;
 		if (ns.serverExists(hostname)) {
@@ -41,8 +43,8 @@ export async function main(ns) {
 		}
 		var money = getAvailableMoney(ns);
 		if (database.bitnodemultipliers) {
-			const multiplier =database.bitnodemultipliers.ServerMaxMoney;
-			if (multiplier < 0.25) {
+			const multiplier = database.bitnodemultipliers.ServerMaxMoney;
+			if (multiplier < 0.25 && !options.hack) {
 				ns.printf("Reducing money spending according to ServerMaxMoney (%s)", multiplier);
 				money *= multiplier;
 			}
@@ -58,6 +60,9 @@ export async function main(ns) {
 			return;
 		}
 		options.ram = nextRam;
+		if (options.hack && nextRam * 2 <= ns.getPurchasedServerMaxRam()) {
+			options.ram = nextRam * 2;
+		}
 		options.upgrade = ns.serverExists(hostname);
 	}
 
@@ -67,6 +72,9 @@ export async function main(ns) {
 		victim => ns.getServer(victim).hasAdminRights &&
 			(ns.getServer(victim).requiredHackingSkill <= currentHackingSkill));
 	victims.sort((a, b) => ns.getServer(a).moneyMax - ns.getServer(b).moneyMax);
+	if (options.hack) {
+		victims = [ "foodnstuff" ];
+	}
 	while (victims.length < numberOfServers) {
 		victims = victims.concat(victims);
 	}
@@ -78,8 +86,8 @@ export async function main(ns) {
 		ns.tprint("There is already a server start running");
 		return;
 	}
-
-	var threads = Math.floor(options.ram / ns.getScriptRam(SCRIPT));
+	const script = options.hack ? HACK_SCRIPT : SCRIPT;
+	var threads = Math.floor(options.ram / ns.getScriptRam(script));
 	var cost = ns.getPurchasedServerCost(options.ram);
 	reserveBudget(ns, "servers", numberOfServers * cost);
 
@@ -92,12 +100,12 @@ export async function main(ns) {
 		ns.tprintf("Removing existing smaller servers");
 		removeSmallServers(ns, options.ram);
 	} else {
-		if (options.restart) {
+		if (options.restart || options.hack) {
 			ns.tprintf("Freeing existing servers");
 			freeServers(ns);
 		}
 	}
-	ns.spawn("start-servers2.js", 1, options.ram, cost, SCRIPT, JSON.stringify(victims));
+	ns.spawn("start-servers2.js", 1, options.ram, cost, script, JSON.stringify(victims));
 }
 
 /** @param {NS} ns **/
