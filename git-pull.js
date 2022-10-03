@@ -3,7 +3,6 @@ const FILES = [
 	"bbskills.js",
 	"blackops.js",
 	"bladeburner.js",
-	"bonus.js",
 	"budget.js",
 	"budget-main.js",
 	"calculate-goals.js",
