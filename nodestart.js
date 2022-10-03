@@ -203,7 +203,7 @@ async function progressHackingLevels(ns) {
 		await setUpForCorporations(ns);
 		await travelToGoalLocations(ns);
 		await runInstallBackdoor(ns);
-		await ns.sleep(30000);
+		await ns.sleep(20000);
 	}
 }
 

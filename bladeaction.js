@@ -98,7 +98,7 @@ function selectActionDetailed(ns, actionDb, type, avoidKilling) {
 	var bestExpected = 0;
 	const minChance = 0.3;
 	for (var action of actionDb.actions) {
-		if (action.actionCountRemaining <= 0) {
+		if (action.actionCountRemaining * action.time <= 60000) {
 			continue;
 		}
 		if (type && action.type != type) {
