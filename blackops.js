@@ -1,6 +1,11 @@
 /** @param {NS} ns */
 export async function main(ns) {
 	var remaining = 0;
+	var current = ns.bladeburner.getCurrentAction();
+	if (current.type == "BlackOps") {
+		ns.printf("%s %s is already running", current.type, current.name);
+		return;
+	}
 	for (var op of ns.bladeburner.getBlackOpNames()) {
 		if (ns.bladeburner.getActionCountRemaining("BlackOps", op) > 0) {
 			remaining++;
@@ -10,23 +15,13 @@ export async function main(ns) {
 					ns.printf("Can do BlackOps %s", op);
 					if (ns.bladeburner.startAction("BlackOps", op)) {
 						ns.tprintf("Executing BlackOps %s", op);
-						var time = ns.bladeburner.getActionTime("BlackOps", op);
-						var bonus = ns.bladeburner.getBonusTime();
-						if (time < bonus) {
-							time = time / 5;
-						} else {
-							time = time - bonus;
-						}
-						await ns.sleep(time * 1.05);
-						await ns.sleep(1000);
-						break;
 					}
 				}
 			}
 		}
 	}
 	if (remaining == 0) {
-		ns.tprintf("No more black operations to do, trying to destroy the world in 10 s");
+		ns.tprintf("No more black operations to do, trying to destroy the world");
 		ns.spawn("destroy-world.js");
 	}
 }
