@@ -46,8 +46,8 @@ export async function main(ns) {
 		if (database.bitnodemultipliers.HacknetNodeMoney < 0.25) {
 			maxNodes = Math.min(4, maxNodes);
 			maxLevel = Math.min(25, maxLevel);
-			maxRam = Math.min(2, maxRam);
-			maxCore = 1;
+			maxRam = Math.min(4, maxRam);
+			maxCore = Math.min(2, maxCore);
 			ns.printf("Restricted hacknet node creation");
 		}
 	}
