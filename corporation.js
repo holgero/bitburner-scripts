@@ -1,4 +1,5 @@
 import { formatMoney, getAvailableMoney } from "./helpers.js";
+import { reserveBudget, getBudget, deleteBudget } from "budget.js";
 import * as c from "./constants.js";
 
 const AGRICULTURE = "Agriculture";
@@ -73,14 +74,17 @@ function tradeCorporationShares(ns) {
 		ns.corporation.sellShares(corporation.numShares);
 		ns.corporation.issueDividends(1);
 		var earned = getAvailableMoney(ns) - money;
+		reserveBudget(ns, "corp", earned); // to make sure we can buy back
 		ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
+		return;
 	}
 	if (shouldBuy(ns, corporation, target)) {
 		var money = getAvailableMoney(ns);
 		ns.corporation.issueDividends(0);
 		ns.corporation.buyBackShares(corporation.issuedShares);
 		var spend = money - getAvailableMoney(ns);
+		deleteBudget(ns, "corp");
 		ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
 		ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
 	}
@@ -104,14 +108,15 @@ function shouldBuy(ns, corporation, target) {
 	if (corporation.issuedShares <= 0) {
 		return false;
 	}
-	if (getAvailableMoney(ns) > RICHMAN_MONEY) {
+	if (getAvailableMoney(ns) + getBudget(ns, "corp") > RICHMAN_MONEY) {
 		return true;
 	}
 	if (corporation.shareSaleCooldown > 15000) {
 		return false;
 	}
 	if (corporation.sharePrice < target &&
-		(corporation.issuedShares * corporation.sharePrice * 1.1 < getAvailableMoney(ns))) {
+		(corporation.issuedShares * corporation.sharePrice * 1.1 <
+			getAvailableMoney(ns) + getBudget(ns, "corp"))) {
 		return true;
 	}
 	return false;
