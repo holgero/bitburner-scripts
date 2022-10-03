@@ -156,14 +156,13 @@ async function canSpendMoney(ns) {
 		return true;
 	}
 	if (isEndgame(ns)) {
-		return false;
+		const goals = getFactiongoals(ns).factionGoals;
+		const completion = goalCompletion(ns, goals);
+		return completion < 0.8;
 	}
 	const estimation = await getEstimation(ns, false);
-	if (estimation.affordableAugmentationCount < 5) {
-		return true;
-	}
-	if (estimation.estimatedPrice > getAvailableMoney(ns, true)) {
-		// money is scarce
+	if (estimation.affordableAugmentationCount >= 7) {
+		// nearly there, no longer spend money
 		return false;
 	}
 	return true;
@@ -224,17 +223,12 @@ async function wantToEndRun(ns) {
 		estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
 		return true;
 	}
-	if (corporationInfo.sharePrice < 1e3) {
-		// it's usually better to continue playing for additional govenors
-		// and start the next run with more cash
-		return false;
-	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;
 		const completion = goalCompletion(ns, goals);
 		return completion >= 1;
 	}
-	if (estimation.affordableAugmentationCount > 10) {
+	if (estimation.affordableAugmentationCount >= 8) {
 		return true;
 	}
 	return false;
