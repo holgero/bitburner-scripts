@@ -26,7 +26,7 @@ export async function main(ns) {
 	filterExpensiveAugmentations(ns, toPurchase, haveMoney);
 	const augNames = toPurchase.map(a => a.name);
 
-	var governor_faction;
+	var governor_faction = factions[0].name;
 	var maxRep = 0;
 	for (var faction of factions) {
 		if (faction.name != BLADEBURNERS && !faction.gang && (faction.reputation > maxRep)) {

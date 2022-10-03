@@ -224,7 +224,8 @@ async function wantToEndRun(ns) {
 		return false;
 	}
 	const estimation = await getEstimation(ns, false);
-	if (estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
+	if (estimation.affordableAugmentations &&
+		estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
 		return true;
 	}
 	if (corporationInfo.sharePrice < 1e3) {
