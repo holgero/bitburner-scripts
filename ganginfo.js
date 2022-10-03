@@ -1,7 +1,4 @@
-import * as c from "./constants.js";
-import { formatMoney, canRunAction } from "./helpers.js";
-import { effortForSkillLevel } from "./skill-helper.js";
-import { getDatabase, getAugmentationsToPurchase, filterExpensiveAugmentations } from "helpers.js";
+import { formatMoney } from "./helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {

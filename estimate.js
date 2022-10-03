@@ -43,7 +43,7 @@ export async function main(ns) {
 	const augmentationCount = toPurchase.length;
 	const money = options.money ? options.money : getAvailableMoney(ns, true);
 	if (options.affordable) {
-		filterExpensiveAugmentations(ns, toPurchase, money);
+		filterExpensiveAugmentations(ns, toPurchase, money, ["Hacking", "Bladeburner"]);
 	}
 	var factor = 1.0;
 	var sum = 0;
@@ -61,7 +61,7 @@ export async function main(ns) {
 		factor = factor * 1.9;
 	}
 
-	filterExpensiveAugmentations(ns, toPurchase, money);
+	filterExpensiveAugmentations(ns, toPurchase, money, ["Hacking", "Bladeburner"]);
 	const affordableAugmentationCount = toPurchase.length;
 
 	if (options.write) {
