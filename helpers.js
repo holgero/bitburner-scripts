@@ -182,7 +182,7 @@ export function goalCompletion(ns, factionGoals) {
 	return 1;
 }
 
-function setSortc(toPurchase) {
+export function setSortc(toPurchase) {
 	toPurchase.forEach(a => a.sortc = undefined);
 	for (var aug of toPurchase) {
 		if (aug.sortc == undefined) {
