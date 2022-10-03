@@ -13,7 +13,7 @@ export async function main(ns) {
 
 /** @param {NS} ns */
 async function runSleeves(ns) {
-	while (getAvailableMoney(ns) < POOR_MAN ||
+	if (getAvailableMoney(ns) < POOR_MAN ||
 		ns.scriptRunning("joinbladeburner.js", "home")) {
 		for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
 			if (sleeveHasLowSkills(ns, ii)) {
@@ -23,7 +23,7 @@ async function runSleeves(ns) {
 			}
 			ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii));
 		}
-		await ns.sleep(60000);
+		return;
 	}
 	const available = [];
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
@@ -80,7 +80,7 @@ function getCrimeType(ns, sleeveNo) {
 	if (skills.agility < 25 || skills.dexterity < 25) {
 		return "Shoplift";
 	}
-	if (skills.strength < 40 || skills.defense < 40) {
+	if (skills.strength < 50 || skills.defense < 50) {
 		return "Mug";
 	}
 	return "Homicide";
