@@ -209,11 +209,6 @@ export function filterExpensiveAugmentations(ns, toPurchase, money, preferedType
 			ns.exit();
 		}
 		len--;
-		if (idx == 0) {
-			// screw that!
-			toPurchase.splice(0, toPurchase.length);
-			return;
-		}
 		if (findAugToRemove(ns, toPurchase, idx, preferedTypes)) {
 			continue;
 		}
