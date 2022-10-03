@@ -155,10 +155,6 @@ async function canSpendMoney(ns) {
 		// there's plenty
 		return true;
 	}
-	const corporationInfo = getCorporationInfo(ns);
-	if (corporationInfo.issuedShares > 0) {
-		return false;
-	}
 	if (isEndgame(ns)) {
 		return false;
 	}
