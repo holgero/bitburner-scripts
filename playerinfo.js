@@ -26,7 +26,8 @@ export async function main(ns) {
     ns.tprintf("%30s: %s", "Tor router", "yes");
   }
   if (playerInfo.inBladeburner) {
-    ns.tprintf("%30s: %s", "In bladeburner", "yes");
+    const currentAction = ns.bladeburner.getCurrentAction();
+    ns.tprintf("%30s: %s: %s", "Bladeburner", currentAction.type, currentAction.name);
   }
   if (playerInfo.hasCorporation) {
     const corporationInfo = getCorporationInfo(ns);
