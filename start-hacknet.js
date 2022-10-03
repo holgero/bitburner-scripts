@@ -49,7 +49,6 @@ export async function main(ns) {
 			maxRam = Math.min(2, maxRam);
 			maxCore = 1;
 			ns.printf("Restricted hacknet node creation");
-			return;
 		}
 	}
 	ns.scp(scriptName, scriptHost);
