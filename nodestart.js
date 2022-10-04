@@ -39,7 +39,7 @@ export async function main(ns) {
 	deleteBudget(ns, "stocks");
 	await runAndWait(ns, "spend-hashes.js", "--all");
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
-		runAndWait("destroy-world.js");
+		await runAndWait(ns, "destroy-world.js");
 	}
 	await runAndWait(ns, "plan-augmentations.js", "--run_purchase");
 }
