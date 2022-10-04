@@ -35,7 +35,7 @@ const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
-const MINIMUM_SHARE_PRICE = 10;
+const MINIMUM_SHARE_PRICE = 100;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
