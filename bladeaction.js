@@ -9,25 +9,28 @@ export async function main(ns) {
 		return;
 	}
 
-	var worstDelta = 0;
+	var bestDelta = 1;
 	for (var action of actionDb.actions) {
 		var delta = action.chances[1] - action.chances[0];
-		if (delta > worstDelta) {
-			worstDelta = delta;
+		if (delta < bestDelta) {
+			bestDelta = delta;
 		}
 	}
 	if (switchToAction(ns, getAction(actionDb, "General", "Field Analysis"),
-		worstDelta > 0.1)) {
+		bestDelta > 0.1)) {
+		//ns.tprintf("Field analysis");
 		return;
 	}
 
 	const [current, max] = ns.bladeburner.getStamina();
 	if (switchToAction(ns, getAction(actionDb, "General", "Training"),
 		current < 0.7 * max)) {
+		//ns.tprintf("Training");
 		return;
 	}
 
 	if (switchToAction(ns, selectAction(ns, actionDb), true)) {
+		//ns.tprintf("Action");
 		return;
 	}
 }
@@ -83,7 +86,7 @@ function selectAction(ns, actionDb) {
 	var bestAction;
 	if (needMoney(ns)) {
 		bestAction = selectActionDetailed(ns, actionDb, "Contract", true);
-	} 
+	}
 	if (bestAction) return bestAction;
 	bestAction = selectActionDetailed(ns, actionDb, undefined, true);
 	if (bestAction) return bestAction;
