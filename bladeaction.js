@@ -35,7 +35,7 @@ export async function main(ns) {
 /** @param {NS} ns */
 function switchToAction(ns, action, condition) {
 	const previousAction = ns.bladeburner.getCurrentAction();
-	if (previousAction.type == "BlackOps") {
+	if (previousAction.type == "BlackOp") {
 		return true;
 	}
 	if (condition) {
