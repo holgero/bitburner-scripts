@@ -60,9 +60,6 @@ export async function main(ns) {
 			return;
 		}
 		options.ram = nextRam;
-		if (options.hack && nextRam * 2 <= ns.getPurchasedServerMaxRam()) {
-			options.ram = nextRam * 2;
-		}
 		options.upgrade = ns.serverExists(hostname);
 	}
 
