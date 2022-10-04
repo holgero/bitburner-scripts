@@ -24,6 +24,7 @@ export async function main(ns) {
 	]);
 
 	const database = getDatabase(ns);
+	const player = ns.getPlayer();
 	if (database.bitnodemultipliers) {
 		if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
 			ns.printf("No money from purchased servers, not buying servers");
@@ -43,9 +44,15 @@ export async function main(ns) {
 		}
 		var money = getAvailableMoney(ns);
 		if (database.bitnodemultipliers) {
-			const multiplier = database.bitnodemultipliers.ServerMaxMoney;
-			if (multiplier < 0.25 && !options.hack) {
-				ns.printf("Reducing money spending according to ServerMaxMoney (%s)", multiplier);
+			const multiplier = database.bitnodemultipliers.ServerMaxMoney *
+				database.bitnodemultipliers.ServerGrowthRate *
+				database.bitnodemultipliers.ScriptHackMoneyGain *
+				player.mults.hacking_chance *
+				player.mults.hacking_speed *
+				player.mults.hacking_grow *
+				player.mults.hacking_money;
+			if (multiplier < 0.1 && player.skills.hacking < 1000 && !options.hack) {
+				ns.printf("Reducing money spending according to multiplier %s", multiplier);
 				money *= multiplier;
 			}
 		}
@@ -63,14 +70,14 @@ export async function main(ns) {
 		options.upgrade = ns.serverExists(hostname);
 	}
 
-	var currentHackingSkill = ns.getPlayer().skills.hacking;
+	var currentHackingSkill = player.skills.hacking;
 
 	var victims = VICTIMS.filter(
 		victim => ns.getServer(victim).hasAdminRights &&
 			(ns.getServer(victim).requiredHackingSkill <= currentHackingSkill));
 	victims.sort((a, b) => ns.getServer(a).moneyMax - ns.getServer(b).moneyMax);
 	if (options.hack) {
-		victims = [ "foodnstuff" ];
+		victims = ["foodnstuff"];
 	}
 	while (victims.length < numberOfServers) {
 		victims = victims.concat(victims);
