@@ -117,7 +117,10 @@ async function runHomeScripts(ns) {
 	await ns.sleep(1000);
 	startHomeScript(ns, "gangs.js");
 	await ns.sleep(1000);
-	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+	if (goForHacking(ns)) {
+		if (ns.isRunning("instrument.js", "home")) {
+			ns.scriptKill("instrument.js", "home");
+		}
 		startHomeScript(ns, "instrument.js", "--hack");
 	} else {
 		startHomeScript(ns, "instrument.js");
@@ -183,15 +186,11 @@ async function progressHackingLevels(ns) {
 		if (await wantToEndRun(ns)) {
 			return;
 		}
-		if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
-			await runAndWait(ns, "start-servers.js", "--auto-upgrade", "--hack");
+		if (await canSpendMoney(ns)) {
+			await improveInfrastructure(ns, nextProgram);
 		} else {
-			if (await canSpendMoney(ns)) {
-				await improveInfrastructure(ns, nextProgram);
-			} else {
-				ns.scriptKill("start-hacknet.js", "home");
-				ns.scriptKill("start-hacknet2.js", "joesguns");
-			}
+			ns.scriptKill("start-hacknet.js", "home");
+			ns.scriptKill("start-hacknet2.js", "joesguns");
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
@@ -263,36 +262,39 @@ async function improveInfrastructure(ns, programsOwned) {
 
 	switch (programsOwned) {
 		case 3:
-			if (ns.getServerMaxRam("home") < 64) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 64);
-			}
+			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
 			break;
 		case 4:
-			if (ns.getServerMaxRam("home") < 128) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 128);
-			}
+			await runAndWait(ns, "purchase-ram.js", "--goal", 128);
 			if (!ns.serverExists("pserv-0") ||
 				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
 				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
 			}
 			break;
 		case 5:
-			if (ns.getServerMaxRam("home") < 256) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
-			}
 			if (!ns.serverExists("pserv-0") ||
 				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
-				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+				if (goForHacking(ns)) {
+					await runAndWait(ns, "start-servers.js", "--auto-upgrade", "--hack");
+					await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
+				} else {
+					await runAndWait(ns, "start-servers.js", "--auto-upgrade");
+				}
 			}
 			if (getAvailableMoney(ns) < 1e9) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 				await runAndWait(ns, "start-hacknet.js", 6);
 			} else if (getAvailableMoney(ns) < 200e9) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 512);
 				await runAndWait(ns, "start-hacknet.js", 8);
 			} else if (getAvailableMoney(ns) < 1e12) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 				await runAndWait(ns, "start-hacknet.js", 9);
 			} else if (getAvailableMoney(ns) < 50e12) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 8192);
 				await runAndWait(ns, "start-hacknet.js", 10);
 			} else if (getAvailableMoney(ns) < 1e15) {
+				await runAndWait(ns, "purchase-ram.js", "--goal", 4 * 8192);
 				await runAndWait(ns, "start-hacknet.js", 12);
 			} else if (getAvailableMoney(ns) < 1e18) {
 				await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
@@ -325,9 +327,10 @@ async function startHacking(ns, programs) {
 	var ram = ns.getServerMaxRam("home");
 	if (ram > 32) {
 		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
-		await runAndWait(ns, "rscan.js", "hack", "--quiet");
-		if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
+		if (goForHacking(ns)) {
 			await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
+		} else {
+			await runAndWait(ns, "rscan.js", "hack", "--quiet");
 		}
 	} else {
 		await runAndWait(ns, "rscan-spawn.js", "nuke", programs);
@@ -355,4 +358,13 @@ async function travelToGoalLocations(ns) {
 			}
 		}
 	}
+}
+
+/** @param {NS} ns **/
+function goForHacking(ns) {
+	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
+		ns.getPlayer().skills.hacking >= 0.9 * ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		return true;
+	}
+	return false;
 }

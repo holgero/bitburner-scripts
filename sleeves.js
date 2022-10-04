@@ -48,7 +48,7 @@ async function runSleeves(ns) {
 		const factionsToWorkFor = goals.factionGoals.
 			filter(a => factions.includes(a.name) && a.reputation &&
 				ns.singularity.getFactionRep(a.name) < a.reputation).
-				filter(a => !database.factions.find(b => a.name == b.name).gang);
+			filter(a => !database.factions.find(b => a.name == b.name).gang);
 		for (var faction of factionsToWorkFor) {
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
