@@ -2,6 +2,9 @@ import { getAvailableMoney, getDatabase, formatMoney } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+	var options = ns.flags([
+		["hack", false],
+	]);
 	const database = getDatabase(ns);
 	if (ns.getPurchasedServerLimit() <= 0) {
 		ns.tprintf("Cannot buy any servers.");
@@ -13,7 +16,7 @@ export async function main(ns) {
 	var money = getAvailableMoney(ns);
 	if (database.bitnodemultipliers) {
 		const multiplier = database.bitnodemultipliers.ServerMaxMoney;
-		if (multiplier < 0.25) {
+		if (multiplier < 0.25 && !options.hack) {
 			ns.tprintf("Reducing money to spend according to ServerMaxMoney (%s)", multiplier);
 			money *= multiplier;
 		}
