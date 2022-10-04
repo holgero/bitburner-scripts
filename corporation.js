@@ -70,20 +70,20 @@ function tradeCorporationShares(ns) {
 	var target = (low + high) / 2;
 
 	if (shouldSell(ns, corporation, target, low)) {
-		var money = getAvailableMoney(ns);
+		var money = ns.getServerMoneyAvailable("home");
 		ns.corporation.sellShares(corporation.numShares);
 		ns.corporation.issueDividends(1);
-		var earned = getAvailableMoney(ns) - money;
+		var earned = ns.getServerMoneyAvailable("home") - money;
 		reserveBudget(ns, "corp", earned); // to make sure we can buy back
 		ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		return;
 	}
 	if (shouldBuy(ns, corporation, target)) {
-		var money = getAvailableMoney(ns);
+		var money = ns.getServerMoneyAvailable("home");
 		ns.corporation.issueDividends(0);
 		ns.corporation.buyBackShares(corporation.issuedShares);
-		var spend = money - getAvailableMoney(ns);
+		var spend = money - ns.getServerMoneyAvailable("home");
 		deleteBudget(ns, "corp");
 		ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
 		ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
