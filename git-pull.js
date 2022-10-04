@@ -32,6 +32,7 @@ const FILES = [
 	"ganginfo.js",
 	"gangs.js",
 	"git-pull.js",
+	"governors.js",
 	"graft-augmentations.js",
 	"hacknet.js",
 	"hack-server.js",
