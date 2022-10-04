@@ -1,4 +1,9 @@
-import { runAndWait, getDatabase } from "helpers.js";
+import {
+	runAndWait,
+	getDatabase,
+	getFactiongoals,
+	goalCompletion,
+} from "helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -10,7 +15,14 @@ export async function main(ns) {
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
 		ns.printf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
-		return;
+		const goals = getFactiongoals(ns).factionGoals;
+		const completion = goals ? goalCompletion(ns, goals) : 0;
+		if (completion < 1) {
+			return;
+		} else {
+			ns.printf("But goals are currently complete");
+			ns.singularity.stopAction();
+		}
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
 		ns.printf("Need more than 32 GB ram to work properly");

@@ -37,8 +37,8 @@ export async function main(ns) {
 	if (goalCompletion(ns, config.factionGoals) < 1) {
 		// did not manage to complete goals, force a recalculation on next run
 		ns.write("factiongoals.txt", JSON.stringify({}), "w");
+		await runAndWait(ns, "commit-crimes.js");
 	}
-	await runAndWait(ns, "commit-crimes.js");
 }
 
 /** @param {NS} ns **/
