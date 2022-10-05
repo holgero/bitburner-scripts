@@ -200,7 +200,7 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "joinfactions.js");
 		await setUpForCorporations(ns);
 		await travelToGoalLocations(ns);
-		await runInstallBackdoor(ns);
+		await runAndWait(ns, "rback.js");
 		await ns.sleep(20000);
 	}
 }
@@ -313,28 +313,12 @@ async function improveInfrastructure(ns, programsOwned) {
 }
 
 /** @param {NS} ns **/
-async function runInstallBackdoor(ns) {
-	var ram = ns.getServerMaxRam("home");
-	if (ram > 32) {
-		await runAndWait(ns, "rscan.js", "back", "--quiet");
-	} else {
-		ns.run("rscan-spawn.js", 1, "back");
-	}
-}
-
-/** @param {NS} ns **/
 async function startHacking(ns, programs) {
-	var ram = ns.getServerMaxRam("home");
-	if (ram > 32) {
-		await runAndWait(ns, "rscan.js", "nuke", "--quiet");
-		if (goForHacking(ns)) {
-			await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
-		} else {
-			await runAndWait(ns, "rscan.js", "hack", "--quiet");
-		}
+	await runAndWait(ns, "rnuke.js", programs);
+	if (goForHacking(ns)) {
+		await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
 	} else {
-		await runAndWait(ns, "rscan-spawn.js", "nuke", programs);
-		await runAndWait(ns, "rscan-spawn.js", "hack", programs);
+		await runAndWait(ns, "rhack.js");
 	}
 }
 
