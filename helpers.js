@@ -1,5 +1,32 @@
 import { getAvailable, getTotal } from "budget.js";
 
+/** @param {NS} ns **/
+export function getHacknetProfitability(ns) {
+	const database = getDatabase(ns);
+	const player = ns.getPlayer();
+	if (database.bitnodemultipliers) {
+		return database.bitnodemultipliers.HacknetNodeMoney *
+			player.mults.hacknet_node_money;
+	}
+	return 1.0;
+}
+
+/** @param {NS} ns **/
+export function getHackingProfitability(ns) {
+	const database = getDatabase(ns);
+	const player = ns.getPlayer();
+	if (database.bitnodemultipliers) {
+		return database.bitnodemultipliers.ServerMaxMoney *
+			database.bitnodemultipliers.ServerGrowthRate *
+			database.bitnodemultipliers.ScriptHackMoneyGain *
+			player.mults.hacking_chance *
+			player.mults.hacking_speed *
+			player.mults.hacking_grow *
+			player.mults.hacking_money;
+	}
+	return 1.0;
+}
+
 export function millisecondToDHMS(milli) {
 	return sprintf("%3dd %02d:%02d:%02d",
 		Math.floor(milli / (24 * 60 * 60 * 1000)),

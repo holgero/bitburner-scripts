@@ -5,7 +5,9 @@ import {
   millisecondToDHMS,
   getDatabase,
   getCorporationInfo,
-  getEstimation
+  getEstimation,
+  getHackingProfitability,
+  getHacknetProfitability
 } from "/helpers.js";
 
 /** @param {NS} ns **/
@@ -90,7 +92,9 @@ export async function main(ns) {
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
 
-  ns.tprintf("%30s: %f", "Stats gain factor", statsGainFactor(ns));
+  ns.tprintf("%30s: Hacking: %s (%s), Hacknet: %s (%s)", "Profitability",
+    getHackingProfitability(ns).toFixed(3), "0.1",
+    getHacknetProfitability(ns).toFixed(3), "0.25"); 
 }
 
 function getServerInfo(ns) {

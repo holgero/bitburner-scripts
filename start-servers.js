@@ -1,4 +1,4 @@
-import { getAvailableMoney, formatMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, formatMoney, getDatabase, getHackingProfitability } from "helpers.js";
 import { reserveBudget } from "budget.js";
 
 const SERVER_PREFIX = "pserv-";
@@ -43,18 +43,10 @@ export async function main(ns) {
 			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 8 * ns.getServerMaxRam(hostname));
 		}
 		var money = getAvailableMoney(ns);
-		if (database.bitnodemultipliers) {
-			const multiplier = database.bitnodemultipliers.ServerMaxMoney *
-				database.bitnodemultipliers.ServerGrowthRate *
-				database.bitnodemultipliers.ScriptHackMoneyGain *
-				player.mults.hacking_chance *
-				player.mults.hacking_speed *
-				player.mults.hacking_grow *
-				player.mults.hacking_money;
-			if (multiplier < 0.1 && player.skills.hacking < 1000 && !options.hack) {
-				ns.printf("Reducing money spending according to multiplier %s", multiplier);
-				money *= multiplier;
-			}
+		const multiplier = getHackingProfitability(ns);
+		if (multiplier < 0.1 && player.skills.hacking < 1000 && !options.hack) {
+			ns.printf("Reducing money spending according to multiplier %s", multiplier);
+			money *= multiplier;
 		}
 		while (ns.getPurchasedServerCost(nextRam * 2) * numberOfServers < money &&
 			nextRam * 2 <= ns.getPurchasedServerMaxRam()) {

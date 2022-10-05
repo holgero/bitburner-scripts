@@ -1,4 +1,4 @@
-import { getDatabase } from "helpers.js";
+import { getDatabase, getHacknetProfitability } from "helpers.js";
 
 const MAX_RAM = 8192;
 /** @param {NS} ns **/
@@ -42,14 +42,11 @@ export async function main(ns) {
 	}
 	var maxCore = Math.round(ns.args[0] * coreMultiplier);
 
-	if (database.bitnodemultipliers) {
-		if (database.bitnodemultipliers.HacknetNodeMoney *
-			ns.getPlayer().mults.hacknet_node_money < 0.25) {
-			maxNodes = Math.min(4, maxNodes);
-			maxLevel = Math.min(25, maxLevel);
-			maxRam = Math.min(4, maxRam);
-			maxCore = Math.min(2, maxCore);
-		}
+	if (getHacknetProfitability(ns) < 0.25) {
+		maxNodes = Math.min(4, maxNodes);
+		maxLevel = Math.min(25, maxLevel);
+		maxRam = Math.min(4, maxRam);
+		maxCore = Math.min(2, maxCore);
 	}
 
 	ns.scp(scriptName, scriptHost);

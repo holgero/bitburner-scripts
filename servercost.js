@@ -1,11 +1,10 @@
-import { getAvailableMoney, getDatabase, formatMoney } from "helpers.js";
+import { getAvailableMoney, formatMoney, getHackingProfitability } from "helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
 	var options = ns.flags([
 		["hack", false],
 	]);
-	const database = getDatabase(ns);
 	if (ns.getPurchasedServerLimit() <= 0) {
 		ns.tprintf("Cannot buy any servers.");
 		return;
@@ -14,12 +13,10 @@ export async function main(ns) {
 		ns.tprintf("Current memory of server pserv-0: %d GB", ns.getServerMaxRam("pserv-0"));
 	}
 	var money = getAvailableMoney(ns);
-	if (database.bitnodemultipliers) {
-		const multiplier = database.bitnodemultipliers.ServerMaxMoney;
-		if (multiplier < 0.25 && !options.hack) {
-			ns.tprintf("Reducing money to spend according to ServerMaxMoney (%s)", multiplier);
-			money *= multiplier;
-		}
+	const multiplier = getHackingProfitability(ns);
+	if (multiplier < 0.1 && ns.getPlayer().skills.hacking < 1000 && !options.hack) {
+		ns.tprintf("Reducing money to spend according to ServerMaxMoney (%s)", multiplier);
+		money *= multiplier;
 	}
 	const havePerServer = money / ns.getPurchasedServerLimit();
 	var ram = 8;
@@ -30,7 +27,7 @@ export async function main(ns) {
 	ns.tprintf("Can afford %d servers with %d GB ram.", ns.getPurchasedServerLimit(), ram);
 	printInfo(ns, ram);
 	ram *= 2;
-	if (ram> ns.getPurchasedServerMaxRam()) {
+	if (ram > ns.getPurchasedServerMaxRam()) {
 		return;
 	}
 	ns.tprintf("Next bigger servers:");
