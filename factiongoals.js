@@ -59,16 +59,16 @@ async function prepareGoalWork(ns) {
 
 /** @param {NS} ns **/
 async function workOnGoals(ns, database, config) {
-	await runAndWait(ns, "print_goals.js");
 	if (config.factionGoals.some(a => a.reputation)) {
+		await runAndWait(ns, "print_goals.js");
 		await workOnGoalsPercentage(ns, database, config, 0.25);
 		await workOnGoalsPercentage(ns, database, config, 0.50);
 		await workOnGoalsPercentage(ns, database, config, 0.75);
 		await workOnGoalsPercentage(ns, database, config, 1.00);
+		ns.tprintf("Finished all goals");
 	} else {
-		ns.tprintf("No goals!");
+		ns.printf("No goals!");
 	}
-	ns.tprintf("Finished all goals");
 }
 
 /** @param {NS} ns **/
