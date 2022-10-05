@@ -17,11 +17,10 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		const goals = getFactiongoals(ns).factionGoals;
 		const completion = goals ? goalCompletion(ns, goals) : 0;
-		if (completion < 1) {
+		if (completion < 1 || ns.singularity.isBusy()) {
 			return;
 		} else {
 			ns.printf("But goals are currently complete");
-			ns.singularity.stopAction();
 		}
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
