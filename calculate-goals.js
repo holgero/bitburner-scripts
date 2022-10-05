@@ -1,4 +1,10 @@
-import { getDatabase, getAvailableMoney, reputationNeeded, getAugmentationsToPurchase } from "/helpers.js";
+import {
+	getDatabase,
+	getAvailableMoney,
+	reputationNeeded,
+	getAugmentationsToPurchase,
+	getAugmentationPrios
+} from "/helpers.js";
 import { effortForSkillLevel } from "./skill-helper.js";
 import * as c from "/constants.js";
 
@@ -18,11 +24,13 @@ export async function main(ns) {
 			ns.tprintf("Unknown faction: %s", factionName);
 			continue;
 		}
-		factionGoals.push({
-			...faction,
-			reputation: 0,
-			aim: ""
-		});
+		if (!faction.gang) {
+			factionGoals.push({
+				...faction,
+				reputation: 0,
+				aim: ""
+			});
+		}
 	}
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
 	var maxMoneyToSpend = Math.max(MIN_MONEY, getAvailableMoney(ns, true));
@@ -196,15 +204,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 	ownedAugs.push(...augsToIgnore);
 	const possibleFactions = getPossibleFactions(ns, database, factionGoals).map(a => a.name);
 	// ns.printf("Possible factions: %s", possibleFactions);
-	const prios = ["Hacking", "Reputation", "Hacknet", "Company", "Combat", "Crime", "Bladeburner", ""];
-	if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
-		// hacknet stuff is worthless, delete it from prios
-		prios.splice(2, 1);
-	}
-	var player = ns.getPlayer();
-	if (player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) {
-		prios.unshift("Bladeburner", "Combat");
-	}
+	const prios = getAugmentationPrios(ns);
 	var candidates = [];
 	for (var prio of prios) {
 		candidates = database.augmentations.filter(

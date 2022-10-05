@@ -1,4 +1,12 @@
-import { getDatabase, getFactiongoals, getAvailableMoney, formatMoney, getAugmentationsToPurchase, filterExpensiveAugmentations }
+import {
+	getDatabase,
+	getFactiongoals,
+	getAvailableMoney,
+	formatMoney,
+	getAugmentationsToPurchase,
+	filterExpensiveAugmentations,
+	findBestAugmentations
+}
 	from "helpers.js";
 
 /** @param {NS} ns **/
@@ -8,6 +16,7 @@ export async function main(ns) {
 		["write", false],
 		["affordable", false],
 		["maxprice", 1e99],
+		["best", false],
 		["money", 0]]);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
@@ -39,9 +48,12 @@ export async function main(ns) {
 	}
 	const database = getDatabase(ns);
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
-	const toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
+	var toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	const augmentationCount = toPurchase.length;
 	const money = options.money ? options.money : getAvailableMoney(ns, true);
+	if (options.best) {
+		toPurchase = await findBestAugmentations(ns);
+	}
 	if (options.affordable) {
 		filterExpensiveAugmentations(ns, toPurchase, money, ["Hacking", "Bladeburner"]);
 	}

@@ -1,5 +1,4 @@
 import {
-  statsGainFactor,
   getAvailableMoney,
   formatMoney,
   millisecondToDHMS,

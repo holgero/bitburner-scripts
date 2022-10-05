@@ -91,6 +91,16 @@ export const programs = [
 	{ name: "SQLInject.exe", level: 750, cost: 250000000 }
 ];
 
+export const AUGMENTATION_TYPES = [
+	"Bladeburner",
+	"Combat",
+	"Company",
+	"Hacking",
+	"Hacknet",
+	"Reputation",
+	"Special"
+];
+
 // story line
 export const STORY_LINE = [
 	{ name: CYBERSEC, backdoor: "CSEC", money: 0, work: HACKING, location: "" },
@@ -113,6 +123,6 @@ export const STORY_LINE = [
 	{ name: CLARKE, backdoor: "", company: true, money: 0, hack: 225, stats: 0, work: HACKING, location: "" },
 	{ name: SPEAKERS, backdoor: "", money: 0, hack: 100, stats: 300, work: HACKING, kills: 30, location: "" },
 	{ name: BLADEBURNERS, backdoor: "", money: 0, work: BLADEACTIONS, stats: 100, location: "" },
-	{ name: COVENANT, backdoor: "", money: 1e12, hack:850, stats: 850, augsNeeded: 20, work: HACKING, location: "" },
+	{ name: COVENANT, backdoor: "", money: 1e12, hack: 850, stats: 850, augsNeeded: 20, work: HACKING, location: "" },
 	{ name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, augsNeeded: 30, work: HACKING, location: "" }
 ];

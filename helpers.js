@@ -1,5 +1,30 @@
 import { getAvailable, getTotal } from "budget.js";
 
+const AUGMENTATION_NORMAL_PRIO = [
+	"Hacking", "Special", "Reputation", "Hacknet", "Crime", "Company", "Combat", "Bladeburner",
+];
+
+const AUGMENTATION_BLADEBURNER_PRIO = [
+	"Bladeburner", "Combat", "Special", "Crime", "Hacking", "Hacknet", "Reputation", "Company",
+];
+
+/** @param {NS} ns **/
+export function getAugmentationPrios(ns) {
+	var prios = [];
+	const player = ns.getPlayer();
+	if (player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) {
+		prios.push(...AUGMENTATION_BLADEBURNER_PRIO);
+	} else {
+		prios.push(...AUGMENTATION_NORMAL_PRIO);
+	}
+	const database = getDatabase(ns);
+	if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
+		// hacknet stuff is worthless, delete it from prios
+		prios = prios.filter(a => a != "Hacknet");
+	}
+	return prios;
+}
+
 /** @param {NS} ns **/
 export function getHacknetProfitability(ns) {
 	const database = getDatabase(ns);
@@ -78,7 +103,7 @@ export async function getEstimation(ns, goal) {
 	if (goal) {
 		await runAndWait(ns, "estimate.js", "--write", "--goal");
 	} else {
-		await runAndWait(ns, "estimate.js", "--write");
+		await runAndWait(ns, "estimate.js", "--write", "--best");
 	}
 	const text = ns.read("estimate.txt");
 	if (text) {
@@ -166,6 +191,41 @@ function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPu
 			}
 		}
 	}
+}
+
+/** @param {NS} ns **/
+export async function findBestAugmentations(ns) {
+	const database = getDatabase(ns);
+	const player = ns.getPlayer();
+	const factions = player.factions.map(f => ({
+		...(database.factions.find(a => a.name == f)),
+		reputation: ns.singularity.getFactionRep(f)
+	}));
+	const money = getAvailableMoney(ns, true);
+	const allPrios = getAugmentationPrios(ns);
+	var prios = [];
+	var solution = [];
+	while (allPrios.length > 0) {
+		prios.push(allPrios.shift());
+		var maxPrice = money;
+		while (maxPrice > 0) {
+			const augmentations = getAugmentationsToPurchase(ns, database, factions, maxPrice);
+			filterExpensiveAugmentations(ns, augmentations, money, prios);
+			if (augmentations.length > solution.length) {
+				ns.printf("solution with prios %s has %d augs", prios, augmentations.length);
+				ns.printf(">>>%s", augmentations.map(a=>a.name));
+				solution = augmentations;
+			}
+			if (augmentations.length > 0) {
+				maxPrice = Math.max(0, augmentations[0].price - 1);
+			} else {
+				break;
+			}
+			await ns.sleep(1);
+		} 
+		prios.pop();
+	}
+	return solution;
 }
 
 /** @param {NS} ns **/

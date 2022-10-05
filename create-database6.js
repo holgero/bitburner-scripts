@@ -46,5 +46,5 @@ function getTypeOf(ns, augmentation) {
 		stats.crime_success > 1) return "Crime";
 
 	ns.print(JSON.stringify(augmentation));
-	return "";
+	return "Special";
 }
