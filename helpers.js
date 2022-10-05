@@ -44,6 +44,7 @@ export function getHackingProfitability(ns) {
 		return database.bitnodemultipliers.ServerMaxMoney *
 			database.bitnodemultipliers.ServerGrowthRate *
 			database.bitnodemultipliers.ScriptHackMoneyGain *
+			database.bitnodemultipliers.ServerWeakenRate *
 			player.mults.hacking_chance *
 			player.mults.hacking_speed *
 			player.mults.hacking_grow *

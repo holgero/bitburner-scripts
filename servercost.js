@@ -14,7 +14,7 @@ export async function main(ns) {
 	}
 	var money = getAvailableMoney(ns);
 	const multiplier = getHackingProfitability(ns);
-	if (multiplier < 0.1 && ns.getPlayer().skills.hacking < 1000 && !options.hack) {
+	if (multiplier < 0.25 && ns.getPlayer().skills.hacking < 1000 && !options.hack) {
 		ns.tprintf("Reducing money to spend according to ServerMaxMoney (%s)", multiplier);
 		money *= multiplier;
 	}

@@ -92,7 +92,7 @@ export async function main(ns) {
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
 
   ns.tprintf("%30s: Hacking: %s (%s), Hacknet: %s (%s)", "Profitability",
-    getHackingProfitability(ns).toFixed(3), "0.1",
+    getHackingProfitability(ns).toFixed(3), "0.25",
     getHacknetProfitability(ns).toFixed(3), "0.25"); 
 }
 
