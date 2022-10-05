@@ -58,7 +58,7 @@ function spendSkillPoints(ns) {
 	for (var skill of possibleSkills) {
 		if (skill.cost <= ns.bladeburner.getSkillPoints()) {
 			if (!ns.bladeburner.upgradeSkill(skill.name)) break;
-			ns.tprintf("Spent %d skillpoints on %s", skill.cost, skill.name);
+			ns.printf("Spent %d skillpoints on %s", skill.cost, skill.name);
 		}
 	}
 }
