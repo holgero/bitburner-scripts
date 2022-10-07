@@ -11,17 +11,11 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	const player = ns.getPlayer();
 	const database = getDatabase(ns);
-	if (player.bitNodeN != 6 && player.bitNodeN != 7 && player.bitNodeN != 11 &&
+	if (!c.BLADEBURNER_NODES.includes(player.bitNodeN) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.printf("Neither on bitnode 6, 7 or 11 (%d) and nor have the %s",
+		ns.printf("Not on a bladeburner node (%d) without the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
-		const goals = getFactiongoals(ns).factionGoals;
-		const completion = goals ? goalCompletion(ns, goals) : 0;
-		if (completion < 1 || ns.singularity.isBusy()) {
-			return;
-		} else {
-			ns.printf("But goals are currently complete");
-		}
+		return;
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
 		ns.printf("Need more than 32 GB ram to work properly");

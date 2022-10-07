@@ -19,9 +19,9 @@ export async function main(ns) {
 		return;
 	}
 	const player = ns.getPlayer();
-	if ((player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) &&
+	if (c.BLADEBURNER_NODES.includes(player.bitNodeN) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.printf("On bitnode 6, 7 or 11 (%d) and do not have the %s",
+		ns.printf("On a bladeburner bitnode (%d) without the %s",
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}

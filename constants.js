@@ -103,6 +103,10 @@ export const AUGMENTATION_TYPES = [
 	"Special"
 ];
 
+export const BLADEBURNER_NODES = [
+	6, 7, 11, 13
+];
+
 // story line
 export const STORY_LINE = [
 	{ name: CYBERSEC, backdoor: "CSEC", money: 0, work: HACKING, location: "" },
