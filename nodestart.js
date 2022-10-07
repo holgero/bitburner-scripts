@@ -117,6 +117,8 @@ async function runHomeScripts(ns) {
 	await ns.sleep(1000);
 	startHomeScript(ns, "gangs.js");
 	await ns.sleep(1000);
+	startHomeScript(ns, "stanek.js");
+	await ns.sleep(1000);
 	if (goForHacking(ns)) {
 		if (ns.isRunning("instrument.js", "home")) {
 			ns.scriptKill("instrument.js", "home");

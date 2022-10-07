@@ -180,6 +180,9 @@ export async function runAndWait(ns, script, ...args) {
 function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice) {
 	for (var goal of factionGoals) {
 		var faction = database.factions.find(a => a.name == goal.name);
+		if (!faction) {
+			continue;
+		}
 		for (var augName of faction.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
 			var rep = Math.max(goal.reputation, ns.singularity.getFactionRep(goal.name));

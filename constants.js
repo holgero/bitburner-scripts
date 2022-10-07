@@ -37,6 +37,7 @@ export const DAEDALUS = "Daedalus";
 export const SYNDICATE = "The Syndicate";
 export const COVENANT = "The Covenant";
 export const BLADEBURNERS = "Bladeburners";
+export const CHURCH = "Church of the Machine God";
 
 export const ALL_FACTIONS = [
 	...CITIES,
@@ -66,6 +67,7 @@ export const ALL_FACTIONS = [
 	DAEDALUS,
 	"Illuminati",
 	BLADEBURNERS,
+	CHURCH,
 ];
 
 // working types
@@ -124,5 +126,6 @@ export const STORY_LINE = [
 	{ name: SPEAKERS, backdoor: "", money: 0, hack: 100, stats: 300, work: HACKING, kills: 30, location: "" },
 	{ name: BLADEBURNERS, backdoor: "", money: 0, work: BLADEACTIONS, stats: 100, location: "" },
 	{ name: COVENANT, backdoor: "", money: 1e12, hack: 850, stats: 850, augsNeeded: 20, work: HACKING, location: "" },
-	{ name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, augsNeeded: 30, work: HACKING, location: "" }
+	{ name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, augsNeeded: 30, work: HACKING, location: "" },
+	{ name: CHURCH, backdoor: "", money: 0, stats: 0, location: CHONGQING },
 ];
