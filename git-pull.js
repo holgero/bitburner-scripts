@@ -69,6 +69,7 @@ const FILES = [
 	"solve_contract.js",
 	"sleeves.js",
 	"spend-hashes.js",
+	"stanek.js",
 	"start-hacknet2.js",
 	"start-hacknet.js",
 	"start-servers2.js",
