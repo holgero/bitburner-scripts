@@ -1,10 +1,10 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const database = {
-		owned_augmentations: ns.singularity.getOwnedAugmentations(true),
+		owned_augmentations: ns.singularity.getOwnedAugmentations(false),
 		factions: [],
 		augmentations: [],
 		favorToDonate: 150
 	};
-	await ns.write("database.txt", JSON.stringify(database), "w");
+	ns.write("database.txt", JSON.stringify(database), "w");
 }
