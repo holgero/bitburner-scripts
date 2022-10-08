@@ -128,8 +128,8 @@ export const STORY_LINE = [
 	{ name: ECORP, backdoor: "", company: true, money: 0, hack: 250, stats: 0, work: HACKING, location: "" },
 	{ name: CLARKE, backdoor: "", company: true, money: 0, hack: 225, stats: 0, work: HACKING, location: "" },
 	{ name: SPEAKERS, backdoor: "", money: 0, hack: 100, stats: 300, work: HACKING, kills: 30, location: "" },
-	{ name: BLADEBURNERS, backdoor: "", money: 0, work: BLADEACTIONS, stats: 100, location: "" },
+	{ name: BLADEBURNERS, backdoor: "", money: 0, work: BLADEACTIONS, stats: 100, location: "", special: true },
 	{ name: COVENANT, backdoor: "", money: 1e12, hack: 850, stats: 850, augsNeeded: 20, work: HACKING, location: "" },
 	{ name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, augsNeeded: 30, work: HACKING, location: "" },
-	{ name: CHURCH, backdoor: "", money: 0, stats: 0, location: CHONGQING },
+	{ name: CHURCH, backdoor: "", money: 0, stats: 0, location: CHONGQING, special: true },
 ];

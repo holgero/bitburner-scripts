@@ -185,7 +185,7 @@ function getPossibleFactions(ns, database, factionGoals) {
 	const nKills = ns.getPlayer().numPeopleKilled;
 	const possibleFactions = database.factions.
 		filter(a => !a.gang).
-		filter(a => a.name != c.BLADEBURNERS).
+		filter(a => !a.special).
 		filter(a => c.STORY_LINE.some(b => b.name == a.name)).
 		filter(a => !a.augsNeeded || a.augsNeeded <= nAugs).
 		filter(a => !a.kills || a.kills <= nKills).
