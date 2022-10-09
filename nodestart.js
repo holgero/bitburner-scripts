@@ -1,4 +1,7 @@
 import * as c from "constants.js";
+
+const MAX_TRADER_MONEY = 100e9;
+
 import {
 	runAndWait,
 	goalCompletion,
@@ -76,9 +79,12 @@ async function setUpForCorporations(ns) {
 /** @param {NS} ns **/
 function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
-		if (getBudget(ns, "stocks") < 100e6) {
-			const money = Math.min(100e9, getAvailableMoney(ns) - 10e6);
+		const stockBudget = getBudget(ns, "stocks");
+		const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
+		if (stockBudget < 100e6) {
 			reserveBudget(ns, "stocks", money);
+		} else {
+			reserveBudget(ns, "stocks", Math.min(stockBudget, money));
 		}
 		ns.run("trader.js");
 	}
@@ -93,7 +99,9 @@ async function stopTrader(ns) {
 	if (ns.stock.hasTIXAPIAccess()) {
 		await runAndWait(ns, "sell-all-stocks.js");
 	}
-	reserveBudget(ns, "stocks", stockHolding);
+	deleteBudget(ns, "stocks");
+	const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
+	reserveBudget(ns, "stocks", Math.min(stockHolding, money));
 }
 
 /** @param {NS} ns **/
