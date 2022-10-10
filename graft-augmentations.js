@@ -9,7 +9,7 @@ export async function main(ns) {
 		["maxTime", 0],
 		["maxCount", 0],
 		["type", ""]]);
-	if (getAvailableMoney(ns) < 1e15) {
+	if (getAvailableMoney(ns) < 150e12) {
 		ns.tprintf("Too poor");
 		return;
 	}
