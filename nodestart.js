@@ -26,11 +26,6 @@ export async function main(ns) {
 		await runAndWait(ns, "create-database.js");
 		// hacky: create preliminary empty factiongoals
 		await runAndWait(ns, "calculate-goals.js", "--money", 1);
-		ns.write("allowed.txt", JSON.stringify({
-			work: true,
-			travel: true,
-			graft: false
-		}), "w");
 		await startHacking(ns, getProgramCount(ns));
 	}
 
@@ -221,6 +216,11 @@ async function wantToEndRun(ns) {
 		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
 		return true;
 	}
+	const current = ns.singularity.getCurrentWork();
+	if (current != null && current.type == "GRAFTING") {
+		ns.printf("Currently grafting %s", current.augmentation);
+		return false;
+	}
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
 		// avoid ending while there are outstanding shares or
@@ -316,8 +316,11 @@ async function improveInfrastructure(ns, programsOwned) {
 				!ns.scriptRunning("start-hacknet2.js", "home") &&
 				!ns.scriptRunning("start-servers.js", "home") &&
 				!ns.scriptRunning("start-servers2.js", "home")) {
-				await runAndWait(ns, "purchase-cores.js", "--reserve", 100e12);
-				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 100e12);
+				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
+				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
+				ns.tprintf("Have enough money to graft...");
+				await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
+				await runAndWait(ns, "graft-augmentation.js", "--maxCount", 1);
 			}
 	}
 }

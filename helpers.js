@@ -63,16 +63,6 @@ export function millisecondToDHMS(milli) {
 }
 
 /** @param {NS} ns **/
-export function canRunAction(ns, action) {
-	const text = ns.read("allowed.txt");
-	if (!text) {
-		return false;
-	}
-	const config = JSON.parse(text);
-	return config[action];
-}
-
-/** @param {NS} ns **/
 export function getDatabase(ns) {
 	const text = ns.read("database.txt");
 	if (text) {

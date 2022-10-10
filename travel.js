@@ -1,10 +1,10 @@
 import * as c from "./constants.js";
-import { canRunAction } from "./helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	if (!canRunAction(ns, "travel")) {
-		ns.printf("Cannot travel at the moment");
+	const current = ns.singularity.getCurrentWork();
+	if (current != null && current.type == "GRAFTING") {
+		ns.printf("Currently grafting %s", current.augmentation);
 		return;
 	}
 

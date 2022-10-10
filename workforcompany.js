@@ -1,5 +1,3 @@
-import { canRunAction } from "./helpers.js";
-
 /** @param {NS} ns **/
 export async function main(ns) {
 	const options = ns.flags([
@@ -14,14 +12,14 @@ export async function main(ns) {
 	if (!options.work) {
 		return;
 	}
-	if (!canRunAction(ns, "work")) {
-		ns.printf("Cannot work at the moment");
-		return;
-	}
 	const current = ns.singularity.getCurrentWork();
 	if (current != null && current.type == "COMPANY" && current.companyName == options.company) {
 		ns.printf("Already working for %s", current.companyName);
 		toastCompletion(ns, options.company);
+		return;
+	}
+	if (current != null && current.type == "GRAFTING") {
+		ns.printf("Currently grafting %s", current.augmentation);
 		return;
 	}
 	if (ns.singularity.workForCompany(options.company)) {

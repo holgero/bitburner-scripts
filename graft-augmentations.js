@@ -18,13 +18,6 @@ export async function main(ns) {
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
 	augs.reverse();
 	ns.printf("%d augmentations for grafting available", augs.length);
-	if (options.install) {
-		ns.write("allowed.txt", JSON.stringify({
-			work: false,
-			travel: false,
-			graft: true
-		}), "w");
-	}
 	var count = 0;
 	for (var aug of augs) {
 		if (ns.grafting.getAugmentationGraftPrice(aug) > getAvailableMoney(ns)) {
@@ -67,10 +60,5 @@ export async function main(ns) {
 	}
 	if (options.end || options.install) {
 		await runAndWait(ns, "create-database.js");
-		ns.write("allowed.txt", JSON.stringify({
-			work: true,
-			travel: true,
-			graft: false
-		}), "w");
 	}
 }

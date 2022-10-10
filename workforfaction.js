@@ -1,19 +1,19 @@
-import { canRunAction, getDatabase } from "./helpers.js";
+import { getDatabase } from "./helpers.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
 	const factionName = ns.args[0];
-	if (!canRunAction(ns, "work")) {
-		ns.printf("Cannot work at the moment");
-		return;
-	}
 	const current = ns.singularity.getCurrentWork();
 	if (current != null &&
 		current.type == "FACTION" &&
 		current.factionName == factionName
 	) {
 		ns.printf("Already working for %s", current.factionName);
+		return;
+	}
+	if (current != null && current.type == "GRAFTING") {
+		ns.printf("Currently grafting %s", current.augmentation);
 		return;
 	}
 
