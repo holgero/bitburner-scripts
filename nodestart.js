@@ -316,8 +316,10 @@ async function improveInfrastructure(ns, programsOwned) {
 				!ns.scriptRunning("start-servers2.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
-				await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
-				startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
+				if (!await wantToEndRun(ns) && !isEndgame(ns)) {
+					await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
+					startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
+				}
 			}
 	}
 }
