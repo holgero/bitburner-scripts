@@ -217,7 +217,6 @@ async function wantToEndRun(ns) {
 	}
 	const current = ns.singularity.getCurrentWork();
 	if (current != null && current.type == "GRAFTING") {
-		ns.printf("Currently grafting %s", current.augmentation);
 		return false;
 	}
 	const corporationInfo = getCorporationInfo(ns);
