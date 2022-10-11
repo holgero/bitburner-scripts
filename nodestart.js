@@ -212,6 +212,7 @@ async function progressHackingLevels(ns) {
 /** @param {NS} ns **/
 async function wantToEndRun(ns) {
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
+		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
 		return true;
 	}
