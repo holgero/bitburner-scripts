@@ -13,8 +13,11 @@ export async function main(ns) {
 	ns.scriptKill(GROW_SCRIPT, "home");
 	ns.scriptKill(HACK_SCRIPT, "home");
 
-	var availableRam = ramAvailable(ns, options.spare);
-	if (availableRam < 0) return;
+	var availableRam = -1;
+	while (availableRam < 0) {
+		availableRam = ramAvailable(ns, options.spare);
+		await ns.sleep(1000);
+	}
 	var serverData = {
 		moneyMin: options.hack ? 0 : ns.getServerMaxMoney(options.target) * 0.75,
 		moneyMax: options.hack ? 0 : ns.getServerMaxMoney(options.target) * 0.95,
