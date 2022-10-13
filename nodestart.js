@@ -178,6 +178,7 @@ async function canSpendMoney(ns) {
 async function progressHackingLevels(ns) {
 	await runAndWait(ns, "start-hacknet.js", 1);
 	var lastHackingLevelRun = 0;
+	var started = new Date();
 	while (true) {
 		await runHomeScripts(ns);
 		const nextProgram = getProgramCount(ns);
@@ -187,7 +188,12 @@ async function progressHackingLevels(ns) {
 		}
 		await purchaseHackingPrograms(ns, nextProgram);
 		if (await wantToEndRun(ns)) {
-			return;
+			if (new Date() - started > 120000) {
+				return;
+			} else {
+				ns.tprintf("Not ending immediately, keeping alive for %d more seconds",
+					-(new Date() - started - 120000) / 1000);
+			}
 		}
 		if (await canSpendMoney(ns)) {
 			await improveInfrastructure(ns, nextProgram);
@@ -218,10 +224,13 @@ async function wantToEndRun(ns) {
 	}
 	const current = ns.singularity.getCurrentWork();
 	if (current != null && current.type == "GRAFTING") {
+		ns.tprint("Grafting, not ending run");
 		return false;
 	}
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
+		ns.tprint("Outstanding shares %d, cooldown %d, not ending run",
+			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown);
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
 		return false;
