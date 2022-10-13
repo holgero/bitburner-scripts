@@ -8,7 +8,7 @@ import {
 import { effortForSkillLevel } from "./skill-helper.js";
 import * as c from "/constants.js";
 
-const MIN_MONEY = 100e6;
+const MIN_MONEY = 1e9;
 const MAX_MONEY = 500e12;
 const MAX_EFFORT = 1e15;
 const MAX_AUGS = 12;
