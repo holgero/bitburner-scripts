@@ -160,10 +160,14 @@ export function statsGainFactor(ns) {
 
 /** @param {NS} ns **/
 export async function runAndWait(ns, script, ...args) {
-	ns.run(script, 1, ...args);
-	while (ns.scriptRunning(script, "home")) {
+	const pid = ns.run(script, 1, ...args);
+	if (!pid) {
+		return false;
+	}
+	while (ns.isRunning(pid)) {
 		await ns.sleep(100);
 	}
+	return true;
 }
 
 /** @param {NS} ns **/
