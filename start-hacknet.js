@@ -14,14 +14,17 @@ export async function main(ns) {
 		}
 	}
 	var levelMultiplier;
+	var levelAddon;
 	var coreMultiplier;
 	var ramMultiplier;
 	if (database.ownedSourceFiles && database.ownedSourceFiles.find(a => a.n == 9)) {
 		levelMultiplier = 6.25;
+		levelAddon = 0;
 		ramMultiplier = 8;
 		coreMultiplier = 1.6;
 	} else {
 		levelMultiplier = 25;
+		levelAddon = 25;
 		ramMultiplier = 4;
 		coreMultiplier = 1;
 	}
@@ -35,7 +38,7 @@ export async function main(ns) {
 		return;
 	}
 	var maxNodes = ns.args[0];
-	var maxLevel = Math.round(maxNodes * levelMultiplier);
+	var maxLevel = Math.round(maxNodes * levelMultiplier + levelAddon);
 	var maxRam = Math.round(ns.args[0] * ramMultiplier);
 	if (options.maxram) {
 		maxRam = MAX_RAM;
