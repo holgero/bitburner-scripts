@@ -48,7 +48,7 @@ async function trade(ns, options) {
 	});
 	for (var ii = 0; ii < options.size; ii++) {
 		await updateStocks(ns, options, db);
-		ns.tprintf("Collected %d of %d prices", ii + 1, options.size);
+		ns.printf("Collected %d of %d prices", ii + 1, options.size);
 	}
 	const portfolio = [];
 
@@ -109,7 +109,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		}
 		const moneySpent = boughtPrice * shares + COMISSION;
 		if (!useBudget(ns, options.budgetName, moneySpent)) {
-			ns.tprintf("Failed to use budget");
+			ns.printf("Failed to use budget");
 			break;
 		}
 		ns.printf("Bought %d shares of %s at %s", shares, stockToBuy.symbl, formatMoney(boughtPrice));
