@@ -18,7 +18,8 @@ export function getAugmentationPrios(ns) {
 		prios.push(...AUGMENTATION_NORMAL_PRIO);
 	}
 	const database = getDatabase(ns);
-	if (database.bitnodemultipliers.HacknetNodeMoney <= 0) {
+	if (database.bitnodemultipliers &&
+		database.bitnodemultipliers.HacknetNodeMoney <= 0) {
 		// hacknet stuff is worthless, delete it from prios
 		prios = prios.filter(a => a != "Hacknet");
 	}
@@ -212,7 +213,7 @@ export async function findBestAugmentations(ns) {
 			filterExpensiveAugmentations(ns, augmentations, money, prios);
 			if (augmentations.length > solution.length) {
 				ns.printf("solution with prios %s has %d augs", prios, augmentations.length);
-				ns.printf(">>>%s", augmentations.map(a=>a.name));
+				ns.printf(">>>%s", augmentations.map(a => a.name));
 				solution = augmentations;
 			}
 			if (augmentations.length > 0) {
@@ -221,7 +222,7 @@ export async function findBestAugmentations(ns) {
 				break;
 			}
 			await ns.sleep(1);
-		} 
+		}
 		prios.pop();
 	}
 	return solution;

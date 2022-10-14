@@ -4,13 +4,23 @@ export function effortForSkillLevel(ns, database, skill, level) {
 	const playerMult = player.mults[skill];
 	const bitnodeMult = getBitnodeMultiplier(ns, database, skill);
 	const multiplier = playerMult * bitnodeMult;
-	const nextExp = ns.formulas.skills.calculateExp(level, multiplier);
-	const currentExp = player.exp[skill];
-	return Math.max(0, nextExp - currentExp) / player.mults[skill + "_exp"];
+	if (player.skills.intelligence) {
+		const nextExp = ns.formulas.skills.calculateExp(level, multiplier);
+		const currentExp = player.exp[skill];
+		return Math.max(0, nextExp - currentExp) / player.mults[skill + "_exp"];
+	} else {
+		// just make up some number that increases with the skill level difference
+		const skillDiff = Math.max(0, skill - player.skills[skill]);
+		const weightedDiff = skillDiff / playerMult / bitnodeMult / player.mults[skill + "_exp"];
+		return Math.pow(weightedDiff, 4);
+	}
 }
 
 /** @param {NS} ns **/
 function getBitnodeMultiplier(ns, database, skill) {
+	if (!database.bitnodemultipliers) {
+		return 1.0;
+	}
 	switch (skill) {
 		case "hacking": return database.bitnodemultipliers.HackingLevelMultiplier;
 		case "strength": return database.bitnodemultipliers.StrengthLevelMultiplier;

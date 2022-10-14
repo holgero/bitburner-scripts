@@ -5,6 +5,13 @@ const POOR_MAN = 1e9;
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const database = getDatabase(ns);
+	if (ns.getPlayer().bitNodeN != 10 &&
+		(!database.ownedSourceFiles ||
+			!database.ownedSourceFiles.find(a => a.n == 10))) {
+		// ns.printf("No access to sleeve API");
+		return;
+	}
 	if (ns.sleeve.getNumSleeves() <= 0) {
 		return;
 	}
