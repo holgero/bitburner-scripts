@@ -1,5 +1,13 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const options = ns.flags([["on-idle", false]]);
+	if (options["on-idle"]) {
+		const current = ns.singularity.getCurrentWork();
+		if (current != null && current.type != "CRIME") {
+			// busy
+			return;
+		}
+	}
 	for (var crime of [ "HOMICIDE", "MUG", "SHOPLIFT"]) {
 		if (ns.singularity.getCrimeChance(crime) >= 0.5) {
 			commitCrime(ns, crime);
