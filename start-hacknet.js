@@ -23,10 +23,10 @@ export async function main(ns) {
 		ramMultiplier = 8;
 		coreMultiplier = 1.6;
 	} else {
-		levelMultiplier = 25;
+		levelMultiplier = 12.5;
 		levelAddon = 25;
-		ramMultiplier = 4;
-		coreMultiplier = 1;
+		ramMultiplier = 2;
+		coreMultiplier = 0.5;
 	}
 
 	if (ns.scriptRunning(scriptName, scriptHost)) {
@@ -45,7 +45,7 @@ export async function main(ns) {
 	}
 	var maxCore = Math.round(ns.args[0] * coreMultiplier);
 
-	if (getHacknetProfitability(ns) < 0.25) {
+	if (getHacknetProfitability(ns) < 0.5) {
 		maxNodes = Math.min(4, maxNodes);
 		maxLevel = Math.min(25, maxLevel);
 		maxRam = Math.min(4, maxRam);
