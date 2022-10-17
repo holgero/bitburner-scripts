@@ -7,14 +7,14 @@ const BA_COURSES = ["Leadership", "Management"];
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["course", "CS"], ["focus", "false"]]);
+	const options = ns.flags([["course", "CS"], ["focus", "false"], ["negative", false]]);
 	const focus = JSON.parse(options.focus);
 	var courses;
 	var classType;
 	switch (options.course) {
 		case "CS":
 			classType = "STUDYCOMPUTERSCIENCE";
-			if (getAvailableMoney(ns) > 1e9) {
+			if (getAvailableMoney(ns) > 1e9 || options.negative) {
 				courses = CS_COURSES;
 			} else {
 				courses = CHEAP_CS_COURSES;
