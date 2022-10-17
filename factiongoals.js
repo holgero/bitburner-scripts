@@ -37,23 +37,26 @@ export async function main(ns) {
 	if (goalCompletion(ns, config.factionGoals) < 1) {
 		// did not manage to complete goals, force a recalculation on next run
 		ns.write("factiongoals.txt", JSON.stringify({}), "w");
-		await runAndWait(ns, "commit-crimes.js");
 	}
+	await runAndWait(ns, "commit-crimes.js", "--on-idle");
 }
 
 /** @param {NS} ns **/
 async function prepareGoalWork(ns) {
 	var focus = ns.singularity.isFocused();
-	// first make sure we have some money
+	// first hacking level to fifty
+	while (ns.getPlayer().skills.hacking < 50) {
+		await runAndWait(ns, "university.js",
+			"--course", "CS",
+			"--negative",
+			"--focus", JSON.stringify(focus));
+		await ns.sleep(60000);
+		focus = ns.singularity.isFocused();
+	}
+	// then make sure we have a little bit of money
 	while (getAvailableMoney(ns) < 500e3) {
 		await runAndWait(ns, "commit-crimes.js");
 		await ns.sleep(60000);
-	}
-	// now get hacking level to fifty
-	while (ns.getPlayer().skills.hacking < 50) {
-		await runAndWait(ns, "university.js", "--course", "CS", "--focus", JSON.stringify(focus));
-		await ns.sleep(60000);
-		focus = ns.singularity.isFocused();
 	}
 }
 
@@ -152,11 +155,8 @@ async function workOnGoal(ns, database, goal, percentage, goals, config) {
 				return;
 			}
 		}
-		// how to spend our time
-		if (!ns.singularity.isBusy()) {
-			// default way to spend the time is to commit a few crimes
-			await runAndWait(ns, "commit-crimes.js");
-		}
+		// default way to spend the time is to commit a few crimes
+		await runAndWait(ns, "commit-crimes.js", "--on-idle");
 		if (!goal.backdoor || ns.getServer(goal.backdoor).backdoorInstalled) {
 			ns.printf("At start of checks");
 			if (await buffStatsToNeeded(ns, goal.stats, focus)) {
