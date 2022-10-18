@@ -52,7 +52,7 @@ export async function main(ns) {
 	var toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	const augmentationCount = toPurchase.length;
 	const money = options.money ? options.money : getAvailableMoney(ns, true);
-	const prioritized = getAugmentationPrios(ns).slice(0, 2);
+	const prioritized = getAugmentationPrios(ns).slice(0, 3);
 	if (options.best) {
 		toPurchase = await findBestAugmentations(ns);
 	}
