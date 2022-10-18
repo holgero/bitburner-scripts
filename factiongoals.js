@@ -89,6 +89,5 @@ async function checkForDaedalus(ns, database, config) {
 			estimatedPrice: config.estimatedPrice,
 			estimatedDonations: config.estimatedDonations
 		}), "w");
-		await runAndWait(ns, "print_goals.js");
 	}
 }
