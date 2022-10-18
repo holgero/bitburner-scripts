@@ -5,7 +5,8 @@ import {
 	formatMoney,
 	getAugmentationsToPurchase,
 	filterExpensiveAugmentations,
-	findBestAugmentations
+	findBestAugmentations,
+	getAugmentationPrios
 }
 	from "helpers.js";
 
@@ -51,11 +52,12 @@ export async function main(ns) {
 	var toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
 	const augmentationCount = toPurchase.length;
 	const money = options.money ? options.money : getAvailableMoney(ns, true);
+	const prioritized = getAugmentationPrios(ns).slice(0, 2);
 	if (options.best) {
 		toPurchase = await findBestAugmentations(ns);
 	}
 	if (options.affordable) {
-		filterExpensiveAugmentations(ns, toPurchase, money, ["Hacking", "Bladeburner"]);
+		filterExpensiveAugmentations(ns, toPurchase, money, prioritized);
 	}
 	var factor = 1.0;
 	var sum = 0;
@@ -73,18 +75,27 @@ export async function main(ns) {
 		factor = factor * 1.9;
 	}
 
-	filterExpensiveAugmentations(ns, toPurchase, money, ["Hacking", "Bladeburner"]);
+	filterExpensiveAugmentations(ns, toPurchase, money, prioritized);
 	const affordableAugmentationCount = toPurchase.length;
+	var prioritizedAugmentationCount = 0;
+	for (var augmentation of toPurchase) {
+		if (prioritized.includes(augmentation.type)) {
+			prioritizedAugmentationCount++;
+		}
+	}
 
 	if (options.write) {
 		ns.write("estimate.txt", JSON.stringify({
 			estimatedPrice: sum,
 			augmentationCount: augmentationCount,
 			affordableAugmentationCount: affordableAugmentationCount,
+			prioritizedAugmentationCount: prioritizedAugmentationCount,
 			affordableAugmentations: toPurchase,
 		}), "w");
 	} else {
-		ns.tprintf("Total price: %s, possible augmentations: %s, affordable augmentations %s",
-			formatMoney(sum), augmentationCount, affordableAugmentationCount);
+		ns.tprintf("Total price: %s, possible augmentations: %s, " +
+			"affordable augmentations %s, prioritized augmentations %s",
+			formatMoney(sum), augmentationCount,
+			affordableAugmentationCount, prioritizedAugmentationCount);
 	}
 }

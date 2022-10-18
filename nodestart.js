@@ -167,7 +167,7 @@ async function canSpendMoney(ns) {
 		return completion < 0.8;
 	}
 	const estimation = await getEstimation(ns, false);
-	if (estimation.affordableAugmentationCount >= 7) {
+	if (estimation.prioritizedAugmentationCount >= 6) {
 		// nearly there, no longer spend money
 		return false;
 	}
@@ -245,7 +245,7 @@ async function wantToEndRun(ns) {
 		const completion = goalCompletion(ns, goals);
 		return completion >= 1;
 	}
-	if (estimation.affordableAugmentationCount >= 8) {
+	if (estimation.prioritizedAugmentationCount >= 7) {
 		return true;
 	}
 	return false;
