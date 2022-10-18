@@ -1,18 +1,13 @@
 import { getAvailable, getTotal } from "budget.js";
-
-const AUGMENTATION_NORMAL_PRIO = [
-	"Hacking", "Special", "Reputation", "Hacknet", "Crime", "Company", "Combat", "Bladeburner",
-];
-
-const AUGMENTATION_BLADEBURNER_PRIO = [
-	"Bladeburner", "Combat", "Special", "Crime", "Hacking", "Hacknet", "Reputation", "Company",
-];
+import {
+	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES
+} from "constants.js";
 
 /** @param {NS} ns **/
 export function getAugmentationPrios(ns) {
-	var prios = [];
+	const prios = [];
 	const player = ns.getPlayer();
-	if (player.bitNodeN == 6 || player.bitNodeN == 7 || player.bitNodeN == 11) {
+	if (BLADEBURNER_NODES.includes(player.bitNodeN)) {
 		prios.push(...AUGMENTATION_BLADEBURNER_PRIO);
 	} else {
 		prios.push(...AUGMENTATION_NORMAL_PRIO);
@@ -21,7 +16,7 @@ export function getAugmentationPrios(ns) {
 	if (database.bitnodemultipliers &&
 		database.bitnodemultipliers.HacknetNodeMoney <= 0) {
 		// hacknet stuff is worthless, delete it from prios
-		prios = prios.filter(a => a != "Hacknet");
+		return prios.filter(a => a != "Hacknet");
 	}
 	return prios;
 }

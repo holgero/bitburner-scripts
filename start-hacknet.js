@@ -54,6 +54,7 @@ export async function main(ns) {
 
 	ns.scp(scriptName, scriptHost);
 	ns.scp("helpers.js", scriptHost);
+	ns.scp("constants.js", scriptHost);
 	ns.scp("budget.js", scriptHost);
 	ns.scp("budget.txt", scriptHost);
 	ns.killall(scriptHost);

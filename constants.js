@@ -103,6 +103,14 @@ export const AUGMENTATION_TYPES = [
 	"Special"
 ];
 
+export const AUGMENTATION_NORMAL_PRIO = [
+	"Hacking", "Special", "Reputation", "Hacknet", "Crime", "Company", "Combat", "Bladeburner",
+];
+
+export const AUGMENTATION_BLADEBURNER_PRIO = [
+	"Bladeburner", "Special", "Combat", "Crime", "Hacking", "Hacknet", "Reputation", "Company",
+];
+
 export const BLADEBURNER_NODES = [
 	6, 7, 11, 13
 ];
