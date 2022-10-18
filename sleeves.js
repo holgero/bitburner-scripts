@@ -1,5 +1,5 @@
 import * as c from "constants.js";
-import { getDatabase, getFactiongoals, getAvailableMoney } from "helpers.js";
+import { getDatabase, getFactiongoals, getAvailableMoney, runAndWait } from "helpers.js";
 
 const POOR_MAN = 1e9;
 
@@ -67,9 +67,14 @@ async function runSleeves(ns) {
 			}
 		}
 		ns.print("Available sleeves for company work: ", available);
-		const jobsToWorkFor = goals.factionGoals.
-			filter(a => a.company && !factions.includes(a.name));
+		const jobsToWorkFor = goals.factionGoals.filter(a => a.company);
 		for (var job of jobsToWorkFor) {
+			if (!ns.getPlayer().jobs[job.name]) {
+				await runAndWait(ns, "workforcompany.js",
+					"--apply", "--company", job.name, "--job", "IT");
+			}
+			await runAndWait(ns, "workforcompany.js",
+				"--apply", "--company", job.name, "--job", "Security");
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToCompanyWork(available[idx], job.name)) {
 					ns.printf("Sleeve %d works for company %s", available[idx], job.name);
