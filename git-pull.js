@@ -28,6 +28,7 @@ const FILES = [
 	"estimate.js",
 	"extras.js",
 	"evaluate-traders.js",
+	"factionaction.js",
 	"factiongoals.js",
 	"ganginfo.js",
 	"gangs.js",
