@@ -40,11 +40,11 @@ export async function main(ns) {
 		var hostname = SERVER_PREFIX + "0";
 		var nextRam = 32;
 		if (ns.serverExists(hostname)) {
-			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 8 * ns.getServerMaxRam(hostname));
+			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 4 * ns.getServerMaxRam(hostname));
 		}
 		var money = getAvailableMoney(ns);
 		const multiplier = getHackingProfitability(ns);
-		if (multiplier < 0.25 && player.skills.hacking < 1000 && !options.hack) {
+		if (multiplier < 1 && player.skills.hacking < 1000 && !options.hack) {
 			ns.printf("Reducing money spending according to multiplier %s", multiplier);
 			money *= multiplier;
 		}
@@ -62,11 +62,9 @@ export async function main(ns) {
 		options.upgrade = ns.serverExists(hostname);
 	}
 
-	var currentHackingSkill = player.skills.hacking;
-
 	var victims = VICTIMS.filter(
 		victim => ns.getServer(victim).hasAdminRights &&
-			(ns.getServer(victim).requiredHackingSkill <= currentHackingSkill));
+			(ns.getServer(victim).requiredHackingSkill <= player.skills.hacking));
 	victims.sort((a, b) => ns.getServer(a).moneyMax - ns.getServer(b).moneyMax);
 	if (options.hack) {
 		victims = ["foodnstuff"];

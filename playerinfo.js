@@ -90,10 +90,9 @@ export async function main(ns) {
   const total = getAvailableMoney(ns, true);
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
-
-  ns.tprintf("%30s: Hacking: %s (%s), Hacknet: %s (%s)", "Profitability",
-    getHackingProfitability(ns).toFixed(3), "0.25",
-    getHacknetProfitability(ns).toFixed(3), "0.25"); 
+  ns.tprintf("%30s: Hacking: %s, Hacknet: %s", "Profitability",
+    getHackingProfitability(ns).toFixed(3), 
+    getHacknetProfitability(ns).toFixed(3)); 
 }
 
 function getServerInfo(ns) {
