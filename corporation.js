@@ -119,6 +119,11 @@ function shouldBuy(ns, corporation, target) {
 			getAvailableMoney(ns) + getBudget(ns, "corp"))) {
 		return true;
 	}
+	if (target == 0 &&
+		(corporation.issuedShares * corporation.sharePrice * 1.1 <
+			getAvailableMoney(ns) + getBudget(ns, "corp"))) {
+		return true;
+	}
 	return false;
 }
 
