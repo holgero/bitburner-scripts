@@ -229,7 +229,7 @@ async function wantToEndRun(ns) {
 	}
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
-		ns.tprint("Outstanding shares %d, cooldown %d, not ending run",
+		ns.tprintf("Outstanding shares %d, cooldown %d, not ending run",
 			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown);
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
