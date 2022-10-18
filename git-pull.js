@@ -56,6 +56,7 @@ const FILES = [
 	"rback.js",
 	"rhack.js",
 	"rnuke.js",
+	"rkill.js",
 	"rscan.js",
 	"rscan-spawn.js",
 	"sell-all-stocks.js",
