@@ -102,7 +102,8 @@ export async function getEstimation(ns, goal) {
 
 /** @param {NS} ns **/
 export async function traverse(ns, startServer, known, path, serverProc) {
-	const servers = ns.scan(startServer).filter(a => !known.includes(a));
+	const servers = ns.scan(startServer).
+		filter(a => !known.includes(a) && !a.startsWith("pserv-") && !a.startsWith("hacknet-node-"));
 	for (var server of servers) {
 		known.push(server);
 		path.push(server);
