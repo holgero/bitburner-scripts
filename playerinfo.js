@@ -81,9 +81,10 @@ export async function main(ns) {
   }
   ns.tprintf("%30s: %s", "Karma:", ns.heart.break());
   const estimation = await getEstimation(ns);
-  ns.tprintf("%30s: %d (+%d, affordable %d)", "Augmentations",
+  ns.tprintf("%30s: %d (+%d, affordable %d, with prio %d)", "Augmentations",
     getDatabase(ns).owned_augmentations.length,
-    estimation.augmentationCount, estimation.affordableAugmentationCount);
+    estimation.augmentationCount, estimation.affordableAugmentationCount,
+    estimation.prioritizedAugmentationCount);
   ns.tprintf("%30s: %s", "Server", getServerInfo(ns));
   const current = ns.getServerMoneyAvailable("home");
   const available = getAvailableMoney(ns);
