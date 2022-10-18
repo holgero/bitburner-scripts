@@ -53,6 +53,8 @@ async function prepareGoalWork(ns) {
 		await ns.sleep(60000);
 		focus = ns.singularity.isFocused();
 	}
+	// stop taking courses and start earning money
+	await runAndWait(ns, "commit-crimes.js");
 	// then make sure we have a little bit of money
 	while (getAvailableMoney(ns) < 500e3) {
 		await runAndWait(ns, "commit-crimes.js");
