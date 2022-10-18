@@ -1,7 +1,7 @@
-import { getAvailable, getTotal } from "budget.js";
+import { getAvailable, getTotal } from "/budget.js";
 import {
 	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES
-} from "constants.js";
+} from "/constants.js";
 
 /** @param {NS} ns **/
 export function getAugmentationPrios(ns) {
