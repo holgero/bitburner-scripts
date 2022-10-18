@@ -27,7 +27,9 @@ export async function main(ns) {
 		return;
 	}
 	var config = getFactiongoals(ns);
-	if (!config.factionGoals || goalCompletion(ns, config.factionGoals) >= 1) {
+	if (!config.factionGoals ||
+	 goalCompletion(ns, config.factionGoals) >= 1 ||
+	 goalCompletion(ns, config.factionGoals) < 0.1) {
 		await runAndWait(ns, "calculate-goals.js");
 		config = getFactiongoals(ns);
 	} else {
