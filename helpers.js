@@ -207,9 +207,11 @@ export async function findBestAugmentations(ns) {
 		while (maxPrice > 0) {
 			const augmentations = getAugmentationsToPurchase(ns, database, factions, maxPrice);
 			filterExpensiveAugmentations(ns, augmentations, money, prios);
-			if (augmentations.filter(a => prios.includes(a.type)).length >=
-				solution.filter(a => prios.includes(a.type)).length &&
-				augmentations.length > solution.length) {
+			if ((augmentations.filter(a => prios.includes(a.type)).length >
+				solution.filter(a => prios.includes(a.type)).length) ||
+				(augmentations.filter(a => prios.includes(a.type)).length >=
+					solution.filter(a => prios.includes(a.type)).length &&
+					augmentations.length > solution.length)) {
 				ns.printf("solution with prios %s has %d augs", prios, augmentations.length);
 				ns.printf("and %d prioritized augs", augmentations.filter(a => prios.includes(a.type)).length);
 				ns.printf(">>>%s", augmentations.map(a => a.name));
