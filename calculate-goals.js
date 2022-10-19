@@ -12,7 +12,7 @@ const MAX_EFFORT = 1e15;
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([["dry-run", false], ["money", 0]]);
+	var options = ns.flags([["dry-run", false], ["money", 1e15]]);
 	const database = getDatabase(ns);
 	const factionGoals = [];
 	for (var factionName of ns.getPlayer().factions) {
@@ -30,9 +30,9 @@ export async function main(ns) {
 		}
 	}
 	// ns.tprintf("Faction Goals start: %s", JSON.stringify(factionGoals));
-	const maxPrice = options.money ? options.money : 2 * getAvailableMoney(ns, true);
+	const maxPrice = options.money;
 	var toPurchase = getAugmentationsToPurchase(ns, database, factionGoals, maxPrice);
-	while (factionGoals.filter(a => a.reputation > 0).length < 1) {
+	for (var ii = 0; ii < 3; ii++) {
 		var nextAug = findNextAugmentation(ns, database, factionGoals, maxPrice);
 		// ns.tprintf("Next Aug: %30s %10s %10d %s", nextAug.name, formatMoney(nextAug.price), nextAug.reputation, nextAug.faction.name);
 		if (!nextAug || nextAug == undefined) {
