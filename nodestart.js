@@ -224,12 +224,12 @@ async function wantToEndRun(ns) {
 	}
 	const current = ns.singularity.getCurrentWork();
 	if (current != null && current.type == "GRAFTING") {
-		ns.tprint("Grafting, not ending run");
+		ns.print("Grafting, not ending run");
 		return false;
 	}
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
-		ns.tprintf("Outstanding shares %d, cooldown %d, not ending run",
+		ns.printf("Outstanding shares %d, cooldown %d, not ending run",
 			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown);
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run

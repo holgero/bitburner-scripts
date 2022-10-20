@@ -109,7 +109,7 @@ function removeSmallServers(ns, ram) {
 		if (ns.serverExists(hostname)) {
 			ns.killall(hostname);
 			if (ns.getServer(hostname).maxRam < ram) {
-				ns.tprintf("Removing %s", hostname);
+				ns.printf("Removing %s", hostname);
 				ns.deleteServer(hostname);
 			}
 		}
