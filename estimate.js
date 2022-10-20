@@ -62,15 +62,16 @@ export async function main(ns) {
 	var factor = 1.0;
 	var sum = 0;
 	if (!options.write) {
-		ns.tprintf("%55s  %10s  %10s  %10s", "Augmentation", "Base", "Price", "Total");
+		ns.tprintf("%55s  %10s  %10s  %10s %s", "Augmentation", "Base", "Price", "Total", "Prio");
 	}
 	for (var augmentation of toPurchase) {
 		var toPay = factor * augmentation.price;
 		sum += toPay;
 		if (!options.write) {
-			ns.tprintf("%55s: %10s  %10s  %10s",
+			ns.tprintf("%55s: %10s  %10s  %10s %s",
 				augmentation.name, formatMoney(augmentation.price),
-				formatMoney(toPay), formatMoney(sum));
+				formatMoney(toPay), formatMoney(sum),
+				prioritized.includes(augmentation.type) ? "*" : "");
 		}
 		factor = factor * 1.9;
 	}
