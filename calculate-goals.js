@@ -100,7 +100,8 @@ function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 	var limit = database.favorToDonate;
 	for (var goal of factionGoals) {
 		if (goal.favor < limit) {
-			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name)) {
+			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name) &&
+				ns.singularity.getFactionRep(goal.name) < reputationNeeded(ns, database, goal.name)) {
 				goal.reputation = reputationNeeded(ns, database, goal.name);
 			}
 		}
