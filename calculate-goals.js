@@ -8,7 +8,7 @@ import {
 import { effortForSkillLevel } from "./skill-helper.js";
 import * as c from "/constants.js";
 
-const MAX_EFFORT = 1e15;
+const MAX_EFFORT = 10e15;
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -100,7 +100,8 @@ function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 	var limit = database.favorToDonate;
 	for (var goal of factionGoals) {
 		if (goal.favor < limit) {
-			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name)) {
+			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name) &&
+				ns.singularity.getFactionRep(goal.name) < reputationNeeded(ns, database, goal.name)) {
 				goal.reputation = reputationNeeded(ns, database, goal.name);
 			}
 		}
@@ -137,8 +138,8 @@ function costToGet(ns, database, factionGoals, augmentation) {
 				cost += 1000 * effortForSkillLevel(ns, database, "hacking", faction.hack);
 			}
 			if (faction.company) {
-				cost += 20000 * (100 / (100 + faction.companyFavor)) *
-					Math.max(0, 200000 - ns.singularity.getCompanyRep(factionName)) /
+				cost += 1000 * (100 / (100 + faction.companyFavor)) *
+					Math.max(0, 400000 - ns.singularity.getCompanyRep(factionName)) /
 					player.mults.company_rep;
 			}
 			if (faction.stats) {
