@@ -130,6 +130,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 		var existingGoal = factionGoals.find(a => a.name == factionName && a.reputation > 0);
 		var cost = 100 / (100 + faction.favor) * Math.max(0, augmentation.reputation -
 			Math.max(ns.singularity.getFactionRep(factionName), existingGoal ? existingGoal.reputation : 0));
+		// ns.tprintf("%s, cost is %s", augmentation.name, cost);
 		if (!existingGoal && !player.factions.includes(factionName)) {
 			if (faction.backdoor) {
 				cost += 1000 * effortForSkillLevel(ns, database, "hacking", ns.getServerRequiredHackingLevel(faction.backdoor));
@@ -155,6 +156,8 @@ function costToGet(ns, database, factionGoals, augmentation) {
 		if (cost < bestFactionCost) {
 			bestFactionCost = cost;
 			bestFaction = faction;
+		} else {
+			// ns.tprintf("Too hard to get %s, cost is %s", augmentation.name, cost);
 		}
 	}
 	var cost = bestFactionCost + 0.1 * augmentation.price;
@@ -198,7 +201,7 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 				a.type == prio &&
 				a.factions.some(b => possibleFactions.includes(b)) &&
 				a.price < maxPrice);
-		ns.printf("Candidates with prio %s: %s", prio, JSON.stringify(candidates.map(a => a.name)));
+		// ns.tprintf("Candidates with prio %s: %s", prio, JSON.stringify(candidates.map(a => a.name)));
 		for (var candidate of candidates) {
 			candidate.factions = candidate.factions.filter(a => possibleFactions.includes(a));
 		}
@@ -215,9 +218,11 @@ function findNextAugmentation(ns, database, factionGoals, maxPrice) {
 		}
 	}
 	candidates.sort((a, b) => a.cost - b.cost);
-	ns.printf("Candidates: %s", JSON.stringify(candidates.map(a => {
+	/*
+	ns.tprintf("Candidates: %s", JSON.stringify(candidates.map(a => {
 		return { "name": a.name, "cost": a.cost }
 	})));
+	*/
 	return candidates[0];
 }
 
