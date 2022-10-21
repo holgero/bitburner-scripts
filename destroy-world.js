@@ -24,3 +24,16 @@ export async function main(ns) {
 	}
 	ns.tprintf("Failed to destroy world daemon");
 }
+/*
+function nextBitnode(ns, current, owned) {
+	owned.sort((a,b)=>a.n-b.n);
+	for (var ii=0;ii<=current;ii++) {
+		if (owned[ii].n > ii) {
+			return ii;
+		}
+		if (owned[ii])
+	}
+	if (owned.find(a=>a.n == 1 && a.lvl < 3)) {
+		return 1;
+	}
+} */
