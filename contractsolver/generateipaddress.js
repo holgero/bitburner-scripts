@@ -27,7 +27,7 @@ export function generateIpAddress(input) {
 			}
 		}
 	}
-	return result;
+	return result.toString();
 }
 
 function isValidOctet(octet) {
