@@ -10,8 +10,10 @@ export function effortForSkillLevel(ns, database, skill, level) {
 		return Math.max(0, nextExp - currentExp) / player.mults[skill + "_exp"];
 	} else {
 		// just make up some number that increases with the skill level difference
-		const skillDiff = Math.max(0, skill - player.skills[skill]);
+		const skillDiff = Math.max(0, level - player.skills[skill]);
+		// ns.tprintf("Skill diff for %s: %s", skill, skillDiff);
 		const weightedDiff = skillDiff / playerMult / bitnodeMult / player.mults[skill + "_exp"];
+		// ns.tprintf("Weighted diff: %s", weightedDiff);
 		return Math.pow(weightedDiff, 4);
 	}
 }
