@@ -48,6 +48,7 @@ const FILES = [
 	"plan-augmentations.js",
 	"playerinfo.js",
 	"print_goals.js",
+	"purchase-stock-api.js",
 	"purchase-augmentations.js",
 	"purchase-cores.js",
 	"purchase-ram.js",
