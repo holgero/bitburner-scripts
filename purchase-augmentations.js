@@ -1,5 +1,4 @@
 import { getAvailableMoney, runAndWait } from "helpers.js";
-import { GOVERNOR } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -22,6 +21,7 @@ export async function main(ns) {
 	await runAndWait(ns, "purchase-ram.js", "--unlimited");
 	await runAndWait(ns, "governors.js");
 	await runAndWait(ns, "purchase-sleeve-augs.js");
+	await runAndWait(ns, "purchase-stock-api.js");
 	
 	if (options.reboot) {
 		ns.spawn("reset.js");
