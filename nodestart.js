@@ -65,6 +65,8 @@ async function setUpForCorporations(ns) {
 			if (ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) > 150e9) {
 				await killOthers(ns);
 				ns.run("corporation.js");
+				// give it a chance to run before trader
+				await ns.sleep(10000);
 				return;
 			}
 		}
@@ -75,6 +77,7 @@ async function setUpForCorporations(ns) {
 function startTrader(ns) {
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
 		const stockBudget = getBudget(ns, "stocks");
+		deleteBudget(ns, "stocks");
 		const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
 		if (stockBudget < 100e6) {
 			reserveBudget(ns, "stocks", money);
