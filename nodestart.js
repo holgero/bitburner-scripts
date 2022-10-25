@@ -156,8 +156,8 @@ function isEndgame(ns) {
 }
 
 /** @param {NS} ns **/
-async function canSpendMoney(ns) {
-	if (await wantToEndRun(ns)) {
+async function canSpendMoney(ns, started) {
+	if (await wantToEndRun(ns, started)) {
 		return false;
 	}
 	if (getAvailableMoney(ns) > 1e15) {
@@ -172,6 +172,14 @@ async function canSpendMoney(ns) {
 	const estimation = await getEstimation(ns, false);
 	if (estimation.prioritizedAugmentationCount >= 6) {
 		// nearly there, no longer spend money
+		return false;
+	}
+	if (estimation.affordableAugmentationCount >= 11) {
+		// nearly there, no longer spend money
+		return false;
+	}
+	if (new Date() - started > 22 * 60 * 60 * 1000) {
+		// nearly runs for a day, stop spending money
 		return false;
 	}
 	return true;
@@ -190,16 +198,11 @@ async function progressHackingLevels(ns) {
 			lastHackingLevelRun = nextProgram;
 		}
 		await purchaseHackingPrograms(ns, nextProgram);
-		if (await wantToEndRun(ns)) {
-			if (new Date() - started > 120000) {
-				return;
-			} else {
-				ns.tprintf("Not ending immediately, keeping alive for %d more seconds",
-					-(new Date() - started - 120000) / 1000);
-			}
+		if (await wantToEndRun(ns, started)) {
+			return;
 		}
-		if (await canSpendMoney(ns)) {
-			await improveInfrastructure(ns, nextProgram);
+		if (await canSpendMoney(ns, started)) {
+			await improveInfrastructure(ns, nextProgram, started);
 		} else {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
@@ -219,7 +222,11 @@ async function progressHackingLevels(ns) {
 }
 
 /** @param {NS} ns **/
-async function wantToEndRun(ns) {
+async function wantToEndRun(ns, started) {
+	if (new Date() - started < 120000) {
+		ns.printf("Not ending directly after start.");
+		return false;
+	}
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
@@ -251,6 +258,13 @@ async function wantToEndRun(ns) {
 	if (estimation.prioritizedAugmentationCount >= 7) {
 		return true;
 	}
+	if (estimation.affordableAugmentationCount >= 12) {
+		return true;
+	}
+	if (new Date() - started > 24 * 60 * 60 * 1000) {
+		// already runs for a day, do a reboot
+		return true;
+	}
 	return false;
 }
 
@@ -278,7 +292,7 @@ async function purchaseHackingPrograms(ns, nextProgram) {
 }
 
 /** @param {NS} ns **/
-async function improveInfrastructure(ns, programsOwned) {
+async function improveInfrastructure(ns, programsOwned, started) {
 	await runAndWait(ns, "start-hacknet.js", programsOwned);
 
 	switch (programsOwned) {
@@ -329,7 +343,7 @@ async function improveInfrastructure(ns, programsOwned) {
 				!ns.scriptRunning("start-servers2.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
-				if (!await wantToEndRun(ns) && !isEndgame(ns)) {
+				if (!await wantToEndRun(ns, started) && !isEndgame(ns)) {
 					await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
 					startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
 				}
