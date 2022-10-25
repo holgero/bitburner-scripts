@@ -12,10 +12,6 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
 	const database = getDatabase(ns);
-	if (database.owned_augmentations.includes(c.RED_PILL)) {
-		ns.printf("Already have the %s", c.RED_PILL);
-		return;
-	}
 	const player = ns.getPlayer();
 	if (c.BLADEBURNER_NODES.includes(player.bitNodeN) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
