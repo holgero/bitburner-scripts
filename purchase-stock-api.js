@@ -1,7 +1,7 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	ns.stock.purchaseWseAccount();
-	ns.stock.purchaseTixApi();
-	ns.stock.purchase4SMarketData();
-	ns.stock.purchase4SMarketDataTixApi();
+	if (!ns.stock.purchaseWseAccount()) return;
+	if (!ns.stock.purchaseTixApi()) return;
+	if (!ns.stock.purchase4SMarketData()) return;
+	if (!ns.stock.purchase4SMarketDataTixApi()) return;
 }
