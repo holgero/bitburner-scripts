@@ -10,6 +10,9 @@ export async function main(ns) {
 		ns.printf("Cannot do gangs on bitnodes other than 2 with a karma of %s", ns.heart.break());
 		return;
 	}
+	if (ns.singularity.checkFactionInvitations().includes(c.NITESEC)) {
+		ns.singularity.joinFaction(c.NITESEC);
+	}
 	if (!ns.getPlayer().factions.includes(c.NITESEC)) {
 		ns.printf("Need to be in %s first", c.NITESEC);
 		return;
