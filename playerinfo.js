@@ -8,6 +8,7 @@ import {
   getHackingProfitability,
   getHacknetProfitability
 } from "/helpers.js";
+import * as c from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -23,9 +24,8 @@ export async function main(ns) {
   ns.tprintf("%30s: %s", "Play time since Aug", millisecondToDHMS(playerInfo.playtimeSinceLastAug));
   ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(playerInfo.playtimeSinceLastBitnode));
   ns.tprintf("%30s: %s", "Total play time", millisecondToDHMS(playerInfo.totalPlaytime));
-  if (playerInfo.tor) {
-    ns.tprintf("%30s: %s", "Tor router", "yes");
-  }
+  const progCount = c.programs.filter(a => ns.fileExists(a.name)).reduce((prev, a) => prev + 1, 0);
+  ns.tprintf("%30s: %d/5 %s", "Hacking tools", progCount, playerInfo.tor ? "*" : "");
   if (playerInfo.inBladeburner) {
     const currentAction = ns.bladeburner.getCurrentAction();
     ns.tprintf("%30s: %s: %s", "Bladeburner", currentAction.type, currentAction.name);
@@ -92,8 +92,8 @@ export async function main(ns) {
   ns.tprintf("%30s: current: %s, available: %s, total: %s",
     "Money", formatMoney(current), formatMoney(available), formatMoney(total));
   ns.tprintf("%30s: Hacking: %s, Hacknet: %s", "Profitability",
-    getHackingProfitability(ns).toFixed(3), 
-    getHacknetProfitability(ns).toFixed(3)); 
+    getHackingProfitability(ns).toFixed(3),
+    getHacknetProfitability(ns).toFixed(3));
 }
 
 function getServerInfo(ns) {
