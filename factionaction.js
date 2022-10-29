@@ -31,7 +31,8 @@ async function workOnGoal(ns, goal, config) {
 		}
 	}
 	const goalRep = goal.reputation + (goal.company ? 400e3 : 0);
-	const repReached = ns.singularity.getFactionRep(goal.name) + (goal.company ? ns.singularity.getCompanyRep(goal.name) : 0);
+	const repReached = ns.singularity.getFactionRep(goal.name) +
+		(goal.company ? Math.min(400e3, ns.singularity.getCompanyRep(goal.name)) : 0);
 	if (repReached > goalRep) {
 		return;
 	}
