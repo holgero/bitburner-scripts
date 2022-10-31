@@ -316,20 +316,16 @@ async function improveInfrastructure(ns, programsOwned, started) {
 					await runAndWait(ns, "start-servers.js", "--auto-upgrade");
 				}
 			}
+			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns)/2);
 			if (getAvailableMoney(ns) < 1e9) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 256);
 				await runAndWait(ns, "start-hacknet.js", 6);
 			} else if (getAvailableMoney(ns) < 200e9) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 512);
 				await runAndWait(ns, "start-hacknet.js", 8);
 			} else if (getAvailableMoney(ns) < 1e12) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 				await runAndWait(ns, "start-hacknet.js", 9);
 			} else if (getAvailableMoney(ns) < 50e12) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 8192);
 				await runAndWait(ns, "start-hacknet.js", 10);
 			} else if (getAvailableMoney(ns) < 1e15) {
-				await runAndWait(ns, "purchase-ram.js", "--goal", 4 * 8192);
 				await runAndWait(ns, "start-hacknet.js", 12);
 			} else if (getAvailableMoney(ns) < 1e18) {
 				await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
