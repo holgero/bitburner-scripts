@@ -11,9 +11,16 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function selectGoal(ns, config) {
-	const factions = ns.getPlayer().factions;
-	const goals = config.factionGoals.filter(a => a.reputation &&
-		(a.company || factions.includes(a.name)));
+	const player = ns.getPlayer();
+	const factions = player.factions;
+	const companyGoals = config.factionGoals.
+		filter(a => a.reputation && a.company &&
+			!factions.includes(a.name) && player.skills.hacking >= a.hack);
+	if (companyGoals.length > 0) {
+		return companyGoals[0];
+	}
+	const goals = config.factionGoals.
+		filter(a => a.reputation && factions.includes(a.name));
 	goals.forEach(a => a.achieved = ns.singularity.getFactionRep(a.name));
 	goals.sort((a, b) => (a.reputation - a.achieved) - (b.reputation - b.achieved));
 	goals.reverse();
