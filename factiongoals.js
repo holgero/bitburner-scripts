@@ -24,8 +24,9 @@ export async function main(ns) {
 	}
 	var config = getFactiongoals(ns);
 	if (!config.factionGoals ||
-	 goalCompletion(ns, config.factionGoals) >= 1 ||
-	 goalCompletion(ns, config.factionGoals) < 0.1) {
+		goalCompletion(ns, config.factionGoals) >= 1 ||
+		goalCompletion(ns, config.factionGoals) < 0.1 ||
+		config.factionGoals.some(a => a.reputation && database.factions.find(b => b.name == a.name).gang)) {
 		await runAndWait(ns, "calculate-goals.js");
 		config = getFactiongoals(ns);
 	} else {
