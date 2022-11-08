@@ -25,7 +25,7 @@ export async function main(ns) {
 /** @param {NS} ns */
 function nextBitnode(ns, current, owned) {
 	const thisNode = owned.find(a => a.n == current);
-	if (thisNode.lvl < 2) {
+	if (!thisNode || thisNode.lvl < 2) {
 		return current;
 	}
 	if (thisNode.n == 12 && thisNode.lvl < 50) {
