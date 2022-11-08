@@ -261,6 +261,11 @@ async function wantToEndRun(ns, started) {
 	if (estimation.affordableAugmentationCount >= 12) {
 		return true;
 	}
+	if (estimation.affordableAugmentationCount > 0 &&
+		estimation.affordableAugmentationCount >= getDatabase(ns).augmentations.length) {
+		// get the last augmentations
+		return true;
+	}
 	if (new Date() - started > 24 * 60 * 60 * 1000) {
 		// already runs for a day, do a reboot
 		return true;
@@ -316,7 +321,7 @@ async function improveInfrastructure(ns, programsOwned, started) {
 					await runAndWait(ns, "start-servers.js", "--auto-upgrade");
 				}
 			}
-			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns)/2);
+			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
 			if (getAvailableMoney(ns) < 1e9) {
 				await runAndWait(ns, "start-hacknet.js", 6);
 			} else if (getAvailableMoney(ns) < 200e9) {
