@@ -11,11 +11,21 @@ if [ -n "$MISSING" ] ; then
 fi
 
 MISSING=$( (
-	sed -n '/CONTRACTSOLVER/,/BASEURL/s/^[ \t]*"\(\S*\)"[],;]*/\1/p' git-pull.js
+	sed -n '/CONTRACTSOLVER/,/DATABASE/s/^[ \t]*"\(\S*\)"[],;]*/\1/p' git-pull.js
 	(cd contractsolver;ls *.js)
 ) | sort | uniq -c | grep -v ' 2 ')
 
 if [ -n "$MISSING" ] ; then
   echo "Contractsolver files are missing from git-pull.js:" $MISSING
+  exit 1
+fi
+
+MISSING=$( (
+	sed -n '/DATABASE/,/BASEURL/s/^[ \t]*"\(\S*\)"[],;]*/\1/p' git-pull.js
+	(cd database;ls *.js)
+) | sort | uniq -c | grep -v ' 2 ')
+
+if [ -n "$MISSING" ] ; then
+  echo "DATABASE files are missing from git-pull.js:" $MISSING
   exit 1
 fi

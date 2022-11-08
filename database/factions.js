@@ -4,7 +4,7 @@ import * as c from "constants.js";
 export async function main(ns) {
 	const database = JSON.parse(ns.read("database.txt"));
 	buildFactionAugmentations(ns, database.factions, database.owned_augmentations);
-	await ns.write("database.txt", JSON.stringify(database), "w");
+	ns.write("database.txt", JSON.stringify(database), "w");
 }
 
 /** @param {NS} ns **/

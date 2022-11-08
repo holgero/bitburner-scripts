@@ -8,14 +8,6 @@ const FILES = [
 	"budget-main.js",
 	"calculate-goals.js",
 	"clean-files.js",
-	"create-database1.js",
-	"create-database2.js",
-	"create-database3.js",
-	"create-database4.js",
-	"create-database5.js",
-	"create-database6.js",
-	"create-database7.js",
-	"create-database.js",
 	"destroy-world.js",
 	"commit-crimes.js",
 	"constants.js",
@@ -103,6 +95,17 @@ const CONTRACTSOLVER = [
 	"subarraysum.js",
 	"totalwaystosum.js",
 	"validexpressions.js"];
+const DATABASE = [
+	"create.js",
+	"create-schema.js",
+	"owned-augmentations.js",
+	"factions.js",
+	"factions-info.js",
+	"augmentations.js",
+	"augmentations-types.js",
+	"augmentations-requirements.js",
+	"sourcefiles.js",
+];
 const BASEURL = "https://raw.githubusercontent.com/holgero/bitburner-scripts/main/";
 
 /** @param {NS} ns */
@@ -119,6 +122,10 @@ export async function main(ns) {
 		for (var file of CONTRACTSOLVER) {
 			ns.tprintf("Fetching %s", file);
 			await ns.wget(BASEURL + "contractsolver/" + file, "/contractsolver/" + file);
+		}
+		for (var file of DATABASE) {
+			ns.tprintf("Fetching %s", file);
+			await ns.wget(BASEURL + "database/" + file, "/database/" + file);
 		}
 	}
 }

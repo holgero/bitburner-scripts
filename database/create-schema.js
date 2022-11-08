@@ -1,7 +1,7 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const database = {
-		owned_augmentations: ns.singularity.getOwnedAugmentations(false),
+		owned_augmentations: [],
 		factions: [],
 		augmentations: [],
 		favorToDonate: 150

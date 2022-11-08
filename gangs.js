@@ -20,7 +20,7 @@ export async function main(ns) {
 	if (!ns.gang.inGang()) {
 		if (ns.gang.createGang(c.NITESEC)) {
 			ns.tprintf("Created gang with %s", c.NITESEC);
-			await runAndWait(ns, "create-database.js");
+			await runAndWait(ns, "database/create.js");
 		} else {
 			ns.tprintf("Failed to create gang with %s", c.NITESEC);
 			return;
