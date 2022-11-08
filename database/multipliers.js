@@ -7,8 +7,6 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function getMissingInfo(ns, database) {
-	database.ownedSourceFiles = ns.singularity.getOwnedSourceFiles();
-
 	if (ns.getPlayer().bitNodeN == 5 || database.ownedSourceFiles.map(a=>a.n).includes(5)) {
 		database.bitnodemultipliers = ns.getBitNodeMultipliers();
 	}
