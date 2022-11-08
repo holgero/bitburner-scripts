@@ -19,8 +19,10 @@ async function runBack(ns, server, known, path) {
 		const hackingLevel = ns.getHackingLevel();
 		if (ns.getServerRequiredHackingLevel(server) <= hackingLevel) {
 			if (!ns.getServer(server).backdoorInstalled) {
-				await runAndWait(ns, "installbackdoor.js", JSON.stringify(path));
-				ns.tprintf("connect %s;backdoor;home", path.join(";connect "))
+				if (!await runAndWait(ns, "installbackdoor.js", JSON.stringify(path))) {
+					ns.tprintf("connect %s;backdoor;home", path.join(";connect "))
+					// ns.spawn("installbackdoor.js", 1, JSON.stringify(path));
+				}
 			}
 		}
 	}
