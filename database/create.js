@@ -5,6 +5,7 @@ export async function main(ns) {
 	while (!(await runAndWait(ns, "database/create-schema.js") &&
 		await runAndWait(ns, "database/sourcefiles.js") &&
 		await runAndWait(ns, "database/multipliers.js") &&
+		await runAndWait(ns, "database/features.js") &&
 		await runAndWait(ns, "database/owned-augmentations.js") &&
 		await runAndWait(ns, "database/factions.js") &&
 		await runAndWait(ns, "database/factions-info.js") &&

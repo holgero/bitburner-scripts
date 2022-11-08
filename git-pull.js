@@ -106,6 +106,7 @@ const DATABASE = [
 	"augmentations-requirements.js",
 	"sourcefiles.js",
 	"multipliers.js",
+	"features.js",
 ];
 const BASEURL = "https://raw.githubusercontent.com/holgero/bitburner-scripts/main/";
 

@@ -93,6 +93,15 @@ export const programs = [
 	{ name: "SQLInject.exe", level: 750, cost: 250000000 }
 ];
 
+export const FEATURES = {
+	gangs: { sourceFile: 2 },
+	corporation: { sourceFile: 3 },
+	bladeburners: { sourceFile: 6 },
+	hacknet: { sourceFile: 9 },
+	sleeves: { sourceFile: 10 },
+	church: { sourceFile: 13 },
+}
+
 export const AUGMENTATION_TYPES = [
 	"Bladeburner",
 	"Combat",
