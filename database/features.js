@@ -15,11 +15,7 @@ function getMissingInfo(ns, database) {
 		if (haveSourceFile(database.ownedSourceFiles, feature.sourceFile) ||
 			amOnBitnode(ns, feature.sourceFile)) {
 			// ns.tprintf("Yes");
-			if (database.features) {
-				database.features.push(featureName);
-			} else {
-				database.features = [featureName];
-			}
+			database.features.push(featureName);
 		}
 	}
 }

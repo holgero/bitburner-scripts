@@ -4,7 +4,8 @@ export async function main(ns) {
 		owned_augmentations: [],
 		factions: [],
 		augmentations: [],
-		favorToDonate: 150
+		favorToDonate: 150,
+		features: [],
 	};
 	ns.write("database.txt", JSON.stringify(database), "w");
 }
