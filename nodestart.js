@@ -114,6 +114,7 @@ async function stopTrader(ns) {
 
 /** @param {NS} ns **/
 async function runHomeScripts(ns) {
+	const database = getDatabase(ns);
 	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8 ||
 		(ns.getServerMaxRam("home") > 32 &&
@@ -121,18 +122,24 @@ async function runHomeScripts(ns) {
 		startTrader(ns);
 	}
 	await ns.sleep(1000);
-	startHomeScript(ns, "bladeburner.js");
-	await ns.sleep(1000);
-	if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
-		startHomeScript(ns, "joinbladeburner.js", "--division", "--faction");
+	if (database.features.bladeburner) {
+		startHomeScript(ns, "bladeburner.js");
+		await ns.sleep(1000);
+		if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
+			startHomeScript(ns, "joinbladeburner.js", "--division", "--faction");
+		}
+		await ns.sleep(1000);
 	}
-	await ns.sleep(1000);
 	startHomeScript(ns, "factiongoals.js");
 	await ns.sleep(1000);
-	startHomeScript(ns, "sleeves.js");
-	await ns.sleep(1000);
-	startHomeScript(ns, "gangs.js");
-	await ns.sleep(1000);
+	if (database.features.sleeves) {
+		startHomeScript(ns, "sleeves.js");
+		await ns.sleep(1000);
+	}
+	if (database.features.gangs) {
+		startHomeScript(ns, "gangs.js");
+		await ns.sleep(1000);
+	}
 	if (goForHacking(ns)) {
 		if (ns.isRunning("instrument.js", "home")) {
 			ns.scriptKill("instrument.js", "home");
