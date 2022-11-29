@@ -48,6 +48,7 @@ async function killOthers(ns) {
 	ns.scriptKill("joinbladeburner.js", "home");
 	ns.scriptKill("bladeburner.js", "home");
 	ns.scriptKill("corporation.js", "home");
+	await runAndWait(ns, "corpstart.js", "--stop");
 	ns.scriptKill("do-weaken.js", "home");
 	ns.scriptKill("do-hack.js", "home");
 	ns.scriptKill("do-grow.js", "home");
@@ -55,19 +56,28 @@ async function killOthers(ns) {
 }
 
 async function setUpForCorporations(ns) {
-	if (ns.getPlayer().bitNodeN == 8) {
+	const bitNode = ns.getPlayer().bitNodeN;
+	if (bitNode == 8) {
 		return;
 	}
-	if ((ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) > 150e9) &&
+	if ((ns.getPlayer().hasCorporation ||
+		getAvailableMoney(ns, true) > 150e9 ||
+		bitNode == 3) &&
 		!ns.scriptRunning("corporation.js", "home")) {
 		await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
-			if (ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) > 150e9) {
+			if (ns.getPlayer().hasCorporation ||
+				getAvailableMoney(ns, true) > 150e9 ||
+				bitNode == 3) {
 				await killOthers(ns);
 				ns.run("corporation.js");
 				// give it a chance to run before trader
 				await ns.sleep(10000);
 				return;
+			}
+		} else {
+			if (bitNode == 3) {
+				ns.run("corpstart.js");
 			}
 		}
 	}
@@ -238,7 +248,7 @@ async function wantToEndRun(ns, started) {
 		return false;
 	}
 	const corporationInfo = getCorporationInfo(ns);
-	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 0) {
+	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 500) {
 		ns.printf("Outstanding shares %d, cooldown %d, not ending run",
 			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown);
 		// avoid ending while there are outstanding shares or
