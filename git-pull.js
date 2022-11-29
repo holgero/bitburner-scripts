@@ -12,6 +12,7 @@ const FILES = [
 	"commit-crimes.js",
 	"constants.js",
 	"corporation.js",
+	"corpstart.js",
 	"corpinfo.js",
 	"do-grow.js",
 	"do-hack.js",
