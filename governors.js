@@ -1,4 +1,4 @@
-import { getAvailableMoney, getDatabase, runAndWait } from "helpers.js";
+import { getAvailableMoney, getDatabase, formatMoney } from "helpers.js";
 import { GOVERNOR, BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns */
@@ -18,7 +18,8 @@ export async function main(ns) {
 	
 	while (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {
 		if (ns.singularity.purchaseAugmentation(governor_faction, GOVERNOR)) {
-			ns.tprintf("Bought governor, money left: %d", getAvailableMoney(ns, true));
+			ns.tprintf("Bought governor, money left: %s",
+			 formatMoney(getAvailableMoney(ns, true)));
 			await ns.sleep(500);
 		} else {
 			break;
