@@ -12,7 +12,7 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function runBack(ns, server, known, path) {
-	if (STORY_LINE.some(a => a.backdoor == server)) {
+	if (ns.flags([["all", false]]).all || STORY_LINE.some(a => a.backdoor == server)) {
 		if (!ns.hasRootAccess(server)) {
 			return;
 		}
