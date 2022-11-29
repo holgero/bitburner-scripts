@@ -35,7 +35,7 @@ const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 10e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
-const MINIMUM_SHARE_PRICE = 100;
+const MINIMUM_SHARE_PRICE = 1;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
 
 /** @param {NS} ns **/
@@ -48,6 +48,8 @@ export async function main(ns) {
 			if (!ns.corporation.createCorporation("ACME", player.bitNodeN != 3)) {
 				await ns.sleep(60000);
 				continue;
+			} else {
+				ns.corporation.expandIndustry(AGRICULTURE, AGRICULTURE);
 			}
 		}
 		var corporation = ns.corporation.getCorporation();
@@ -69,7 +71,7 @@ function tradeCorporationShares(ns) {
 	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
 	var target = (low + high) / 2;
 
-	if (shouldSell(ns, corporation, target, low)) {
+	if (shouldSell(ns, corporation, Math.max(target, 0.95 * high), low)) {
 		var money = ns.getServerMoneyAvailable("home");
 		ns.corporation.sellShares(corporation.numShares);
 		ns.corporation.issueDividends(1);
@@ -150,7 +152,8 @@ async function setupCorporation(ns) {
 				corporation.divisions.length &&
 				corporation.numShares == 0) {
 				var cost = ns.corporation.getHireAdVertCost(division.name);
-				if (corporation.funds - HOLD_BACK_FUNDS > cost) {
+				if (corporation.funds - HOLD_BACK_FUNDS > cost ||
+					ns.corporation.getHireAdVertCount(division.name) == 0) {
 					ns.corporation.hireAdVert(division.name);
 					corporation = ns.corporation.getCorporation();
 				}
@@ -179,16 +182,7 @@ function buyCorporationUpgrades(ns) {
 		// spend money only while the shares belong to someone else
 		return;
 	}
-	var money = corporation.funds - HOLD_BACK_FUNDS;
-	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
-		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
-			var cost = ns.corporation.getUpgradeLevelCost(upgrade);
-			if (money > cost) {
-				ns.corporation.levelUpgrade(upgrade);
-				money -= cost;
-			}
-		}
-	}
+	var money = corporation.funds;
 	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
 		if (!ns.corporation.hasUnlockUpgrade(unlock)) {
 			var cost = ns.corporation.getUnlockUpgradeCost(unlock);
@@ -198,15 +192,21 @@ function buyCorporationUpgrades(ns) {
 			}
 		}
 	}
+	money -= HOLD_BACK_FUNDS;
+	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
+		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
+			var cost = ns.corporation.getUpgradeLevelCost(upgrade);
+			if (money > cost) {
+				ns.corporation.levelUpgrade(upgrade);
+				money -= cost;
+			}
+		}
+	}
 }
 
 /** @param {NS} ns **/
 function expandIndustry(ns) {
 	var corporation = ns.corporation.getCorporation();
-	if (corporation.divisions.length == 0) {
-		startFirst(ns, INDUSTRIES[0]);
-		return;
-	}
 	if (corporation.numShares > 0) {
 		// expand only while the shares belong to someone else
 		return;
@@ -236,16 +236,6 @@ function expandIndustry(ns) {
 }
 
 /** @param {NS} ns **/
-function startFirst(ns, industry) {
-	ns.tprintf("Starting first industry %s", industry);
-	ns.corporation.expandIndustry(industry, industry);
-	if (!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
-		ns.corporation.unlockUpgrade(WAREHOUSE_API);
-	}
-	expandDivision(ns, ns.corporation.getDivision(industry), ns.corporation.getCorporation());
-}
-
-/** @param {NS} ns **/
 async function printCorporationInfo(ns) {
 	var corporation = ns.corporation.getCorporation();
 	var value = valuation(ns, corporation);
@@ -262,7 +252,10 @@ async function printCorporationInfo(ns) {
 		formatMoney(profit),
 		Math.ceil(corporation.shareSaleCooldown / 5),
 		corporation.issuedShares == 0 ? "*" : "-");
-	await ns.write("corporation.txt", JSON.stringify(corporation), "w");
+	ns.write("corporation.txt", JSON.stringify(corporation), "w");
+	if (ns.getHostname() != "home") {
+		ns.scp("corporation.txt", "home");
+	}
 }
 
 /** @param {NS} ns **/
