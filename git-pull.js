@@ -57,6 +57,7 @@ const FILES = [
 	"servercost.js",
 	"serverinfo.js",
 	"setactionlevels.js",
+	"showlogs.js",
 	"skill-helper.js",
 	"solve_contract2.js",
 	"solve_contract3.js",
