@@ -6,8 +6,10 @@ export async function main(ns) {
 	const options = ns.flags([["stop", false]]);
 	const maxNo = ns.getPurchasedServerLimit() - 1;
 	const hostname = "pserv-" + (maxNo - 1);
-	if (options.stop)  {
-		ns.scriptKill("corporation.js", hostname);
+	if (options.stop) {
+		if (ns.serverExists(hostname)) {
+			ns.scriptKill("corporation.js", hostname);
+		}
 		return;
 	}
 	if (ns.scriptRunning("corporation.js", "home") ||
