@@ -232,6 +232,7 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "joinfactions.js");
 		await setUpForCorporations(ns);
 		await travelToGoalLocations(ns);
+		await meetMoneyGoals(ns);
 		await runAndWait(ns, "rback.js");
 		await runAndWait(ns, "stanek.js");
 		await ns.sleep(20000);
@@ -376,6 +377,24 @@ async function startHacking(ns, programs) {
 		await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
 	} else {
 		await runAndWait(ns, "rhack.js");
+	}
+}
+
+async function meetMoneyGoals(ns) {
+	const goals = getFactiongoals(ns);
+	if (!goals.factionGoals) {
+		return;
+	}
+	if (!ns.scriptRunning("trader.js", "home")) {
+		return;
+	}
+	const maxPossibleMoney = getAvailableMoney(ns, true);
+	const availableMoney = getAvailableMoney(ns);
+	const player = ns.getPlayer();
+	for (var goal of goals.factionGoals.filter(a => a.money && !player.factions.includes(a.name))) {
+		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
+			await stopTrader(ns);
+		}
 	}
 }
 
