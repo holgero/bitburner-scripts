@@ -255,6 +255,13 @@ async function wantToEndRun(ns, started) {
 		ns.print("Grafting, not ending run");
 		return false;
 	}
+	if (current != null && current.type == "COMPANY") {
+		const completion = (100.0 * ns.singularity.getCompanyRep(current.companyName)) / 400000;
+		if (completion > 0.9) {
+			ns.printf("Nearly done working for a company (%s), not ending run", completion.toFixed(1));
+			return false;
+		}
+	}
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 500) {
 		ns.printf("Outstanding shares %d, cooldown %d, not ending run",
