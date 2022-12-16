@@ -22,19 +22,33 @@ export async function main(ns) {
 	if (!(await prepareGoalWork(ns))) {
 		return;
 	}
-	var config = getFactiongoals(ns);
-	if (!config.factionGoals ||
-		goalCompletion(ns, config.factionGoals) >= 1 ||
-		goalCompletion(ns, config.factionGoals) < 0.1 ||
-		config.factionGoals.some(a => a.reputation && database.factions.find(b => b.name == a.name).gang)) {
-		await runAndWait(ns, "calculate-goals.js");
-		config = getFactiongoals(ns);
-	} else {
-		ns.printf("Keeping existing goals");
-	}
+	const config = await getAndCheckFactiongoals(ns, database);
 	await checkForDaedalus(ns, database, config);
 	await runAndWait(ns, "factionaction.js");
 	await runAndWait(ns, "commit-crimes.js", "--on-idle");
+}
+
+/** @param {NS} ns **/
+async function getAndCheckFactiongoals(ns, database) {
+	const config = getFactiongoals(ns);
+	if (config.factionGoals && checkFactiongoals(ns, database, config.factionGoals)) {
+		ns.printf("Keeping existing goals");
+		return config;
+	}
+	await runAndWait(ns, "calculate-goals.js");
+	return getFactiongoals(ns);
+}
+
+/** @param {NS} ns **/
+function checkFactiongoals(ns, database, goals) {
+	if (goalCompletion(ns, goals) < 0.05) return false;
+	if (goalCompletion(ns, goals) >= 1.00) return false;
+	if (goals.some(a => a.reputation && database.factions.find(b => b.name == a.name).gang)) return false;
+	// check if all possible goals have been reached
+	const factions = ns.getPlayer().factions;
+	if (goalCompletion(ns, goals.filter(a=>a.reputation && factions.includes(a.name))) >= 1.00) return false;
+
+	return true;
 }
 
 /** @param {NS} ns **/
