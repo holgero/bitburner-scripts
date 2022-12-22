@@ -32,7 +32,7 @@ const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
 const MAX_SELL = "MAX";
 const MP_SELL = "MP";
-const HOLD_BACK_FUNDS = 10e9;
+const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
 const MINIMUM_SHARE_PRICE = 1;
@@ -279,6 +279,7 @@ function expandDivision(ns, division, corporation) {
 	}
 	var money = corporation.funds - HOLD_BACK_FUNDS;
 	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
+	// ns.printf("Cost to expand: %s", formatMoney(expansionCost));
 	for (var nextCity of c.CITIES.filter(a => !division.cities.includes(a))) {
 		if (money > expansionCost) {
 			ns.tprintf("Expanding to %s", nextCity);
