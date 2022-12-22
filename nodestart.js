@@ -267,7 +267,7 @@ async function wantToEndRun(ns, started) {
 	const corporationInfo = getCorporationInfo(ns);
 	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 500) {
 		ns.printf("Outstanding shares %d, cooldown %d s, not ending run",
-			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown/5);
+			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown / 5);
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
 		return false;
@@ -291,6 +291,11 @@ async function wantToEndRun(ns, started) {
 	if (estimation.affordableAugmentationCount > 0 &&
 		estimation.affordableAugmentationCount >= getDatabase(ns).augmentations.length) {
 		// get the last augmentations
+		return true;
+	}
+	if (estimation.affordableAugmentationCount > 0 &&
+		ns.getPlayer().playtimeSinceLastAug > 24 * 60 * 60 * 1000) {
+		// there are some augs available and it has been a day already
 		return true;
 	}
 	if (new Date() - started > 24 * 60 * 60 * 1000) {
