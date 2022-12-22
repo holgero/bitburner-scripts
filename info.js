@@ -1,4 +1,4 @@
-import { getAvailableMoney, getFactiongoals, formatMoney } from "helpers.js";
+import { getAvailableMoney, getFactiongoals, getDatabase, formatMoney } from "helpers.js";
 import { ALL_FACTIONS } from "constants.js";
 
 
@@ -9,6 +9,7 @@ export async function main(ns) {
 	["member", false],
 	["invites", false],
 	["goal", false],
+	["db", false],
 	["filter_reputation", false],
 	["filter_price", false]]);
 	if (options._.length > 0) {
@@ -70,6 +71,11 @@ export async function main(ns) {
 	// for (var augmentation of augmentations) {
 		// printAugmentation(ns, augmentation);
 	// }
+	if (options.db) {
+		const database = getDatabase(ns);
+		const existing = database.augmentations.map(a=>a.name);
+		augmentations = augmentations.filter(a=>existing.includes(a.name));
+	}
 
 	ns.tprintf("\nSorted by Reputation");
 	augmentations.sort(function (a, b) { return a.reputation - b.reputation });
