@@ -109,7 +109,9 @@ async function stopTrader(ns) {
 	}
 	deleteBudget(ns, "stocks");
 	const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
-	reserveBudget(ns, "stocks", Math.min(stockHolding, money));
+	if (money > 0 && stockHolding > 0 && ns.stock.hasTIXAPIAccess()) {
+		reserveBudget(ns, "stocks", Math.min(stockHolding, money));
+	}
 }
 
 /** @param {NS} ns **/
