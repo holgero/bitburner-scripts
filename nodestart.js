@@ -263,7 +263,7 @@ async function wantToEndRun(ns, started) {
 	}
 	if (current != null && current.type == "COMPANY") {
 		const completion = (100.0 * ns.singularity.getCompanyRep(current.companyName)) / 400000;
-		if (completion > 0.9) {
+		if (completion > 90) {
 			ns.printf("Nearly done working for a company (%s), not ending run", completion.toFixed(1));
 			return false;
 		}
