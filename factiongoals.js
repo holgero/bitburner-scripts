@@ -42,7 +42,7 @@ async function getAndCheckFactiongoals(ns, database) {
 /** @param {NS} ns **/
 function checkFactiongoals(ns, database, goals) {
 	if (goalCompletion(ns, goals) < 0.05) return false;
-	if (goalCompletion(ns, goals) >= 1.00) return false;
+	if (goalCompletion(ns, goals) >= 0.95) return false;
 	if (goals.some(a => a.reputation && database.factions.find(b => b.name == a.name).gang)) return false;
 	// check if all possible goals have been reached
 	const factions = ns.getPlayer().factions;
