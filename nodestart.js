@@ -197,7 +197,11 @@ async function canSpendMoney(ns, started) {
 		// nearly there, no longer spend money
 		return false;
 	}
-	if (new Date() - started > 22 * 60 * 60 * 1000) {
+	if (estimation.prioritizedAugmentationCount > 0 &&
+		ns.getPlayer().playtimeSinceLastAug > 30 * 60 * 60 * 1000) {
+		return false;
+	}
+	if (new Date() - started > 20 * 60 * 60 * 1000) {
 		// nearly runs for a day, stop spending money
 		return false;
 	}
@@ -293,9 +297,8 @@ async function wantToEndRun(ns, started) {
 		// get the last augmentations
 		return true;
 	}
-	if (estimation.affordableAugmentationCount > 0 &&
-		ns.getPlayer().playtimeSinceLastAug > 24 * 60 * 60 * 1000) {
-		// there are some augs available and it has been a day already
+	if (estimation.prioritizedAugmentationCount > 0 &&
+		ns.getPlayer().playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
 		return true;
 	}
 	if (new Date() - started > 24 * 60 * 60 * 1000) {
