@@ -14,6 +14,10 @@ export async function main(ns) {
 		return;
 	}
 	const database = getDatabase(ns);
+	if (!database.features.graft) {
+		ns.tprintf("Don't have grafting api yet.");
+		return;
+	}
 	const augs = ns.grafting.getGraftableAugmentations();
 	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
 	augs.reverse();

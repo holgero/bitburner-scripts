@@ -99,6 +99,7 @@ export const FEATURES = {
 	bladeburners: { sourceFile: 6 },
 	hacknet: { sourceFile: 9 },
 	sleeves: { sourceFile: 10 },
+	graft: { sourceFile: 10 },
 	church: { sourceFile: 13 },
 }
 
