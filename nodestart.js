@@ -287,10 +287,8 @@ async function wantToEndRun(ns, started) {
 		const completion = goalCompletion(ns, goals);
 		return completion >= 1;
 	}
-	if (estimation.prioritizedAugmentationCount >= 7) {
-		return true;
-	}
-	if (estimation.affordableAugmentationCount >= 12) {
+	if ((estimation.affordableAugmentationCount +
+		estimation.prioritizedAugmentationCount) / 2 >= 6) {
 		return true;
 	}
 	if (estimation.affordableAugmentationCount > 0 &&
