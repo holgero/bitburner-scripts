@@ -1,7 +1,11 @@
+import * as c from "constants.js";
+
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["dry-run", false]]);
-	const bitNodeN = ns.getPlayer().bitNodeN;
+	const options = ns.flags([
+		["dry-run", false],
+		["bitNodeN", ns.getPlayer().bitNodeN]]);
+	const bitNodeN = options.bitNodeN;
 	const owned = ns.singularity.getOwnedSourceFiles();
 	const nextNode = nextBitnode(ns, bitNodeN, owned);
 	const thisNode = owned.find(a => a.n == bitNodeN);
@@ -40,5 +44,11 @@ function nextBitnode(ns, current, owned) {
 			return ii + 1;
 		}
 	}
-	return owned.length + 1;
+	const nextOne = owned.length + 1;
+	if (nextOne == c.BLADEBURNER_NODES[0]) {
+		// change order of execution for bladeburner nodes, the second one gives the API
+		return c.BLADEBURNER_NODES[1];
+	}
+
+	return nextOne;
 }
