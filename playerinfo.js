@@ -85,7 +85,7 @@ export async function main(ns) {
     getDatabase(ns).owned_augmentations.length,
     estimation.augmentationCount, estimation.affordableAugmentationCount,
     estimation.prioritizedAugmentationCount);
-  ns.tprintf("%30s: %s", "Server", getServerInfo(ns));
+  ns.tprintf("%30s: Home: %d GB, Purchased: %s", "Server", ns.getServerMaxRam("home"), getServerInfo(ns));
   const current = ns.getServerMoneyAvailable("home");
   const available = getAvailableMoney(ns);
   const total = getAvailableMoney(ns, true);
