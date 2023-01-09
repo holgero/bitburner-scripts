@@ -3,11 +3,13 @@ import * as c from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
+	// ns.printf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	const actionDb = JSON.parse(ns.read("actiondb.txt"));
 	if (switchToAction(ns, getAction(actionDb, "General", "Diplomacy"),
 		ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50)) {
 		return;
 	}
+	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 
 	var bestDelta = 1;
 	for (var action of actionDb.actions) {
@@ -16,12 +18,14 @@ export async function main(ns) {
 			bestDelta = delta;
 		}
 	}
+	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	if (switchToAction(ns, getAction(actionDb, "General", "Field Analysis"),
 		bestDelta > 0.1)) {
 		//ns.tprintf("Field analysis");
 		return;
 	}
 
+	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	const [current, max] = ns.bladeburner.getStamina();
 	if (switchToAction(ns, getAction(actionDb, "General", "Training"),
 		current < 0.7 * max)) {
@@ -29,6 +33,7 @@ export async function main(ns) {
 		return;
 	}
 
+	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	if (switchToAction(ns, selectAction(ns, actionDb), true)) {
 		//ns.tprintf("Action");
 		return;
@@ -43,10 +48,11 @@ function switchToAction(ns, action, condition) {
 	}
 	if (condition) {
 		if (previousAction.type != action.type || previousAction.name != action.name) {
+			// ns.tprintf("Old action: %s, new action: %s", JSON.stringify(previousAction), JSON.stringify(action));
 			ns.bladeburner.stopBladeburnerAction();
 		}
 		executeAction(ns, action);
-	} else if (previousAction.type == action.type && previousAction.name != action.name) {
+	} else if (previousAction.type == action.type && previousAction.name == action.name) {
 		ns.bladeburner.stopBladeburnerAction();
 	}
 	return condition;
