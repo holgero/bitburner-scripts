@@ -15,7 +15,13 @@ function getMissingInfo(ns, database) {
 		if (haveSourceFile(database.ownedSourceFiles, feature.sourceFile) ||
 			amOnBitnode(ns, feature.sourceFile)) {
 			// ns.tprintf("Yes");
-			database.features[featureName]="true";
+			database.features[featureName] = "true";
+		} else if (feature.sourceFile == c.BLADEBURNER_NODES[0]) {
+			if (haveSourceFile(database.ownedSourceFiles, c.BLADEBURNER_NODES[1]) ||
+				amOnBitnode(ns, c.BLADEBURNER_NODES[1])) {
+				// ns.tprintf("Yes");
+				database.features[featureName] = "true";
+			}
 		}
 	}
 }
