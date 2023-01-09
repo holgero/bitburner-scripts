@@ -14,6 +14,7 @@ export async function main(ns) {
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
 		ns.printf("Need more than 32 GB ram to work properly");
+		ns.spawn("commit-crimes.js", 1, "--on-idle");
 		return;
 	}
 	if (!database.owned_augmentations.includes(c.BLADE_SIMUL)) {

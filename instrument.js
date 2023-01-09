@@ -13,6 +13,11 @@ export async function main(ns) {
 	ns.scriptKill(GROW_SCRIPT, "home");
 	ns.scriptKill(HACK_SCRIPT, "home");
 
+	if (ns.getServerMaxRam("home") -
+		ns.getScriptRam("instrument.js") -
+		ns.getScriptRam("nodestart.js") < options.spare) {
+		return;
+	}
 	var availableRam = -1;
 	while (availableRam < 0) {
 		availableRam = ramAvailable(ns, options.spare);
