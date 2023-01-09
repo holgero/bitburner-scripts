@@ -12,17 +12,16 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
+	if (!player.inBladeburner) {
+		ns.spawn("joinbladeburner.js", 1, "--division", "--faction");
+	}
 	if (ns.getServerMaxRam("home") <= 32) {
 		ns.printf("Need more than 32 GB ram to work properly");
 		ns.spawn("commit-crimes.js", 1, "--on-idle");
-		return;
 	}
 	if (!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
 		ns.printf("Need %s to work together with factiongoals", c.BLADE_SIMUL);
 		ns.scriptKill("factiongoals.js", "home");
-	}
-	if (!player.inBladeburner) {
-		ns.spawn("joinbladeburner.js", 1, "--division", "--faction");
 	}
 	await runAndWait(ns, "bbselectcity.js");
 	await runAndWait(ns, "setactionlevels.js");
