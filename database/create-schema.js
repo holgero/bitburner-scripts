@@ -5,7 +5,7 @@ export async function main(ns) {
 		factions: [],
 		augmentations: [],
 		favorToDonate: 150,
-		features: [],
+		features: {},
 	};
 	ns.write("database.txt", JSON.stringify(database), "w");
 }

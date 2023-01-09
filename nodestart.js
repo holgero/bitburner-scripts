@@ -124,7 +124,7 @@ async function runHomeScripts(ns) {
 		startTrader(ns);
 	}
 	await ns.sleep(1000);
-	if (database.features.bladeburner) {
+	if (database.features.bladeburners) {
 		startHomeScript(ns, "bladeburner.js");
 		await ns.sleep(1000);
 		if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
