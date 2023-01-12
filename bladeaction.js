@@ -12,29 +12,34 @@ export async function main(ns) {
 	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 
 	var bestDelta = 1;
+	var worstDelta = 0;
 	for (var action of actionDb.actions) {
 		var delta = action.chances[1] - action.chances[0];
 		if (delta < bestDelta) {
 			bestDelta = delta;
 		}
+		if (delta > worstDelta) {
+			worstDelta = delta;
+		}
 	}
 	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	if (switchToAction(ns, getAction(actionDb, "General", "Field Analysis"),
-		bestDelta > 0.1)) {
+		bestDelta > 0.1 || worstDelta > 0.4)) {
 		//ns.tprintf("Field analysis");
 		return;
 	}
 
 	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	const [current, max] = ns.bladeburner.getStamina();
+	const nextAction = selectAction(ns, actionDb);
 	if (switchToAction(ns, getAction(actionDb, "General", "Training"),
-		current < 0.7 * max)) {
+		current < 0.7 * max || (nextAction.type == "General" && nextAction.name == "Training"))) {
 		//ns.tprintf("Training");
 		return;
 	}
 
 	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
-	if (switchToAction(ns, selectAction(ns, actionDb), true)) {
+	if (switchToAction(ns, nextAction, true)) {
 		//ns.tprintf("Action");
 		return;
 	}
