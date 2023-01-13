@@ -84,7 +84,10 @@ async function setUpForCorporations(ns) {
 }
 
 /** @param {NS} ns **/
-function startTrader(ns) {
+async function startTrader(ns) {
+	if (!ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 10e9) {
+		await runAndWait(ns, "purchase-stock-api.js");
+	}
 	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
@@ -121,7 +124,7 @@ async function runHomeScripts(ns) {
 	if (ns.getPlayer().bitNodeN == 8 ||
 		(ns.getServerMaxRam("home") > 32 &&
 			(getAvailableMoney(ns) > 1e9 || getBudget(ns, "stocks") > 100e6))) {
-		startTrader(ns);
+		await startTrader(ns);
 	}
 	await ns.sleep(1000);
 	if (database.features.bladeburners) {
