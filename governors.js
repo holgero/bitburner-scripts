@@ -11,7 +11,7 @@ export async function main(ns) {
 			reputation: ns.singularity.getFactionRep(f)
 		})).
 		filter(a=>!a.gang).
-		sort((a,b) => a.reputation - b.reputation).sort().reverse();
+		sort((a,b) => a.reputation - b.reputation).reverse();
 
 	var governor_faction = factions[0].name;
 	ns.tprintf("Use %s to buy governors", governor_faction);
