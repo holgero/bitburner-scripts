@@ -9,12 +9,13 @@ export async function main(ns) {
 		a => constructAction("General", a)));
 	actionDb.actions.push(...ns.bladeburner.getContractNames().map(
 		a => constructAction("Contract", a)));
-	actionDb.actions.push(...ns.bladeburner.getOperationNames().map(
+	actionDb.actions.push(...ns.bladeburner.getOperationNames().filter(
+		a => a.name != "Raid").map(
 		a => constructAction("Operation", a)));
 
 	// ns.tprintf("%s", JSON.stringify(actionDb));
 	setActionLevels(ns, actionDb, 0.50);
-	await ns.write("actiondb.txt", JSON.stringify(actionDb), "w");
+	ns.write("actiondb.txt", JSON.stringify(actionDb), "w");
 }
 
 /** @param {NS} ns */
