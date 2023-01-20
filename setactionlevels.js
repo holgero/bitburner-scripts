@@ -10,7 +10,7 @@ export async function main(ns) {
 	actionDb.actions.push(...ns.bladeburner.getContractNames().map(
 		a => constructAction("Contract", a)));
 	actionDb.actions.push(...ns.bladeburner.getOperationNames().filter(
-		a => a != "Raid").map(
+		a => a != "Raid" && a != "Stealth Retirement Operation").map(
 		a => constructAction("Operation", a)));
 
 	// ns.tprintf("%s", JSON.stringify(actionDb));
