@@ -29,6 +29,7 @@ export async function main(ns) {
 		await startHacking(ns, getProgramCount(ns));
 	}
 
+	await setUpForTrader(ns);
 	await setUpForCorporations(ns);
 
 	await progressHackingLevels(ns);
@@ -55,6 +56,21 @@ async function killOthers(ns) {
 	await stopTrader(ns);
 }
 
+/** @param {NS} ns **/
+async function setUpForTrader(ns) {
+	const bitNode = ns.getPlayer().bitNodeN;
+	if (bitNode != 8) {
+		return;
+	}
+	if (ns.getServerMaxRam("home") >= 256) {
+		return;
+	}
+	await runAndWait(ns, "purchase-ram.js", "--goal", 256);
+	await runAndWait(ns, "plan-augmentations.js", "--run_purchase");
+	ns.exit();
+}
+
+/** @param {NS} ns **/
 async function setUpForCorporations(ns) {
 	const bitNode = ns.getPlayer().bitNodeN;
 	if (bitNode == 8) {
@@ -410,6 +426,10 @@ async function meetMoneyGoals(ns) {
 	const maxPossibleMoney = getAvailableMoney(ns, true);
 	const availableMoney = getAvailableMoney(ns);
 	const player = ns.getPlayer();
+	const bitNode = player.bitNodeN;
+	if (bitNode == 8) {
+		return;
+	}
 	for (var goal of goals.factionGoals.filter(a => a.money && !player.factions.includes(a.name))) {
 		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
 			await stopTrader(ns);
