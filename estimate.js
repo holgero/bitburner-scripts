@@ -9,6 +9,7 @@ import {
 	getAugmentationPrios
 }
 	from "helpers.js";
+import { GOVERNOR, BLADEBURNERS } from "constants.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -18,6 +19,7 @@ export async function main(ns) {
 		["affordable", false],
 		["maxprice", 1e99],
 		["best", false],
+		["governor", false],
 		["money", 0]]);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
@@ -83,6 +85,23 @@ export async function main(ns) {
 		if (prioritized.includes(augmentation.type)) {
 			prioritizedAugmentationCount++;
 		}
+	}
+	var governors = 0;
+	var sumAfterGovernors = sum;
+	if (options.governor) {
+//		var governorRep = ns.singularity.getAugmentationRepReq(GOVERNOR);
+	//	var governorPrice = ns.singularity.getAugmentationPrice(GOVERNOR);
+		ns.tprintf("Have %s left to spend on governors (base price: %s, with factor: %s, base rep: %d)",
+			formatMoney(money - sumAfterGovernors), formatMoney(governorPrice), 
+			formatMoney(governorPrice * factor), governorRep);
+		while (money > sumAfterGovernors + factor * governorPrice) {
+			governors ++;
+			sumAfterGovernors += factor * governorPrice;
+			governorRep *= 1.14;
+			factor *= 1.9;
+		}
+		ns.tprintf("Have %s left to spend after buying %d governors.",
+			formatMoney(money - sumAfterGovernors), governors);
 	}
 
 	if (options.write) {
