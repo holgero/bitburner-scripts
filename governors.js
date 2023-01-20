@@ -10,16 +10,19 @@ export async function main(ns) {
 			...(database.factions.find(a => a.name == f)),
 			reputation: ns.singularity.getFactionRep(f)
 		})).
-		filter(a=>!a.gang).
-		sort((a,b) => a.reputation - b.reputation).reverse();
+		filter(a => !a.gang).
+		sort((a, b) => a.reputation - b.reputation).reverse();
 
+	if (factions.length == 0) {
+		return;
+	}
 	var governor_faction = factions[0].name;
 	ns.tprintf("Use %s to buy governors", governor_faction);
-	
+
 	while (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {
 		if (ns.singularity.purchaseAugmentation(governor_faction, GOVERNOR)) {
 			ns.tprintf("Bought governor, money left: %s",
-			 formatMoney(getAvailableMoney(ns, true)));
+				formatMoney(getAvailableMoney(ns, true)));
 			await ns.sleep(500);
 		} else {
 			break;
