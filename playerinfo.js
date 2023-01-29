@@ -25,12 +25,12 @@ export async function main(ns) {
   ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(playerInfo.playtimeSinceLastBitnode));
   ns.tprintf("%30s: %s", "Total play time", millisecondToDHMS(playerInfo.totalPlaytime));
   const progCount = c.programs.filter(a => ns.fileExists(a.name)).reduce((prev, a) => prev + 1, 0);
-  ns.tprintf("%30s: %d/5 %s", "Hacking tools", progCount, playerInfo.tor ? "*" : "");
-  if (playerInfo.inBladeburner) {
+  ns.tprintf("%30s: %d/5 %s", "Hacking tools", progCount, ns.hasTorRouter() ? "*" : "");
+  if (ns.bladeburner.inBladeburner()) {
     const currentAction = ns.bladeburner.getCurrentAction();
     ns.tprintf("%30s: %s: %s", "Bladeburner", currentAction.type, currentAction.name);
   }
-  if (playerInfo.hasCorporation) {
+  if (ns.corporation.hasCorporation()) {
     const corporationInfo = getCorporationInfo(ns);
     const profit = corporationInfo.revenue - corporationInfo.expenses;
     ns.tprintf("%30s: share=%s, funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",

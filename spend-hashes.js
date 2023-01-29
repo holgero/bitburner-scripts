@@ -13,7 +13,7 @@ export async function main(ns) {
 	if (options.gym) {
 		await spendOn(ns, gym_training);
 	}
-	if (!ns.getPlayer().hasCorporation || getAvailableMoney(ns, true) < 10e9) {
+	if (!ns.corporation.hasCorporation() || getAvailableMoney(ns, true) < 10e9) {
 		// we need this money
 		await spendOn(ns, money);
 	} else {

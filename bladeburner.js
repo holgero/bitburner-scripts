@@ -12,7 +12,7 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
-	if (!player.inBladeburner) {
+	if (!ns.bladeburner.inBladeburner()) {
 		ns.spawn("joinbladeburner.js", 1, "--division", "--faction");
 	}
 	if (ns.getServerMaxRam("home") <= 32) {

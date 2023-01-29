@@ -20,7 +20,7 @@ export async function main(ns) {
 }
 
 function tryToBuyProgram(ns, program) {
-	if (ns.getPlayer().tor && getAvailableMoney(ns) > program.cost) {
+	if (ns.hasTorRouter() && getAvailableMoney(ns) > program.cost) {
 		return ns.singularity.purchaseProgram(program.name);
 	} else {
 		if (getAvailableMoney(ns) > program.cost + 200000) {

@@ -76,13 +76,13 @@ async function setUpForCorporations(ns) {
 	if (bitNode == 8) {
 		return;
 	}
-	if ((ns.getPlayer().hasCorporation ||
+	if ((ns.corporation.hasCorporation() ||
 		getAvailableMoney(ns, true) > 150e9 ||
 		bitNode == 3) &&
 		!ns.scriptRunning("corporation.js", "home")) {
 		await runAndWait(ns, "purchase-ram.js", "--goal", 2048);
 		if (ns.getServerMaxRam("home") >= 2048) {
-			if (ns.getPlayer().hasCorporation ||
+			if (ns.corporation.hasCorporation() ||
 				getAvailableMoney(ns, true) > 150e9 ||
 				bitNode == 3) {
 				await killOthers(ns);
@@ -146,7 +146,7 @@ async function runHomeScripts(ns) {
 	if (database.features.bladeburners) {
 		startHomeScript(ns, "bladeburner.js");
 		await ns.sleep(1000);
-		if (ns.getServerMaxRam("home") > 1024 && ns.getPlayer().hasCorporation) {
+		if (ns.getServerMaxRam("home") > 1024 && ns.corporation.hasCorporation()) {
 			startHomeScript(ns, "joinbladeburner.js", "--division", "--faction");
 		}
 		await ns.sleep(1000);
@@ -390,7 +390,7 @@ async function improveInfrastructure(ns, programsOwned, started) {
 			} else {
 				await runAndWait(ns, "start-hacknet.js", 32, "--maxram");
 			}
-			if (getAvailableMoney(ns) > 1e15 && ns.getPlayer().hasCorporation &&
+			if (getAvailableMoney(ns) > 1e15 && ns.corporation.hasCorporation() &&
 				ns.scriptRunning("corporation.js", "home") &&
 				!ns.scriptRunning("start-hacknet2.js", "home") &&
 				!ns.scriptRunning("start-servers.js", "home") &&

@@ -7,7 +7,7 @@ const SKILL_RESTRICTIONS = [
 
 /** @param {NS} ns */
 export async function main(ns) {
-	if (ns.getPlayer().hasCorporation) {
+	if (ns.corporation.hasCorporation()) {
 		SKILL_RESTRICTIONS.find(x=>x.name=="Hands of Midas").max=0;
 	}
 	if (!spendPrefered(ns)) {

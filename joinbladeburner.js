@@ -6,7 +6,7 @@ export async function main(ns) {
 	const options = ns.flags([["division", false], ["faction", false]]);
 	var player = ns.getPlayer();
 	if (options.division) {
-		while (!player.inBladeburner) {
+		while (!ns.bladeburner.inBladeburner()) {
 			await runAndWait(ns, "commit-crimes.js");
 			await ns.sleep(45000);
 			player = ns.getPlayer();
@@ -51,7 +51,7 @@ export async function main(ns) {
 		}
 	}
 	player = ns.getPlayer();
-	if (player.inBladeburner && options.faction) {
+	if (ns.bladeburner.inBladeburner() && options.faction) {
 		if (!player.factions.includes(c.BLADEBURNERS)) {
 			if (ns.bladeburner.joinBladeburnerFaction()) {
 				ns.printf("Joined Bladeburners faction");
