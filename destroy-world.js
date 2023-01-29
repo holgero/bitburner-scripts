@@ -46,11 +46,9 @@ function nextBitnode(ns, current, owned) {
 			return next;
 		}
 		if (next == 4) {
-			const automationLevel = owned.find(a => a.n == 4).lvl;
-			if (automationLevel < 2) {
-				return 4;
-			} else if (automationLevel < 3 && current != next) {
-				return 4;
+			const thisNode = owned.find(a => a.n == next);
+			if (!thisNode || thisNode.lvl < 2 || (thisNode.lvl == 2 && current != next)) {
+				return next;
 			}
 		}
 	}
