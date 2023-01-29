@@ -19,7 +19,7 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
-	if (!(await prepareGoalWork(ns))) {
+	if (player.bitNodeN != 8 && !(await prepareGoalWork(ns))) {
 		return;
 	}
 	const config = await getAndCheckFactiongoals(ns, database);
