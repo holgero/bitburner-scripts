@@ -431,6 +431,16 @@ async function meetMoneyGoals(ns) {
 		return;
 	}
 	for (var goal of goals.factionGoals.filter(a => a.money && !player.factions.includes(a.name))) {
+		if (goal.hack && ns.getPlayer().skills.hacking < 0.98 * goal.hack) {
+			continue;
+		}
+		if (goal.stats) {
+			const minStat = Math.min(player.skills.strength, player.skills.dexterity,
+				player.skills.defense, player.skills.agility);
+			if (minStat < 0.98 * goal.stats) {
+				continue;
+			}
+		}
 		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
 			await stopTrader(ns);
 		}
