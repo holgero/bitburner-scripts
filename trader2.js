@@ -15,23 +15,13 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMoneyAvailable");
 	const options = ns.flags([
-		["size", 24],
 		["budgetName", "stocks"],
-		["valuationFile", ""],
-		["algo", "count"]]);
+		["valuationFile", ""]]);
 	const budget = getBudget(ns, options.budgetName);
 	if (budget < 100e6) {
 		ns.tprintf("Budget for trading too small (%s, need %s)",
 			formatMoney(budget), formatMoney(100e6));
 		return;
-	}
-	switch (options.algo) {
-		case "count":
-			options.stockUps = stockUpsCount;
-			break;
-		case "avg":
-			options.stockUps = stockUpsAvg;
-			break;
 	}
 	await trade(ns, options);
 }
@@ -41,23 +31,18 @@ async function trade(ns, options) {
 	const db = ns.stock.getSymbols().map(a => {
 		return {
 			symbl: a,
-			prices: [ns.stock.getPrice(a)],
+			price: ns.stock.getPrice(a),
 			shares: 0,
 			cost: 0,
 		}
 	});
-	for (var ii = 0; ii < options.size; ii++) {
-		await updateStocks(ns, options, db);
-		ns.printf("Collected %d of %d prices", ii + 1, options.size);
-	}
 	const portfolio = [];
 
 	while (true) {
-		const mostUp = db.map(a => options.stockUps(ns, a)).reduce((a, b) => a ? Math.max(a, b) : b);
-		var rising = db.filter(a => options.stockUps(ns, a) == mostUp);
+		var rising = db.filter(a => ns.stock.getForecast(a.symbl) > 0.5);
 		rising.sort((a, b) => ns.stock.getForecast(a.symbl) - ns.stock.getForecast(b.symbl));
 		rising.reverse();
-		ns.printf("Most up is %s, by %s", mostUp, rising.map(a => a.symbl));
+		ns.printf("Best forecast has %s with %s", rising[0].symbl, ns.stock.getForecast(rising[0].symbl).toFixed(2));
 		await runTrades(ns, options, portfolio, rising);
 		await updateStocks(ns, options, db);
 	}
@@ -68,8 +53,7 @@ async function runTrades(ns, options, portfolio, rising) {
 	var valuation = 0;
 	for (var ii = 0; ii < portfolio.length; ii++) {
 		const stk = portfolio[ii];
-		const ups = options.stockUps(ns, stk);
-		if (ups < 0 || ns.stock.getForecast(stk.symbl) < 0.5) {
+		if (ns.stock.getForecast(stk.symbl) < 0.5) {
 			const sellPrice = ns.stock.sellStock(stk.symbl, stk.shares);
 			const gainedMoney = sellPrice * stk.shares - COMISSION;
 			unuseBudget(ns, options.budgetName, gainedMoney);
@@ -84,12 +68,12 @@ async function runTrades(ns, options, portfolio, rising) {
 			portfolio.splice(ii, 1);
 			ii--;
 		} else {
-			valuation += stk.shares * stk.prices[stk.prices.length - 1];
+			valuation += stk.shares * stk.price;
 		}
-		// ns.printf("Holding %d shares of %s, tendency %d", stk.shares, stk.symbl, ups);
+		// ns.printf("Holding %d shares of %s", stk.shares, stk.symbl);
 	}
 	setHolding(ns, options.budgetName, valuation);
-	ns.printf("Trader%d valuation: %s", options.size, formatMoney(valuation));
+	ns.printf("Trader valuation: %s, portfolio: %s", formatMoney(valuation), portfolio.map(a=>a.symbl));
 	if (options.valuationFile) {
 		ns.write(options.valuationFile, valuation + getBudget(ns, options.budgetName), "w");
 	}
@@ -129,45 +113,20 @@ async function runTrades(ns, options, portfolio, rising) {
 
 /** @param {NS} ns */
 async function updateStocks(ns, options, db) {
-	var count = 0;
 	while (true) {
-		await ns.sleep(2000);
+		await ns.sleep(900);
 		var changed = false;
 		for (var stk of db) {
 			const price = ns.stock.getPrice(stk.symbl);
-			if (stk.prices[stk.prices.length - 1] != price) {
-				// ns.printf("Price change %d -> %d for stock %s", stk.prices[stk.prices.length - 1], price, stk.symbl);
+			if (stk.price != price) {
 				changed = true;
 				break;
 			}
 		}
 		if (changed) break;
-		count++;
 	}
-	// ns.printf("Price change after %d seconds", 2 * count);
 	for (var stk of db) {
 		const price = ns.stock.getPrice(stk.symbl);
-		stk.prices.push(price);
-		while (stk.prices.length > options.size) {
-			stk.prices.shift();
-		}
+		stk.price = price;
 	}
-}
-
-/** @param {NS} ns */
-function stockUpsAvg(ns, stk) {
-	const size = stk.prices.length;
-	const oldAvg = stk.prices.slice(0, size / 2).reduce((a, b) => a + b, 0) / (size / 2);
-	const newAvg = stk.prices.slice(size / 2).reduce((a, b) => a + b, 0) / (size / 2);
-
-	return (newAvg - oldAvg) / oldAvg;
-}
-
-/** @param {NS} ns */
-function stockUpsCount(ns, stk) {
-	const size = stk.prices.length;
-	const avg = stk.prices.slice(0, size / 2).reduce((a, b) => a + b, 0) / (size / 2);
-	const ups = stk.prices.slice(size / 2).reduce((a, b) => a + ((b > avg) ? +1 : -1), 0);
-
-	return ups;
 }
