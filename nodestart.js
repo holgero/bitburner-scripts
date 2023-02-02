@@ -104,7 +104,13 @@ async function startTrader(ns) {
 	if (!ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 10e9) {
 		await runAndWait(ns, "purchase-stock-api.js");
 	}
-	if (!ns.scriptRunning("trader.js", "home") && ns.stock.hasTIXAPIAccess()) {
+	if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+		getAvailableMoney(ns) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
+		await runAndWait(ns, "purchase-stock-api.js", "--all");
+	}
+	if (ns.stock.hasTIXAPIAccess() &&
+		!ns.scriptRunning("trader.js", "home") &&
+		!ns.scriptRunning("trader2.js", "home")) {
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
 		const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
@@ -113,7 +119,11 @@ async function startTrader(ns) {
 		} else {
 			reserveBudget(ns, "stocks", Math.min(stockBudget, money));
 		}
-		ns.run("trader.js");
+		if (ns.stock.has4SDataTIXAPI()) {
+			ns.run("trader2.js");
+		} else {
+			ns.run("trader.js");
+		}
 	}
 }
 
@@ -122,6 +132,9 @@ async function stopTrader(ns) {
 	const stockHolding = getHolding(ns, "stocks") + getBudget(ns, "stocks");
 	if (ns.scriptRunning("trader.js", "home")) {
 		ns.scriptKill("trader.js", "home");
+	}
+	if (ns.scriptRunning("trader2.js", "home")) {
+		ns.scriptKill("trader2.js", "home");
 	}
 	if (ns.stock.hasTIXAPIAccess()) {
 		await runAndWait(ns, "sell-all-stocks.js");
