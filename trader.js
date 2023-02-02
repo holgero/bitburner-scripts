@@ -98,8 +98,11 @@ async function runTrades(ns, options, portfolio, rising) {
 		if (money < 100 * COMISSION) {
 			break;
 		}
+		// buy at most half of the shares of one specific stock
+		// and only up to a million shares at once
 		var shares = Math.min(Math.floor((money - COMISSION) / price),
-			ns.stock.getMaxShares(stockToBuy.symbl) - stockToBuy.shares);
+			ns.stock.getMaxShares(stockToBuy.symbl) / 2 - stockToBuy.shares);
+		shares = Math.min(1e6, shares);
 		var boughtPrice;
 		while (shares > 0 && (boughtPrice = ns.stock.buyStock(stockToBuy.symbl, shares)) == 0) {
 			shares--;
