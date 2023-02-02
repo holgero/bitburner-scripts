@@ -105,8 +105,9 @@ async function startTrader(ns) {
 		await runAndWait(ns, "purchase-stock-api.js");
 	}
 	if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
-		getAvailableMoney(ns) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
+		getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
 		await runAndWait(ns, "purchase-stock-api.js", "--all");
+		deleteBudget(ns, "stocks");
 	}
 	if (ns.stock.hasTIXAPIAccess() &&
 		!ns.scriptRunning("trader.js", "home") &&
@@ -273,6 +274,10 @@ async function progressHackingLevels(ns) {
 		await meetMoneyGoals(ns);
 		await runAndWait(ns, "rback.js");
 		await runAndWait(ns, "stanek.js");
+		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+			getAvailableMoney(ns, true) > 28e9) {
+			await killOthers(ns);
+		}
 		await ns.sleep(20000);
 	}
 }
@@ -307,6 +312,10 @@ async function wantToEndRun(ns, started) {
 			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown / 5);
 		// avoid ending while there are outstanding shares or
 		// shares cant be sold at the start of the next run
+		return false;
+	}
+	if (ns.getPlayer().bitNodeN == 8 && !ns.stock.has4SDataTIXAPI()) {
+		ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
 		return false;
 	}
 	const estimation = await getEstimation(ns, false);
@@ -433,7 +442,7 @@ async function meetMoneyGoals(ns) {
 	if (!goals.factionGoals) {
 		return;
 	}
-	if (!ns.scriptRunning("trader.js", "home")) {
+	if (!ns.scriptRunning("trader.js", "home") && !ns.scriptRunning("trader2.js", "home")) {
 		return;
 	}
 	const maxPossibleMoney = getAvailableMoney(ns, true);
