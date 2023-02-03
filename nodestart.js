@@ -424,6 +424,15 @@ async function improveInfrastructure(ns, programsOwned, started) {
 					startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
 				}
 			}
+			const database = getDatabase(ns);
+			if (ns.stock.hasTIXAPIAccess() && database.bitnodemultipliers) {
+				const multiplier = database.bitnodemultipliers.FourSigmaMarketDataApiCost ?
+					database.bitnodemultipliers.FourSigmaMarketDataApiCost : 1;
+				if (!ns.stock.has4SDataTIXAPI() && getAvailableMoney(ns, true) > multiplier * 50e9) {
+					await killOthers(ns);
+					await runAndWait(ns, "purchase-stock-api.js", "--all");
+				}
+			}
 	}
 }
 
