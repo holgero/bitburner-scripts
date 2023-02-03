@@ -33,9 +33,9 @@ complete 4 (need automation without penalty)
 5 (intelligence)
 8 (stock market)
 3 (corporations)
-2 (gangs)
 complete 1 - 5 (gangs are easy)
 9 (hackserver)
+complete 9 (free hacknet server makes everything easier)
 7 (bladeburner automation)
 complete 6 - 13 (12 is recursion, more than 3 could be usefull)
 */
@@ -61,6 +61,12 @@ function nextBitnode(ns, current, owned) {
 	for (let next of [9, 7, 6]) {
 		if (current != next && !owned.find(a => a.n == next)) {
 			return next;
+		}
+		if (next == 9) {
+			const thisNode = owned.find(a => a.n == next);
+			if (!thisNode || thisNode.lvl < 2 || (thisNode.lvl == 2 && current != next)) {
+				return next;
+			}
 		}
 	}
 	for (let next = 6; next < 14; next++) {
