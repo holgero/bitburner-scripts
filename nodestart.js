@@ -450,7 +450,8 @@ async function meetMoneyGoals(ns) {
 	const player = ns.getPlayer();
 	const bitNode = player.bitNodeN;
 	if (bitNode == 8) {
-		return;
+		// not sure about this
+		// return;
 	}
 	for (var goal of goals.factionGoals.filter(a => a.money && !player.factions.includes(a.name))) {
 		if (goal.hack && ns.getPlayer().skills.hacking < 0.98 * goal.hack) {
@@ -463,7 +464,11 @@ async function meetMoneyGoals(ns) {
 				continue;
 			}
 		}
+		if (goal.location && player.city != goal.location) {
+			continue;
+		}
 		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
+			ns.tprintf("Making money available to join %s", goal.name);
 			await stopTrader(ns);
 		}
 	}
