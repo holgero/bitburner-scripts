@@ -3,10 +3,7 @@ import { getDatabase, runAndWait } from "helpers.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	const database = getDatabase(ns);
-	if (ns.getPlayer().bitNodeN != 10 &&
-		(!database.ownedSourceFiles ||
-			!database.ownedSourceFiles.find(a => a.n == 10))) {
-		// ns.printf("No access to sleeve API");
+	if (!database.features.sleeves) {
 		return;
 	}
 	await runAndWait(ns, "joinfactions.js", "--all");

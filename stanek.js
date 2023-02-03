@@ -4,10 +4,7 @@ import { getDatabase } from "helpers.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	const database = getDatabase(ns);
-	if (ns.getPlayer().bitNodeN != 13 &&
-		(!database.ownedSourceFiles ||
-			!database.ownedSourceFiles.find(a => a.n == 13))) {
-		// ns.printf("Don't have a chance for Stanek's Gift");
+	if (!database.features.church) {
 		return;
 	}
 
