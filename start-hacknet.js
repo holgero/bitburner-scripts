@@ -17,7 +17,7 @@ export async function main(ns) {
 	var levelAddon;
 	var coreMultiplier;
 	var ramMultiplier;
-	if (database.ownedSourceFiles && database.ownedSourceFiles.find(a => a.n == 9)) {
+	if (database.features.hacknet) {
 		levelMultiplier = 6.25;
 		levelAddon = 0;
 		ramMultiplier = 8;
