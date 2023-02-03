@@ -104,14 +104,14 @@ async function startTrader(ns) {
 	if (!ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 10e9) {
 		await runAndWait(ns, "purchase-stock-api.js");
 	}
-	if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
-		getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
-		await runAndWait(ns, "purchase-stock-api.js", "--all");
-		deleteBudget(ns, "stocks");
-	}
 	if (ns.stock.hasTIXAPIAccess() &&
 		!ns.scriptRunning("trader.js", "home") &&
 		!ns.scriptRunning("trader2.js", "home")) {
+		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+			getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
+			await runAndWait(ns, "purchase-stock-api.js", "--all");
+			deleteBudget(ns, "stocks");
+		}
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
 		const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
