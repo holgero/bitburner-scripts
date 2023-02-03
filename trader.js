@@ -5,6 +5,7 @@ import {
 	useBudget,
 	unuseBudget,
 	releaseBudget,
+	deleteBudget,
 } from "budget.js";
 
 const COMISSION = 100e3;
@@ -23,6 +24,7 @@ export async function main(ns) {
 	if (budget < 100e6) {
 		ns.tprintf("Budget for trading too small (%s, need %s)",
 			formatMoney(budget), formatMoney(100e6));
+		deleteBudget(ns, "stocks");
 		return;
 	}
 	switch (options.algo) {
