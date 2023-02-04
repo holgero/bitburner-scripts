@@ -141,35 +141,36 @@ async function setupCorporation(ns) {
 			await ns.sleep(100);
 			corporation = ns.corporation.getCorporation();
 		}
-		for (var division of corporation.divisions) {
-			await setupDivisionWarehouse(ns, division);
+		for (var divisionName of corporation.divisions) {
+			await setupDivisionWarehouse(ns, divisionName);
 		}
 	}
 	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
-		for (var division of corporation.divisions) {
+		for (var divisionName of corporation.divisions) {
 			corporation = ns.corporation.getCorporation();
-			if (ns.corporation.getHireAdVertCount(division.name) <
+			if (ns.corporation.getHireAdVertCount(divisionName) <
 				corporation.divisions.length &&
 				corporation.numShares == 0) {
-				var cost = ns.corporation.getHireAdVertCost(division.name);
+				var cost = ns.corporation.getHireAdVertCost(divisionName);
 				if (corporation.funds - HOLD_BACK_FUNDS > cost ||
-					ns.corporation.getHireAdVertCount(division.name) == 0) {
-					ns.corporation.hireAdVert(division.name);
+					ns.corporation.getHireAdVertCount(divisionName) == 0) {
+					ns.corporation.hireAdVert(divisionName);
 					corporation = ns.corporation.getCorporation();
 				}
 			}
-			await setupDivisionOffice(ns, division, corporation.divisions.length);
+			await setupDivisionOffice(ns, divisionName, corporation.divisions.length);
 			if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+				const division = ns.corporation.getDivision(divisionName);
 				if (division.products.length) {
 					// don't expand this division if there is a product development going on
-					var product = ns.corporation.getProduct(division.name,
+					var product = ns.corporation.getProduct(divisionName,
 						division.products[0]);
 					if (product.developmentProgress < 100) {
 						continue;
 					}
 				}
 				// only expand if we can manage it completely
-				expandDivision(ns, division, corporation);
+				expandDivision(ns, divisionName, corporation);
 			}
 		}
 	}
@@ -220,7 +221,7 @@ function expandIndustry(ns) {
 		// maximum expansion reached
 		return;
 	}
-	var currentDivision = corporation.divisions[corporation.divisions.length - 1];
+	var currentDivision = ns.corporation.getDivision(corporation.divisions[corporation.divisions.length - 1]);
 	if (currentDivision.cities.length < c.CITIES.length) {
 		// not fully expanded
 		return;
@@ -270,7 +271,8 @@ function valuation(ns, corporation) {
 }
 
 /** @param {NS} ns **/
-function expandDivision(ns, division, corporation) {
+function expandDivision(ns, divisionName, corporation) {
+	const division = ns.corporation.getDivision(divisionName);
 	if (corporation.numShares > 0) {
 		return;
 	}
@@ -291,8 +293,9 @@ function expandDivision(ns, division, corporation) {
 }
 
 /** @param {NS} ns **/
-async function setupDivisionOffice(ns, division, sizeFactor) {
+async function setupDivisionOffice(ns, divisionName, sizeFactor) {
 	// ns.print("setupDivisionOffices");
+	const division = ns.corporation.getDivision(divisionName);
 	for (var city of division.cities) {
 		var office = ns.corporation.getOffice(division.name, city);
 		// increase office size only after being present in all cities
@@ -323,8 +326,9 @@ async function setupDivisionOffice(ns, division, sizeFactor) {
 }
 
 /** @param {NS} ns **/
-async function setupDivisionWarehouse(ns, division) {
+async function setupDivisionWarehouse(ns, divisionName) {
 	// ns.print("setupDivisionWarehouse");
+	const division = ns.corporation.getDivision(divisionName);
 	for (var city of division.cities) {
 		if (!ns.corporation.hasWarehouse(division.name, city)) {
 			ns.corporation.purchaseWarehouse(division.name, city);
@@ -495,9 +499,9 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 }
 
 /** @param {NS} ns **/
-async function distributeEmployees(ns, division, city, office) {
-	// ns.print("distributeEmployees");
-	var toDistribute = office.size;
+function distributeEmployees(ns, division, city, office) {
+	// ns.tprint("distributeEmployees");
+	var toDistribute = office.employees;
 	var wanted = {
 		management: Math.floor(toDistribute / 9),
 		business: Math.floor(toDistribute / 9),
@@ -526,42 +530,25 @@ async function distributeEmployees(ns, division, city, office) {
 			}
 		}
 	}
-	var have = { management: 0, business: 0, research: 0, engineers: 0, operations: 0 };
-	for (var employee of office.employees) {
-		switch (ns.corporation.getEmployee(division.name, city, employee).pos) {
-			case RESEARCH:
-				have.research++;
-				break;
-			case MANAGEMENT:
-				have.management++;
-				break;
-			case BUSINESS:
-				have.business++;
-				break;
-			case ENGINEER:
-				have.engineers++;
-				break;
-			case OPERATIONS:
-				have.operations++;
-				break;
-		}
+	const have = office.employeeJobs;
+	// ns.tprintf("Employee distribution: %s", JSON.stringify(office.employeeJobs));
+	// ns.tprintf("Wanted: %s", JSON.stringify(wanted));
+	// ns.tprintf("Have:   %s", JSON.stringify(have));
+	if (wanted.business != have[BUSINESS]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
 	}
-	// ns.printf("Wanted: %s", JSON.stringify(wanted));
-	// ns.printf("Have:   %s", JSON.stringify(have));
-	if (wanted.business != have.business) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
+	if (wanted.research != have[RESEARCH]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, wanted.research);
 	}
-	if (wanted.research != have.research) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, wanted.research);
+	if (wanted.management != have[MANAGEMENT]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
 	}
-	if (wanted.management != have.management) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
+	if (wanted.engineers != have[ENGINEER]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
 	}
-	if (wanted.engineers != have.engineers) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
+	if (wanted.operations != have[OPERATIONS]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
 	}
-	if (wanted.operations != have.operations) {
-		await ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
-	}
+	// ns.printf("Employee distribution: %s", JSON.stringify(office.employeeJobs));
 	// ns.print("Done distributing");
 }
