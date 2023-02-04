@@ -8,7 +8,7 @@ export async function main(ns) {
 			return;
 		}
 	}
-	for (var crime of [ "HOMICIDE", "MUG", "SHOPLIFT"]) {
+	for (var crime of [ns.enums.CrimeType.homicide, ns.enums.CrimeType.mug, ns.enums.CrimeType.shoplift]) {
 		if (ns.singularity.getCrimeChance(crime) >= 0.5) {
 			commitCrime(ns, crime);
 			return;
