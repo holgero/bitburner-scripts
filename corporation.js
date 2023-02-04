@@ -227,8 +227,8 @@ function expandIndustry(ns) {
 		return;
 	}
 	var industry = INDUSTRIES[corporation.divisions.length];
-	if (corporation.funds - HOLD_BACK_FUNDS <
-		ns.corporation.getExpandIndustryCost(industry)) {
+	const industryData = ns.corporation.getIndustryData(industry)
+	if (corporation.funds - HOLD_BACK_FUNDS < industryData.startingCost) {
 		// not enough funds to expand
 		return;
 	}
@@ -280,7 +280,8 @@ function expandDivision(ns, divisionName, corporation) {
 		return;
 	}
 	var money = corporation.funds - HOLD_BACK_FUNDS;
-	const expansionCost = ns.corporation.getExpandCityCost() + ns.corporation.getPurchaseWarehouseCost();
+	const corporationConstants = ns.corporation.getConstants();
+	const expansionCost = corporationConstants.officeInitialCost + corporationConstants.warehouseInitialCost;
 	// ns.printf("Cost to expand: %s", formatMoney(expansionCost));
 	for (var nextCity of c.CITIES.filter(a => !division.cities.includes(a))) {
 		if (money > expansionCost) {
