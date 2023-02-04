@@ -31,7 +31,7 @@ async function runSleeves(ns) {
 	}
 	const available = [];
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
-		const skills = ns.sleeve.getSleeveStats(ii);
+		const skills = ns.sleeve.getSleeve(ii).skills;
 		if (skills.sync < 100) {
 			ns.sleeve.setToSynchronize(ii);
 			continue;
@@ -85,7 +85,7 @@ async function runSleeves(ns) {
 
 /** @param {NS} ns */
 function getCrimeType(ns, sleeveNo) {
-	const skills = ns.sleeve.getSleeveStats(sleeveNo);
+	const skills = ns.sleeve.getSleeve(sleeveNo).skills;
 	if (skills.agility < 25 || skills.dexterity < 25) {
 		return "Shoplift";
 	}
@@ -97,7 +97,7 @@ function getCrimeType(ns, sleeveNo) {
 
 /** @param {NS} ns */
 function sleeveHasLowSkills(ns, sleeveNo) {
-	const skills = ns.sleeve.getSleeveStats(sleeveNo);
+	const skills = ns.sleeve.getSleeve(sleeveNo).skills;
 	if (skills.agility < 12 || skills.dexterity < 12) {
 		return true;
 	}
