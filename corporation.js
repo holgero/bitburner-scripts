@@ -77,7 +77,7 @@ function tradeCorporationShares(ns) {
 		ns.corporation.issueDividends(1);
 		var earned = ns.getServerMoneyAvailable("home") - money;
 		reserveBudget(ns, "corp", earned); // to make sure we can buy back
-		ns.toast("Sold corporation shares for " + formatMoney(earned), "success", 8000);
+		ns.toast("Sold corporation shares for " + formatMoney(earned), ns.enums.ToastVariant.SUCCESS, 8000);
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		return;
 	}
@@ -87,7 +87,7 @@ function tradeCorporationShares(ns) {
 		ns.corporation.buyBackShares(corporation.issuedShares);
 		var spend = money - ns.getServerMoneyAvailable("home");
 		deleteBudget(ns, "corp");
-		ns.toast("Bought corporation shares for " + formatMoney(spend), "success", 8000);
+		ns.toast("Bought corporation shares for " + formatMoney(spend), ns.enums.ToastVariant.SUCCESS, 8000);
 		ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
 	}
 }
@@ -245,8 +245,6 @@ async function printCorporationInfo(ns) {
 	corporation.valuation = value;
 	var profit = corporation.revenue - corporation.expenses;
 	corporation.bonusTime = ns.corporation.getBonusTime();
-	// ns.toast("Share price: " + formatMoney(corporation.sharePrice) +
-	// 	", profit: " + formatMoney(profit), profit > 0 ? "success" : "warning", 5000);
 	ns.printf("Corporation: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, owned=%s",
 		formatMoney(corporation.sharePrice), formatMoney(low), formatMoney(high),
 		formatMoney(corporation.funds),

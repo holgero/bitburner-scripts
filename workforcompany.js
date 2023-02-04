@@ -29,5 +29,5 @@ export async function main(ns) {
 
 function toastCompletion(ns, company) {
 	const completion = ((100.0 * ns.singularity.getCompanyRep(company)) / 400000).toFixed(1);
-	ns.toast("Company " + company + " completion: " + completion + " %", "success", 5000);
+	ns.toast("Company " + company + " completion: " + completion + " %", ns.enums.ToastVariant.SUCCESS, 5000);
 }

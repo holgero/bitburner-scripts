@@ -46,7 +46,7 @@ async function workOnGoal(ns, goal, config) {
 	var percentComplete = (100.0 * repReached / goalRep).toFixed(1);
 	ns.printf("Goal completion (%s %d/%d): %s %%",
 		goal.name, repReached, goalRep, percentComplete);
-	ns.toast(goal.name + ": " + percentComplete + " %", "success", 5000);
+	ns.toast(goal.name + ": " + percentComplete + " %", ns.enums.ToastVariant.SUCCESS, 5000);
 	if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
 		ns.printf("Work for company %s", goal.name);
 		await runAndWait(ns, "workforcompany.js", "--apply", "--work",
