@@ -296,21 +296,22 @@ async function setupDivisionOffice(ns, divisionName, sizeFactor) {
 	// ns.print("setupDivisionOffices");
 	const division = ns.corporation.getDivision(divisionName);
 	for (var city of division.cities) {
-		var office = ns.corporation.getOffice(division.name, city);
+		var office = ns.corporation.getOffice(divisionName, city);
 		// increase office size only after being present in all cities
 		if (division.cities.length == c.CITIES.length &&
 			office.size < 9 * sizeFactor) {
 			var corp = ns.corporation.getCorporation();
-			if (ns.corporation.getOfficeSizeUpgradeCost(division.name, city, 3) < corp.funds - HOLD_BACK_FUNDS) {
-				ns.corporation.upgradeOfficeSize(division.name, city, 3);
+			if (ns.corporation.getOfficeSizeUpgradeCost(divisionName, city, 3) < corp.funds - HOLD_BACK_FUNDS) {
+				ns.corporation.upgradeOfficeSize(divisionName, city, 3);
 			}
-			office = ns.corporation.getOffice(division.name, city);
+			office = ns.corporation.getOffice(divisionName, city);
 		}
 		for (var ii = office.employees; ii < office.size; ii++) {
-			ns.corporation.hireEmployee(division.name, city);
+			ns.corporation.hireEmployee(divisionName, city);
 		}
-		office = ns.corporation.getOffice(division.name, city);
-		await distributeEmployees(ns, division, city, office);
+		office = ns.corporation.getOffice(divisionName, city);
+		distributeEmployees(ns, division, city, office);
+		makeEmployeesHappy(ns, division, city, office);
 	}
 	if (division.research) {
 		for (var researchName of [LABORATORY, MARKET_TA_I, MARKET_TA_II]) {
@@ -550,4 +551,35 @@ function distributeEmployees(ns, division, city, office) {
 	}
 	// ns.printf("Employee distribution: %s", JSON.stringify(office.employeeJobs));
 	// ns.print("Done distributing");
+}
+
+/** @param {NS} ns **/
+function makeEmployeesHappy(ns, division, city, office) {
+	// ns.tprintf("Checking employees in division %s, city %s", division.name, city);
+	// ns.tprintf("Office: %s", JSON.stringify(office));
+	if (office.avgHap < 0.85 * office.maxHap) {
+		ns.printf("Happines is %s, need a party in division %s, city %s", office.avgHap.toFixed(1), division.name, city);
+		ns.corporation.throwParty(division.name, city, 1e6);
+	}
+	if (office.avgMor < 0.85 * office.maxMor) {
+		ns.printf("Morale is %s, need a party in division %s, city %s", office.avgMor.toFixed(1), division.name, city);
+		ns.corporation.throwParty(division.name, city, 1e6);
+	}
+	if (office.avgEne < 0.85 * office.maxEne) {
+		ns.printf("Energy is %s, need a cofee in division %s, city %s", office.avgEne.toFixed(1), division.name, city);
+		ns.corporation.buyCoffee(division.name, city);
+	}
+	/*
+	if (office.avgHap < office.minHap + 0.75 * (office.maxHap - office.minHap)) {
+		ns.tprintf("Happines is %s, need a party in division %s, city %s", office.avgHap, division.name, city);
+		ns.corporation.throwParty(disvision.name, city, 1e6);
+	}
+	if (office.avgMor < office.minMor + 0.75 * (office.maxMor - office.minMor)) {
+		ns.tprintf("Morale is %s, need a party in division %s, city %s", office.avgMor, division.name, city);
+		ns.corporation.throwParty(disvision.name, city, 1e6);
+	}
+	if (office.avgEne < office.minEne + 0.75 * (office.maxEne - office.minEne)) {
+		ns.tprintf("Energy is %s, need a cofee in division %s, city %s", office.avgEne, division.name, city);
+	}
+	*/
 }
