@@ -30,7 +30,7 @@ const REALESTATE = "Real Estate";
 const RESTAURANT = "Restaurant";
 const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
-const MAX_SELL = "MAX";
+const MAX_SELL = "1e9";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
@@ -306,7 +306,7 @@ async function setupDivisionOffice(ns, divisionName, sizeFactor) {
 			}
 			office = ns.corporation.getOffice(division.name, city);
 		}
-		for (var ii = office.employees.length; ii < office.size; ii++) {
+		for (var ii = office.employees; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(division.name, city);
 		}
 		office = ns.corporation.getOffice(division.name, city);
