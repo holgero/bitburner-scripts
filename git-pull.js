@@ -77,6 +77,7 @@ const FILES = [
 	"trader2.js",
 	"travel.js",
 	"university.js",
+	"warp.js",
 	"workforcompany.js",
 	"workforfaction.js",
 	"workout.js",
