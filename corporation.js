@@ -1,4 +1,4 @@
-import { formatMoney, getAvailableMoney } from "./helpers.js";
+import { formatMoney, getDatabase, getAvailableMoney } from "./helpers.js";
 import { reserveBudget, getBudget, deleteBudget } from "budget.js";
 import * as c from "./constants.js";
 
@@ -264,6 +264,9 @@ function valuation(ns, corporation) {
 	var val = corporation.funds + profit * 85e3;
 	val *= Math.pow(1.1, corporation.divisions.length);
 	val = Math.max(val, 0);
+
+	const database = getDatabase(ns);
+	val *= database.bitnodemultipliers.CorporationValuation;
 
 	return val;
 }
