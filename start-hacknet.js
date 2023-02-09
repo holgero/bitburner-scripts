@@ -31,6 +31,8 @@ export async function main(ns) {
 
 	if (ns.scriptRunning(scriptName, scriptHost)) {
 		ns.printf("Still installing");
+		// fix: make sure budget is current
+		ns.scp("budget.txt", scriptHost);
 		return;
 	}
 	if (ns.scriptRunning("start-servers2.js", "home")) {
