@@ -373,6 +373,7 @@ async function purchaseHackingPrograms(ns, nextProgram) {
 
 /** @param {NS} ns **/
 async function improveInfrastructure(ns, programsOwned, started) {
+	const database = getDatabase(ns);
 	await runAndWait(ns, "start-hacknet.js", programsOwned);
 
 	switch (programsOwned) {
@@ -419,12 +420,13 @@ async function improveInfrastructure(ns, programsOwned, started) {
 				!ns.scriptRunning("start-servers2.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
-				if (!await wantToEndRun(ns, started) && !isEndgame(ns)) {
+				if (database.features.graft &&
+					!await wantToEndRun(ns, started) &&
+					!isEndgame(ns)) {
 					await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
 					startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
 				}
 			}
-			const database = getDatabase(ns);
 			if (ns.stock.hasTIXAPIAccess() && database.bitnodemultipliers) {
 				const multiplier = database.bitnodemultipliers.FourSigmaMarketDataApiCost ?
 					database.bitnodemultipliers.FourSigmaMarketDataApiCost : 1;
