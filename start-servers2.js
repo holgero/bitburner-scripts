@@ -11,14 +11,14 @@ export async function main(ns) {
 		var hostname = "pserv-" + ii;
 		if (ns.serverExists(hostname)) {
 			while (true) {
-				if (ns.upgradePurchasedServer("pserv-" + ii, ram)) {
+				if (ns.upgradePurchasedServer(hostname, ram)) {
 					break;
 				}
 				await ns.sleep(60000);
 			}
 		} else {
 			while (true) {
-				var result = ns.purchaseServer("pserv-" + ii, ram);
+				var result = ns.purchaseServer(hostname, ram);
 				if (result == hostname) {
 					releaseBudget(ns, "servers", cost);
 					break;
