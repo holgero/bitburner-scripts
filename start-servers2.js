@@ -9,7 +9,14 @@ export async function main(ns) {
 
 	for (var ii = 0; ii < victims.length; ii++) {
 		var hostname = "pserv-" + ii;
-		if (!ns.serverExists(hostname)) {
+		if (ns.serverExists(hostname)) {
+			while (true) {
+				if (ns.upgradePurchasedServer("pserv-" + ii, ram)) {
+					break;
+				}
+				await ns.sleep(60000);
+			}
+		} else {
 			while (true) {
 				var result = ns.purchaseServer("pserv-" + ii, ram);
 				if (result == hostname) {
@@ -26,7 +33,7 @@ export async function main(ns) {
 				await ns.sleep(60000);
 			}
 		}
-		await ns.scp(script, hostname);
+		ns.scp(script, hostname);
 		var threads = Math.floor(ns.getServer(hostname).maxRam / ns.getScriptRam(script));
 		ns.exec(script, hostname, threads, victims[ii]);
 	}

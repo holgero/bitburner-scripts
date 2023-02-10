@@ -40,7 +40,7 @@ export async function main(ns) {
 		var hostname = SERVER_PREFIX + "0";
 		var nextRam = 32;
 		if (ns.serverExists(hostname)) {
-			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 4 * ns.getServerMaxRam(hostname));
+			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * ns.getServerMaxRam(hostname));
 		}
 		var money = getAvailableMoney(ns);
 		const multiplier = getHackingProfitability(ns);
@@ -90,30 +90,11 @@ export async function main(ns) {
 	ns.tprintf("This will cost %s per server, in total %s", formatMoney(cost),
 		formatMoney(cost * numberOfServers));
 
-	if (options.upgrade) {
-		ns.tprintf("Removing existing smaller servers");
-		removeSmallServers(ns, options.ram);
-	} else {
-		if (options.restart || options.hack) {
-			ns.tprintf("Freeing existing servers");
-			freeServers(ns);
-		}
+	if (options.restart || options.hack) {
+		ns.tprintf("Freeing existing servers");
+		freeServers(ns);
 	}
 	ns.spawn("start-servers2.js", 1, options.ram, cost, script, JSON.stringify(victims));
-}
-
-/** @param {NS} ns **/
-function removeSmallServers(ns, ram) {
-	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
-		var hostname = SERVER_PREFIX + ii;
-		if (ns.serverExists(hostname)) {
-			ns.killall(hostname);
-			if (ns.getServer(hostname).maxRam < ram) {
-				ns.printf("Removing %s", hostname);
-				ns.deleteServer(hostname);
-			}
-		}
-	}
 }
 
 /** @param {NS} ns **/
