@@ -90,7 +90,7 @@ export async function main(ns) {
 	ns.tprintf("This will cost %s per server, in total %s", formatMoney(cost),
 		formatMoney(cost * numberOfServers));
 
-	if (options.restart || options.hack) {
+	if (options.restart || options.hack || options.upgrade) {
 		ns.tprintf("Freeing existing servers");
 		freeServers(ns);
 	}
@@ -102,7 +102,7 @@ function freeServers(ns) {
 	for (var ii = 0; ii < ns.getPurchasedServerLimit(); ii++) {
 		var hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
-			ns.tprintf("Killing scripts on %s", hostname);
+			// ns.tprintf("Killing scripts on %s", hostname);
 			ns.killall(hostname);
 		}
 	}
