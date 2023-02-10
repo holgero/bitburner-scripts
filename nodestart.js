@@ -28,7 +28,7 @@ export async function main(ns) {
 		await runAndWait(ns, "calculate-goals.js", "--money", 1);
 		await startHacking(ns, getProgramCount(ns));
 	}
-	await runAndWait(ns, "warp.js", "--speed", 10);
+	await runAndWait(ns, "warp.js");
 
 	await setUpForTrader(ns);
 	await setUpForCorporations(ns);

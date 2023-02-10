@@ -1,16 +1,29 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["speed", 10]]);
+	const options = ns.flags([["speed", 10], ["reset", false]]);
+	ns.tprintf("Start: %s", new Date());
 	if (!Date.warp) {
-		const offset = ns.getPlayer().playtimeSinceLastBitnode;
 		installWarp(ns);
+	}
+	const player = ns.getPlayer()
+	const offset = Math.min(player.playtimeSinceLastBitnode, player.playtimeSinceLastAug);
+	if (offset < 0) {
+		Date.warp.jump(-2 * offset);
+	} else {
 		Date.warp.jump((options.speed - 1) * offset);
 	}
 	Date.warp.speed(options.speed);
+	Date.warp.on();
+	if (options.reset) {
+		Date.warp.off();
+		Date.warp.reset();
+	}
+	ns.tprintf("Now: %s", new Date());
 }
 
 /** @param {NS} ns */
 function installWarp(ns) {
+	ns.tprintf("Installing time warp");
 	(function () {
 		var y = 'years',
 			mo = 'months',
