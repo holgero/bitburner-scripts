@@ -1,24 +1,36 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["speed", 10], ["reset", false]]);
-	ns.tprintf("Start: %s", new Date());
+	const options = ns.flags([["speed", 10], ["reset", false], ["jump", false]]);
 	if (!Date.warp) {
 		installWarp(ns);
 	}
-	const player = ns.getPlayer()
-	const offset = Math.min(player.playtimeSinceLastBitnode, player.playtimeSinceLastAug);
-	if (offset < 0) {
-		Date.warp.jump(-2 * offset);
-	} else {
-		Date.warp.jump((options.speed - 1) * offset);
-	}
+	fixNow(ns);
 	Date.warp.speed(options.speed);
 	Date.warp.on();
+	if (options.jump) {
+		Date.warp.jump(3.6e6);
+	}
 	if (options.reset) {
 		Date.warp.off();
 		Date.warp.reset();
 	}
 	ns.tprintf("Now: %s", new Date());
+}
+
+/** @param {NS} ns */
+function fixNow(ns) {
+	ns.tprintf("Now: %s", new Date());
+	const player = ns.getPlayer();
+	const gameStart = Date.now() - player.totalPlaytime;
+	if (!ns.fileExists("warp.txt")) {
+		ns.write("warp.txt", JSON.stringify({start: gameStart}), "w");
+	}
+	ns.tprintf("     Game Start: %s", new Date(gameStart));
+	const realGameStart = JSON.parse(ns.read("warp.txt")).start;
+	ns.tprintf("Real Game Start: %s", new Date(realGameStart));
+	if (gameStart < realGameStart) {
+		ns.tprintf("Need a fixup of %d", realGameStart - gameStart);
+	}
 }
 
 /** @param {NS} ns */

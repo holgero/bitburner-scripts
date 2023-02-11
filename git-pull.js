@@ -112,7 +112,7 @@ const DATABASE = [
 	"multipliers.js",
 	"features.js",
 ];
-const BASEURL = "https://raw.githubusercontent.com/holgero/bitburner-scripts/main/";
+const BASEURL = "https://raw.githubusercontent.com/holgero/bitburner-scripts/timewarp/";
 
 /** @param {NS} ns */
 export async function main(ns) {
