@@ -222,11 +222,8 @@ async function canSpendMoney(ns, started) {
 		return completion < 0.8;
 	}
 	const estimation = await getEstimation(ns, false);
-	if (estimation.prioritizedAugmentationCount >= 6) {
-		// nearly there, no longer spend money
-		return false;
-	}
-	if (estimation.affordableAugmentationCount >= 11) {
+	if ((estimation.prioritizedAugmentationCount +
+		estimation.affordableAugmentationCount) >= 11) {
 		// nearly there, no longer spend money
 		return false;
 	}
