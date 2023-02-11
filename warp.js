@@ -1,6 +1,10 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["speed", 10], ["reset", false], ["jump", false]]);
+	const options = ns.flags([
+		["speed", 1],
+		["reset", false],
+		["jump", false],
+		["update", false]]);
 	if (!Date.warp) {
 		installWarp(ns);
 	}
@@ -9,6 +13,10 @@ export async function main(ns) {
 	Date.warp.on();
 	if (options.jump) {
 		Date.warp.jump(3.6e6);
+	}
+	if (options.update) {
+		const warpConfig = JSON.parse(ns.read("warp.txt"));
+		ns.write("warp.txt", JSON.stringify({ start: warpConfig.start, end: Date.now() }), "w");
 	}
 	if (options.reset) {
 		Date.warp.off();
@@ -23,13 +31,21 @@ function fixNow(ns) {
 	const player = ns.getPlayer();
 	const gameStart = Date.now() - player.totalPlaytime;
 	if (!ns.fileExists("warp.txt")) {
-		ns.write("warp.txt", JSON.stringify({start: gameStart}), "w");
+		ns.write("warp.txt", JSON.stringify({ start: gameStart, end: Date.now() }), "w");
 	}
 	ns.tprintf("     Game Start: %s", new Date(gameStart));
-	const realGameStart = JSON.parse(ns.read("warp.txt")).start;
-	ns.tprintf("Real Game Start: %s", new Date(realGameStart));
-	if (gameStart < realGameStart) {
-		ns.tprintf("Need a fixup of %d", realGameStart - gameStart);
+	const warpConfig = JSON.parse(ns.read("warp.txt"));
+	ns.tprintf("Real Game Start: %s", new Date(warpConfig.start));
+	if (warpConfig.start > gameStart) {
+		const offset = warpConfig.start - gameStart;
+		ns.tprintf("Need a fix of: %d", offset);
+		Date.warp.jump(offset);
+	}
+	ns.tprintf("    Last Update: %s", new Date(warpConfig.end));
+	if (Date.now() < warpConfig.end) {
+		ns.tprintf("Fixing current time");
+		Date.warp.jump(warpConfig.end - Date.now() + 1000);
+		ns.tprintf("Now: %s", new Date());
 	}
 }
 
