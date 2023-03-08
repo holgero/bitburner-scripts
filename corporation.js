@@ -537,19 +537,34 @@ function distributeEmployees(ns, division, city, office) {
 	// ns.tprintf("Employee distribution: %s", JSON.stringify(office.employeeJobs));
 	// ns.tprintf("Wanted: %s", JSON.stringify(wanted));
 	// ns.tprintf("Have:   %s", JSON.stringify(have));
-	if (wanted.business != have[BUSINESS]) {
+	if (wanted.business < have[BUSINESS]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
 	}
-	if (wanted.research != have[RESEARCH]) {
+	if (wanted.research < have[RESEARCH]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, wanted.research);
 	}
-	if (wanted.management != have[MANAGEMENT]) {
+	if (wanted.management < have[MANAGEMENT]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
 	}
-	if (wanted.engineers != have[ENGINEER]) {
+	if (wanted.engineers < have[ENGINEER]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
 	}
-	if (wanted.operations != have[OPERATIONS]) {
+	if (wanted.operations < have[OPERATIONS]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
+	}
+	if (wanted.business > have[BUSINESS]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, BUSINESS, wanted.business);
+	}
+	if (wanted.research > have[RESEARCH]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, RESEARCH, wanted.research);
+	}
+	if (wanted.management > have[MANAGEMENT]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
+	}
+	if (wanted.engineers > have[ENGINEER]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
+	}
+	if (wanted.operations > have[OPERATIONS]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
 	}
 	// ns.printf("Employee distribution: %s", JSON.stringify(office.employeeJobs));
