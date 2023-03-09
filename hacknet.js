@@ -1,5 +1,5 @@
 import { runAndWait } from "helpers.js";
-const prefix = "hacknet-node-";
+const prefix = "hacknet-server-";
 
 /** @param {NS} ns **/
 export async function main(ns) {

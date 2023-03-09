@@ -68,7 +68,8 @@ function findBestVictim(ns) {
 async function traverse(ns, options, startServer, serverProc) {
 	var servers = ns.scan(startServer);
 	for (var server of servers) {
-		if (server.startsWith("hacknet-node-")) {
+		if (server.startsWith("hacknet-node-") ||
+			server.startsWith("hacknet-server-")) {
 			return;
 		}
 		if (known.includes(server)) {
