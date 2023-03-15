@@ -36,8 +36,11 @@ export const SPEAKERS = "Speakers for the Dead";
 export const DAEDALUS = "Daedalus";
 export const SYNDICATE = "The Syndicate";
 export const COVENANT = "The Covenant";
+
+// special factions
 export const BLADEBURNERS = "Bladeburners";
 export const CHURCH = "Church of the Machine God";
+export const ANARCHY = "Shadows of Anarchy";
 
 export const ALL_FACTIONS = [
 	...CITIES,
@@ -68,6 +71,7 @@ export const ALL_FACTIONS = [
 	"Illuminati",
 	BLADEBURNERS,
 	CHURCH,
+	ANARCHY,
 ];
 
 // working types
