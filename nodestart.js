@@ -311,9 +311,15 @@ async function wantToEndRun(ns, started) {
 		// shares cant be sold at the start of the next run
 		return false;
 	}
-	if (ns.getPlayer().bitNodeN == 8 && !ns.stock.has4SDataTIXAPI()) {
-		ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
-		return false;
+	if (ns.getPlayer().bitNodeN == 8) {
+		if (!ns.stock.has4SDataTIXAPI()) {
+			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
+			return false;
+		}
+		if (getAvailableMoney(true) <= 100e9) {
+			ns.printf("On bitnode 8: Not ending before having earned at least 100b.");
+			return false;
+		}
 	}
 	const estimation = await getEstimation(ns, false);
 	if (estimation.affordableAugmentations &&

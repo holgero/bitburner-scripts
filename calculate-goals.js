@@ -99,6 +99,14 @@ export async function main(ns) {
 function capGoalsAtFavorToDonate(ns, database, factionGoals) {
 	var limit = database.favorToDonate;
 	for (var goal of factionGoals) {
+		if (goal.name == c.DAEDALUS) {
+			if (ns.getPlayer().bitNodeN == 8) {
+				// it is more time consuming to reach the 100b to join daedalus than
+				// the effort to get the reputation by hacking contracts so keep on 
+				// working instead of resetting
+				continue;
+			}
+		}
 		if (goal.favor < limit) {
 			if (goal.reputation > 2 * reputationNeeded(ns, database, goal.name) &&
 				ns.singularity.getFactionRep(goal.name) < reputationNeeded(ns, database, goal.name)) {
