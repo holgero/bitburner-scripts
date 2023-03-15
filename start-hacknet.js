@@ -18,7 +18,7 @@ export async function main(ns) {
 	var coreMultiplier;
 	var ramMultiplier;
 	if (database.features.hacknet) {
-		levelMultiplier = 6.25;
+		levelMultiplier = 8;
 		levelAddon = 0;
 		ramMultiplier = 8;
 		coreMultiplier = 1.6;
