@@ -18,7 +18,7 @@ export async function main(ns) {
 		return;
 	}
 	if (createServer(ns, hostname)) {
-		for (var file of ["helpers.js", "budget.js", "constants.js", "corporation.js"]) {
+		for (var file of ["helpers.js", "budget.js", "constants.js", "corporation.js", "database.txt"]) {
 			ns.scp(file, hostname);
 		}
 		ns.exec("corporation.js", hostname);
