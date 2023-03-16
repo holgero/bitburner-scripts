@@ -10,7 +10,8 @@ import {
 	getDatabase,
 	getFactiongoals,
 	getCorporationInfo,
-	getEstimation
+	getEstimation,
+	isEndgame
 } from "helpers.js";
 import { getBudget, getHolding, reserveBudget, deleteBudget } from "budget.js";
 
@@ -193,21 +194,6 @@ function startHomeScript(ns, scriptName, ...args) {
 }
 
 /** @param {NS} ns **/
-function isEndgame(ns) {
-	if (!ns.getPlayer().factions.includes(c.DAEDALUS)) {
-		return false;
-	}
-	const goals = getFactiongoals(ns);
-	if (goals.factionGoals) {
-		const daedalusGoal = goals.factionGoals.find(a => a.name == c.DAEDALUS);
-		if (daedalusGoal && daedalusGoal.reputation > 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-/** @param {NS} ns **/
 async function canSpendMoney(ns, started) {
 	if (await wantToEndRun(ns, started)) {
 		return false;
@@ -242,7 +228,7 @@ async function canSpendMoney(ns, started) {
 async function progressHackingLevels(ns) {
 	await runAndWait(ns, "start-hacknet.js", 1);
 	var lastHackingLevelRun = 0;
-	var started = new Date();
+	var started = Date.now();
 	while (true) {
 		await runHomeScripts(ns);
 		const nextProgram = getProgramCount(ns);
@@ -281,74 +267,9 @@ async function progressHackingLevels(ns) {
 
 /** @param {NS} ns **/
 async function wantToEndRun(ns, started) {
-	if (new Date() - started < 120000) {
-		ns.printf("Not ending directly after start.");
-		return false;
-	}
-	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
-		ns.hasRootAccess(c.WORLD_DAEMON) &&
-		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
-		return true;
-	}
-	const current = ns.singularity.getCurrentWork();
-	if (current != null && current.type == "GRAFTING") {
-		ns.print("Grafting, not ending run");
-		return false;
-	}
-	if (current != null && current.type == "COMPANY") {
-		const completion = (100.0 * ns.singularity.getCompanyRep(current.companyName)) / 400000;
-		if (completion > 90) {
-			ns.printf("Nearly done working for a company (%s), not ending run", completion.toFixed(1));
-			return false;
-		}
-	}
-	const corporationInfo = getCorporationInfo(ns);
-	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 500 ||
-		(corporationInfo.shareSaleCooldown > 2000 && corporationInfo.bonusTime > 100000)) {
-		ns.printf("Outstanding shares %d, cooldown %d s, not ending run",
-			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown / 5);
-		// avoid ending while there are outstanding shares or
-		// shares cant be sold at the start of the next run
-		return false;
-	}
-	if (ns.getPlayer().bitNodeN == 8) {
-		if (!ns.stock.has4SDataTIXAPI()) {
-			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
-			return false;
-		}
-		if (getAvailableMoney(ns, true) <= 111e9) {
-			ns.printf("On bitnode 8: Not ending before having earned at least 111b.");
-			return false;
-		}
-	}
-	const estimation = await getEstimation(ns, false);
-	if (estimation.affordableAugmentations &&
-		estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
-		return true;
-	}
-	if (isEndgame(ns)) {
-		const goals = getFactiongoals(ns).factionGoals;
-		const completion = goalCompletion(ns, goals);
-		return completion >= 1;
-	}
-	if ((estimation.affordableAugmentationCount +
-		estimation.prioritizedAugmentationCount) / 2 >= 6) {
-		return true;
-	}
-	if (estimation.affordableAugmentationCount > 0 &&
-		estimation.affordableAugmentationCount >= getDatabase(ns).augmentations.length) {
-		// get the last augmentations
-		return true;
-	}
-	if (estimation.prioritizedAugmentationCount > 0 &&
-		ns.getPlayer().playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
-		return true;
-	}
-	if (new Date() - started > 24 * 60 * 60 * 1000) {
-		// already runs for a day, do a reboot
-		return true;
-	}
-	return false;
+	await runAndWait(ns, "check-end.js", "--quiet", "--started", started);
+	const theEnd = JSON.parse(ns.read("check-end.txt"));
+	return theEnd.end;
 }
 
 /** @param {NS} ns **/

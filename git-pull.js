@@ -9,6 +9,7 @@ const FILES = [
 	"calculate-goals.js",
 	"clean-files.js",
 	"destroy-world.js",
+	"check-end.js",
 	"commit-crimes.js",
 	"constants.js",
 	"corporation.js",

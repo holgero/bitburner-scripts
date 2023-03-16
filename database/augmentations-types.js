@@ -44,8 +44,7 @@ function getTypeOf(ns, augmentation) {
 		stats.hacknet_node_level_cost > 1) return "Hacknet";
 	if (stats.crime_money > 1 ||
 		stats.crime_success > 1) return "Crime";
-	if (augmentation.name.startsWith("SoA - ")) return "Infiltration"
-
+	if (augmentation.name.startsWith("SoA - ")) return "Infiltration";
 
 	ns.print(JSON.stringify(augmentation));
 	return "Special";

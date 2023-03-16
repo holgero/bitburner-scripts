@@ -1,6 +1,7 @@
 import { getAvailable, getTotal } from "/budget.js";
 import {
-	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES
+	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES,
+	DAEDALUS
 } from "/constants.js";
 
 /** @param {NS} ns **/
@@ -104,9 +105,9 @@ export async function getEstimation(ns, goal) {
 export async function traverse(ns, startServer, known, path, serverProc) {
 	const servers = ns.scan(startServer).
 		filter(a => !known.includes(a) &&
-		 !a.startsWith("pserv-") &&
-		 !a.startsWith("hacknet-server-") &&
-		 !a.startsWith("hacknet-node-"));
+			!a.startsWith("pserv-") &&
+			!a.startsWith("hacknet-server-") &&
+			!a.startsWith("hacknet-node-"));
 	for (var server of servers) {
 		known.push(server);
 		path.push(server);
@@ -350,4 +351,19 @@ export function getStartState(ns) {
 		return "augs";
 	}
 	return "restart";
+}
+
+/** @param {NS} ns **/
+export function isEndgame(ns) {
+	if (!ns.getPlayer().factions.includes(DAEDALUS)) {
+		return false;
+	}
+	const goals = getFactiongoals(ns);
+	if (goals.factionGoals) {
+		const daedalusGoal = goals.factionGoals.find(a => a.name == DAEDALUS);
+		if (daedalusGoal && daedalusGoal.reputation > 0) {
+			return true;
+		}
+	}
+	return false;
 }

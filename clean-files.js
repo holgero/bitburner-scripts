@@ -1,6 +1,7 @@
 const FILES = [
 	"actiondb.txt",
 	"budget.txt",
+	"check-end.txt",
 	"contracts.txt",
 	"corporation.txt",
 	"database.txt",
