@@ -231,12 +231,11 @@ async function progressHackingLevels(ns) {
 	var started = Date.now();
 	while (true) {
 		await runHomeScripts(ns);
-		const nextProgram = getProgramCount(ns);
+		const nextProgram = await purchaseHackingPrograms(ns);
 		if (nextProgram > lastHackingLevelRun) {
 			await startHacking(ns, nextProgram);
 			lastHackingLevelRun = nextProgram;
 		}
-		await purchaseHackingPrograms(ns, nextProgram);
 		if (await wantToEndRun(ns, started)) {
 			return;
 		}
@@ -282,7 +281,8 @@ function getProgramCount(ns) {
 }
 
 /** @param {NS} ns **/
-async function purchaseHackingPrograms(ns, nextProgram) {
+async function purchaseHackingPrograms(ns) {
+	var nextProgram = getProgramCount(ns);
 	if (nextProgram == 0 && getAvailableMoney(ns) > c.programs[0].cost + 200000) {
 		await runAndWait(ns, "writeprogram.js", nextProgram++);
 	}
@@ -293,6 +293,17 @@ async function purchaseHackingPrograms(ns, nextProgram) {
 			await runAndWait(ns, "writeprogram.js", nextProgram++);
 		}
 	}
+	// if only nuking the world daemon is missing to end the world
+	if (nextProgram == c.programs.length - 1 &&
+		getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
+		!ns.hasRootAccess(c.WORLD_DAEMON) &&
+		getAvailableMoney(ns, true) > c.programs[nextProgram].cost &&
+		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		await killOthers(ns);
+		deleteBudget(ns, "stocks");
+		await runAndWait(ns, "writeprogram.js", nextProgram++);
+	}
+	return nextProgram;
 }
 
 /** @param {NS} ns **/
