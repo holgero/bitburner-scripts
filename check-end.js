@@ -89,7 +89,9 @@ async function wantToEndRun(ns, started) {
 	}
 	if ((estimation.affordableAugmentationCount +
 		estimation.prioritizedAugmentationCount) / 2 >= 6) {
-		ns.printf("Endgame: completion is %d.", completion.toFixed(2));
+		ns.printf("Enough augmentations available: affordable: %d, prioritized: %d",
+			estimation.affordableAugmentationCount,
+			estimation.prioritizedAugmentationCount);
 		return true;
 	}
 	if (estimation.affordableAugmentationCount > 0 &&
