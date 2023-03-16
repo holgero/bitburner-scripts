@@ -316,8 +316,8 @@ async function wantToEndRun(ns, started) {
 			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
 			return false;
 		}
-		if (getAvailableMoney(ns, true) <= 100e9) {
-			ns.printf("On bitnode 8: Not ending before having earned at least 100b.");
+		if (getAvailableMoney(ns, true) <= 111e9) {
+			ns.printf("On bitnode 8: Not ending before having earned at least 111b.");
 			return false;
 		}
 	}
