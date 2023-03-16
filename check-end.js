@@ -27,13 +27,14 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function wantToEndRun(ns, started) {
+	const player = ns.getPlayer();
 	if (new Date() - started < 120000) {
 		ns.printf("Not ending directly after start.");
 		return false;
 	}
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
-		ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		player.skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
 		ns.printf("Ready to end the world.");
 		return true;
 	}
@@ -58,13 +59,19 @@ async function wantToEndRun(ns, started) {
 		// shares cant be sold at the start of the next run
 		return false;
 	}
-	if (ns.getPlayer().bitNodeN == 8) {
+	if (player.bitNodeN == 8) {
 		if (!ns.stock.has4SDataTIXAPI()) {
 			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
 			return false;
 		}
 		if (getAvailableMoney(ns, true) <= 111e9) {
 			ns.printf("On bitnode 8: Not ending before having earned at least 111b.");
+			return false;
+		}
+	}
+	if (ns.bladeburner.inBladeburner()) {
+		if (!player.factions.includes(c.BLADEBURNERS)) {
+			ns.printf("Have bladeburner job, but didn't join bladeburners faction yet, not ending");
 			return false;
 		}
 	}
@@ -91,7 +98,7 @@ async function wantToEndRun(ns, started) {
 		return true;
 	}
 	if (estimation.prioritizedAugmentationCount > 0 &&
-		ns.getPlayer().playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
+		player.playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
 		ns.printf("Running for over 40 h since last aug");
 		return true;
 	}
