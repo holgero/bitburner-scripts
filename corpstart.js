@@ -40,8 +40,9 @@ export function createServer(ns, hostname) {
 	}
 	if (ns.serverExists(hostname)) {
 		ns.killall(hostname);
-		ns.deleteServer(hostname);
+		return ns.upgradePurchasedServer(hostname, NEEDRAM);
 	}
-	ns.purchaseServer(hostname, NEEDRAM);
-	return true;
+	const result = ns.purchaseServer(hostname, NEEDRAM);
+	ns.printf("Result of purchaseServer: %s", result);
+	return result != "";
 }
