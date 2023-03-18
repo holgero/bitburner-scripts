@@ -51,7 +51,8 @@ async function wantToEndRun(ns, started) {
 		}
 	}
 	const corporationInfo = getCorporationInfo(ns);
-	if (corporationInfo.issuedShares > 0 || corporationInfo.shareSaleCooldown > 500 ||
+	if (corporationInfo.issuedShares > 0 ||
+		(corporationInfo.shareSaleCooldown > 500 && corporationInfo.bonusTime <= 100000) ||
 		(corporationInfo.shareSaleCooldown > 2000 && corporationInfo.bonusTime > 100000)) {
 		ns.printf("Outstanding shares %d, cooldown %d s, not ending run",
 			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown / 5);
