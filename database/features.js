@@ -12,7 +12,7 @@ function getMissingInfo(ns, database) {
 	for (var featureName of Object.keys(c.FEATURES)) {
 		// ns.tprintf("Check feature %s", featureName);
 		const feature = c.FEATURES[featureName];
-		if (haveSourceFile(database.ownedSourceFiles, feature.sourceFile) ||
+		if (haveSourceFile(database.ownedSourceFiles, feature.sourceFile, feature.level) ||
 			amOnBitnode(ns, feature.sourceFile)) {
 			// ns.tprintf("Yes");
 			database.features[featureName] = "true";
@@ -26,8 +26,8 @@ function getMissingInfo(ns, database) {
 	}
 }
 
-function haveSourceFile(ownedSourceFiles, sourceFile) {
-	return ownedSourceFiles.find(a => a.n == sourceFile);
+function haveSourceFile(ownedSourceFiles, sourceFile, level = 1) {
+	return ownedSourceFiles.find(a => a.n == sourceFile && a.lvl >= level);
 }
 
 /** @param {NS} ns **/

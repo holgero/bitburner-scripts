@@ -102,6 +102,7 @@ export const FEATURES = {
 	corporation: { sourceFile: 3 },
 	bladeburners: { sourceFile: 6 },
 	hacknet: { sourceFile: 9 },
+	hacknetServer: { sourceFile: 9, level: 3 },
 	sleeves: { sourceFile: 10 },
 	graft: { sourceFile: 10 },
 	church: { sourceFile: 13 },

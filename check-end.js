@@ -7,6 +7,7 @@ import {
 	getCorporationInfo,
 	getEstimation,
 	isEndgame,
+	formatMoney,
 } from "helpers.js";
 
 /** @param {NS} ns **/
@@ -28,11 +29,13 @@ export async function main(ns) {
 /** @param {NS} ns **/
 async function wantToEndRun(ns, started) {
 	const player = ns.getPlayer();
+	const database = getDatabase(ns);
+	const money = getAvailableMoney(ns, true);
 	if (new Date() - started < 120000) {
 		ns.printf("Not ending directly after start.");
 		return false;
 	}
-	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL) &&
+	if (database.owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		player.skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
 		ns.printf("Ready to end the world.");
@@ -65,8 +68,9 @@ async function wantToEndRun(ns, started) {
 			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
 			return false;
 		}
-		if (getAvailableMoney(ns, true) <= 111e9) {
-			ns.printf("On bitnode 8: Not ending before having earned at least 111b.");
+		if (money <= 111e9) {
+			ns.printf("On bitnode 8: Not ending before having earned at least 111 b (have: %s).",
+				formatMoney(money));
 			return false;
 		}
 	}
@@ -88,6 +92,13 @@ async function wantToEndRun(ns, started) {
 		ns.printf("Endgame: completion is %d", completion.toFixed(2));
 		return completion >= 1;
 	}
+	if (database.features.hacknetServer &&
+		player.playtimeSinceLastAug == player.playtimeSinceLastBitnode &&
+		money <= 10e9) {
+		ns.printf("Have a hacknet server: Not ending before having earned at least 10 b (have: %s).",
+			formatMoney(money));
+		return false;
+	}
 	if ((estimation.affordableAugmentationCount +
 		estimation.prioritizedAugmentationCount) / 2 >= 6) {
 		ns.printf("Enough augmentations available: affordable: %d, prioritized: %d",
@@ -96,7 +107,7 @@ async function wantToEndRun(ns, started) {
 		return true;
 	}
 	if (estimation.affordableAugmentationCount > 0 &&
-		estimation.affordableAugmentationCount >= getDatabase(ns).augmentations.length) {
+		estimation.affordableAugmentationCount >= database.augmentations.length) {
 		ns.printf("Obtaining the last augmentations");
 		return true;
 	}
