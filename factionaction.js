@@ -31,10 +31,15 @@ function selectGoal(ns, config) {
 async function workOnGoal(ns, goal, config) {
 	ns.printf("goal: %s %d", goal.name, goal.reputation);
 	if (config.estimatedDonations) {
-		var moneyForDonations = Math.max(0, getAvailableMoney(ns) - config.estimatedPrice);
+		// calculate possible donation money based on all money
+		var moneyForDonations = Math.max(0, getAvailableMoney(ns, true) - config.estimatedPrice);
+		// but use only money that is available now
+		moneyForDonations = Math.min(moneyForDonations, getAvailableMoney(ns));
 		if (moneyForDonations) {
 			ns.printf("Will donate %d", moneyForDonations);
 			await runAndWait(ns, "donate-faction.js", goal.name, goal.reputation, moneyForDonations);
+		} else {
+			ns.printf("Not enough money for donations");
 		}
 	}
 	const goalRep = goal.reputation + (goal.company ? 400e3 : 0);
