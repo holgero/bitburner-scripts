@@ -25,6 +25,7 @@ export async function main(ns) {
 	const config = await getAndCheckFactiongoals(ns, database);
 	await checkForDaedalus(ns, database, config);
 	await runAndWait(ns, "factionaction.js");
+	await avoidOverachievement(ns, database, config);
 	await runAndWait(ns, "commit-crimes.js", "--on-idle");
 }
 
@@ -46,7 +47,7 @@ function checkFactiongoals(ns, database, goals) {
 	if (goals.some(a => a.reputation && database.factions.find(b => b.name == a.name).gang)) return false;
 	// check if all possible goals have been reached
 	const factions = ns.getPlayer().factions;
-	if (goalCompletion(ns, goals.filter(a=>a.reputation && factions.includes(a.name))) >= 1.00) return false;
+	if (goalCompletion(ns, goals.filter(a => a.reputation && factions.includes(a.name))) >= 1.00) return false;
 
 	return true;
 }
@@ -68,6 +69,24 @@ async function prepareGoalWork(ns) {
 		return false;
 	}
 	return true;
+}
+
+/** @param {NS} ns **/
+async function avoidOverachievement(ns, database, config) {
+	const current = ns.singularity.getCurrentWork();
+	// ","cyclesWorked":24,"factionWorkType":"hacking","factionName":"Daedalus"}
+	if (current && current.type == "FACTION") {
+		const goal = config.factionGoals.find(a => a.name == current.factionName);
+		const achieved = ns.singularity.getFactionRep(goal.name);
+		const possibleAugs = database.augmentations.filter(
+			a => a.factions.includes(current.factionName) &&
+				a.reputation > achieved);
+		if (possibleAugs.length == 0) {
+			ns.tprintf("No sense working for %s, because our reputation is already %d",
+				current.factionName, achieved);
+			ns.singularity.stopAction();
+		}
+	}
 }
 
 /** @param {NS} ns **/
