@@ -19,7 +19,7 @@ export async function main(ns) {
 			player.bitNodeN, c.BLADE_SIMUL);
 		return;
 	}
-	if (player.bitNodeN != 8 && !(await prepareGoalWork(ns))) {
+	if (player.bitNodeN != 8 && !(await prepareGoalWork(ns, database))) {
 		return;
 	}
 	const config = await getAndCheckFactiongoals(ns, database);
@@ -53,7 +53,7 @@ function checkFactiongoals(ns, database, goals) {
 }
 
 /** @param {NS} ns **/
-async function prepareGoalWork(ns) {
+async function prepareGoalWork(ns, database) {
 	// first hacking level to fifty
 	if (ns.getPlayer().skills.hacking < 50) {
 		await runAndWait(ns, "university.js", "--course", "CS", "--negative");
@@ -64,7 +64,8 @@ async function prepareGoalWork(ns) {
 		ns.singularity.stopAction();
 	}
 	// then make sure we have a little bit of money
-	if (getAvailableMoney(ns) < 500e3) {
+	const multi = database.bitnodemultipliers ? database.bitnodemultipliers.CrimeMoney : 1;
+	if (getAvailableMoney(ns) < 500e3 * multi) {
 		await runAndWait(ns, "commit-crimes.js");
 		return false;
 	}
