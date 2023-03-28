@@ -1,7 +1,7 @@
 import { getAvailable, getTotal } from "/budget.js";
 import {
 	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES,
-	DAEDALUS
+	DAEDALUS, RED_PILL
 } from "/constants.js";
 
 /** @param {NS} ns **/
@@ -356,6 +356,9 @@ export function getStartState(ns) {
 /** @param {NS} ns **/
 export function isEndgame(ns) {
 	if (!ns.getPlayer().factions.includes(DAEDALUS)) {
+		return false;
+	}
+	if (getDatabase(ns).owned_augmentations.includes(RED_PILL)) {
 		return false;
 	}
 	const goals = getFactiongoals(ns);
