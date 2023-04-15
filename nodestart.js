@@ -9,7 +9,6 @@ import {
 	getStartState,
 	getDatabase,
 	getFactiongoals,
-	getCorporationInfo,
 	getEstimation,
 	isEndgame
 } from "helpers.js";
