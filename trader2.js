@@ -73,7 +73,7 @@ async function runTrades(ns, options, portfolio, rising) {
 		// ns.printf("Holding %d shares of %s", stk.shares, stk.symbl);
 	}
 	setHolding(ns, options.budgetName, valuation);
-	ns.printf("Trader valuation: %s, portfolio: %s", formatMoney(valuation), portfolio.map(a=>a.symbl));
+	ns.printf("Trader valuation: %s, portfolio: %s", formatMoney(valuation), portfolio.map(a => a.symbl));
 	if (options.valuationFile) {
 		ns.write(options.valuationFile, valuation + getBudget(ns, options.budgetName), "w");
 	}
