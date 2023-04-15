@@ -83,12 +83,20 @@ function tradeCorporationShares(ns) {
 	}
 	if (shouldBuy(ns, corporation, target)) {
 		var money = ns.getServerMoneyAvailable("home");
-		ns.corporation.issueDividends(0);
-		ns.corporation.buyBackShares(corporation.issuedShares);
-		var spend = money - ns.getServerMoneyAvailable("home");
-		deleteBudget(ns, "corp");
-		ns.toast("Bought corporation shares for " + formatMoney(spend), ns.enums.ToastVariant.SUCCESS, 8000);
-		ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
+		const affordableShares = Math.min(corporation.issuedShares,
+			Math.floor(money / (1.1 * corporation.sharePrice)));
+		if (affordableShares > 0.95 * corporation.issuedShares) {
+			ns.corporation.buyBackShares(affordableShares);
+			var spend = money - ns.getServerMoneyAvailable("home");
+			ns.toast("Bought corporation shares for " + formatMoney(spend), ns.enums.ToastVariant.SUCCESS, 8000);
+			ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
+			if (affordableShares >= corporation.issuedShares) {
+				ns.corporation.issueDividends(0);
+				deleteBudget(ns, "corp");
+			} else {
+				ns.corporation.issueDividends(1);
+			}
+		}
 	}
 }
 
