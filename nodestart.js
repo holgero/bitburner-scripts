@@ -226,15 +226,11 @@ async function canSpendMoney(ns, started) {
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
 	await runAndWait(ns, "start-hacknet.js", 1);
-	var lastHackingLevelRun = 0;
 	var started = Date.now();
 	while (true) {
 		await runHomeScripts(ns);
 		const nextProgram = await purchaseHackingPrograms(ns);
-		if (nextProgram > lastHackingLevelRun) {
-			await startHacking(ns, nextProgram);
-			lastHackingLevelRun = nextProgram;
-		}
+		await startHacking(ns, nextProgram);
 		if (await wantToEndRun(ns, started)) {
 			return;
 		}
