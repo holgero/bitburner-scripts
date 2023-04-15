@@ -240,7 +240,6 @@ async function progressHackingLevels(ns) {
 			ns.scriptKill("start-hacknet.js", "home");
 			ns.scriptKill("start-hacknet2.js", "joesguns");
 		}
-		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
 			await runAndWait(ns, "joinbladeburner.js", "--faction");
 			await runAndWait(ns, "spend-hashes.js");
@@ -255,6 +254,7 @@ async function progressHackingLevels(ns) {
 			getAvailableMoney(ns, true) > 28e9) {
 			await killOthers(ns);
 		}
+		await runAndWait(ns, "solve_contract.js", "--auto");
 		await ns.sleep(20000);
 	}
 }
