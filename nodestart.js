@@ -354,7 +354,7 @@ async function improveInfrastructure(ns, programsOwned, started) {
 					!await wantToEndRun(ns, started) &&
 					!isEndgame(ns)) {
 					await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
-					startHomeScript(ns, "graft-augmentations.js", "--maxCount", 1, "--install");
+					startHomeScript(ns, "graft-augmentation.js");
 				}
 			}
 			if (ns.stock.hasTIXAPIAccess() && database.bitnodemultipliers) {
