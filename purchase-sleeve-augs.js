@@ -9,9 +9,10 @@ export async function main(ns) {
 	await runAndWait(ns, "joinfactions.js", "--all");
 
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
-		const skills = ns.sleeve.getSleeve(ii).skills;
-		if (skills.shock == 0) {
-			const augs = ns.sleeve.getSleevePurchasableAugs(ii).sort((a,b)=>a.cost-b.cost).reverse();
+		const sleevie = ns.sleeve.getSleeve(ii);
+		ns.printf("Sleeve %d: %s", ii, JSON.stringify(sleevie));
+		if (sleevie.shock == 0) {
+			const augs = ns.sleeve.getSleevePurchasableAugs(ii).sort((a, b) => a.cost - b.cost).reverse();
 			for (var aug of augs) {
 				if (ns.sleeve.purchaseSleeveAug(ii, aug.name)) {
 					ns.tprintf("Installed '%s' on sleeve %d", aug.name, ii);
