@@ -165,7 +165,9 @@ async function runHomeScripts(ns) {
 		}
 		await ns.sleep(1000);
 	}
-	startHomeScript(ns, "factiongoals.js");
+	if (!ns.scriptRunning("joinbladeburner.js", "home")) {
+		startHomeScript(ns, "factiongoals.js");
+	}
 	await ns.sleep(1000);
 	if (database.features.sleeves) {
 		startHomeScript(ns, "sleeves.js");
