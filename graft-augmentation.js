@@ -11,18 +11,8 @@ export async function main(ns) {
 		ns.tprintf("Don't have grafting api yet.");
 		return;
 	}
-	const moneyAvailable = getAvailableMoney(ns);
-	const augs = ns.grafting.getGraftableAugmentations().
-		filter(a => ns.grafting.getAugmentationGraftPrice(a) < moneyAvailable);
-	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
-	augs.reverse();
-	ns.printf("%d augmentations for grafting available", augs.length);
 
-	const augmentations = augs.map(a => database.augmentations.find(b => b.name == a)).
-		filter(a => !a.requirements || a.requirements.every(r => database.owned_augmentations.includes(r)));
-
-	ns.printf("%d augmentations for grafting possible", augmentations.length);
-
+	const augmentations = getGraftableAugmentations(ns, database);
 	const aug = selectAugByPrio(ns, augmentations).name;
 	ns.printf("Selected for grafting %s", aug);
 	var currentWork = ns.singularity.getCurrentWork();
@@ -44,6 +34,30 @@ export async function main(ns) {
 	await runAndWait(ns, "database/create.js");
 }
 
+/** @param {NS} ns */
+function getGraftableAugmentations(ns, database) {
+	const moneyAvailable = getAvailableMoney(ns);
+
+	const augs = ns.grafting.getGraftableAugmentations().
+		filter(a => ns.grafting.getAugmentationGraftPrice(a) < moneyAvailable);
+	augs.sort((a, b) => ns.grafting.getAugmentationGraftPrice(a) - ns.grafting.getAugmentationGraftPrice(b));
+	augs.reverse();
+	ns.printf("%d augmentations for grafting available", augs.length);
+	if (augs[0]=='nickofolas Congruity Implant') {
+		return [{name:'nickofolas Congruity Implant'}];
+	}
+
+	var augmentations = augs.map(a => database.augmentations.find(b => b.name == a));
+	ns.printf("%d augmentations for grafting also in database", augs.length);
+
+	augmentations = augmentations.filter(a => a && (!a.requirements ||
+		a.requirements.every(r => database.owned_augmentations.includes(r))));
+	ns.printf("%d augmentations for grafting possible", augmentations.length);
+
+	return augmentations;
+}
+
+/** @param {NS} ns */
 function selectAugByPrio(ns, augs) {
 	for (var prio of getAugmentationPrios(ns)) {
 		const prioAugs = augs.filter(a => a.type == prio);
