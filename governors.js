@@ -47,7 +47,7 @@ export async function main(ns) {
 		governor_faction = bribeFactions[0].name;
 		ns.tprintf("Use %s to bribe and buy governors", governor_faction);
 		while (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {
-			const repNeeded = ns.singularity.getAugmentationRepReq(GOVERNOR) - ns.singularity.getFactionRep(governor_faction);
+			const repNeeded = ns.singularity.getAugmentationRepReq(GOVERNOR);
 			const moneyForDonations = getAvailableMoney(ns, true) - ns.singularity.getAugmentationPrice(GOVERNOR);
 			await runAndWait(ns, "donate-faction.js", governor_faction, repNeeded, moneyForDonations);
 			await ns.sleep(100);
