@@ -64,7 +64,9 @@ async function runSleeves(ns) {
 			}
 		}
 		ns.print("Available sleeves for company work: ", available);
-		const jobsToWorkFor = goals.factionGoals.filter(a => a.company);
+		const jobsToWorkFor = goals.factionGoals.
+			filter(a => a.company).
+			filter(a => !ns.getPlayer().factions.includes(a.name));
 		for (var job of jobsToWorkFor) {
 			if (!ns.getPlayer().jobs[job.name]) {
 				await runAndWait(ns, "workforcompany.js",
