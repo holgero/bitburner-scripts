@@ -31,12 +31,12 @@ async function runSleeves(ns) {
 	}
 	const available = [];
 	for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
-		const skills = ns.sleeve.getSleeve(ii).skills;
-		if (skills.sync < 100) {
+		const sleeve = ns.sleeve.getSleeve(ii);
+		if (sleeve.sync < 100) {
 			ns.sleeve.setToSynchronize(ii);
 			continue;
 		}
-		if (skills.shock > 0) {
+		if (sleeve.shock > 0) {
 			ns.sleeve.setToShockRecovery(ii);
 			continue;
 		}
