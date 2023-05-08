@@ -32,7 +32,8 @@ async function wantToEndRun(ns, started) {
 	const database = getDatabase(ns);
 	const money = getAvailableMoney(ns, true);
 	if (new Date() - started < 120000) {
-		ns.printf("Not ending directly after start.");
+		ns.printf("Not ending directly after start (grace: %d s)", 
+			(120000 + started - new Date())/1000 );
 		return false;
 	}
 	if (database.owned_augmentations.includes(c.RED_PILL) &&
