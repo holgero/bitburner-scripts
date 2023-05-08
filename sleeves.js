@@ -49,11 +49,11 @@ async function runSleeves(ns) {
 		ns.print("Available sleeves for faction work: ", available);
 		const factions = ns.getPlayer().factions;
 		const database = getDatabase(ns);
-		const factionsToWorkFor = goals.factionGoals.
+		const factionsToWorkForPrefered = goals.factionGoals.
 			filter(a => factions.includes(a.name) && a.reputation &&
 				ns.singularity.getFactionRep(a.name) < a.reputation).
 			filter(a => !database.factions.find(b => a.name == b.name).gang);
-		for (var faction of factionsToWorkFor) {
+		for (var faction of factionsToWorkForPrefered) {
 			for (var idx = 0; idx < available.length; idx++) {
 				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
 					ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
@@ -79,6 +79,22 @@ async function runSleeves(ns) {
 					ns.printf("Sleeve %d works for company %s", available[idx], job.name);
 					available.splice(idx, 1);
 					break;
+				}
+			}
+		}
+		if (ns.heart.break() < -54000) {
+			ns.print("Still available sleeves: ", available);
+			const factionsToWorkFor = goals.factionGoals.
+				filter(a => factions.includes(a.name)).
+				filter(a => !database.factions.find(b => a.name == b.name).gang);
+			for (var faction of factionsToWorkFor) {
+				for (var idx = 0; idx < available.length; idx++) {
+					if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
+						ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
+						ns.printf("Sleeve %d works for faction %s", available[idx], faction.name);
+						available.splice(idx, 1);
+						break;
+					}
 				}
 			}
 		}
