@@ -112,6 +112,11 @@ async function wantToEndRun(ns, started) {
 		ns.printf("Obtaining the last augmentations");
 		return true;
 	}
+	if (estimation.affordableAugmentations &&
+		estimation.affordableAugmentations.some(a => a.name == c.BLADE_SIMUL)) {
+		ns.printf("Can obtain the red pill");
+		return true;
+	}
 	if (estimation.prioritizedAugmentationCount > 0 &&
 		player.playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
 		ns.printf("Running for over 40 h since last aug");
