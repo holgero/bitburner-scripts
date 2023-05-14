@@ -55,9 +55,8 @@ async function runSleeves(ns) {
 			filter(a => !database.factions.find(b => a.name == b.name).gang);
 		for (var faction of factionsToWorkForPrefered) {
 			for (var idx = 0; idx < available.length; idx++) {
-				if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
-					ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
-					ns.printf("Sleeve %d works for faction %s", available[idx], faction.name);
+				if (workForFaction(ns, available[idx], faction.name, c.SECURITY_WORK) ||
+					workForFaction(ns, available[idx], faction.name, c.FIELD_WORK)) {
 					available.splice(idx, 1);
 					break;
 				}
@@ -85,13 +84,13 @@ async function runSleeves(ns) {
 		if (ns.heart.break() < -54000) {
 			ns.print("Still available sleeves: ", available);
 			const factionsToWorkFor = goals.factionGoals.
-				filter(a => factions.includes(a.name)).
+				filter(a => factions.includes(a.name) && !(a.reputation ||
+					ns.singularity.getFactionRep(a.name) < a.reputation)).
 				filter(a => !database.factions.find(b => a.name == b.name).gang);
 			for (var faction of factionsToWorkFor) {
 				for (var idx = 0; idx < available.length; idx++) {
-					if (ns.sleeve.setToFactionWork(available[idx], faction.name, c.SECURITY_WORK) ||
-						ns.sleeve.setToFactionWork(available[idx], faction.name, c.FIELD_WORK)) {
-						ns.printf("Sleeve %d works for faction %s", available[idx], faction.name);
+					if (workForFaction(ns, available[idx], faction.name, c.SECURITY_WORK) ||
+						workForFaction(ns, available[idx], faction.name, c.FIELD_WORK)) {
 						available.splice(idx, 1);
 						break;
 					}
@@ -118,6 +117,19 @@ function sleeveHasLowSkills(ns, sleeveNo) {
 	const skills = ns.sleeve.getSleeve(sleeveNo).skills;
 	if (skills.agility < 12 || skills.dexterity < 12) {
 		return true;
+	}
+	return false;
+}
+
+/** @param {NS} ns */
+function workForFaction(ns, sleeveNo, factionName, workType) {
+	try {
+		if (ns.sleeve.setToFactionWork(sleeveNo, factionName, workType)) {
+			ns.printf("Sleeve %d works '%s' for faction %s", sleeveNo, workType, factionName);
+			return true;
+		}
+	} catch (error) {
+		ns.printf("%s", JSON.stringify(error));
 	}
 	return false;
 }
