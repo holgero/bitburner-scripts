@@ -7,7 +7,7 @@ export async function main(ns) {
 	var options = ns.flags([
 		["target", "foodnstuff"],
 		["hack", false],
-		["spare", 45]]);
+		["spare", 46]]);
 
 	ns.scriptKill(WEAKEN_SCRIPT, "home");
 	ns.scriptKill(GROW_SCRIPT, "home");
