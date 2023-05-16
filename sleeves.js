@@ -19,13 +19,20 @@ export async function main(ns) {
 async function runSleeves(ns) {
 	if (getAvailableMoney(ns) < POOR_MAN ||
 		ns.scriptRunning("joinbladeburner.js", "home")) {
+		const sleeves = [];
 		for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
-			if (sleeveHasLowSkills(ns, ii)) {
-				if (trainSkills(ns, ii)) {
-					continue;
-				}
-			}
 			ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii));
+			if (sleeveHasLowSkills(ns, ii)) {
+				sleeves.push(ii);
+			}
+		}
+		sleeves.sort((a, b) => getSleeveStatSum(ns, a) - getSleeveStatSum(ns, b));
+		ns.printf("Sleeve training order: %s", sleeves);
+
+		for (var ii of sleeves) {
+			if (!trainSkills(ns, ii)) {
+				break;
+			}
 		}
 		return;
 	}
@@ -110,6 +117,12 @@ function getCrimeType(ns, sleeveNo) {
 		return "Mug";
 	}
 	return "Homicide";
+}
+
+/** @param {NS} ns */
+function getSleeveStatSum(ns, sleeveNo) {
+	const skills = ns.sleeve.getSleeve(sleeveNo).skills;
+	return skills.agility + skills.dexterity + skills.defense + skills.strength;
 }
 
 /** @param {NS} ns */
