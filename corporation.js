@@ -20,7 +20,7 @@ const LABORATORY = "Hi-Tech R&D Laboratory";
 const MARKET_TA_I = "Market-TA.I";
 const MARKET_TA_II = "Market-TA.II";
 const WATER = "Water";
-const ENERGY = "Energy";
+const CHEMICALS = "Chemicals";
 const FOOD = "Food";
 const PLANTS = "Plants";
 const HARDWARE = "Hardware";
@@ -144,7 +144,7 @@ async function setupCorporation(ns) {
 	buyCorporationUpgrades(ns);
 	var corporation = ns.corporation.getCorporation();
 
-	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		while (corporation.state == "PURCHASE" || corporation.state == "PRODUCTION") {
 			await ns.sleep(100);
 			corporation = ns.corporation.getCorporation();
@@ -153,7 +153,7 @@ async function setupCorporation(ns) {
 			await setupDivisionWarehouse(ns, divisionName);
 		}
 	}
-	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+	if (ns.corporation.hasUnlock(OFFICE_API)) {
 		for (var divisionName of corporation.divisions) {
 			corporation = ns.corporation.getCorporation();
 			if (ns.corporation.getHireAdVertCount(divisionName) <
@@ -167,7 +167,7 @@ async function setupCorporation(ns) {
 				}
 			}
 			await setupDivisionOffice(ns, divisionName, corporation.divisions.length);
-			if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+			if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 				const division = ns.corporation.getDivision(divisionName);
 				if (division.products.length) {
 					// don't expand this division if there is a product development going on
@@ -193,8 +193,8 @@ function buyCorporationUpgrades(ns) {
 	}
 	var money = corporation.funds;
 	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
-		if (!ns.corporation.hasUnlockUpgrade(unlock)) {
-			var cost = ns.corporation.getUnlockUpgradeCost(unlock);
+		if (!ns.corporation.hasUnlock(unlock)) {
+			var cost = ns.corporation.getUnlockCost(unlock);
 			if (money > cost) {
 				ns.corporation.unlockUpgrade(unlock);
 				money -= cost;
@@ -220,8 +220,8 @@ function expandIndustry(ns) {
 		// expand only while the shares belong to someone else
 		return;
 	}
-	if (!ns.corporation.hasUnlockUpgrade(OFFICE_API) ||
-		!ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+	if (!ns.corporation.hasUnlock(OFFICE_API) ||
+		!ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		// need the APIs for automatic expansion
 		return;
 	}
@@ -229,10 +229,12 @@ function expandIndustry(ns) {
 		// maximum expansion reached
 		return;
 	}
-	var currentDivision = ns.corporation.getDivision(corporation.divisions[corporation.divisions.length - 1]);
-	if (currentDivision.cities.length < c.CITIES.length) {
-		// not fully expanded
-		return;
+	if (corporation.divisions.length > 0) {
+		var currentDivision = ns.corporation.getDivision(corporation.divisions[corporation.divisions.length - 1]);
+		if (currentDivision.cities.length < c.CITIES.length) {
+			// not fully expanded
+			return;
+		}
 	}
 	var industry = INDUSTRIES[corporation.divisions.length];
 	const industryData = ns.corporation.getIndustryData(industry)
@@ -317,7 +319,7 @@ async function setupDivisionOffice(ns, divisionName, sizeFactor) {
 			}
 			office = ns.corporation.getOffice(divisionName, city);
 		}
-		for (var ii = office.employees; ii < office.size; ii++) {
+		for (var ii = office.numEmployees; ii < office.size; ii++) {
 			ns.corporation.hireEmployee(divisionName, city);
 		}
 		office = ns.corporation.getOffice(divisionName, city);
@@ -378,36 +380,36 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				}
 				break;
 		}
-		if (ns.corporation.hasUnlockUpgrade(SMART_SUPPLY)) {
+		if (ns.corporation.hasUnlock(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
 		} else {
 			var materials = [];
 			switch (division.type) {
 				case FOOD:
-					materials = [WATER, FOOD, ENERGY];
+					materials = [WATER, FOOD];
 					break;
 				case AGRICULTURE:
-					materials = [WATER, ENERGY];
+					materials = [WATER, CHEMICALS];
 					break;
 				case TOBACCO:
 					materials = [WATER, PLANTS];
 					break;
 				case SOFTWARE:
-					materials = [ENERGY, HARDWARE];
+					materials = [HARDWARE];
 					break;
 			}
 			for (var material of materials) {
 				var materialInfo = ns.corporation.getMaterial(division.name, city, material);
-				var materialToBuy = -materialInfo.prod;
-				if (materialInfo.qty > 100) {
+				var materialToBuy = -materialInfo.productionAmount;
+				if (materialInfo.stored > 100) {
 					// too much
 					materialToBuy -= 1;
-				} else if (materialInfo.qty > 80) {
+				} else if (materialInfo.stored > 80) {
 					// still reduce
 					materialToBuy -= 0.25;
-				} else if (materialInfo.qty > 20) {
+				} else if (materialInfo.stored > 20) {
 					// this is fine
-				} else if (materialInfo.qty > 10) {
+				} else if (materialInfo.stored > 10) {
 					// a bit need more
 					materialToBuy += 0.25;
 				} else {
@@ -444,9 +446,9 @@ async function setupDivisionWarehouse(ns, divisionName) {
 		// if the warehouse is full and we are currently allowed to spend
 		// expand the warehouse
 		if (!buying && ns.corporation.getCorporation().numShares == 0 &&
-			ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+			ns.corporation.hasUnlock(OFFICE_API)) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
-				Math.min(ns.corporation.getOffice(division.name, city).employees.length,
+				Math.min(ns.corporation.getOffice(division.name, city).numEmployees,
 					division.cities.length) &&
 				ns.corporation.getCorporation().funds - HOLD_BACK_FUNDS >
 				ns.corporation.getUpgradeWarehouseCost(division.name, city)) {
@@ -458,7 +460,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 
 /** @param {NS} ns **/
 function setMaterialSellParameters(ns, divisionName, city, material) {
-	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+	if (ns.corporation.hasUnlock(OFFICE_API)) {
 		if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
 			ns.corporation.setMaterialMarketTA2(divisionName, city, material, true);
 			return;
@@ -473,7 +475,7 @@ function setMaterialSellParameters(ns, divisionName, city, material) {
 
 /** @param {NS} ns **/
 function setProductSellParameters(ns, divisionName, city, product) {
-	if (ns.corporation.hasUnlockUpgrade(OFFICE_API)) {
+	if (ns.corporation.hasUnlock(OFFICE_API)) {
 		if (ns.corporation.hasResearched(divisionName, MARKET_TA_II)) {
 			ns.corporation.setProductMarketTA2(divisionName, product, true);
 			return;
@@ -512,23 +514,23 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 /** @param {NS} ns **/
 function distributeEmployees(ns, division, city, office) {
 	// ns.tprint("distributeEmployees");
-	var toDistribute = office.employees;
+	var toDistribute = office.numEmployees;
 	var wanted = {
 		management: Math.floor(toDistribute / 9),
 		business: Math.floor(toDistribute / 9),
 		research: Math.floor(toDistribute / 9),
-		engineers: 1 + Math.floor(toDistribute / 9)
+		engineers: Math.ceil(toDistribute / 9)
 	};
-	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		var warehouse = ns.corporation.getWarehouse(division.name, city);
-		if (warehouse.sizeUsed / warehouse.size > 0.8) {
+		if (toDistribute > 0 && warehouse.sizeUsed / warehouse.size > 0.8) {
 			wanted.engineers++;
 		}
 	}
-	wanted.operations = toDistribute
-		- wanted.management - wanted.business - wanted.research - wanted.engineers;
+	wanted.operations = Math.max(0, toDistribute
+		- wanted.management - wanted.business - wanted.research - wanted.engineers);
 
-	if (ns.corporation.hasUnlockUpgrade(WAREHOUSE_API)) {
+	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		if (division.products.length) {
 			var product = ns.corporation.getProduct(division.name, division.products[0]);
 			if (product.developmentProgress < 100) {
