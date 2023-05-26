@@ -73,7 +73,7 @@ function tradeCorporationShares(ns) {
 
 	if (shouldSell(ns, corporation, Math.max(target, 0.95 * high), low)) {
 		var money = ns.getServerMoneyAvailable("home");
-		ns.corporation.sellShares(corporation.numShares);
+		ns.corporation.sellShares(corporation.numShares-1);
 		ns.corporation.issueDividends(1);
 		var earned = ns.getServerMoneyAvailable("home") - money;
 		reserveBudget(ns, "corp", earned); // to make sure we can buy back
@@ -101,7 +101,7 @@ function tradeCorporationShares(ns) {
 }
 
 function shouldSell(ns, corporation, target, low) {
-	if (corporation.numShares <= 0 || corporation.shareSaleCooldown) {
+	if (corporation.numShares <= 1 || corporation.shareSaleCooldown) {
 		return false;
 	}
 	if (corporation.sharePrice < MINIMUM_SHARE_PRICE) {
@@ -158,7 +158,7 @@ async function setupCorporation(ns) {
 			corporation = ns.corporation.getCorporation();
 			if (ns.corporation.getHireAdVertCount(divisionName) <
 				corporation.divisions.length &&
-				corporation.numShares == 0) {
+				corporation.numShares <= 1) {
 				var cost = ns.corporation.getHireAdVertCost(divisionName);
 				if (corporation.funds - HOLD_BACK_FUNDS > cost ||
 					ns.corporation.getHireAdVertCount(divisionName) == 0) {
@@ -187,8 +187,8 @@ async function setupCorporation(ns) {
 /** @param {NS} ns **/
 function buyCorporationUpgrades(ns) {
 	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares > 0) {
-		// spend money only while the shares belong to someone else
+	if (corporation.numShares > 1) {
+		// spend money only while most of the shares belong to someone else
 		return;
 	}
 	var money = corporation.funds;
@@ -216,7 +216,7 @@ function buyCorporationUpgrades(ns) {
 /** @param {NS} ns **/
 function expandIndustry(ns) {
 	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares > 0) {
+	if (corporation.numShares > 1) {
 		// expand only while the shares belong to someone else
 		return;
 	}
@@ -284,7 +284,7 @@ function valuation(ns, corporation) {
 /** @param {NS} ns **/
 function expandDivision(ns, divisionName, corporation) {
 	const division = ns.corporation.getDivision(divisionName);
-	if (corporation.numShares > 0) {
+	if (corporation.numShares > 1) {
 		return;
 	}
 	if (division.cities.length >= c.CITIES.length) {
@@ -445,7 +445,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 		}
 		// if the warehouse is full and we are currently allowed to spend
 		// expand the warehouse
-		if (!buying && ns.corporation.getCorporation().numShares == 0 &&
+		if (!buying && ns.corporation.getCorporation().numShares <= 1 &&
 			ns.corporation.hasUnlock(OFFICE_API)) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
 				Math.min(ns.corporation.getOffice(division.name, city).numEmployees,
@@ -494,7 +494,7 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var info = ns.corporation.getMaterial(divisionName, city, material);
 	var corp = ns.corporation.getCorporation();
 	// only spend on addtl. materials while we don't own the company
-	var canSpend = corp.numShares == 0;
+	var canSpend = corp.numShares <= 1;
 
 	if (canSpend && info.qty < amount) {
 		// ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
