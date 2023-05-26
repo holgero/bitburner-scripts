@@ -12,6 +12,7 @@ const SMART_FACTORIES = "Smart Factories";
 const SMART_STORAGE = "Smart Storage";
 const DREAM_SENSE = "DreamSense";
 const OPERATIONS = "Operations";
+const INTERN = "Intern";
 const ENGINEER = "Engineer";
 const BUSINESS = "Business";
 const MANAGEMENT = "Management";
@@ -519,6 +520,7 @@ function distributeEmployees(ns, division, city, office) {
 		management: Math.floor(toDistribute / 9),
 		business: Math.floor(toDistribute / 9),
 		research: Math.floor(toDistribute / 9),
+		intern: Math.floor(toDistribute / 9),
 		engineers: Math.ceil(toDistribute / 9)
 	};
 	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
@@ -528,7 +530,7 @@ function distributeEmployees(ns, division, city, office) {
 		}
 	}
 	wanted.operations = Math.max(0, toDistribute
-		- wanted.management - wanted.business - wanted.research - wanted.engineers);
+		- wanted.management - wanted.business - wanted.research - wanted.intern - wanted.engineers);
 
 	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		if (division.products.length) {
@@ -539,6 +541,7 @@ function distributeEmployees(ns, division, city, office) {
 				wanted.management = 0;
 				wanted.business = 0;
 				wanted.research = 0;
+				wanted.intern = 0;
 				wanted.operations = 0;
 			}
 		}
@@ -555,6 +558,9 @@ function distributeEmployees(ns, division, city, office) {
 	}
 	if (wanted.management < have[MANAGEMENT]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, MANAGEMENT, wanted.management);
+	}
+	if (wanted.intern < have[INTERN]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, INTERN, wanted.intern);
 	}
 	if (wanted.engineers < have[ENGINEER]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
@@ -574,6 +580,9 @@ function distributeEmployees(ns, division, city, office) {
 	if (wanted.engineers > have[ENGINEER]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, ENGINEER, wanted.engineers);
 	}
+	if (wanted.intern > have[INTERN]) {
+		ns.corporation.setAutoJobAssignment(division.name, city, INTERN, wanted.intern);
+	}
 	if (wanted.operations > have[OPERATIONS]) {
 		ns.corporation.setAutoJobAssignment(division.name, city, OPERATIONS, wanted.operations);
 	}
@@ -585,17 +594,13 @@ function distributeEmployees(ns, division, city, office) {
 function makeEmployeesHappy(ns, division, city, office) {
 	// ns.tprintf("Checking employees in division %s, city %s", division.name, city);
 	// ns.tprintf("Office: %s", JSON.stringify(office));
-	if (office.avgHap < 0.85 * office.maxHap) {
-		ns.printf("Happines is %s, need a party in division %s, city %s", office.avgHap.toFixed(1), division.name, city);
+	if (office.avgMorale < 0.85 * office.maxMorale) {
+		ns.printf("Morale is %s, need a party in division %s, city %s", office.avgMorale.toFixed(1), division.name, city);
 		ns.corporation.throwParty(division.name, city, 1e6);
 	}
-	if (office.avgMor < 0.85 * office.maxMor) {
-		ns.printf("Morale is %s, need a party in division %s, city %s", office.avgMor.toFixed(1), division.name, city);
-		ns.corporation.throwParty(division.name, city, 1e6);
-	}
-	if (office.avgEne < 0.85 * office.maxEne) {
-		ns.printf("Energy is %s, need a cofee in division %s, city %s", office.avgEne.toFixed(1), division.name, city);
-		ns.corporation.buyCoffee(division.name, city);
+	if (office.avgEnergy < 0.85 * office.maxEnergy) {
+		ns.printf("Energy is %s, need a cofee in division %s, city %s", office.avgEnergy.toFixed(1), division.name, city);
+		ns.corporation.buyTea(division.name, city);
 	}
 	/*
 	if (office.avgHap < office.minHap + 0.75 * (office.maxHap - office.minHap)) {
