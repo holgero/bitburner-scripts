@@ -103,6 +103,16 @@ async function runSleeves(ns) {
 					}
 				}
 			}
+			if (database.features.bladeburners && available.length) {
+				ns.print("Still available sleeves: ", available);
+				ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+				if (available.length > 1) {
+					ns.sleeve.setToBladeburnerAction(available[1], "Diplomacy");
+					for (var idx = 2; idx < available.length; idx++) {
+						ns.sleeve.setToBladeburnerAction(available[idx], "Support main sleeve");
+					}
+				}
+			}
 		}
 	}
 }
