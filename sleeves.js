@@ -47,9 +47,7 @@ async function runSleeves(ns) {
 			ns.sleeve.setToShockRecovery(ii);
 			continue;
 		}
-		if (ns.sleeve.setToCommitCrime(ii, getCrimeType(ns, ii))) {
-			available.push(ii);
-		}
+		available.push(ii);
 	}
 	const goals = getFactiongoals(ns);
 	if (goals.factionGoals) {
@@ -105,14 +103,24 @@ async function runSleeves(ns) {
 			}
 			if (database.features.bladeburners && available.length) {
 				ns.print("Still available sleeves: ", available);
-				ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
-				if (available.length > 1) {
-					ns.sleeve.setToBladeburnerAction(available[1], "Diplomacy");
-					for (var idx = 2; idx < available.length; idx++) {
-						ns.sleeve.setToBladeburnerAction(available[idx], "Support main sleeve");
+				var task = ns.sleeve.getTask(available[0]);
+				// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
+				if (task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
+					ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+				}
+				available.splice(0, 1);
+				if (available.length > 0) {
+					task = ns.sleeve.getTask(available[0]);
+					// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
+					if (task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
+						ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
 					}
+					available.splice(0, 1);
 				}
 			}
+		}
+		for (var idx = 0; idx < available.length; idx++) {
+			ns.sleeve.setToCommitCrime(available[idx], getCrimeType(ns, available[idx]));
 		}
 	}
 }
