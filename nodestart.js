@@ -45,6 +45,7 @@ export async function main(ns) {
 
 async function killOthers(ns) {
 	ns.scriptKill("instrument.js", "home");
+	ns.scriptKill("stanek.js", "home");
 	ns.scriptKill("factiongoals.js", "home");
 	ns.scriptKill("joinbladeburner.js", "home");
 	ns.scriptKill("bladeburner.js", "home");
@@ -185,6 +186,9 @@ async function runHomeScripts(ns) {
 	} else {
 		startHomeScript(ns, "instrument.js");
 	}
+	if (database.features.church) {
+		startHomeScript(ns, "stanek.js");
+	}
 }
 
 /** @param {NS} ns **/
@@ -251,7 +255,6 @@ async function progressHackingLevels(ns) {
 		await travelToGoalLocations(ns);
 		await meetMoneyGoals(ns);
 		await runAndWait(ns, "rback.js");
-		await runAndWait(ns, "stanek.js");
 		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
 			getAvailableMoney(ns, true) > 28e9) {
 			await killOthers(ns);

@@ -1,3 +1,4 @@
+import { getDatabase } from "helpers.js";
 const WEAKEN_SCRIPT = "do-weaken.js";
 const GROW_SCRIPT = "do-grow.js";
 const HACK_SCRIPT = "do-hack.js";
@@ -100,7 +101,11 @@ export async function main(ns) {
 }
 
 function ramAvailable(ns, spare) {
+	const database = getDatabase(ns);
 	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - spare;
+	if (database.features.church) {
+		availableRam = availableRam / 2;
+	}
 	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
 		ns.printf("Not enough ram, exiting");
 		return -1;
