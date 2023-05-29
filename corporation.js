@@ -21,8 +21,8 @@ const LABORATORY = "Hi-Tech R&D Laboratory";
 const MARKET_TA_I = "Market-TA.I";
 const MARKET_TA_II = "Market-TA.II";
 const WATER = "Water";
-const CHEMICALS = "Chemicals";
 const FOOD = "Food";
+const CHEMICALS = "Chemicals";
 const PLANTS = "Plants";
 const HARDWARE = "Hardware";
 const ROBOTS = "Robots";
@@ -37,7 +37,7 @@ const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
 const MINIMUM_SHARE_PRICE = 1;
-const INDUSTRIES = [AGRICULTURE, TOBACCO, FOOD, SOFTWARE];
+const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE];
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -172,7 +172,7 @@ async function setupCorporation(ns) {
 				const division = ns.corporation.getDivision(divisionName);
 				if (division.products.length) {
 					// don't expand this division if there is a product development going on
-					var product = ns.corporation.getProduct(divisionName,
+					var product = ns.corporation.getProduct(divisionName, c.SECTOR12, 
 						division.products[0]);
 					if (product.developmentProgress < 100) {
 						continue;
@@ -348,11 +348,11 @@ async function setupDivisionWarehouse(ns, divisionName) {
 			ns.corporation.purchaseWarehouse(division.name, city);
 		}
 		switch (division.type) {
-			case FOOD:
+			case RESTAURANT:
 				if (division.products.length == 0) {
 					ns.corporation.makeProduct(division.name, c.SECTOR12, RESTAURANT, 1e8, 1e8);
 				}
-				var product = ns.corporation.getProduct(division.name, RESTAURANT);
+				var product = ns.corporation.getProduct(division.name, c.SECTOR12, RESTAURANT);
 				if (product.developmentProgress < 100) {
 					ns.printf("Product %s at %s%%", product.name,
 						product.developmentProgress.toFixed(2));
@@ -363,7 +363,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				if (division.products.length == 0) {
 					ns.corporation.makeProduct(division.name, c.SECTOR12, DROMEDAR, 1e8, 1e8);
 				}
-				var product = ns.corporation.getProduct(division.name, DROMEDAR);
+				var product = ns.corporation.getProduct(division.name, c.SECTOR12, DROMEDAR);
 				if (product.developmentProgress < 100) {
 					ns.printf("Product %s at %s%%", product.name,
 						product.developmentProgress.toFixed(2));
@@ -374,7 +374,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				if (division.products.length == 0) {
 					ns.corporation.makeProduct(division.name, c.SECTOR12, BURNER, 1e8, 1e8);
 				}
-				var product = ns.corporation.getProduct(division.name, BURNER);
+				var product = ns.corporation.getProduct(division.name, c.SECTOR12, BURNER);
 				if (product.developmentProgress < 100) {
 					ns.printf("Product %s at %d%%", product.name, product.developmentProgress);
 					// no return here: we can still produce AI Cores
@@ -422,7 +422,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 			}
 		}
 		switch (division.type) {
-			case FOOD:
+			case RESTAURANT:
 				setProductSellParameters(ns, division.name, city, RESTAURANT);
 				break;
 			case AGRICULTURE:
@@ -534,7 +534,7 @@ function distributeEmployees(ns, division, city, office) {
 
 	if (ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		if (division.products.length) {
-			var product = ns.corporation.getProduct(division.name, division.products[0]);
+			var product = ns.corporation.getProduct(division.name, c.SECTOR12, division.products[0]);
 			if (product.developmentProgress < 100) {
 				// during development we want engineers only
 				wanted.engineers = toDistribute;
