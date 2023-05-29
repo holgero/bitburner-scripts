@@ -13,7 +13,11 @@ export async function main(ns) {
 		return;
 	}
 	if (!ns.bladeburner.inBladeburner()) {
-		ns.spawn("joinbladeburner.js", 1, "--division", "--faction");
+		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
+			ns.spawn("joinbladeburner.js", 1, "--division", "--faction");
+		} else {
+			return;
+		}
 	}
 	if (ns.getServerMaxRam("home") <= 32) {
 		ns.printf("Need more than 32 GB ram to work properly");
