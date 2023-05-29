@@ -1,11 +1,11 @@
 import { getAvailableMoney, getDatabase, formatMoney, runAndWait } from "helpers.js";
-import { GOVERNOR, BLADEBURNERS } from "constants.js";
+import { GOVERNOR, BLADEBURNERS, CHURCH } from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	const database = getDatabase(ns);
 	const factions = ns.getPlayer().factions.
-		filter(a => a != BLADEBURNERS).
+		filter(a => a != BLADEBURNERS && a != CHURCH).
 		map(f => ({
 			...(database.factions.find(a => a.name == f)),
 			reputation: ns.singularity.getFactionRep(f)
