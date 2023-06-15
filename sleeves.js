@@ -79,8 +79,7 @@ async function runSleeves(ns) {
 			await runAndWait(ns, "workforcompany.js",
 				"--apply", "--company", job.name, "--job", "Security");
 			for (var idx = 0; idx < available.length; idx++) {
-				if (ns.sleeve.setToCompanyWork(available[idx], job.name)) {
-					ns.printf("Sleeve %d works for company %s", available[idx], job.name);
+				if (workForCompany(ns, available[idx], job.name)) {
 					available.splice(idx, 1);
 					break;
 				}
@@ -157,6 +156,19 @@ function workForFaction(ns, sleeveNo, factionName, workType) {
 	try {
 		if (ns.sleeve.setToFactionWork(sleeveNo, factionName, workType)) {
 			ns.printf("Sleeve %d works '%s' for faction %s", sleeveNo, workType, factionName);
+			return true;
+		}
+	} catch (error) {
+		ns.printf("%s", JSON.stringify(error));
+	}
+	return false;
+}
+
+/** @param {NS} ns */
+function workForCompany(ns, sleeveNo, companyName) {
+	try {
+		if (ns.sleeve.setToCompanyWork(sleeveNo, companyName)) {
+			ns.printf("Sleeve %d works for company %s", sleeveNo, companyName);
 			return true;
 		}
 	} catch (error) {
