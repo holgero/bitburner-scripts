@@ -104,7 +104,7 @@ async function runSleeves(ns) {
 				ns.print("Still available sleeves: ", available);
 				var task = ns.sleeve.getTask(available[0]);
 				// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
-				if (task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
+				if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
 					ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
 				}
 				available.splice(0, 1);
