@@ -9,7 +9,20 @@ export async function main(ns) {
 	}
 
 	ns.disableLog("sleep");
+	try {
+		if (ns.stanek.activeFragments().length) {
+			ns.printf("Stanek installed.");
+		}
+	} catch (error) {
+		ns.printf("%s", JSON.stringify(error));
+		ns.stanek.acceptGift();
+		return;
+	}
 	while (true) {
+		if (!ns.stanek.activeFragments().length) {
+			ns.printf("Stanek empty.");
+			return;
+		}
 		for (var fragment of ns.stanek.activeFragments()) {
 			if (fragment.type != 18) {
 				await runMaxThreadsAndWait(ns, "stanek-charge.js", fragment.x, fragment.y);
