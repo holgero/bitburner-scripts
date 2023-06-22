@@ -1,7 +1,7 @@
 import { getAvailable, getTotal } from "/budget.js";
 import {
 	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES,
-	DAEDALUS, RED_PILL
+	DAEDALUS, RED_PILL, BLADEBURNERS, CHURCH
 } from "/constants.js";
 
 /** @param {NS} ns **/
@@ -262,8 +262,10 @@ export function goalCompletion(ns, factionGoals) {
 			totalRep += goal.reputation;
 			repNeeded += Math.max(0, goal.reputation - ns.singularity.getFactionRep(goal.name));
 		} else {
-			const rep = ns.singularity.getFactionRep(goal.name);
-			totalRep += rep;
+			if (![BLADEBURNERS, CHURCH].includes(goal.name)) {
+				const rep = ns.singularity.getFactionRep(goal.name);
+				totalRep += rep;
+			}
 		}
 	}
 
