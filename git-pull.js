@@ -71,6 +71,7 @@ const FILES = [
 	"spend-hashes.js",
 	"stanek.js",
 	"stanek-charge.js",
+	"fill-stanek.js",
 	"start-hacknet2.js",
 	"start-hacknet.js",
 	"start-servers2.js",
