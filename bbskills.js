@@ -8,10 +8,10 @@ const SKILL_RESTRICTIONS = [
 /** @param {NS} ns */
 export async function main(ns) {
 	if (ns.corporation.hasCorporation()) {
-		SKILL_RESTRICTIONS.find(x=>x.name=="Hands of Midas").max=0;
+		SKILL_RESTRICTIONS.find(x => x.name == "Hands of Midas").max = 0;
 	}
 	if (!spendPrefered(ns)) {
-		spendSkillPoints(ns);
+		await spendSkillPoints(ns);
 	}
 }
 
@@ -36,7 +36,24 @@ function spendPrefered(ns) {
 }
 
 /** @param {NS} ns */
-function spendSkillPoints(ns) {
+async function spendSkillPoints(ns) {
+	while (true) {
+		const possibleSkills = getPossibleSkills(ns);
+		if (!possibleSkills.length) {
+			break;
+		}
+		for (var skill of possibleSkills) {
+			if (skill.cost <= ns.bladeburner.getSkillPoints()) {
+				if (!ns.bladeburner.upgradeSkill(skill.name)) break;
+				ns.printf("Spent %d skillpoints on %s", skill.cost, skill.name);
+			}
+		}
+		await ns.sleep(100);
+	}
+}
+
+/** @param {NS} ns */
+function getPossibleSkills(ns) {
 	var possibleSkills = [];
 	for (var skill of ns.bladeburner.getSkillNames()) {
 		const restriction = SKILL_RESTRICTIONS.find(a => a.name == skill);
@@ -50,15 +67,10 @@ function spendSkillPoints(ns) {
 		if (ns.bladeburner.getSkillUpgradeCost(skill) <= ns.bladeburner.getSkillPoints()) {
 			possibleSkills.push({
 				name: skill,
-				cost:ns.bladeburner.getSkillUpgradeCost(skill),
+				cost: ns.bladeburner.getSkillUpgradeCost(skill),
 			});
 		}
 	}
-	possibleSkills.sort((a,b)=>a.cost-b.cost);
-	for (var skill of possibleSkills) {
-		if (skill.cost <= ns.bladeburner.getSkillPoints()) {
-			if (!ns.bladeburner.upgradeSkill(skill.name)) break;
-			ns.printf("Spent %d skillpoints on %s", skill.cost, skill.name);
-		}
-	}
+	possibleSkills.sort((a, b) => a.cost - b.cost);
+	return possibleSkills;
 }
