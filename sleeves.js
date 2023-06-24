@@ -18,6 +18,7 @@ export async function main(ns) {
 /** @param {NS} ns */
 async function runSleeves(ns) {
 	if (getAvailableMoney(ns) < POOR_MAN ||
+		ns.heart.break() > -54000 ||
 		ns.scriptRunning("joinbladeburner.js", "home")) {
 		const sleeves = [];
 		for (var ii = 0; ii < ns.sleeve.getNumSleeves(); ii++) {
@@ -85,42 +86,40 @@ async function runSleeves(ns) {
 				}
 			}
 		}
-		if (ns.heart.break() < -54000) {
-			ns.print("Still available sleeves: ", available);
-			const factionsToWorkFor = goals.factionGoals.
-				filter(a => factions.includes(a.name) && !(a.reputation ||
-					ns.singularity.getFactionRep(a.name) < a.reputation)).
-				filter(a => !database.factions.find(b => a.name == b.name).gang);
-			for (var faction of factionsToWorkFor) {
-				for (var idx = 0; idx < available.length; idx++) {
-					if (workForFaction(ns, available[idx], faction.name, c.SECURITY_WORK) ||
-						workForFaction(ns, available[idx], faction.name, c.FIELD_WORK)) {
-						available.splice(idx, 1);
-						break;
-					}
+		ns.print("Still available sleeves: ", available);
+		const factionsToWorkFor = goals.factionGoals.
+			filter(a => factions.includes(a.name) && !(a.reputation ||
+				ns.singularity.getFactionRep(a.name) < a.reputation)).
+			filter(a => !database.factions.find(b => a.name == b.name).gang);
+		for (var faction of factionsToWorkFor) {
+			for (var idx = 0; idx < available.length; idx++) {
+				if (workForFaction(ns, available[idx], faction.name, c.SECURITY_WORK) ||
+					workForFaction(ns, available[idx], faction.name, c.FIELD_WORK)) {
+					available.splice(idx, 1);
+					break;
 				}
 			}
-			if (database.features.bladeburners && available.length) {
-				ns.print("Still available sleeves: ", available);
-				var task = ns.sleeve.getTask(available[0]);
+		}
+		if (database.features.bladeburners && available.length) {
+			ns.print("Still available sleeves: ", available);
+			var task = ns.sleeve.getTask(available[0]);
+			// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
+			if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
+				ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+			}
+			available.splice(0, 1);
+			if (available.length > 0) {
+				task = ns.sleeve.getTask(available[0]);
 				// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
-				if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
-					ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+				if (!task || task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
+					ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
 				}
 				available.splice(0, 1);
-				if (available.length > 0) {
-					task = ns.sleeve.getTask(available[0]);
-					// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
-					if (task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
-						ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
-					}
-					available.splice(0, 1);
-				}
 			}
 		}
-		for (var idx = 0; idx < available.length; idx++) {
-			ns.sleeve.setToCommitCrime(available[idx], getCrimeType(ns, available[idx]));
-		}
+	}
+	for (var idx = 0; idx < available.length; idx++) {
+		ns.sleeve.setToCommitCrime(available[idx], getCrimeType(ns, available[idx]));
 	}
 }
 
