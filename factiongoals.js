@@ -103,6 +103,12 @@ async function checkForDaedalus(ns, database, config) {
 		goals.forEach(a => a.reputation = 0);
 		if (goal.favor < database.favorToDonate) {
 			goal.reputation = reputationNeeded(ns, database, goal.name);
+			if (goal.favor <= 1 && goal.reputation >= 500000 &&
+				ns.singularity.getFactionRep(goal.name) < 0.5 * goal.reputation) {
+				// no favor yet, do a first step to gain about 100 favor, in order to
+				// half the time to reach the favor to donate threshold
+				goal.reputation = 160000;
+			}
 			config.estimatedDonations = 0;
 		} else {
 			// reach the red pill
