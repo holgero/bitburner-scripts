@@ -36,6 +36,7 @@ const FILES = [
 	"instrument.js",
 	"installbackdoor.js",
 	"joincovenant.js",
+	"joinnitesec.js",
 	"joinfactions.js",
 	"joinbladeburner.js",
 	"list-graft-augmentations.js",
