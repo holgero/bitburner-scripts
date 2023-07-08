@@ -77,8 +77,10 @@ async function runSleeves(ns) {
 				await runAndWait(ns, "workforcompany.js",
 					"--apply", "--company", job.name, "--job", "IT");
 			}
-			await runAndWait(ns, "workforcompany.js",
-				"--apply", "--company", job.name, "--job", "Security");
+			if (!ns.singularity.getCurrentWork()["companyName"] == job.name) {
+				await runAndWait(ns, "workforcompany.js",
+					"--apply", "--company", job.name, "--job", "Security");
+			}
 			for (var idx = 0; idx < available.length; idx++) {
 				if (workForCompany(ns, available[idx], job.name)) {
 					available.splice(idx, 1);
