@@ -1,7 +1,7 @@
 import { getAvailableMoney } from "./helpers.js";
 
 const UNIS = ["ZB Institute of Technology", "Summit University", "Rothman University"];
-const CS_COURSES = ["ALGORITHMS", "Networks", "Data Structures", "Study Computer Science"];
+const CS_COURSES = ["Algorithms", "Networks", "Data Structures", "Study Computer Science"];
 const CHEAP_CS_COURSES = ["Study Computer Science"];
 const BA_COURSES = ["Leadership", "Management"];
 
@@ -13,7 +13,7 @@ export async function main(ns) {
 	switch (options.course) {
 		case "CS":
 			if (getAvailableMoney(ns) > 1e9 || options.negative) {
-				classType = "ALGORITHMS";
+				classType = "Algorithms";
 				courses = CS_COURSES;
 			} else {
 				classType = "STUDYCOMPUTERSCIENCE";
