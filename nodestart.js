@@ -116,7 +116,11 @@ async function startTrader(ns) {
 		}
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
-		const money = Math.min(MAX_TRADER_MONEY, getAvailableMoney(ns) - 10e6);
+		var money = 0.96 * getAvailableMoney(ns);
+		if (ns.getPlayer().bitNode != 8 && money > 1e9) {
+			money = 500e6 + money / 2;
+		}
+		money = Math.min(MAX_TRADER_MONEY, money);
 		if (stockBudget < 100e6) {
 			reserveBudget(ns, "stocks", money);
 		} else {
