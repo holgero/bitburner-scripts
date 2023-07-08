@@ -17,7 +17,7 @@ export async function main(ns) {
 
 /** @param {NS} ns */
 async function runSleeves(ns) {
-	if (getAvailableMoney(ns) < POOR_MAN ||
+	if ((ns.getPlayer().bitNodeN != 8 && getAvailableMoney(ns) < POOR_MAN) ||
 		ns.heart.break() > -54000 ||
 		ns.scriptRunning("joinbladeburner.js", "home")) {
 		const sleeves = [];
