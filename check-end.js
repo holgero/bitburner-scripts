@@ -100,6 +100,12 @@ async function wantToEndRun(ns, started) {
 			formatMoney(money));
 		return false;
 	}
+	if (database.owned_augmentations.length > 30 && player.skills.hacking >= 2500 &&
+		money <= 120e9) {
+		ns.printf("Have 30 augs and hacking above 2500: Not ending before having earned at least 120 b (have: %s).",
+			formatMoney(money));
+		return false;
+	}
 	if ((estimation.affordableAugmentationCount +
 		estimation.prioritizedAugmentationCount) / 2 >= 6) {
 		ns.printf("Enough augmentations available: affordable: %d, prioritized: %d",
