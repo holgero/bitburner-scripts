@@ -6,12 +6,16 @@ const blade_skill = "Exchange for Bladeburner SP";
 const corp_money = "Sell for Corporation Funds";
 const corp_research = "Exchange for Corporation Research";
 const gym_training ="Improve Gym Training";
+const uni ="Improve Studying";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["all", false], ["gym", false]]);
+	const options = ns.flags([["all", false], ["gym", false], ["uni", false]]);
 	if (options.gym) {
 		await spendOn(ns, gym_training);
+	}
+	if (options.uni) {
+		await spendOn(ns, uni);
 	}
 	if (!ns.corporation.hasCorporation() || getAvailableMoney(ns, true) < 10e9) {
 		// we need this money
