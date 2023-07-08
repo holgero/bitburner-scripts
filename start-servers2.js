@@ -14,6 +14,9 @@ export async function main(ns) {
 				if (ns.upgradePurchasedServer(hostname, ram)) {
 					break;
 				}
+				if (ns.getServerMaxRam(hostname) >= ram) {
+					break;
+				}
 				await ns.sleep(60000);
 			}
 		} else {
