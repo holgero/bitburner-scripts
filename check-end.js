@@ -32,8 +32,8 @@ async function wantToEndRun(ns, started) {
 	const database = getDatabase(ns);
 	const money = getAvailableMoney(ns, true);
 	if (new Date() - started < 120000) {
-		ns.printf("Not ending directly after start (grace: %d s)", 
-			(120000 + started - new Date())/1000 );
+		ns.printf("Not ending directly after start (grace: %d s)",
+			(120000 + started - new Date()) / 1000);
 		return false;
 	}
 	if (database.owned_augmentations.includes(c.RED_PILL) &&
@@ -71,6 +71,12 @@ async function wantToEndRun(ns, started) {
 		}
 		if (money <= 111e9) {
 			ns.printf("On bitnode 8: Not ending before having earned at least 111 b (have: %s).",
+				formatMoney(money));
+			return false;
+		}
+	} else {
+		if (money >= 135e9 && !ns.corporation.hasCorporation()) {
+			ns.printf("Not on bitnode 8 and nearly there to start a corporation (have: %s), not ending now",
 				formatMoney(money));
 			return false;
 		}
@@ -120,7 +126,7 @@ async function wantToEndRun(ns, started) {
 	}
 	if (estimation.affordableAugmentations &&
 		estimation.affordableAugmentations.some(a => a.name == c.BLADE_SIMUL)) {
-		ns.printf("Can obtain the red pill");
+		ns.printf("Can obtain the blades simulacrum");
 		return true;
 	}
 	if (estimation.prioritizedAugmentationCount > 0 &&
