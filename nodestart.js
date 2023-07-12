@@ -116,16 +116,25 @@ async function startTrader(ns) {
 		}
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
-		var money = 0.96 * getAvailableMoney(ns);
-		if (ns.getPlayer().bitNode != 8 && money > 1e9) {
-			money = 500e6 + money / 2;
-		}
-		money = Math.min(MAX_TRADER_MONEY, money);
-		if (stockBudget < 100e6) {
-			reserveBudget(ns, "stocks", money);
+		var money = getAvailableMoney(ns);
+		if (ns.getPlayer().bitNodeN == 8) {
+			// keep a bit for immediate expenses
+			money = Math.max(0, money - 10e6);
 		} else {
-			reserveBudget(ns, "stocks", Math.min(stockBudget, money));
+			if (money > 1e9) {
+				// reserve 1b + half of the money above 1e9 for trading
+				money = 500e6 + money / 2;
+			} else {
+				// reserve 90% of the money for trading
+				money = 0.9 * money;
+			}
+			money = Math.min(MAX_TRADER_MONEY, money);
+			if (stockBudget > 100e6) {
+				// there was a reasonable budget for stocks already, keep that
+				money = Math.min(stockBudget, money);
+			}
 		}
+		reserveBudget(ns, "stocks", money);
 		if (ns.stock.has4SDataTIXAPI()) {
 			ns.run("trader2.js");
 		} else {
@@ -421,6 +430,9 @@ async function meetMoneyGoals(ns) {
 		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
 			ns.tprintf("Making money available to join %s", goal.name);
 			await stopTrader(ns);
+			ns.tprintf("Waiting for an invitation");
+			await ns.sleep(60000);
+			await runAndWait(ns, "joinfactions.js");
 		}
 	}
 }
