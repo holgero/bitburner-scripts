@@ -413,7 +413,7 @@ async function meetMoneyGoals(ns) {
 		if (goal.location && player.city != goal.location) {
 			continue;
 		}
-		if (goal.money > availableMoney && goal.money < maxPossibleMoney) {
+		if (goal.money > availableMoney && goal.money < 0.95 * maxPossibleMoney) {
 			ns.tprintf("Making money available to join %s", goal.name);
 			await stopTrader(ns);
 			ns.tprintf("Waiting for an invitation");
