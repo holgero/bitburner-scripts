@@ -106,9 +106,11 @@ async function wantToEndRun(ns, started) {
 			formatMoney(money));
 		return false;
 	}
-	if (database.owned_augmentations.length > 30 && player.skills.hacking >= 2500 &&
+	if (database.owned_augmentations.length >= database.bitnodemultipliers.DaedalusAugsRequirement &&
+		player.skills.hacking >= 2500 &&
 		money <= 120e9) {
-		ns.printf("Have 30 augs and hacking above 2500: Not ending before having earned at least 120 b (have: %s).",
+		ns.printf("Have %d augs and hacking above 2500: Not ending before having earned at least 120 b (have: %s).",
+			database.owned_augmentations.length,
 			formatMoney(money));
 		return false;
 	}
