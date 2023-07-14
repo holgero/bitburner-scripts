@@ -226,20 +226,6 @@ async function canSpendMoney(ns, started) {
 		const completion = goalCompletion(ns, goals);
 		return completion < 0.8;
 	}
-	const estimation = await getEstimation(ns, false);
-	if ((estimation.prioritizedAugmentationCount +
-		estimation.affordableAugmentationCount) >= 11) {
-		// nearly there, no longer spend money
-		return false;
-	}
-	if (estimation.prioritizedAugmentationCount > 0 &&
-		ns.getPlayer().playtimeSinceLastAug > 30 * 60 * 60 * 1000) {
-		return false;
-	}
-	if (new Date() - started > 20 * 60 * 60 * 1000) {
-		// nearly runs for a day, stop spending money
-		return false;
-	}
 	return true;
 }
 
