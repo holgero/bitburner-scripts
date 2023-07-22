@@ -55,13 +55,9 @@ async function wantToEndRun(ns, started) {
 		}
 	}
 	const corporationInfo = getCorporationInfo(ns);
-	if (corporationInfo.issuedShares > 0 ||
-		(corporationInfo.shareSaleCooldown > 500 && corporationInfo.bonusTime <= 100000) ||
-		(corporationInfo.shareSaleCooldown > 2000 && corporationInfo.bonusTime > 100000)) {
-		ns.printf("Outstanding shares %d, cooldown %d s, not ending run",
-			corporationInfo.issuedShares, corporationInfo.shareSaleCooldown / 5);
-		// avoid ending while there are outstanding shares or
-		// shares cant be sold at the start of the next run
+	if (corporationInfo.issuedShares > 0) {
+		ns.printf("Outstanding shares %d, not ending run", corporationInfo.issuedShares);
+		// avoid ending while there are outstanding shares
 		return false;
 	}
 	if (player.bitNodeN == 8) {
@@ -92,6 +88,12 @@ async function wantToEndRun(ns, started) {
 		estimation.affordableAugmentations.some(a => a.name == c.RED_PILL)) {
 		ns.printf("Can obtain the red pill");
 		return true;
+	}
+	if ((corporationInfo.shareSaleCooldown > 500 && corporationInfo.bonusTime <= 100000) ||
+		(corporationInfo.shareSaleCooldown > 2000 && corporationInfo.bonusTime > 100000)) {
+		ns.printf("Cooldown %d s, not ending run", corporationInfo.shareSaleCooldown / 5);
+		// avoid ending while there are  shares cant be sold at the start of the next run
+		return false;
 	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;
