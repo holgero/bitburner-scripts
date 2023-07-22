@@ -50,6 +50,10 @@ async function runSleeves(ns) {
 		}
 		available.push(ii);
 	}
+	if (available.length == 0) {
+		ns.print("No sleeves available for work");
+		return;
+	}
 	const goals = getFactiongoals(ns);
 	if (goals.factionGoals) {
 		ns.print("Available sleeves for faction work: ", available);
@@ -77,7 +81,8 @@ async function runSleeves(ns) {
 				await runAndWait(ns, "workforcompany.js",
 					"--apply", "--company", job.name, "--job", "IT");
 			}
-			if (!ns.singularity.getCurrentWork()["companyName"] == job.name) {
+			if (!ns.singularity.getCurrentWork() ||
+				!ns.singularity.getCurrentWork()["companyName"] == job.name) {
 				await runAndWait(ns, "workforcompany.js",
 					"--apply", "--company", job.name, "--job", "Security");
 			}
