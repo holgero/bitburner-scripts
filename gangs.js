@@ -93,6 +93,10 @@ async function setMemberTasks(ns) {
 	if (money < 1e9) {
 		preferMoney = true;
 	}
+	if (ns.getPlayer().bitNodeN == 8) {
+		// in bitnode 8 there is no way to earn money other than on the stock market
+		preferMoney = false;
+	}
 
 	for (var name of ns.gang.getMemberNames()) {
 		const hackingLevel = ns.gang.getMemberInformation(name).hack;
