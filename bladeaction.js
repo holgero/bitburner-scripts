@@ -103,6 +103,7 @@ function selectAction(ns, actionDb) {
 	if (bestAction) return bestAction;
 	bestAction = selectActionDetailed(ns, actionDb, undefined, false);
 	if (bestAction) return bestAction;
+	ns.print("No best action found, will do training");
 	return getAction(actionDb, "General", "Training");
 }
 
@@ -112,21 +113,31 @@ function selectActionDetailed(ns, actionDb, type, avoidKilling) {
 	var bestExpected = 0;
 	const minChance = 0.3;
 	for (var action of actionDb.actions) {
-		if (action.actionCountRemaining * action.time <= 60000) {
+		if (action.actionCountRemaining < 1) {
+			ns.printf("action %s : no more remaining", JSON.stringify(action));
 			continue;
 		}
 		if (type && action.type != type) {
+			ns.printf("action %s : wrong type", JSON.stringify(action));
 			continue;
 		}
 		if (avoidKilling && action.killing) {
 			if (Math.random() > 0.1) continue;
 		}
+		const loopTime = ns.bladeburner.getBonusTime() > 15000 ? 150000 : 30000;
+		const count = Math.min(action.actionCountRemaining * action.time, loopTime) / action.time;
+		if (count * action.time < 0.5 * loopTime) {
+			ns.printf("action %s : too few actions in loop", JSON.stringify(action));
+			continue;
+		}
 		var chance = (action.chances[0] + action.chances[1]) / 2;
 		if (chance >= minChance &&
-			(chance * action.reputation / action.time > bestExpected)) {
+			(chance * action.reputation * count > bestExpected)) {
 			ns.printf("Selecting action %s", JSON.stringify(action));
-			bestExpected = chance * action.reputation / action.time;
+			bestExpected = chance * action.reputation * count;
 			bestAction = action;
+		} else {
+			ns.printf("action %s : not better", JSON.stringify(action));
 		}
 	}
 	return bestAction;
