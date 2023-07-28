@@ -36,8 +36,8 @@ export async function main(ns) {
 		ns.printf("Cannot buy any servers.");
 		return;
 	}
+	const hostname = SERVER_PREFIX + "0";
 	if (options["auto-upgrade"] || options.hack) {
-		var hostname = SERVER_PREFIX + "0";
 		var nextRam = 32;
 		if (ns.serverExists(hostname)) {
 			nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * ns.getServerMaxRam(hostname));
@@ -83,6 +83,9 @@ export async function main(ns) {
 	const script = options.hack ? HACK_SCRIPT : SCRIPT;
 	var threads = Math.floor(options.ram / ns.getScriptRam(script));
 	var cost = ns.getPurchasedServerCost(options.ram);
+	if (ns.serverExists(hostname)) {
+		cost = ns.getPurchasedServerUpgradeCost(hostname, options.ram);
+	}
 	reserveBudget(ns, "servers", numberOfServers * cost);
 
 	ns.tprintf("Starting %d servers with %d GB ram (%d threads). Victims are %s.",
