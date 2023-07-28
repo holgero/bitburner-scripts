@@ -11,6 +11,10 @@ export async function main(ns) {
 		ns.tprintf("Don't have grafting api yet.");
 		return;
 	}
+	if (ns.bladeburner.getCurrentAction().type == "BlackOp") {
+		ns.tprintf("Don't start grafting during black op.");
+		return;
+	}
 
 	const augmentations = getGraftableAugmentations(ns, database);
 	const aug = selectAugByPrio(ns, augmentations).name;
