@@ -5,8 +5,9 @@ import * as c from "constants.js";
 export async function main(ns) {
 	// ns.printf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
 	const actionDb = JSON.parse(ns.read("actiondb.txt"));
+	const currentCity = actionDb.current;
 	if (switchToAction(ns, getAction(actionDb, "General", "Diplomacy"),
-		ns.bladeburner.getCityChaos(ns.bladeburner.getCity()) > 50)) {
+		ns.bladeburner.getCityChaos(currentCity) > 50)) {
 		return;
 	}
 	// ns.tprintf("Bladeburner action: %s", JSON.stringify(ns.bladeburner.getCurrentAction()));
@@ -101,10 +102,12 @@ function selectAction(ns, actionDb) {
 	if (bestAction) return bestAction;
 	bestAction = selectActionDetailed(ns, actionDb, undefined, true);
 	if (bestAction) return bestAction;
-	bestAction = selectActionDetailed(ns, actionDb, undefined, false);
-	if (bestAction) return bestAction;
-	ns.print("No best action found, will do training");
-	return getAction(actionDb, "General", "Training");
+	if (actionDb.cities.find(a => a.name == actionDb.current).population > 1e9) {
+		bestAction = selectActionDetailed(ns, actionDb, undefined, false);
+		if (bestAction) return bestAction;
+	}
+	ns.print("No best action found, will do field analysis");
+	return getAction(actionDb, "General", "Field Analysis");
 }
 
 /** @param {NS} ns */

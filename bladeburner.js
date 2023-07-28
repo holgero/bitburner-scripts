@@ -28,7 +28,7 @@ export async function main(ns) {
 		ns.scriptKill("factiongoals.js", "home");
 	}
 	await runAndWait(ns, "bbselectcity.js");
-	await runAndWait(ns, "setactionlevels.js");
+	await runAndWait(ns, "bbactions.js");
 	await runAndWait(ns, "bladeaction.js");
 	await runAndWait(ns, "bbskills.js");
 	await runAndWait(ns, "blackops.js");

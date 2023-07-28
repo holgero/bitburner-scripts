@@ -2,15 +2,13 @@ const KILLING_ACTIONS = ["Bounty Hunter", "Retirement", "Raid"];
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const actionDb = {
-		actions: [],
-	};
+	const actionDb = JSON.parse(ns.read("actiondb.txt"));
+	actionDb.actions = [];
 	actionDb.actions.push(...ns.bladeburner.getGeneralActionNames().map(
 		a => constructAction("General", a)));
 	actionDb.actions.push(...ns.bladeburner.getContractNames().map(
 		a => constructAction("Contract", a)));
-	actionDb.actions.push(...ns.bladeburner.getOperationNames().filter(
-		a => a != "Raid" && a != "Stealth Retirement Operation").map(
+	actionDb.actions.push(...ns.bladeburner.getOperationNames().map(
 		a => constructAction("Operation", a)));
 
 	// ns.tprintf("%s", JSON.stringify(actionDb));

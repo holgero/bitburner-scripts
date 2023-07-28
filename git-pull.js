@@ -1,4 +1,5 @@
 const FILES = [
+	"bbactions.js",
 	"bbselectcity.js",
 	"bbskills.js",
 	"blackops.js",
@@ -60,7 +61,6 @@ const FILES = [
 	"sell-all-stocks.js",
 	"servercost.js",
 	"serverinfo.js",
-	"setactionlevels.js",
 	"showlogs.js",
 	"skill-helper.js",
 	"solve_contract2.js",
