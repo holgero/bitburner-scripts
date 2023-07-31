@@ -393,7 +393,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 					materials = [WATER, CHEMICALS];
 					break;
 				case TOBACCO:
-					materials = [WATER, PLANTS];
+					materials = [PLANTS];
 					break;
 				case SOFTWARE:
 					materials = [HARDWARE];
