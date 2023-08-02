@@ -1,12 +1,38 @@
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["clear", false]]);
+	const options = ns.flags([["clear", false], ["definitions", false], ["active", false]]);
 	if (!ns.stanek.acceptGift()) {
 		ns.tprintf("Couldn't accept staneks gift.");
 		return;
 	}
+	if (options.definitions) {
+		const frags = ns.stanek.fragmentDefinitions();
+		for (const frag of frags) {
+			ns.tprintf("Fragment: %s", JSON.stringify(frag));
+		}
+	}
 	const height = ns.stanek.giftHeight();
 	const width = ns.stanek.giftWidth();
+	if (options.active) {
+		ns.tprintf("Gift size (width x height): %d x %d", width, height);
+		for (const frag of ns.stanek.activeFragments()) {
+			ns.tprintf("Fragment: %s", JSON.stringify(frag));
+		}
+		return;
+	}
+	if (options.clear) {
+		ns.stanek.clearGift();
+	}
+	if (height == 5 && width == 6) {
+		ns.stanek.placeFragment(0, 0, 0, 5);
+		ns.stanek.placeFragment(2, 0, 0, 0);
+		ns.stanek.placeFragment(0, 1, 3, 10);
+		ns.stanek.placeFragment(0, 2, 0, 105);
+		ns.stanek.placeFragment(2, 4, 0, 20);
+		ns.stanek.placeFragment(3, 2, 0, 28);
+		ns.stanek.placeFragment(3, 0, 0, 105);
+		return;
+	}
 	if (height == 7 && width == 7) {
 		/*
 aaabbbb
@@ -21,9 +47,6 @@ hkkkjll
 		for (const frag of frags) {
 			//ns.tprintf("Fragment: %s", JSON.stringify(frag));
 		}
-		if (options.clear) {
-			ns.stanek.clearGift();
-		}
 		ns.stanek.placeFragment(0, 0, 0, 5);
 		ns.stanek.placeFragment(3, 0, 0, 6);
 		ns.stanek.placeFragment(2, 1, 0, 1);
@@ -34,9 +57,13 @@ hkkkjll
 		ns.stanek.placeFragment(5, 5, 0, 21);
 		ns.stanek.placeFragment(4, 4, 1, 27);
 		ns.stanek.placeFragment(1, 4, 1, 28);
+		// if bladeburner
 		// ns.stanek.placeFragment(2, 4, 1, 30);
+		// else
 		ns.stanek.placeFragment(2, 4, 1, 16);
+		// endif
 
 		ns.stanek.placeFragment(2, 2, 3, 100);
+		return;
 	}
 }
