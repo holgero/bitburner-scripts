@@ -9,6 +9,8 @@ export async function main(ns) {
 	await runAndWait(ns, "spend-hashes.js", "--all");
 	await runAndWait(ns, "governors.js");
 	await runAndWait(ns, "purchase-sleeve-augs.js");
+	await ns.sleep(300);
+	ns.tprint("Reset");
 	ns.singularity.installAugmentations("nodestart.js");
 	ns.singularity.softReset("nodestart.js");
 }
