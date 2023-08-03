@@ -101,10 +101,12 @@ async function wantToEndRun(ns, started) {
 		ns.printf("Endgame: completion is %d", completion.toFixed(2));
 		return completion >= 1;
 	}
-	if (database.features.hacknetServer &&
-		player.playtimeSinceLastAug == player.playtimeSinceLastBitnode &&
+	if ((database.features.hacknetServer ||
+		player.playtimeSinceLastAug < player.playtimeSinceLastBitnode) &&
 		money <= 10e9) {
-		ns.printf("Have a hacknet server: Not ending before having earned at least 10 b (have: %s).",
+		// allow to end the first run faster than with 10 b only if we don't have
+		// the free hacknetserver
+		ns.printf("Not ending before having earned at least 10 b (have: %s).",
 			formatMoney(money));
 		return false;
 	}
@@ -116,8 +118,8 @@ async function wantToEndRun(ns, started) {
 			formatMoney(money));
 		return false;
 	}
-	if ((estimation.affordableAugmentationCount +
-		estimation.prioritizedAugmentationCount) / 2 >= 6) {
+	if (0.66 * estimation.affordableAugmentationCount +
+		estimation.prioritizedAugmentationCount >= 10) {
 		ns.printf("Enough augmentations available: affordable: %d, prioritized: %d",
 			estimation.affordableAugmentationCount,
 			estimation.prioritizedAugmentationCount);
