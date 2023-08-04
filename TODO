@@ -1,0 +1,6 @@
+* Move grace periode at start from check-end.js to nodestart.js itself.
+* Implement a procedure to find the best (biggest synthoid population) city
+  automatically.
+  Needs field investigation in several cities, check if population rises
+  with investigations and keep state over several loop iterations
+* Make stanek's gift adapt to different skill demands
