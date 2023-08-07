@@ -124,6 +124,10 @@ async function wantToEndRun(ns, started) {
 			estimation.affordableAugmentationCount,
 			estimation.prioritizedAugmentationCount);
 		return true;
+	} else {
+		ns.printf("Current augmentation score is %d, (prio: %d, all: %d)",
+			0.66 * estimation.affordableAugmentationCount + estimation.prioritizedAugmentationCount,
+			estimation.prioritizedAugmentationCount, estimation.affordableAugmentationCount);
 	}
 	if (estimation.affordableAugmentationCount > 0 &&
 		estimation.affordableAugmentationCount >= database.augmentations.length) {
