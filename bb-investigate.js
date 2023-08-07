@@ -3,7 +3,7 @@ import { CITIES } from "constants.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	const state = ns.fileExists("bb-cities.txt") ? JSON.parse(ns.read("bb-cities.txt")) : {};
-	if (!state.cities) {
+	if (!state.cities || Date.now() - state.lastExecution > 30000 * 100) {
 		state.cities = CITIES.map(a => {
 			return {
 				name: a,
@@ -11,6 +11,8 @@ export async function main(ns) {
 				population: 0,
 			};
 		});
+		state.current = undefined;
+		state.lastExecution = undefined;
 	}
 	if (!state.current) {
 		state.current = CITIES[0];

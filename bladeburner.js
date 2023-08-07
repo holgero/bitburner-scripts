@@ -27,9 +27,14 @@ export async function main(ns) {
 		ns.printf("Need %s to work together with factiongoals", c.BLADE_SIMUL);
 		ns.scriptKill("factiongoals.js", "home");
 	}
-	await runAndWait(ns, "bbselectcity.js");
-	await runAndWait(ns, "bbactions.js");
-	await runAndWait(ns, "bladeaction.js");
-	await runAndWait(ns, "bbskills.js");
-	await runAndWait(ns, "blackops.js");
+	const state = ns.fileExists("bb-cities.txt") ? JSON.parse(ns.read("bb-cities.txt")) : {};
+	if (!state.lastExecution || Date.now() - state.lastExecution > 30000 * 100) {
+		await runAndWait(ns, "bb-investigate.js");
+	} else {
+		await runAndWait(ns, "bbselectcity.js");
+		await runAndWait(ns, "bbactions.js");
+		await runAndWait(ns, "bladeaction.js");
+		await runAndWait(ns, "bbskills.js");
+		await runAndWait(ns, "blackops.js");
+	}
 }
