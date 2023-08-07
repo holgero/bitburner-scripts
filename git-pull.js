@@ -2,6 +2,7 @@ const FILES = [
 	"bbactions.js",
 	"bbselectcity.js",
 	"bbskills.js",
+	"bb-investigate.js",
 	"blackops.js",
 	"bladeaction.js",
 	"bladeburner.js",
