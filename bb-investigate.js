@@ -1,9 +1,9 @@
-import { CITIES } from "constants.js";
+import { CITIES, BLADEBURNER_CENSUS_INTERVALL } from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	const state = ns.fileExists("bb-cities.txt") ? JSON.parse(ns.read("bb-cities.txt")) : {};
-	if (!state.cities || Date.now() - state.lastExecution > 30000 * 100) {
+	if (!state.cities || Date.now() - state.lastExecution > BLADEBURNER_CENSUS_INTERVALL) {
 		state.cities = CITIES.map(a => {
 			return {
 				name: a,

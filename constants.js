@@ -130,6 +130,9 @@ export const BLADEBURNER_NODES = [
 	6, 7, 11, 13
 ];
 
+// interval between runs of field analysis in all cities
+export const BLADEBURNER_CENSUS_INTERVALL = 1000 * 3600 * 2;
+
 // story line
 export const STORY_LINE = [
 	{ name: CYBERSEC, backdoor: "CSEC", money: 0, work: HACKING, location: "" },
