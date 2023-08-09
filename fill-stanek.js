@@ -16,7 +16,7 @@ export async function main(ns) {
 	if (options.active) {
 		ns.tprintf("Gift size (width x height): %d x %d", width, height);
 		for (const frag of ns.stanek.activeFragments()) {
-			ns.tprintf("Fragment: %s", JSON.stringify(frag));
+			ns.tprintf("ns.stanek.placeFragment(%d, %d, %d, %d);", frag.x, frag.y, frag.rotation, frag.id);
 		}
 		return;
 	}
@@ -33,20 +33,19 @@ export async function main(ns) {
 		ns.stanek.placeFragment(3, 0, 0, 105);
 		return;
 	}
+	if (height == 6 && width == 6) {
+		ns.stanek.placeFragment(0, 0, 0, 5);
+		ns.stanek.placeFragment(2, 0, 2, 10);
+		ns.stanek.placeFragment(4, 0, 3, 12);
+		ns.stanek.placeFragment(0, 1, 1, 14);
+		ns.stanek.placeFragment(1, 2, 2, 20);
+		ns.stanek.placeFragment(1, 3, 2, 30);
+		ns.stanek.placeFragment(3, 3, 2, 16);
+		ns.stanek.placeFragment(3, 4, 0, 28);
+		ns.stanek.placeFragment(0, 4, 0, 25);
+		return;
+	}
 	if (height == 7 && width == 7) {
-		/*
-aaabbbb
-caddeee
-ccfddge
-hcfffgg
-hxiijjg
-hiikjll
-hkkkjll
-		*/
-		const frags = ns.stanek.fragmentDefinitions();
-		for (const frag of frags) {
-			//ns.tprintf("Fragment: %s", JSON.stringify(frag));
-		}
 		ns.stanek.placeFragment(0, 0, 0, 5);
 		ns.stanek.placeFragment(3, 0, 0, 6);
 		ns.stanek.placeFragment(2, 1, 0, 1);
