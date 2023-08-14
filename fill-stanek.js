@@ -22,6 +22,7 @@ export async function main(ns) {
 	}
 	if (options.clear) {
 		ns.stanek.clearGift();
+		return;
 	}
 	if (height == 5 && width == 6) {
 		ns.stanek.placeFragment(0, 0, 0, 5);
@@ -43,6 +44,19 @@ export async function main(ns) {
 		ns.stanek.placeFragment(3, 3, 2, 16);
 		ns.stanek.placeFragment(3, 4, 0, 28);
 		ns.stanek.placeFragment(0, 4, 0, 25);
+		return;
+	}
+	if (height == 6 && width == 7) {
+		ns.stanek.placeFragment(0, 1, 1, 16);
+		ns.stanek.placeFragment(4, 1, 1, 101);
+		ns.stanek.placeFragment(6, 0, 1, 20);
+		ns.stanek.placeFragment(4, 4, 0, 14);
+		ns.stanek.placeFragment(2, 4, 0, 30);
+		ns.stanek.placeFragment(1, 2, 2, 100);
+		ns.stanek.placeFragment(2, 0, 2, 6);
+		ns.stanek.placeFragment(0, 0, 2, 1);
+		ns.stanek.placeFragment(3, 1, 3, 0);
+		ns.stanek.placeFragment(0, 3, 1, 12);
 		return;
 	}
 	if (height == 7 && width == 7) {
