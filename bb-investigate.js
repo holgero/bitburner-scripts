@@ -45,6 +45,18 @@ export async function main(ns) {
 				ns.tprintf("Finished population investigation");
 				state.lastExecution = Date.now();
 				state.current = undefined;
+				var maxPopulation = 0;
+				var bestCity;
+				for (var city of state.cities) {
+					if (city.population > maxPopulation) {
+						maxPopulation = population;
+						bestCity = city.name;
+					}
+				}
+				if (bestCity != ns.bladeburner.getCity()) {
+					ns.bladeburner.switchCity(bestCity);
+					ns.bladeburner.startAction("General", "Diplomacy");
+				}
 			}
 		}
 	}
