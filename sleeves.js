@@ -93,6 +93,9 @@ async function runSleeves(ns) {
 				}
 			}
 		}
+		if (database.features.bladeburners && available.length) {
+			runBladeburnerTasks(ns, available);
+		}
 		ns.print("Still available sleeves: ", available);
 		const factionsToWorkFor = goals.factionGoals.
 			filter(a => factions.includes(a.name) && !(a.reputation ||
@@ -105,23 +108,6 @@ async function runSleeves(ns) {
 					available.splice(idx, 1);
 					break;
 				}
-			}
-		}
-		if (database.features.bladeburners && available.length) {
-			ns.print("Still available sleeves: ", available);
-			var task = ns.sleeve.getTask(available[0]);
-			// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
-			if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
-				ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
-			}
-			available.splice(0, 1);
-			if (available.length > 0) {
-				task = ns.sleeve.getTask(available[0]);
-				// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
-				if (!task || task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
-					ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
-				}
-				available.splice(0, 1);
 			}
 		}
 	}
@@ -155,6 +141,25 @@ function sleeveHasLowSkills(ns, sleeveNo) {
 		return true;
 	}
 	return false;
+}
+
+/** @param {NS} ns */
+function runBladeburnerTasks(ns, available) {
+	ns.print("Still available sleeves: ", available);
+	var task = ns.sleeve.getTask(available[0]);
+	// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
+	if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
+		ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+	}
+	available.splice(0, 1);
+	if (available.length > 0) {
+		task = ns.sleeve.getTask(available[0]);
+		// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
+		if (!task || task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
+			ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
+		}
+		available.splice(0, 1);
+	}
 }
 
 /** @param {NS} ns */
