@@ -149,16 +149,18 @@ function runBladeburnerTasks(ns, available) {
 	var task = ns.sleeve.getTask(available[0]);
 	// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
 	if (!task || task.type != "BLADEBURNER" || task.actionName != "Field Analysis") {
-		ns.sleeve.setToBladeburnerAction(available[0], "Field analysis");
+		if (ns.sleeve.setToBladeburnerAction(available[0], "Field analysis")) {
+			available.splice(0, 1);
+		}
 	}
-	available.splice(0, 1);
 	if (available.length > 0) {
 		task = ns.sleeve.getTask(available[0]);
 		// ns.tprintf("Sleeve doing %s", JSON.stringify(task));
 		if (!task || task.type != "BLADEBURNER" || task.actionName != "Diplomacy") {
-			ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy");
+			if (ns.sleeve.setToBladeburnerAction(available[0], "Diplomacy")) {
+				available.splice(0, 1);
+			}
 		}
-		available.splice(0, 1);
 	}
 }
 
