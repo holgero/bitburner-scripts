@@ -23,10 +23,10 @@ export async function main(ns) {
 
 	if (getStartState(ns) != "restart") {
 		await runAndWait(ns, "clean-files.js");
+		await runAndWait(ns, "fill-stanek.js");
 		await runAndWait(ns, "database/create.js");
 		// hacky: create preliminary empty factiongoals
 		await runAndWait(ns, "calculate-goals.js", "--money", 1);
-		await runAndWait(ns, "fill-stanek.js");
 		await startHacking(ns, getProgramCount(ns));
 	}
 
