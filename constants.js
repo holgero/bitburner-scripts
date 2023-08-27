@@ -131,7 +131,7 @@ export const BLADEBURNER_NODES = [
 ];
 
 // interval between runs of field analysis in all cities
-export const BLADEBURNER_CENSUS_INTERVALL = 1000 * 3600 * 2;
+export const BLADEBURNER_CENSUS_INTERVALL = 1000 * 3600 * 4;
 
 // story line
 export const STORY_LINE = [
