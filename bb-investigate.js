@@ -49,7 +49,7 @@ export async function main(ns) {
 				var bestCity;
 				for (var city of state.cities) {
 					if (city.population > maxPopulation) {
-						maxPopulation = population;
+						maxPopulation = city.population;
 						bestCity = city.name;
 					}
 				}
