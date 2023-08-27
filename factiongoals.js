@@ -101,6 +101,7 @@ async function checkForDaedalus(ns, database, config) {
 		var goal = goals.find(a => a.name == c.DAEDALUS);
 		// single minded now, there are no other goals...
 		goals.forEach(a => a.reputation = 0);
+		const redPill = database.augmentations.find(a => a.name == c.RED_PILL);
 		if (goal.favor < database.favorToDonate) {
 			goal.reputation = reputationNeeded(ns, database, goal.name);
 			if (goal.favor <= 1 && goal.reputation >= 500000 &&
@@ -110,9 +111,12 @@ async function checkForDaedalus(ns, database, config) {
 				goal.reputation = 160000;
 			}
 			config.estimatedDonations = 0;
+			if (goal.reputation > redPill.reputation) {
+				goal.reputation = redPill.reputation;
+			}
 		} else {
 			// reach the red pill
-			goal.reputation = database.augmentations.find(a => a.name == c.RED_PILL).reputation;
+			goal.reputation = redPill.reputation;
 			config.estimatedDonations = 1;
 		}
 		// ns.tprintf("Writing modified factiongoal");
