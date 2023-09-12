@@ -12,8 +12,8 @@ import {
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	const options = ns.flags([["started", Date.now()], ["quiet", false]]);
-	if (await wantToEndRun(ns, options.started)) {
+	const options = ns.flags([["quiet", false]]);
+	if (await wantToEndRun(ns)) {
 		if (!options.quiet) {
 			ns.tprintf("Want to end run");
 		}
@@ -27,15 +27,10 @@ export async function main(ns) {
 }
 
 /** @param {NS} ns **/
-async function wantToEndRun(ns, started) {
+async function wantToEndRun(ns) {
 	const player = ns.getPlayer();
 	const database = getDatabase(ns);
 	const money = getAvailableMoney(ns, true);
-	if (new Date() - started < 120000) {
-		ns.printf("Not ending directly after start (grace: %d s)",
-			(120000 + started - new Date()) / 1000);
-		return false;
-	}
 	if (database.owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		player.skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
@@ -150,10 +145,6 @@ async function wantToEndRun(ns, started) {
 	if (estimation.prioritizedAugmentationCount > 0 &&
 		player.playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
 		ns.printf("Running for over 40 h since last aug");
-		return true;
-	}
-	if (new Date() - started > 24 * 60 * 60 * 1000) {
-		ns.printf("Running for over a day");
 		return true;
 	}
 	ns.printf("No reason to end this run");

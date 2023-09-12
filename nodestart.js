@@ -45,6 +45,8 @@ export async function main(ns) {
 }
 
 async function killOthers(ns) {
+	ns.scriptKill("start-hacknet.js", "home");
+	ns.scriptKill("start-hacknet2.js", "joesguns");
 	ns.scriptKill("instrument.js", "home");
 	ns.scriptKill("stanek.js", "home");
 	ns.scriptKill("factiongoals.js", "home");
@@ -213,8 +215,8 @@ function startHomeScript(ns, scriptName, ...args) {
 }
 
 /** @param {NS} ns **/
-async function canSpendMoney(ns, started) {
-	if (await wantToEndRun(ns, started)) {
+async function canSpendMoney(ns) {
+	if (await wantToEndRun(ns)) {
 		return false;
 	}
 	if (getAvailableMoney(ns) > 1e15) {
@@ -237,14 +239,18 @@ async function progressHackingLevels(ns) {
 		await runHomeScripts(ns);
 		const nextProgram = await purchaseHackingPrograms(ns);
 		await startHacking(ns, nextProgram);
-		if (await wantToEndRun(ns, started)) {
-			return;
-		}
-		if (await canSpendMoney(ns, started)) {
-			await improveInfrastructure(ns, nextProgram, started);
+		if (new Date() - started < 120000) {
+			ns.tprintf("Grace period: %d s", (120000 + started - new Date()) / 1000);
 		} else {
-			ns.scriptKill("start-hacknet.js", "home");
-			ns.scriptKill("start-hacknet2.js", "joesguns");
+			if (await wantToEndRun(ns)) {
+				return;
+			}
+			if (await canSpendMoney(ns)) {
+				await improveInfrastructure(ns, nextProgram);
+			} else {
+				ns.scriptKill("start-hacknet.js", "home");
+				ns.scriptKill("start-hacknet2.js", "joesguns");
+			}
 		}
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
 			await runAndWait(ns, "joinbladeburner.js", "--faction");
@@ -265,8 +271,8 @@ async function progressHackingLevels(ns) {
 }
 
 /** @param {NS} ns **/
-async function wantToEndRun(ns, started) {
-	await runAndWait(ns, "check-end.js", "--quiet", "--started", started);
+async function wantToEndRun(ns) {
+	await runAndWait(ns, "check-end.js", "--quiet");
 	const theEnd = JSON.parse(ns.read("check-end.txt"));
 	return theEnd.end;
 }
@@ -307,7 +313,7 @@ async function purchaseHackingPrograms(ns) {
 }
 
 /** @param {NS} ns **/
-async function improveInfrastructure(ns, programsOwned, started) {
+async function improveInfrastructure(ns, programsOwned) {
 	const database = getDatabase(ns);
 	await runAndWait(ns, "start-hacknet.js", programsOwned);
 
@@ -356,7 +362,7 @@ async function improveInfrastructure(ns, programsOwned, started) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
 				if (database.features.graft &&
-					!await wantToEndRun(ns, started) &&
+					!await wantToEndRun(ns) &&
 					!isEndgame(ns)) {
 					await runAndWait(ns, "travel.js", "--city", c.NEW_TOKYO);
 					startHomeScript(ns, "graft-augmentation.js");
