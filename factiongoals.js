@@ -110,8 +110,14 @@ async function checkForDaedalus(ns, database, config) {
 				// half the time to reach the favor to donate threshold
 				goal.reputation = 160000;
 			}
+			if (goal.favor < 220 && goal.reputation >= 4e6 &&
+				ns.singularity.getFactionRep(goal.name) < 0.5 * goal.reputation) {
+				// do an additional step if favor to donate is really high
+				goal.reputation = 2e6;
+			}
 			config.estimatedDonations = 0;
 			if (goal.reputation > redPill.reputation) {
+				// cap at red pill
 				goal.reputation = redPill.reputation;
 			}
 		} else {
