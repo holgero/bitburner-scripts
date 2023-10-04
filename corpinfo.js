@@ -7,9 +7,9 @@ export async function main(ns) {
 		ns.tprintf("No corporation");
 		return;
 	}
-	const low = corporationInfo.valuation / (2 * corporationInfo.totalShares);
-	const high = corporationInfo.valuation / (2 * (corporationInfo.totalShares -
-		corporationInfo.issuedShares - corporationInfo.numShares) + 1);
+	const valuePerShare = corporationInfo.valuation / corporationInfo.totalShares;
+	const low = 0.5 * valuePerShare;
+	const high = 1.5 * valuePerShare;
 	const profit = corporationInfo.revenue - corporationInfo.expenses;
 
 	ns.tprintf("Corporation %s: share=%s (%s-%s), funds=%s, profit=%s, cool=%d s, bonus time=%d s, owned=%s",

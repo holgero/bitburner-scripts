@@ -67,12 +67,11 @@ export async function main(ns) {
 
 function tradeCorporationShares(ns) {
 	var corporation = ns.corporation.getCorporation();
-	var value = valuation(ns, corporation);
-	var low = value / (2 * corporation.totalShares);
-	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
-	var target = (low + high) / 2;
+	const valuePerShare = valuation(ns, corporation) / corporation.totalShares;
+	const low = 0.5 * valuePerShare;
+	const high = 1.5 * valuePerShare;
 
-	if (shouldSell(ns, corporation, Math.max(target, 0.95 * high), low)) {
+	if (shouldSell(ns, corporation, 0.9 * high, low)) {
 		var money = ns.getServerMoneyAvailable("home");
 		ns.corporation.sellShares(corporation.numShares-1);
 		ns.corporation.issueDividends(1);
@@ -82,7 +81,7 @@ function tradeCorporationShares(ns) {
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		return;
 	}
-	if (shouldBuy(ns, corporation, target)) {
+	if (shouldBuy(ns, corporation, valuePerShare)) {
 		var money = ns.getServerMoneyAvailable("home");
 		const affordableShares = Math.min(corporation.issuedShares,
 			Math.floor(money / (1.1 * corporation.sharePrice)));
@@ -250,9 +249,10 @@ function expandIndustry(ns) {
 /** @param {NS} ns **/
 async function printCorporationInfo(ns) {
 	var corporation = ns.corporation.getCorporation();
-	var value = valuation(ns, corporation);
-	var low = value / (2 * corporation.totalShares);
-	var high = value / (2 * (corporation.totalShares - corporation.issuedShares - corporation.numShares) + 1);
+	const value = valuation(ns, corporation);
+	const valuePerShare = value / corporation.totalShares;
+	const low = 0.5 * valuePerShare;
+	const high = 1.5 * valuePerShare;
 	corporation.valuation = value;
 	var profit = corporation.revenue - corporation.expenses;
 	corporation.bonusTime = ns.corporation.getBonusTime();
