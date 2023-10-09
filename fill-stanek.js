@@ -79,4 +79,20 @@ export async function main(ns) {
 		ns.stanek.placeFragment(2, 2, 3, 100);
 		return;
 	}
+	if (height == 7 && width >= 8) {
+		ns.stanek.placeFragment(0, 0, 0, 1);
+		ns.stanek.placeFragment(2, 0, 0, 5);
+		ns.stanek.placeFragment(4, 0, 0, 0);
+		ns.stanek.placeFragment(6, 0, 1, 10);
+		ns.stanek.placeFragment(0, 1, 1, 18);
+		ns.stanek.placeFragment(0, 3, 1, 16);
+		ns.stanek.placeFragment(0, 5, 0, 25);
+		ns.stanek.placeFragment(7, 3, 1, 20);
+		ns.stanek.placeFragment(3, 6, 2, 6);
+		ns.stanek.placeFragment(4, 2, 2, 12);
+		ns.stanek.placeFragment(4, 3, 0, 30);
+		ns.stanek.placeFragment(4, 4, 0, 14);
+		ns.stanek.placeFragment(2, 2, 1, 7);
+		ns.stanek.placeFragment(2, 3, 3, 27);
+	}
 }
