@@ -6,6 +6,7 @@ const MEMBER_PREFIX = "member-";
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const options = ns.flags([["spend", false]]);
 	if (ns.getPlayer().bitNodeN != 2 && ns.heart.break() > -54000) {
 		ns.printf("Cannot do gangs on bitnodes other than 2 with a karma of %s", ns.heart.break());
 		return;
@@ -28,7 +29,12 @@ export async function main(ns) {
 	}
 	recruitMembers(ns);
 	ascendMembers(ns);
-	equipMembers(ns);
+	if (options.spend) {
+		ns.tprintf("Spending available money on gang");
+		equipMembers(ns, 1);
+		return;
+	}
+	equipMembers(ns, 0.1);
 	await setMemberTasks(ns);
 	await ns.sleep(1000);
 	await balanceWantedLevel(ns);
@@ -64,8 +70,8 @@ function ascendMembers(ns) {
 }
 
 /** @param {NS} ns */
-function equipMembers(ns) {
-	var moneyToSpend = 0.1 * getAvailableMoney(ns);
+function equipMembers(ns, fraction) {
+	var moneyToSpend = fraction * getAvailableMoney(ns);
 	const equipments = ns.gang.getEquipmentNames().
 		filter(a => ns.gang.getEquipmentStats(a).hack && ns.gang.getEquipmentCost(a) < moneyToSpend).
 		sort((a, b) => ns.gang.getEquipmentCost(a) - ns.gang.getEquipmentCost(b)).reverse();

@@ -22,6 +22,7 @@ export async function main(ns) {
 	await runAndWait(ns, "governors.js");
 	await runAndWait(ns, "purchase-sleeve-augs.js");
 	await runAndWait(ns, "purchase-stock-api.js", "--all");
+	await runAndWait(ns, "gangs.js", "--spend");
 	
 	if (options.reboot) {
 		ns.spawn("reset.js");
