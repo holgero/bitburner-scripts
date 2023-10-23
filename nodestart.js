@@ -170,7 +170,7 @@ async function runHomeScripts(ns) {
 	ns.print("Run home scripts");
 	if (ns.getPlayer().bitNodeN == 8 ||
 		(ns.getServerMaxRam("home") > 32 &&
-			(getAvailableMoney(ns) > 1e9 || getBudget(ns, "stocks") > 100e6))) {
+			(getAvailableMoney(ns) > 2e9 || getBudget(ns, "stocks") > 100e6))) {
 		await startTrader(ns);
 	}
 	await ns.sleep(1000);
@@ -341,6 +341,8 @@ async function improveInfrastructure(ns, programsOwned) {
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
 			if (getAvailableMoney(ns) < 1e9) {
 				await runAndWait(ns, "start-hacknet.js", 6);
+			} else if (getAvailableMoney(ns) < 10e9) {
+				await runAndWait(ns, "start-hacknet.js", 7);
 			} else if (getAvailableMoney(ns) < 200e9) {
 				await runAndWait(ns, "start-hacknet.js", 8);
 			} else if (getAvailableMoney(ns) < 1e12) {
