@@ -65,6 +65,7 @@ export async function main(ns) {
 	}
 }
 
+/** @param {NS} ns **/
 function tradeCorporationShares(ns) {
 	var corporation = ns.corporation.getCorporation();
 	const valuePerShare = valuation(ns, corporation) / corporation.totalShares;
@@ -73,7 +74,7 @@ function tradeCorporationShares(ns) {
 
 	if (shouldSell(ns, corporation, 0.9 * high, low)) {
 		var money = ns.getServerMoneyAvailable("home");
-		ns.corporation.sellShares(corporation.numShares-1);
+		ns.corporation.sellShares(corporation.numShares - 1);
 		ns.corporation.issueDividends(1);
 		var earned = ns.getServerMoneyAvailable("home") - money;
 		reserveBudget(ns, "corp", earned); // to make sure we can buy back
@@ -171,7 +172,7 @@ async function setupCorporation(ns) {
 				const division = ns.corporation.getDivision(divisionName);
 				if (division.products.length) {
 					// don't expand this division if there is a product development going on
-					var product = ns.corporation.getProduct(divisionName, c.SECTOR12, 
+					var product = ns.corporation.getProduct(divisionName, c.SECTOR12,
 						division.products[0]);
 					if (product.developmentProgress < 100) {
 						continue;
@@ -496,8 +497,9 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var corp = ns.corporation.getCorporation();
 	// only spend on addtl. materials while we don't own the company
 	var canSpend = corp.numShares <= 1;
+	// ns.printf("Can spend money for %s in %s: %s", material, city, canSpend);
 
-	if (canSpend && info.qty < amount) {
+	if (canSpend && info.stored < amount) {
 		// ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
 		ns.corporation.buyMaterial(divisionName, city, material, baseAmount / 500.0);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
