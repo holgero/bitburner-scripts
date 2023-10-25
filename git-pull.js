@@ -77,8 +77,6 @@ const FILES = [
 	"fill-stanek.js",
 	"start-hacknet2.js",
 	"start-hacknet.js",
-	"start-servers.js",
-	"start-servers2.js",
 	"test.js",
 	"trader.js",
 	"trader2.js",

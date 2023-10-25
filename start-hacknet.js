@@ -35,10 +35,6 @@ export async function main(ns) {
 		ns.scp("budget.txt", scriptHost);
 		return;
 	}
-	if (ns.scriptRunning("start-servers2.js", "home")) {
-		ns.printf("Server installation running");
-		return;
-	}
 	var maxNodes = ns.args[0];
 	var maxLevel = Math.round(maxNodes * levelMultiplier + levelAddon);
 	var maxRam = Math.round(ns.args[0] * ramMultiplier);

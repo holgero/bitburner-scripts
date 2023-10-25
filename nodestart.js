@@ -320,24 +320,14 @@ async function improveInfrastructure(ns, programsOwned) {
 	switch (programsOwned) {
 		case 3:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
+			await runAndWait(ns, "upgrade-servers.js", "--reserve 50e6");
 			break;
 		case 4:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 128);
-			if (!ns.serverExists("pserv-0") ||
-				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
-				await runAndWait(ns, "start-servers.js", "--auto-upgrade");
-			}
+			await runAndWait(ns, "upgrade-servers.js", "--reserve 500e6");
 			break;
 		case 5:
-			if (!ns.serverExists("pserv-0") ||
-				ns.getServerMaxRam("pserv-0") < ns.getPurchasedServerMaxRam()) {
-				if (goForHacking(ns)) {
-					await runAndWait(ns, "start-servers.js", "--auto-upgrade", "--hack");
-					await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
-				} else {
-					await runAndWait(ns, "start-servers.js", "--auto-upgrade");
-				}
-			}
+			await runAndWait(ns, "upgrade-servers.js");
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
 			if (getAvailableMoney(ns) < 1e9) {
 				await runAndWait(ns, "start-hacknet.js", 6);
@@ -358,9 +348,7 @@ async function improveInfrastructure(ns, programsOwned) {
 			}
 			if (getAvailableMoney(ns) > 1e15 && ns.corporation.hasCorporation() &&
 				ns.scriptRunning("corporation.js", "home") &&
-				!ns.scriptRunning("start-hacknet2.js", "home") &&
-				!ns.scriptRunning("start-servers.js", "home") &&
-				!ns.scriptRunning("start-servers2.js", "home")) {
+				!ns.scriptRunning("start-hacknet2.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
 				if (database.features.graft &&
@@ -386,9 +374,12 @@ async function startHacking(ns, programs) {
 	await runAndWait(ns, "rnuke.js", programs);
 	if (goForHacking(ns)) {
 		await runAndWait(ns, "rscan.js", "hackhack", "--quiet");
+		await runAndWait(ns, "calculate-victims.js", "--hack");
 	} else {
 		await runAndWait(ns, "rhack.js");
+		await runAndWait(ns, "calculate-victims.js");
 	}
+	await runAndWait(ns, "upgrade-servers.js", "--restart");
 }
 
 async function meetMoneyGoals(ns) {
