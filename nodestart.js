@@ -320,11 +320,11 @@ async function improveInfrastructure(ns, programsOwned) {
 	switch (programsOwned) {
 		case 3:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
-			await runAndWait(ns, "upgrade-servers.js", "--reserve 50e6");
+			await runAndWait(ns, "upgrade-servers.js", "--reserve", 25e6);
 			break;
 		case 4:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 128);
-			await runAndWait(ns, "upgrade-servers.js", "--reserve 500e6");
+			await runAndWait(ns, "upgrade-servers.js", "--reserve", 200e6);
 			break;
 		case 5:
 			await runAndWait(ns, "upgrade-servers.js");
