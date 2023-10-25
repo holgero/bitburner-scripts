@@ -316,19 +316,20 @@ async function purchaseHackingPrograms(ns) {
 async function improveInfrastructure(ns, programsOwned) {
 	const database = getDatabase(ns);
 	await runAndWait(ns, "start-hacknet.js", programsOwned);
+	await runAndWait(ns, "upgrade-servers.js");
 
 	switch (programsOwned) {
 		case 3:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 64);
-			await runAndWait(ns, "upgrade-servers.js", "--reserve", 25e6);
+			await runAndWait(ns, "upgrade-servers.js", "--reserve", 5e6, "--max", 5e6);
 			break;
 		case 4:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 128);
-			await runAndWait(ns, "upgrade-servers.js", "--reserve", 200e6);
+			await runAndWait(ns, "upgrade-servers.js", "--reserve", 25e6, "--max", 20e6);
 			break;
 		case 5:
-			await runAndWait(ns, "upgrade-servers.js");
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
+			await runAndWait(ns, "upgrade-servers.js", "--reserve", 250e6, "--max", 50e6);
 			if (getAvailableMoney(ns) < 1e9) {
 				await runAndWait(ns, "start-hacknet.js", 6);
 			} else if (getAvailableMoney(ns) < 10e9) {

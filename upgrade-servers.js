@@ -5,9 +5,9 @@ const SCRIPT = "hack-server.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["reserve", 2e9], ["restart", false]]);
-	const available = getAvailableMoney(ns, false) - options.reserve;
-	if (available < 0) {
+	const options = ns.flags([["reserve", 2e9], ["restart", false], ["max", 1e21]]);
+	const available = availableMoney(ns, options);
+	if (available < 0 && !options.restart) {
 		ns.printf("No money available (%s)", formatMoney(available));
 		return;
 	}
@@ -27,18 +27,18 @@ export async function main(ns) {
 		const hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
 			const currentRam = ns.getServerMaxRam(hostname);
-			const nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * currentRam);
-			if (nextRam > currentRam) {
-				const cost = ns.getPurchasedServerUpgradeCost(hostname, nextRam);
-				if (cost < available) {
-					ns.printf("Can upgrade %s from %d to %d", hostname, currentRam, nextRam);
-					const procs = ns.ps(hostname).filter(a => a.filename == SCRIPT);
-					if (procs.length > 0 && !options.restart) {
-						const process = procs[0];
-						const victim = process.args[0];
-						const spid = process.pid;
-						ns.printf("Script %s runs with pid %d on %s, victim %s",
-							SCRIPT, spid, hostname, victim);
+			const procs = ns.ps(hostname).filter(a => a.filename == SCRIPT);
+			if (procs.length > 0 && !options.restart) {
+				const process = procs[0];
+				const victim = process.args[0];
+				const spid = process.pid;
+				ns.printf("Script %s runs with pid %d on %s, victim %s",
+					SCRIPT, spid, hostname, victim);
+				const nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * currentRam);
+				if (nextRam > currentRam) {
+					const cost = ns.getPurchasedServerUpgradeCost(hostname, nextRam);
+					if (cost < available) {
+						ns.printf("Can upgrade %s from %d to %d", hostname, currentRam, nextRam);
 						if (ns.upgradePurchasedServer(hostname, nextRam)) {
 							ns.kill(spid);
 							const threads = Math.floor(nextRam / ns.getScriptRam(SCRIPT));
@@ -47,22 +47,22 @@ export async function main(ns) {
 								hostname, currentRam, nextRam, victim, threads);
 							return;
 						}
-					} else {
-						const victim = victims[ii % victims.length];
-						if (procs.length > 0) {
-							const process = procs[0];
-							if (victim == process.args[0]) {
-								continue;
-							}
-							const spid = process.pid;
-							ns.kill(spid);
-						}
-						const threads = Math.floor(currentRam / ns.getScriptRam(SCRIPT));
-						ns.exec(SCRIPT, hostname, threads, victim);
-						ns.tprintf("Started script on %s against %s with %d threads",
-							hostname, victim, threads);
 					}
 				}
+			} else {
+				const victim = victims[ii % victims.length];
+				if (procs.length > 0) {
+					const process = procs[0];
+					if (victim == process.args[0]) {
+						continue;
+					}
+					const spid = process.pid;
+					ns.kill(spid);
+				}
+				const threads = Math.floor(currentRam / ns.getScriptRam(SCRIPT));
+				ns.exec(SCRIPT, hostname, threads, victim);
+				ns.tprintf("Started script on %s against %s with %d threads",
+					hostname, victim, threads);
 			}
 		} else {
 			const nextRam = 32;
@@ -80,4 +80,9 @@ export async function main(ns) {
 			}
 		}
 	}
+}
+
+/** @param {NS} ns */
+function availableMoney(ns, options) {
+	return Math.min(getAvailableMoney(ns, false) - options.reserve, options.max);
 }
