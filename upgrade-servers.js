@@ -1,4 +1,4 @@
-import { getAvailableMoney, formatMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, getDatabase } from "helpers.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
@@ -6,11 +6,6 @@ const SCRIPT = "hack-server.js";
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["reserve", 2e9], ["restart", false], ["max", 1e21]]);
-	const available = availableMoney(ns, options);
-	if (available < 0 && !options.restart) {
-		ns.printf("No money available (%s)", formatMoney(available));
-		return;
-	}
 	const database = getDatabase(ns);
 	if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
 		ns.printf("No money from purchased servers, not buying servers");
@@ -37,7 +32,7 @@ export async function main(ns) {
 				const nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * currentRam);
 				if (nextRam > currentRam) {
 					const cost = ns.getPurchasedServerUpgradeCost(hostname, nextRam);
-					if (cost < available) {
+					if (cost < availableMoney(ns, options)) {
 						ns.printf("Can upgrade %s from %d to %d", hostname, currentRam, nextRam);
 						if (ns.upgradePurchasedServer(hostname, nextRam)) {
 							ns.kill(spid);
@@ -45,7 +40,6 @@ export async function main(ns) {
 							ns.exec(SCRIPT, hostname, threads, victim);
 							ns.tprintf("Upgraded %s from %d to %d, runs against %s with %d threads",
 								hostname, currentRam, nextRam, victim, threads);
-							return;
 						}
 					}
 				}
@@ -66,7 +60,7 @@ export async function main(ns) {
 			}
 		} else {
 			const nextRam = 32;
-			if (ns.getPurchasedServerCost(nextRam) < available) {
+			if (ns.getPurchasedServerCost(nextRam) < availableMoney(ns, options)) {
 				const result = ns.purchaseServer(hostname, nextRam);
 				const victim = victims[ii % victims.length];
 				if (result == hostname) {
@@ -75,7 +69,6 @@ export async function main(ns) {
 					ns.exec(SCRIPT, hostname, threads, victim);
 					ns.tprintf("Purchased %s with %d ram, runs against %s with %d threads",
 						hostname, nextRam, victim, threads);
-					return;
 				}
 			}
 		}
