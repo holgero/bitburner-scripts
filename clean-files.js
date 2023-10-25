@@ -6,7 +6,8 @@ const FILES = [
 	"corporation.txt",
 	"database.txt",
 	"estimate.txt",
-	"factiongoals.txt"
+	"factiongoals.txt",
+	"victims.txt"
 ];
 
 /** @param {NS} ns */
