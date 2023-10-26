@@ -8,6 +8,7 @@ import {
 	getEstimation,
 	isEndgame,
 	formatMoney,
+	waitForDaedalus,
 } from "helpers.js";
 
 /** @param {NS} ns **/
@@ -105,19 +106,10 @@ async function wantToEndRun(ns) {
 			formatMoney(money));
 		return false;
 	}
-	if (database.owned_augmentations.length >= database.bitnodemultipliers.DaedalusAugsRequirement &&
-		player.skills.hacking >= 2250 &&
-		money >= 100e9) {
-		ns.printf("Have %d augs and money above 100b: Not ending before having reached hacking 2500 (have: %d).",
+	if (waitForDaedalus(database, player)) {
+		ns.printf("Have %d augs, hacking %d, money %s: Not ending before having joined Daedalus.",
 			database.owned_augmentations.length,
-			player.skills.hacking);
-		return false;
-	}
-	if (database.owned_augmentations.length >= database.bitnodemultipliers.DaedalusAugsRequirement &&
-		player.skills.hacking >= 2500 &&
-		money <= 120e9) {
-		ns.printf("Have %d augs and hacking above 2500: Not ending before having earned at least 120 b (have: %s).",
-			database.owned_augmentations.length,
+			player.skills.hacking,
 			formatMoney(money));
 		return false;
 	}

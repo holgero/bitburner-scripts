@@ -10,7 +10,8 @@ import {
 	getDatabase,
 	getFactiongoals,
 	getEstimation,
-	isEndgame
+	isEndgame,
+	waitForDaedalus,
 } from "helpers.js";
 import { getBudget, getHolding, reserveBudget, deleteBudget } from "budget.js";
 
@@ -222,6 +223,11 @@ async function canSpendMoney(ns) {
 	if (getAvailableMoney(ns) > 1e15) {
 		// there's plenty
 		return true;
+	}
+	if (waitForDaedalus(getDatabase(ns), ns.getPlayer())) {
+		if (getAvailableMoney(ns) < 100e9) {
+			return false;
+		}
 	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;

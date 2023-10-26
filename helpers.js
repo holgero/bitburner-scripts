@@ -372,3 +372,19 @@ export function isEndgame(ns) {
 	}
 	return false;
 }
+
+export function waitForDaedalus(database, player) {
+	if (player.factions.includes(DAEDALUS)) {
+		return false;
+	}
+	if (database.owned_augmentations.length < database.bitnodemultipliers.DaedalusAugsRequirement) {
+		return false;
+	}
+	if (player.skills.hacking >= 2500) {
+		return true;
+	}
+	if (player.skills.hacking >= 0.9 * 2500 && money >= 100e9) {
+		return true;
+	}
+	return false;
+}
