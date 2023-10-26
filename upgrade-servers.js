@@ -1,4 +1,4 @@
-import { getAvailableMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, formatMoney, getDatabase } from "helpers.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
@@ -38,8 +38,8 @@ export async function main(ns) {
 							ns.kill(spid);
 							const threads = Math.floor(nextRam / ns.getScriptRam(SCRIPT));
 							ns.exec(SCRIPT, hostname, threads, victim);
-							ns.tprintf("Upgraded %s from %d to %d, runs against %s with %d threads",
-								hostname, currentRam, nextRam, victim, threads);
+							ns.tprintf("Upgraded %s from %d to %d for %s, runs against %s with %d threads",
+								hostname, currentRam, nextRam, formatMoney(cost), victim, threads);
 						}
 					}
 				}
