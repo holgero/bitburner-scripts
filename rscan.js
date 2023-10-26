@@ -1,4 +1,4 @@
-import { runAndWait, goalCompletion } from "helpers.js";
+import { runAndWait } from "helpers.js";
 
 var known;
 var path;
