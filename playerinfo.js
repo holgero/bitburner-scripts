@@ -14,15 +14,16 @@ import * as c from "constants.js";
 export async function main(ns) {
 	const options = ns.flags([["raw", false], ["multiplier", false]]);
 	const playerInfo = ns.getPlayer();
+	const resetInfo = ns.getResetInfo();
 	if (options.raw) {
 		ns.tprintf("%s", JSON.stringify(playerInfo));
 		return;
 	}
 	ns.tprintf("%30s: %s", "People killed", playerInfo.numPeopleKilled);
 	ns.tprintf("%30s: %s", "City", playerInfo.city);
-	ns.tprintf("%30s: %s", "Bit node number", playerInfo.bitNodeN);
-	ns.tprintf("%30s: %s", "Play time since Aug", millisecondToDHMS(playerInfo.playtimeSinceLastAug));
-	ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(playerInfo.playtimeSinceLastBitnode));
+	ns.tprintf("%30s: %s", "Bit node number", resetInfo.currentNode);
+	ns.tprintf("%30s: %s", "Play time since Aug", millisecondToDHMS(Date.now() - resetInfo.lastAugReset));
+	ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(Date.now() - resetInfo.lastNodeReset));
 	ns.tprintf("%30s: %s", "Total play time", millisecondToDHMS(playerInfo.totalPlaytime));
 	const progCount = c.programs.filter(a => ns.fileExists(a.name)).reduce((prev, a) => prev + 1, 0);
 	ns.tprintf("%30s: %d/5 %s", "Hacking tools", progCount, ns.hasTorRouter() ? "*" : "");
