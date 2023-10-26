@@ -1,47 +1,44 @@
 import { getAvailableMoney, formatMoney, getHackingProfitability } from "helpers.js";
 
+const SERVER_PREFIX = "pserv-";
+const RESERVE = 1e6;
+
 /** @param {NS} ns **/
 export async function main(ns) {
-	var options = ns.flags([
-		["hack", false],
-	]);
-	if (ns.getPurchasedServerLimit() <= 0) {
-		ns.tprintf("Cannot buy any servers.");
+	const numberOfServers = ns.getPurchasedServerLimit();
+	if (numberOfServers == 0) {
+		ns.printf("Cannot buy any servers.");
 		return;
 	}
-	if (ns.serverExists("pserv-0")) {
-		ns.tprintf("Current memory of server pserv-0: %d GB", ns.getServerMaxRam("pserv-0"));
+	const existingRam = [];
+	for (var ii = 0; ii < numberOfServers; ii++) {
+		const hostname = SERVER_PREFIX + ii;
+		if (!ns.serverExists(hostname)) {
+			continue;
+		}
+		const serverRam = ns.getServerMaxRam(hostname);
+		if (!existingRam.find(a => a.ram == serverRam)) {
+			existingRam.push({ name: hostname, ram: serverRam });
+		}
 	}
-	var money = getAvailableMoney(ns);
-	const multiplier = getHackingProfitability(ns);
-	if (multiplier < 0.25 && ns.getPlayer().skills.hacking < 1000 && !options.hack) {
-		ns.tprintf("Reducing money to spend according to ServerMaxMoney (%s)", multiplier);
-		money *= multiplier;
+	ns.tprintf("Available money to spend on servers: %s", formatMoney(availableMoney(ns)));
+	for (const server of existingRam) {
+		ns.tprintf("Cost to upgrade server %s with ram %d GB to %d GB: %s",
+			server.name,
+			server.ram, 2 * server.ram,
+			formatMoney(ns.getPurchasedServerUpgradeCost(server.name, 2 * server.ram)));
 	}
-	const havePerServer = money / ns.getPurchasedServerLimit();
-	var ram = 8;
-	while (ns.getPurchasedServerCost(ram * 2) < havePerServer &&
-		ram * 2 <= ns.getPurchasedServerMaxRam()) {
-		ram *= 2;
-	}
-	ns.tprintf("Can afford %d servers with %d GB ram.", ns.getPurchasedServerLimit(), ram);
-	printInfo(ns, ram);
-	ram *= 2;
-	if (ram > ns.getPurchasedServerMaxRam()) {
-		return;
-	}
-	ns.tprintf("Next bigger servers:");
-	printInfo(ns, ram);
-	ram *= 2;
-	if (ram > ns.getPurchasedServerMaxRam()) {
-		return;
-	}
-	printInfo(ns, ram);
 }
 
-function printInfo(ns, ram) {
-	ns.tprintf("%d GB ram, costs: %s total, %s per server",
-		ram,
-		formatMoney(ns.getPurchasedServerCost(ram) * ns.getPurchasedServerLimit()),
-		formatMoney(ns.getPurchasedServerCost(ram)));
+/** @param {NS} ns */
+function availableMoney(ns) {
+	// spend about half of the available money on server upgrades
+	var available = getAvailableMoney(ns, false) / 2;
+	// if hacking is not profitable, spend less on servers
+	const multiplier = Math.sqrt(getHackingProfitability(ns));
+	if (multiplier < 1) {
+		available = available * multiplier;
+	}
+	
+	return Math.min(getAvailableMoney(ns, false) - RESERVE, available);
 }

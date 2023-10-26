@@ -1,11 +1,12 @@
-import { getAvailableMoney, formatMoney, getDatabase } from "helpers.js";
+import { getAvailableMoney, formatMoney, getHackingProfitability, getDatabase } from "helpers.js";
 
 const SERVER_PREFIX = "pserv-";
 const SCRIPT = "hack-server.js";
+const RESERVE = 1e6;
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["reserve", 2e9], ["restart", false], ["max", 1e21]]);
+	const options = ns.flags([["restart", false]]);
 	const database = getDatabase(ns);
 	if (database.bitnodemultipliers.ScriptHackMoneyGain <= 0) {
 		ns.printf("No money from purchased servers, not buying servers");
@@ -77,5 +78,16 @@ export async function main(ns) {
 
 /** @param {NS} ns */
 function availableMoney(ns, options) {
-	return Math.min(getAvailableMoney(ns, false) - options.reserve, options.max);
+	if (options.restart) {
+		return 0;
+	}
+	// spend about half of the available money on server upgrades
+	var available = getAvailableMoney(ns, false) / 2;
+	// if hacking is not profitable, spend less on servers
+	const multiplier = Math.sqrt(getHackingProfitability(ns));
+	if (multiplier < 1) {
+		available = available * multiplier;
+	}
+	
+	return Math.min(getAvailableMoney(ns, false) - RESERVE, available);
 }
