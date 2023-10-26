@@ -14,6 +14,7 @@ const FILES = [
 	"destroy-world.js",
 	"check-end.js",
 	"commit-crimes.js",
+	"completion.js",
 	"constants.js",
 	"corporation.js",
 	"corpstart.js",
