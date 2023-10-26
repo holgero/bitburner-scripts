@@ -231,7 +231,7 @@ async function canSpendMoney(ns) {
 	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;
-		const completion = goalCompletion(ns, goals);
+		const completion = goalCompletion(ns, goals.filter(a => a.reputation));
 		return completion < 0.8;
 	}
 	return true;
