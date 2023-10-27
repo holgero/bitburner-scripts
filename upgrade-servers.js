@@ -33,7 +33,7 @@ export async function main(ns) {
 				const nextRam = Math.min(ns.getPurchasedServerMaxRam(), 2 * currentRam);
 				if (nextRam > currentRam) {
 					const cost = ns.getPurchasedServerUpgradeCost(hostname, nextRam);
-					if (cost < availableMoney(ns, options)) {
+					if (Math.pow(cost, 1.05) < availableMoney(ns, options)) {
 						ns.printf("Can upgrade %s from %d to %d", hostname, currentRam, nextRam);
 						if (ns.upgradePurchasedServer(hostname, nextRam)) {
 							ns.kill(spid);

@@ -11,9 +11,11 @@ export async function main(ns) {
 		return;
 	}
 	const existingRam = [];
+	var missingServers = 0;
 	for (var ii = 0; ii < numberOfServers; ii++) {
 		const hostname = SERVER_PREFIX + ii;
 		if (!ns.serverExists(hostname)) {
+			missingServers++;
 			continue;
 		}
 		const serverRam = ns.getServerMaxRam(hostname);
@@ -22,11 +24,16 @@ export async function main(ns) {
 		}
 	}
 	ns.tprintf("Available money to spend on servers: %s", formatMoney(availableMoney(ns)));
+	if (missingServers > 0) {
+		ns.tprintf("Cost to buy a server with 32 GB ram: %s",
+			formatMoney(ns.getPurchasedServerCost(32)));
+	}
 	for (const server of existingRam) {
-		ns.tprintf("Cost to upgrade server %s with ram %d GB to %d GB: %s",
-			server.name,
-			server.ram, 2 * server.ram,
-			formatMoney(ns.getPurchasedServerUpgradeCost(server.name, 2 * server.ram)));
+		const cost = ns.getPurchasedServerUpgradeCost(server.name, 2 * server.ram);
+		const weighted = Math.pow(cost, 1.05);
+		ns.tprintf("Cost to upgrade server %s with ram %d GB to %d GB: %s (weighted: %s)",
+			server.name, server.ram, 2 * server.ram,
+			formatMoney(cost), formatMoney(weighted));
 	}
 }
 
@@ -39,6 +46,6 @@ function availableMoney(ns) {
 	if (multiplier < 1) {
 		available = available * multiplier;
 	}
-	
+
 	return Math.min(getAvailableMoney(ns, false) - RESERVE, available);
 }
