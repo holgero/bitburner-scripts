@@ -8,6 +8,7 @@ const FILES = [
 	"bladeburner.js",
 	"budget.js",
 	"budget-main.js",
+	"build-hacknet.js",
 	"calculate-goals.js",
 	"calculate-victims.js",
 	"clean-files.js",
