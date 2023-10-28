@@ -15,6 +15,23 @@ export async function main(ns) {
 		return;
 	}
 	ns.printf("Can spend %s on hacknet.", formatMoney(available));
+
+	var totalMoneySpent = 0;
+	do {
+		const moneySpent = spendMoney(ns);
+		if (moneySpent == 0) {
+			break;
+		}
+		totalMoneySpent += moneySpent;
+	} while (true);
+
+	if (totalMoneySpent > 0) {
+		ns.tprintf("Hacknet: spent %s", formatMoney(totalMoneySpent));
+	}
+}
+
+/** @param {NS} ns */
+function spendMoney(ns) {
 	var cheapest = Infinity;
 	var nextThing = "";
 	for (const nextCandidate of ["node", "level", "ram", "core", "cache"]) {
@@ -27,7 +44,7 @@ export async function main(ns) {
 		nextThing,
 		formatMoney(cheapest),
 		formatMoney(Math.pow(cheapest, 1.05)),
-		formatMoney(available));
+		formatMoney(availableMoney(ns)));
 	var moneySpent = 0;
 	while (Math.pow(cheapest, 1.05) < availableMoney(ns)) {
 		if (!upgradeThing(ns, nextThing, cheapest)) {
@@ -36,9 +53,7 @@ export async function main(ns) {
 		ns.printf("Bought %s for %s", nextThing, formatMoney(cheapest));
 		moneySpent += cheapest;
 	}
-	if (moneySpent > 0) {
-		ns.tprintf("Hacknet: spent %s for %s", formatMoney(moneySpent), nextThing);
-	}
+	return moneySpent;
 }
 
 /** @param {NS} ns */
