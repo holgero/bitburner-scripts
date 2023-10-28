@@ -10,6 +10,7 @@ const RESERVE = 1e6;
 
 /** @param {NS} ns */
 export async function main(ns) {
+	ns.disableLog("getServerMoneyAvailable");
 	const available = availableMoney(ns);
 	if (available <= 0) {
 		return;
@@ -43,10 +44,10 @@ function spendMoney(ns) {
 	ns.printf("Cheapest is %s, will cost %s (weighted %s, available %s)",
 		nextThing,
 		formatMoney(cheapest),
-		formatMoney(Math.pow(cheapest, 1.05)),
+		formatMoney(Math.pow(cheapest, 1.1)),
 		formatMoney(availableMoney(ns)));
 	var moneySpent = 0;
-	while (Math.pow(cheapest, 1.05) < availableMoney(ns)) {
+	while (Math.pow(cheapest, 1.1) < availableMoney(ns)) {
 		if (!upgradeThing(ns, nextThing, cheapest)) {
 			break;
 		}
