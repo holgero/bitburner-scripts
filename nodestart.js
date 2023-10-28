@@ -46,8 +46,6 @@ export async function main(ns) {
 }
 
 async function killOthers(ns) {
-	ns.scriptKill("start-hacknet.js", "home");
-	ns.scriptKill("start-hacknet2.js", "joesguns");
 	ns.scriptKill("instrument.js", "home");
 	ns.scriptKill("stanek.js", "home");
 	ns.scriptKill("factiongoals.js", "home");
@@ -239,7 +237,6 @@ async function canSpendMoney(ns) {
 
 /** @param {NS} ns **/
 async function progressHackingLevels(ns) {
-	await runAndWait(ns, "start-hacknet.js", 1);
 	var started = Date.now();
 	while (true) {
 		await runHomeScripts(ns);
@@ -253,9 +250,6 @@ async function progressHackingLevels(ns) {
 			}
 			if (await canSpendMoney(ns)) {
 				await improveInfrastructure(ns, nextProgram);
-			} else {
-				ns.scriptKill("start-hacknet.js", "home");
-				ns.scriptKill("start-hacknet2.js", "joesguns");
 			}
 		}
 		if (!ns.scriptRunning("joinbladeburner.js", "home")) {
@@ -322,7 +316,7 @@ async function purchaseHackingPrograms(ns) {
 async function improveInfrastructure(ns, programsOwned) {
 	const database = getDatabase(ns);
 	await runAndWait(ns, "upgrade-servers.js");
-	await runAndWait(ns, "start-hacknet.js", programsOwned);
+	await runAndWait(ns, "build-hacknet.js");
 
 	switch (programsOwned) {
 		case 3:
@@ -333,26 +327,9 @@ async function improveInfrastructure(ns, programsOwned) {
 			break;
 		case 5:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
-			if (getAvailableMoney(ns) < 1e9) {
-				await runAndWait(ns, "start-hacknet.js", 6);
-			} else if (getAvailableMoney(ns) < 10e9) {
-				await runAndWait(ns, "start-hacknet.js", 7);
-			} else if (getAvailableMoney(ns) < 200e9) {
-				await runAndWait(ns, "start-hacknet.js", 8);
-			} else if (getAvailableMoney(ns) < 1e12) {
-				await runAndWait(ns, "start-hacknet.js", 9);
-			} else if (getAvailableMoney(ns) < 50e12) {
-				await runAndWait(ns, "start-hacknet.js", 10);
-			} else if (getAvailableMoney(ns) < 1e15) {
-				await runAndWait(ns, "start-hacknet.js", 12);
-			} else if (getAvailableMoney(ns) < 1e18) {
-				await runAndWait(ns, "start-hacknet.js", 16, "--maxram");
-			} else {
-				await runAndWait(ns, "start-hacknet.js", 32, "--maxram");
-			}
-			if (getAvailableMoney(ns) > 1e15 && ns.corporation.hasCorporation() &&
-				ns.scriptRunning("corporation.js", "home") &&
-				!ns.scriptRunning("start-hacknet2.js", "home")) {
+			if (getAvailableMoney(ns) > 1e15 &&
+			 ns.corporation.hasCorporation() &&
+				ns.scriptRunning("corporation.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);
 				if (database.features.graft &&
