@@ -30,7 +30,7 @@ export async function main(ns) {
 	}
 	for (const server of existingRam) {
 		const cost = ns.getPurchasedServerUpgradeCost(server.name, 2 * server.ram);
-		const weighted = Math.pow(cost, 1.05);
+		const weighted = Math.pow(cost, 1.1);
 		ns.tprintf("Cost to upgrade server %s with ram %d GB to %d GB: %s (weighted: %s)",
 			server.name, server.ram, 2 * server.ram,
 			formatMoney(cost), formatMoney(weighted));

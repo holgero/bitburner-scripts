@@ -6,7 +6,7 @@ import {
 } from "/helpers.js";
 
 const RESERVE = 1e6;
-const WEIGHT = 1.2;
+const WEIGHT = 1.25;
 
 /** @param {NS} ns */
 export async function main(ns) {
