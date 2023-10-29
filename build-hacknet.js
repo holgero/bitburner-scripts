@@ -4,7 +4,6 @@ import {
 	formatMoney,
 	getHacknetProfitability
 } from "/helpers.js";
-import * as c from "constants.js";
 
 const RESERVE = 1e6;
 
@@ -27,7 +26,7 @@ export async function main(ns) {
 	} while (true);
 
 	if (totalMoneySpent > 0) {
-		ns.tprintf("Hacknet: spent %s", formatMoney(totalMoneySpent));
+		ns.printf("Hacknet: spent %s", formatMoney(totalMoneySpent));
 	}
 }
 
