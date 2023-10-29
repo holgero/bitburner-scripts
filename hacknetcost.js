@@ -25,7 +25,7 @@ export async function main(ns) {
 			currentAmount(ns, nextCandidate),
 			nextCandidate,
 			formatMoney(cost),
-			formatMoney(Math.pow(cost, 1.15)),
+			formatMoney(Math.pow(cost, 1.2)),
 			formatMoney(availableMoney(ns)));
 	}
 }
