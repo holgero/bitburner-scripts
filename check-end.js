@@ -106,7 +106,7 @@ async function wantToEndRun(ns) {
 			formatMoney(money));
 		return false;
 	}
-	if (waitForDaedalus(database, player)) {
+	if (waitForDaedalus(ns)) {
 		ns.printf("Have %d augs, hacking %d, money %s: Not ending before having joined Daedalus.",
 			database.owned_augmentations.length,
 			player.skills.hacking,

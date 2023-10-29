@@ -222,10 +222,8 @@ async function canSpendMoney(ns) {
 		// there's plenty
 		return true;
 	}
-	if (waitForDaedalus(getDatabase(ns), ns.getPlayer())) {
-		if (getAvailableMoney(ns) < 100e9) {
-			return false;
-		}
+	if (waitForDaedalus(ns)) {
+		return false;
 	}
 	if (isEndgame(ns)) {
 		const goals = getFactiongoals(ns).factionGoals;
@@ -328,7 +326,7 @@ async function improveInfrastructure(ns, programsOwned) {
 		case 5:
 			await runAndWait(ns, "purchase-ram.js", "--goal", 1e99, "--reserve", getAvailableMoney(ns) / 2);
 			if (getAvailableMoney(ns) > 1e15 &&
-			 ns.corporation.hasCorporation() &&
+				ns.corporation.hasCorporation() &&
 				ns.scriptRunning("corporation.js", "home")) {
 				await runAndWait(ns, "purchase-cores.js", "--reserve", 200e12);
 				await runAndWait(ns, "purchase-ram.js", "--goal", 1e9, "--reserve", 200e12);

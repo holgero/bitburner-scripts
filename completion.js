@@ -23,7 +23,7 @@ export async function main(ns) {
 		canDestroyWorld: canDestroyWorld(ns, player, database),
 		canAffordRedPill: canAffordRedPill(estimation),
 		canAffordBladesimul: canAffordBladesimul(estimation),
-		waitForDaedalus: waitForDaedalus(database, player),
+		waitForDaedalus: waitForDaedalus(ns),
 		goalCompletion: realGoalCompletion(ns),
 		freeServer: database.features.hacknetServer &&
 			(ns.getResetInfo().lastAugReset == ns.getResetInfo().lastNodeReset),
