@@ -87,10 +87,12 @@ export async function main(ns) {
 		estimation.augmentationCount, estimation.affordableAugmentationCount,
 		estimation.prioritizedAugmentationCount);
 	ns.tprintf("%30s: Home: %d GB, Purchased: %s", "Server", ns.getServerMaxRam("home"), getServerInfo(ns));
-	ns.tprintf("%30s: %d/%d servers level %d with %d GB", "Hacknet",
-		ns.hacknet.numNodes(), ns.hacknet.maxNumNodes(),
-		ns.hacknet.getNodeStats(ns.hacknet.numNodes() - 1).level,
-		ns.hacknet.getNodeStats(ns.hacknet.numNodes() - 1).ram);
+	if (ns.hacknet.numNodes()) {
+		ns.tprintf("%30s: %d/%d servers level %d with %d GB", "Hacknet",
+			ns.hacknet.numNodes(), ns.hacknet.maxNumNodes(),
+			ns.hacknet.getNodeStats(ns.hacknet.numNodes() - 1).level,
+			ns.hacknet.getNodeStats(ns.hacknet.numNodes() - 1).ram);
+	}
 	const current = ns.getServerMoneyAvailable("home");
 	const available = getAvailableMoney(ns);
 	const total = getAvailableMoney(ns, true);
