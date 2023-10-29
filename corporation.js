@@ -122,7 +122,7 @@ function shouldBuy(ns, corporation, target) {
 	if (getAvailableMoney(ns) + getBudget(ns, "corp") > RICHMAN_MONEY) {
 		return true;
 	}
-	if (corporation.shareSaleCooldown > 15000) {
+	if (corporation.shareSaleCooldown > 16500) {
 		return false;
 	}
 	if (corporation.sharePrice < target &&
