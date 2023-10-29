@@ -34,7 +34,6 @@ const FILES = [
 	"git-pull.js",
 	"governors.js",
 	"graft-augmentation.js",
-	"hacknet.js",
 	"hack-server.js",
 	"helpers.js",
 	"info.js",
