@@ -19,6 +19,7 @@ export async function main(ns) {
 	}
 	const victims = JSON.parse(ns.read("victims.txt"));
 	ns.printf("Victims: %v", victims);
+	var moneySpent = 0;
 	for (var ii = 0; ii < numberOfServers; ii++) {
 		const hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
@@ -39,8 +40,9 @@ export async function main(ns) {
 							ns.kill(spid);
 							const threads = Math.floor(nextRam / ns.getScriptRam(SCRIPT));
 							ns.exec(SCRIPT, hostname, threads, victim);
-							ns.tprintf("Upgraded %s from %d to %d for %s, runs against %s with %d threads",
+							ns.printf("Upgraded %s from %d to %d for %s, runs against %s with %d threads",
 								hostname, currentRam, nextRam, formatMoney(cost), victim, threads);
+							moneySpent += cost;
 						}
 					}
 				}
@@ -56,23 +58,28 @@ export async function main(ns) {
 				}
 				const threads = Math.floor(currentRam / ns.getScriptRam(SCRIPT));
 				ns.exec(SCRIPT, hostname, threads, victim);
-				ns.tprintf("Started script on %s against %s with %d threads",
+				ns.printf("Started script on %s against %s with %d threads",
 					hostname, victim, threads);
 			}
 		} else {
 			const nextRam = 32;
-			if (ns.getPurchasedServerCost(nextRam) < availableMoney(ns, options)) {
+			const cost = ns.getPurchasedServerCost(nextRam);
+			if (cost < availableMoney(ns, options)) {
 				const result = ns.purchaseServer(hostname, nextRam);
 				const victim = victims[ii % victims.length];
 				if (result == hostname) {
 					ns.scp(SCRIPT, hostname);
 					const threads = Math.floor(nextRam / ns.getScriptRam(SCRIPT));
 					ns.exec(SCRIPT, hostname, threads, victim);
-					ns.tprintf("Purchased %s with %d ram, runs against %s with %d threads",
+					ns.printf("Purchased %s with %d ram, runs against %s with %d threads",
 						hostname, nextRam, victim, threads);
+					moneySpent += cost;
 				}
 			}
 		}
+	}
+	if (moneySpent > 0) {
+		ns.tprintf("Spent %s on servers", formatMoney(moneySpent));
 	}
 }
 
@@ -88,6 +95,6 @@ function availableMoney(ns, options) {
 	if (multiplier < 1) {
 		available = available * multiplier;
 	}
-	
+
 	return Math.min(getAvailableMoney(ns, false) - RESERVE, available);
 }
