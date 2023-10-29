@@ -1,4 +1,4 @@
-import { getAvailableMoney, getEstimation, runAndWait } from "/helpers.js";
+import { getAvailableMoney, getEstimation, runAndWait, waitForDaedalus } from "/helpers.js";
 
 
 import * as c from "constants.js";
@@ -34,7 +34,9 @@ export async function main(ns) {
 		equipMembers(ns, 1);
 		return;
 	}
-	equipMembers(ns, 0.1);
+	if (!waitForDaedalus(ns)) {
+		equipMembers(ns, 0.1);
+	}
 	await setMemberTasks(ns);
 	await ns.sleep(1000);
 	await balanceWantedLevel(ns);

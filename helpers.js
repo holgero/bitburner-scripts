@@ -382,10 +382,10 @@ export function waitForDaedalus(ns) {
 	if (database.owned_augmentations.length < database.bitnodemultipliers.DaedalusAugsRequirement) {
 		return false;
 	}
-	if (player.skills.hacking >= 2500 && getAvailableMoney(ns) >= 75e9) {
+	if (player.skills.hacking >= 2500 && getAvailableMoney(ns, true) >= 75e9) {
 		return true;
 	}
-	if (player.skills.hacking >= 0.9 * 2500 && getAvailableMoney(ns) >= 100e9) {
+	if (player.skills.hacking >= 0.9 * 2500 && getAvailableMoney(ns, true) >= 100e9) {
 		return true;
 	}
 	return false;
