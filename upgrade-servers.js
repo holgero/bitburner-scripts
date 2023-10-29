@@ -20,7 +20,7 @@ export async function main(ns) {
 	const victims = JSON.parse(ns.read("victims.txt"));
 	ns.printf("Victims: %v", victims);
 	var moneySpent = 0;
-	for (var ii = 0; ii < numberOfServers; ii++) {
+	for (var ii = findStartIndex(ns, options); ii < numberOfServers; ii++) {
 		const hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
 			const currentRam = ns.getServerMaxRam(hostname);
@@ -79,8 +79,35 @@ export async function main(ns) {
 		}
 	}
 	if (moneySpent > 0) {
-		ns.tprintf("Spent %s on servers", formatMoney(moneySpent));
+		ns.printf("Spent %s on servers", formatMoney(moneySpent));
 	}
+}
+
+/** @param {NS} ns */
+function findStartIndex(ns, options) {
+	if (options.restart) {
+		return 0;
+	}
+	const maxIdx = ns.getPurchasedServerLimit() - 1;
+	if (!ns.serverExists(SERVER_PREFIX + maxIdx)) {
+		for (var ii = maxIdx - 1; ii >= 0; ii--) {
+			if (ns.serverExists(SERVER_PREFIX + ii)) {
+				return ii + 1;
+			}
+		}
+		return 0;
+	}
+	var minRam = Infinity;
+	for (var ii = maxIdx; ii >= 0; ii--) {
+		const serverRam = ns.getPurchasedServerMaxRam(SERVER_PREFIX + ii);
+		if (serverRam < minRam) {
+			minRam = serverRam;
+		}
+		if (serverRam > minRam) {
+			return ii + 1;
+		}
+	}
+	return 0;
 }
 
 /** @param {NS} ns */
