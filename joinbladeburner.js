@@ -3,7 +3,7 @@ import { runAndWait } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	const options = ns.flags([["division", false], ["faction", false]]);
+	const options = ns.flags([["division", false], ["faction", false], ["for-free", true]]);
 	var player = ns.getPlayer();
 	if (options.division) {
 		while (!ns.bladeburner.inBladeburner()) {
@@ -44,9 +44,22 @@ export async function main(ns) {
 				}
 			}
 			if (ns.bladeburner.joinBladeburnerDivision()) {
-				ns.printf("Joined Bladeburners division");
+				ns.tprintf("Joined Bladeburners division");
 				ns.singularity.stopAction();
 				break;
+			}
+		}
+	}
+	if (options["for-free"]) {
+		if (!ns.bladeburner.inBladeburner()) {
+			if (player.skills.strength >= 100 &&
+				player.skills.agility >= 100 &&
+				player.skills.defense >= 100 &&
+				player.skills.dexterity >= 100) {
+				if (ns.bladeburner.joinBladeburnerDivision()) {
+					ns.tprintf("Joined Bladeburners division");
+				}
+
 			}
 		}
 	}
@@ -54,7 +67,7 @@ export async function main(ns) {
 	if (ns.bladeburner.inBladeburner() && options.faction) {
 		if (!player.factions.includes(c.BLADEBURNERS)) {
 			if (ns.bladeburner.joinBladeburnerFaction()) {
-				ns.printf("Joined Bladeburners faction");
+				ns.tprintf("Joined Bladeburners faction");
 			}
 		}
 	}
