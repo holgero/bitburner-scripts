@@ -278,18 +278,27 @@ export function goalCompletion(ns, factionGoals) {
 function setSortc(toPurchase) {
 	toPurchase.forEach(a => a.sortc = undefined);
 	for (var aug of toPurchase) {
-		if (aug.sortc == undefined) {
-			aug.sortc = aug.price;
+		if (aug.sortc) {
+			continue;
 		}
+		aug.sortc = aug.price;
 		if (aug.requirements.length) {
 			var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
 			if (requirement) {
-				var sortc = (1.9 * aug.price + requirement.price) / 2.9;
-				aug.sortc = sortc;
-				requirement.sortc = requirement.sortc ? Math.max(requirement.sortc, sortc + 1) : sortc + 1;
+				aug.sortc = adjustRequirements(requirement, aug.price, toPurchase);
 			}
 		}
 	}
+}
+
+function adjustRequirements(aug, price, toPurchase) {
+	var sortc = 1 + (1.9 * aug.price + price) / 2.9;
+	var requirement = toPurchase.find(a => a.name == aug.requirements[0]);
+	if (requirement) {
+		sortc = adjustRequirements(requirement, sortc, toPurchase);
+	}
+	aug.sortc = sortc;
+	return sortc - 1;
 }
 
 /** @param {NS} ns **/
