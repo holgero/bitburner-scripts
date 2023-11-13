@@ -132,6 +132,12 @@ async function checkForDaedalus(ns, database, config) {
 			estimatedDonations: config.estimatedDonations
 		}), "w");
 		config.estimatedPrice = (await getEstimation(ns, true)).estimatedPrice;
+		if (goal.reputation == redPill.reputation) {
+			if (ns.getPlayer().skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+				// do not hold back with donations just for a few extra (unnecessary) augmentations
+				config.estimatedPrice = redPill.price;
+			}
+		}
 		// ns.tprintf("Writing modified factiongoal with estimation");
 		ns.write("factiongoals.txt", JSON.stringify({
 			factionGoals: goals,
