@@ -30,6 +30,7 @@ export async function main(ns) {
 	const state = ns.fileExists("bb-cities.txt") ? JSON.parse(ns.read("bb-cities.txt")) : {};
 	if (!state.lastExecution || Date.now() - state.lastExecution > c.BLADEBURNER_CENSUS_INTERVALL) {
 		await runAndWait(ns, "bb-investigate.js");
+		await runAndWait(ns, "bbskills.js");
 	} else {
 		await runAndWait(ns, "bbselectcity.js");
 		await runAndWait(ns, "bbactions.js");
