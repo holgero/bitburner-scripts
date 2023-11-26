@@ -82,6 +82,11 @@ function tradeCorporationShares(ns) {
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		return;
 	}
+	if (shouldIssue(ns, corporation, low, high)) {
+		const corpGain = ns.corporation.issueNewShares();
+		ns.tprintf("Issued new shares for %s", formatMoney(corpGain));
+		return;
+	}
 	if (shouldBuy(ns, corporation, valuePerShare)) {
 		var money = ns.getServerMoneyAvailable("home");
 		const affordableShares = Math.min(corporation.issuedShares,
@@ -101,6 +106,7 @@ function tradeCorporationShares(ns) {
 	}
 }
 
+/** @param {NS} ns **/
 function shouldSell(ns, corporation, target, low) {
 	if (corporation.numShares <= 1 || corporation.shareSaleCooldown) {
 		return false;
@@ -115,6 +121,21 @@ function shouldSell(ns, corporation, target, low) {
 		(corporation.sharePrice > low && getAvailableMoney(ns) < POORMAN_MONEY));
 }
 
+/** @param {NS} ns **/
+function shouldIssue(ns, corporation, low, high) {
+	if (corporation.issueNewSharesCooldown) {
+		return false;
+	}
+	if (corporation.sharePrice < low) {
+		return true;
+	}
+	if (corporation.sharePrice < MINIMUM_SHARE_PRICE && corporation.sharePrice <= high) {
+		return true;
+	}
+	return false;
+}
+
+/** @param {NS} ns **/
 function shouldBuy(ns, corporation, target) {
 	if (corporation.issuedShares <= 0) {
 		return false;
