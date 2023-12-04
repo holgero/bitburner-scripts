@@ -1,7 +1,7 @@
 import { getAvailable, getTotal } from "/budget.js";
 import {
 	AUGMENTATION_NORMAL_PRIO, AUGMENTATION_BLADEBURNER_PRIO, BLADEBURNER_NODES,
-	DAEDALUS, RED_PILL, BLADEBURNERS, CHURCH
+	DAEDALUS, RED_PILL, BLADEBURNERS, CHURCH, BLADE_SIMUL
 } from "/constants.js";
 
 /** @param {NS} ns **/
@@ -184,10 +184,13 @@ function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPu
 			if (augmentation.reputation <= rep && augmentation.price <= maxprice) {
 				if (!toPurchase.includes(augmentation)) {
 					if (augmentation.requirements.every(a => dependencies.includes(a))) {
+						ns.printf("Adding %s", augName)
 						toPurchase.push(augmentation);
 						dependencies.push(augmentation.name);
 					}
 				}
+			} else {
+				ns.printf("Rejecting %s", augName)
 			}
 		}
 	}
@@ -205,11 +208,16 @@ export async function findBestAugmentations(ns) {
 	const allPrios = getAugmentationPrios(ns).slice(0, 3);
 	var prios = [];
 	var solution = [];
+	var bladeSimul = undefined;
 	while (allPrios.length > 0) {
 		prios.push(allPrios.shift());
 		var maxPrice = money;
 		while (maxPrice > 0) {
 			const augmentations = getAugmentationsToPurchase(ns, database, factions, maxPrice);
+			if (bladeSimul && !augmentations.map(a=>a.name).includes(BLADE_SIMUL)) {
+				augmentations.unshift(bladeSimul);
+			}
+			ns.printf("possible augmentations: %s", augmentations.map(a=>a.name));
 			filterExpensiveAugmentations(ns, augmentations, money, prios);
 			if ((augmentations.filter(a => prios.includes(a.type)).length >
 				solution.filter(a => prios.includes(a.type)).length) ||
@@ -222,7 +230,15 @@ export async function findBestAugmentations(ns) {
 				solution = augmentations;
 			}
 			if (augmentations.length > 0) {
-				maxPrice = Math.max(0, augmentations[0].price - 1);
+				var removeIdx = 0;
+				if (augmentations[0].name == BLADE_SIMUL) {
+					bladeSimul = augmentations[0];
+					removeIdx++;
+					if (augmentations.length < 2) {
+						break;
+					}
+				}
+				maxPrice = Math.max(0, augmentations[removeIdx].price - 1);
 			} else {
 				break;
 			}
@@ -327,6 +343,10 @@ function findAugToRemove(ns, toPurchase, idx, preferedTypes) {
 	for (var ii = 0; ii <= idx; ii++) {
 		if (!preferedTypes.includes(toPurchase[ii].type)) {
 			const removeAug = toPurchase[ii].name;
+			if (removeAug == BLADE_SIMUL) {
+				// it's expensive, but essential
+				continue;
+			}
 			ns.printf("Remove %s", removeAug);
 			toPurchase.splice(ii, 1);
 			const toKeep = toPurchase.filter(a => !a.requirements.includes(removeAug));
