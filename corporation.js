@@ -82,11 +82,6 @@ function tradeCorporationShares(ns) {
 		ns.tprintf("Sold corporation shares for %s", formatMoney(earned));
 		return;
 	}
-	if (shouldIssue(ns, corporation, low, high)) {
-		const corpGain = ns.corporation.issueNewShares();
-		ns.tprintf("Issued new shares for %s", formatMoney(corpGain));
-		return;
-	}
 	if (shouldBuy(ns, corporation, valuePerShare)) {
 		var money = ns.getServerMoneyAvailable("home");
 		const affordableShares = Math.min(corporation.issuedShares,
@@ -103,6 +98,12 @@ function tradeCorporationShares(ns) {
 				ns.corporation.issueDividends(1);
 			}
 		}
+		return;
+	}
+	if (shouldIssue(ns, corporation, low, high)) {
+		const corpGain = ns.corporation.issueNewShares();
+		ns.tprintf("Issued new shares for %s", formatMoney(corpGain));
+		return;
 	}
 }
 
