@@ -12,7 +12,8 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function runBack(ns, server, known, path) {
-	if (ns.flags([["all", false]]).all || STORY_LINE.some(a => a.backdoor == server)) {
+	const options = ns.flags([["all", false], ["one", false]]);
+	if (options.all || options.one || STORY_LINE.some(a => a.backdoor == server)) {
 		if (!ns.hasRootAccess(server)) {
 			return;
 		}
@@ -22,6 +23,10 @@ async function runBack(ns, server, known, path) {
 				if (!await runAndWait(ns, "installbackdoor.js", JSON.stringify(path))) {
 					ns.tprintf("connect %s;backdoor;home", path.join(";connect "))
 					// ns.spawn("installbackdoor.js", 1, JSON.stringify(path));
+				}
+				if (options.one) {
+					// install just one backdoor at a time
+					ns.exit();
 				}
 			}
 		}
