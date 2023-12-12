@@ -12,7 +12,11 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 async function runBack(ns, server, known, path) {
-	const options = ns.flags([["all", false], ["one", false]]);
+	const options = ns.flags([["all", false], ["one", false], ["list", false]]);
+	if (options.list) {
+		ns.tprintf("%20s %s", server, ns.getServer(server).backdoorInstalled ? "*" : " ");
+		return;
+	}
 	if (options.all || options.one || STORY_LINE.some(a => a.backdoor == server)) {
 		if (!ns.hasRootAccess(server)) {
 			return;
