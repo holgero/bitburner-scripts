@@ -9,7 +9,7 @@ import {
 	getStartState,
 	getDatabase,
 	getFactiongoals,
-	getEstimation,
+	getRestrictions,
 	isEndgame,
 	waitForDaedalus,
 } from "helpers.js";
@@ -77,6 +77,10 @@ async function setUpForTrader(ns) {
 async function setUpForCorporations(ns) {
 	const bitNode = ns.getPlayer().bitNodeN;
 	if (bitNode == 8) {
+		return;
+	}
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nocorporation) {
 		return;
 	}
 	if ((ns.corporation.hasCorporation() ||

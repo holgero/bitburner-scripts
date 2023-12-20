@@ -1,4 +1,4 @@
-import { getAvailableMoney, formatMoney } from "helpers.js";
+import { getAvailableMoney, formatMoney, getRestrictions } from "helpers.js";
 const NEEDRAM = 2048;
 
 /** @param {NS} ns */
@@ -10,6 +10,10 @@ export async function main(ns) {
 		if (ns.serverExists(hostname)) {
 			ns.scriptKill("corporation.js", hostname);
 		}
+		return;
+	}
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nocorporation) {
 		return;
 	}
 	if (ns.scriptRunning("corporation.js", "home") ||

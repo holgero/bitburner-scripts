@@ -68,9 +68,12 @@ async function wantToEndRun(ns) {
 		}
 	} else {
 		if (money >= 135e9 && !ns.corporation.hasCorporation()) {
-			ns.printf("Not on bitnode 8 and nearly there to start a corporation (have: %s), not ending now",
-				formatMoney(money));
-			return false;
+			const restrictions = getRestrictions(ns);
+			if (!restrictions || !restrictions.nocorporation) {
+				ns.printf("Not on bitnode 8 and nearly there to start a corporation (have: %s), not ending now",
+					formatMoney(money));
+				return false;
+			}
 		}
 	}
 	if (ns.bladeburner.inBladeburner()) {

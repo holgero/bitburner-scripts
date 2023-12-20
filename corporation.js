@@ -1,4 +1,4 @@
-import { formatMoney, getDatabase, getAvailableMoney } from "./helpers.js";
+import { formatMoney, getDatabase, getAvailableMoney, getRestrictions } from "./helpers.js";
 import { reserveBudget, getBudget, deleteBudget } from "budget.js";
 import * as c from "./constants.js";
 
@@ -46,6 +46,10 @@ export async function main(ns) {
 	while (true) {
 		var player = ns.getPlayer();
 		if (!ns.corporation.hasCorporation()) {
+			const restrictions = getRestrictions(ns);
+			if (restrictions && restrictions.nocorporation) {
+				return;
+			}
 			if (!ns.corporation.createCorporation("ACME", player.bitNodeN != 3)) {
 				await ns.sleep(60000);
 				continue;
