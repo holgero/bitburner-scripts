@@ -13,6 +13,7 @@ const FILES = [
 	"calculate-victims.js",
 	"clean-files.js",
 	"destroy-world.js",
+	"challenges.js",
 	"check-end.js",
 	"commit-crimes.js",
 	"completion.js",
