@@ -259,12 +259,15 @@ async function progressHackingLevels(ns) {
 		await travelToGoalLocations(ns);
 		await meetMoneyGoals(ns);
 		await runAndWait(ns, "rback.js");
-		await runAndWait(ns, "rback.js", "--one");
 		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
 			getAvailableMoney(ns, true) > 28e9) {
 			await killOthers(ns);
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
+		if (new Date() - started > 120000) {
+			// do not spend time on backdooring while in grace period
+			await runAndWait(ns, "rback.js", "--one");
+		}
 		await ns.sleep(20000);
 	}
 }
