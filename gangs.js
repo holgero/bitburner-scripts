@@ -1,4 +1,4 @@
-import { getAvailableMoney, getEstimation, runAndWait, waitForDaedalus } from "/helpers.js";
+import { getAvailableMoney, getEstimation, runAndWait, waitForDaedalus, getRestrictions } from "/helpers.js";
 
 
 import * as c from "constants.js";
@@ -9,6 +9,11 @@ export async function main(ns) {
 	const options = ns.flags([["spend", false]]);
 	if (ns.getPlayer().bitNodeN != 2 && ns.heart.break() > -54000) {
 		ns.printf("Cannot do gangs on bitnodes other than 2 with a karma of %s", ns.heart.break());
+		return;
+	}
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nogang) {
+		ns.printf("Not starting a gang");
 		return;
 	}
 	if (ns.singularity.checkFactionInvitations().includes(c.NITESEC)) {
