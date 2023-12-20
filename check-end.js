@@ -6,6 +6,7 @@ import {
 	getFactiongoals,
 	getCorporationInfo,
 	getEstimation,
+	getRestrictions,
 	isEndgame,
 	formatMoney,
 	waitForDaedalus,
