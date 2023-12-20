@@ -1,3 +1,4 @@
+import { findNextChallenge, registerChallengeDone, setUpChallenge } from "challenges.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -10,6 +11,10 @@ export async function main(ns) {
 	const nextNode = nextBitnode(ns, bitNodeN, owned);
 	const thisNode = owned.find(a => a.n == bitNodeN);
 	const thisLevel = thisNode ? thisNode.lvl : 0;
+	if (nextNode === undefined) {
+		ns.tprintf("No more challenges, Game Over");
+		return;
+	}
 	ns.tprintf("Destroying world daemon on bitNode %d.%d, proceeding on bitNode %d",
 		bitNodeN, thisLevel, nextNode);
 	if (options["dry-run"]) {
@@ -77,5 +82,16 @@ function nextBitnode(ns, current, owned) {
 			return next;
 		}
 	}
-	return 12;
+	const nodeRecursion = owned.find(a => a.n == 12);
+	if (nodeRecursion.lvl < 49) {
+		return 12;
+	}
+	if (current == findNextChallenge(ns)) {
+		registerChallengeDone(ns, current);
+	}
+	const nextChallenge = findNextChallenge(ns);
+	if (nextChallenge) {
+		setUpChallenge(ns, nextChallenge);
+	}
+	return nextChallenge;
 }
