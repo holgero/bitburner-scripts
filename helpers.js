@@ -402,6 +402,7 @@ export function isEndgame(ns) {
 	return false;
 }
 
+/** @param {NS} ns **/
 export function waitForDaedalus(ns) {
 	const player = ns.getPlayer();
 	if (player.factions.includes(DAEDALUS)) {
@@ -418,4 +419,13 @@ export function waitForDaedalus(ns) {
 		return true;
 	}
 	return false;
+}
+
+/** @param {NS} ns **/
+export function getRestrictions(ns) {
+	const restrictionTxt = ns.read("challenges.txt");
+	if (restrictionTxt) {
+		return JSON.parse(restrictionTxt).restrictions;
+	}
+	return undefined;
 }
