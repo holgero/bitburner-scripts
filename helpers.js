@@ -8,7 +8,9 @@ import {
 export function getAugmentationPrios(ns) {
 	const prios = [];
 	const player = ns.getPlayer();
-	if (BLADEBURNER_NODES.includes(player.bitNodeN)) {
+	const restrictions = getRestrictions(ns);
+	if (BLADEBURNER_NODES.includes(player.bitNodeN) &&
+		!(restrictions && restrictions.nobladeburner)) {
 		prios.push(...AUGMENTATION_BLADEBURNER_PRIO);
 	} else {
 		prios.push(...AUGMENTATION_NORMAL_PRIO);
@@ -214,10 +216,10 @@ export async function findBestAugmentations(ns) {
 		var maxPrice = money;
 		while (maxPrice > 0) {
 			const augmentations = getAugmentationsToPurchase(ns, database, factions, maxPrice);
-			if (bladeSimul && !augmentations.map(a=>a.name).includes(BLADE_SIMUL)) {
+			if (bladeSimul && !augmentations.map(a => a.name).includes(BLADE_SIMUL)) {
 				augmentations.unshift(bladeSimul);
 			}
-			ns.printf("possible augmentations: %s", augmentations.map(a=>a.name));
+			ns.printf("possible augmentations: %s", augmentations.map(a => a.name));
 			filterExpensiveAugmentations(ns, augmentations, money, prios);
 			if ((augmentations.filter(a => prios.includes(a.type)).length >
 				solution.filter(a => prios.includes(a.type)).length) ||

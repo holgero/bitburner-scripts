@@ -1,9 +1,14 @@
 import * as c from "constants.js";
-import { runAndWait } from "helpers.js";
+import { runAndWait, getRestrictions } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["division", false], ["faction", false], ["for-free", true]]);
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nobladeburner) {
+		ns.printf("Not joining blade burner");
+		return;
+	}
 	var player = ns.getPlayer();
 	if (options.division) {
 		while (!ns.bladeburner.inBladeburner()) {
