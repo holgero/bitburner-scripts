@@ -14,7 +14,7 @@ export async function main(ns) {
 async function runBack(ns, server, known, path) {
 	const options = ns.flags([["all", false], ["one", false], ["list", false]]);
 	if (options.list) {
-		ns.tprintf("%20s %s", server, ns.getServer(server).backdoorInstalled ? "*" : " ");
+		ns.tprintf("%20s %6d %s", server, ns.getServerRequiredHackingLevel(server), ns.getServer(server).backdoorInstalled ? "*" : " ");
 		return;
 	}
 	if (options.all || options.one || STORY_LINE.some(a => a.backdoor == server)) {
