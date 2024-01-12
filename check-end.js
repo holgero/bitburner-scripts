@@ -57,19 +57,22 @@ async function wantToEndRun(ns) {
 		// avoid ending while there are outstanding shares
 		return false;
 	}
+	const restrictions = getRestrictions(ns);
 	if (player.bitNodeN == 8) {
 		if (!ns.stock.has4SDataTIXAPI()) {
-			ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
-			return false;
+			if (!restrictions || !restrictions.notix4s) {
+				ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
+				return false;
+			}
 		}
-		if (money <= 111e9) {
-			ns.printf("On bitnode 8: Not ending before having earned at least 111 b (have: %s).",
+		if (database.owned_augmentations.length >= database.bitnodemultipliers.DaedalusAugsRequirement &&
+			money <= 111e9) {
+			ns.printf("On bitnode 8 and enough augmenations for Daedalus: Not ending before having earned at least 111 b (have: %s).",
 				formatMoney(money));
 			return false;
 		}
 	} else {
 		if (money >= 135e9 && !ns.corporation.hasCorporation()) {
-			const restrictions = getRestrictions(ns);
 			if (!restrictions || !restrictions.nocorporation) {
 				ns.printf("Not on bitnode 8 and nearly there to start a corporation (have: %s), not ending now",
 					formatMoney(money));

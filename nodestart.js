@@ -108,16 +108,19 @@ async function setUpForCorporations(ns) {
 
 /** @param {NS} ns **/
 async function startTrader(ns) {
+	const restrictions = getRestrictions(ns);
 	if (!ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 10e9) {
 		await runAndWait(ns, "purchase-stock-api.js");
 	}
 	if (ns.stock.hasTIXAPIAccess() &&
 		!ns.scriptRunning("trader.js", "home") &&
 		!ns.scriptRunning("trader2.js", "home")) {
-		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
-			getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
-			await runAndWait(ns, "purchase-stock-api.js", "--all");
-			deleteBudget(ns, "stocks");
+		if (!restrictions || !restrictions.notix4s) {
+			if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+				getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
+				await runAndWait(ns, "purchase-stock-api.js", "--all");
+				deleteBudget(ns, "stocks");
+			}
 		}
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
@@ -265,7 +268,10 @@ async function progressHackingLevels(ns) {
 		await runAndWait(ns, "rback.js");
 		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
 			getAvailableMoney(ns, true) > 28e9) {
-			await killOthers(ns);
+			const restrictions = getRestrictions(ns);
+			if (!restrictions || !restrictions.notix4s) {
+				await killOthers(ns);
+			}
 		}
 		await runAndWait(ns, "solve_contract.js", "--auto");
 		if (new Date() - started > 120000) {
@@ -349,8 +355,11 @@ async function improveInfrastructure(ns, programsOwned) {
 				const multiplier = database.bitnodemultipliers.FourSigmaMarketDataApiCost ?
 					database.bitnodemultipliers.FourSigmaMarketDataApiCost : 1;
 				if (!ns.stock.has4SDataTIXAPI() && getAvailableMoney(ns, true) > multiplier * 50e9) {
-					await killOthers(ns);
-					await runAndWait(ns, "purchase-stock-api.js", "--all");
+					const restrictions = getRestrictions(ns);
+					if (!restrictions || !restrictions.notix4s) {
+						await killOthers(ns);
+						await runAndWait(ns, "purchase-stock-api.js", "--all");
+					}
 				}
 			}
 	}
