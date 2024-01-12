@@ -411,6 +411,9 @@ export function waitForDaedalus(ns) {
 		return false;
 	}
 	const database = getDatabase(ns);
+	if (database.owned_augmentations.includes(RED_PILL)) {
+		return false;
+	}
 	if (database.owned_augmentations.length < database.bitnodemultipliers.DaedalusAugsRequirement) {
 		return false;
 	}
