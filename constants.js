@@ -26,6 +26,9 @@ export const KUAIGONG = "KuaiGong International";
 export const FOUR_SIGMA = "Four Sigma";
 export const NWO = "NWO";
 export const CLARKE = "Clarke Incorporated";
+export const FULCRUM_C = "Fulcrum Technologies";
+export const FULCRUM_F = "Fulcrum Secret Technologies";
+export const OMNITEK =   "OmniTek Incorporated";
 
 // criminal factions
 export const SLUM_SNAKES = "Slum Snakes";
@@ -56,10 +59,10 @@ export const ALL_FACTIONS = [
 	FOUR_SIGMA,
 	NWO,
 	"Blade Industries",
-	"OmniTek Incorporated",
+	OMNITEK,
 	"Bachman & Associates",
 	CLARKE,
-	"Fulcrum Secret Technologies",
+	FULCRUM_F,
 	SLUM_SNAKES,
 	TETRADS,
 	"Silhouette",
@@ -158,4 +161,7 @@ export const STORY_LINE = [
 	{ name: COVENANT, backdoor: "", money: 1e12, hack: 850, stats: 850, augsNeeded: 20, work: HACKING, location: "" },
 	{ name: DAEDALUS, backdoor: "", money: 100000000000, hack: 2500, augsNeeded: 30, work: HACKING, location: "" },
 	{ name: CHURCH, backdoor: "", money: 0, stats: 0, location: CHONGQING, special: true },
+	// late game companies, only apply for a job when hacking level is already high
+	{ name: FULCRUM_C, backdoor: "", company: true, money: 0, hack: 2000, stats: 0, work: HACKING, location: "" },
+	{ name: OMNITEK, backdoor: "", company: true, money: 0, hack: 2000, stats: 0, work: HACKING, location: "" },
 ];
