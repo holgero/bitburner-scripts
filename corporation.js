@@ -36,7 +36,6 @@ const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
-const MINIMUM_SHARE_PRICE = 10;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE];
 
 /** @param {NS} ns **/
@@ -64,8 +63,19 @@ export async function main(ns) {
 		}
 		await setupCorporation(ns);
 		tradeCorporationShares(ns);
+		setDividends(ns);
 		await printCorporationInfo(ns);
 		await ns.sleep(10000);
+	}
+}
+
+/** @param {NS} ns **/
+function setDividends(ns) {
+	const corporation = ns.corporation.getCorporation();
+	if (corporation.issuedShares > 0) {
+		ns.corporation.issueDividends(1);
+	} else {
+		ns.corporation.issueDividends(0);
 	}
 }
 
@@ -79,7 +89,6 @@ function tradeCorporationShares(ns) {
 	if (shouldSell(ns, corporation, 0.9 * high, low)) {
 		var money = ns.getServerMoneyAvailable("home");
 		ns.corporation.sellShares(corporation.numShares - 1);
-		ns.corporation.issueDividends(1);
 		var earned = ns.getServerMoneyAvailable("home") - money;
 		reserveBudget(ns, "corp", earned); // to make sure we can buy back
 		ns.toast("Sold corporation shares for " + formatMoney(earned), ns.enums.ToastVariant.SUCCESS, 8000);
@@ -96,10 +105,7 @@ function tradeCorporationShares(ns) {
 			ns.toast("Bought corporation shares for " + formatMoney(spend), ns.enums.ToastVariant.SUCCESS, 8000);
 			ns.tprintf("Bought corporation shares for %s", formatMoney(spend));
 			if (affordableShares >= corporation.issuedShares) {
-				ns.corporation.issueDividends(0);
 				deleteBudget(ns, "corp");
-			} else {
-				ns.corporation.issueDividends(1);
 			}
 		}
 		return;
@@ -116,7 +122,7 @@ function shouldSell(ns, corporation, target, low) {
 	if (corporation.numShares <= 1 || corporation.shareSaleCooldown) {
 		return false;
 	}
-	if (corporation.sharePrice < MINIMUM_SHARE_PRICE) {
+	if (corporation.sharePrice < minimumSharePrice(ns)) {
 		return false;
 	}
 	if (getAvailableMoney(ns) > RICHMAN_MONEY) {
@@ -134,7 +140,7 @@ function shouldIssue(ns, corporation, low, high) {
 	if (corporation.sharePrice < low) {
 		return true;
 	}
-	if (corporation.sharePrice < MINIMUM_SHARE_PRICE && corporation.sharePrice <= high) {
+	if (corporation.sharePrice < minimumSharePrice(ns) && corporation.sharePrice <= high) {
 		return true;
 	}
 	return false;
@@ -162,6 +168,16 @@ function shouldBuy(ns, corporation, target) {
 		return true;
 	}
 	return false;
+}
+
+/** @param {NS} ns **/
+function minimumSharePrice(ns) {
+	const database = getDatabase(ns);
+	const valuationFactor = database.bitnodemultipliers.CorporationValuation;
+	if (valuationFactor < 1) {
+		return Math.max(1, 10 * valuationFactor);
+	}
+	return 10;
 }
 
 /** @param {NS} ns **/
