@@ -2,7 +2,8 @@ import {
 	getDatabase,
 	getAvailableMoney,
 	formatMoney,
-	getHacknetProfitability
+	getHacknetProfitability,
+	getRestrictions
 } from "/helpers.js";
 
 const RESERVE = 1e6;
@@ -10,6 +11,10 @@ const WEIGHT = 1.25;
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nohacknet) {
+		return;
+	}
 	ns.disableLog("getServerMoneyAvailable");
 	const available = availableMoney(ns);
 	if (available <= 0) {

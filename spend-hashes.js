@@ -1,4 +1,4 @@
-import { getAvailableMoney } from "helpers.js";
+import { getAvailableMoney, getRestrictions } from "helpers.js";
 import * as c from "constants.js";
 
 const money = "Sell for Money";
@@ -11,6 +11,7 @@ const uni = "Improve Studying";
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const restrictions = getRestrictions(ns);
 	const options = ns.flags([["all", false], ["gym", false], ["uni", false]]);
 	if (options.gym) {
 		await spendOn(ns, gym_training);
@@ -26,6 +27,14 @@ export async function main(ns) {
 				return;
 			}
 		}
+	}
+	if (restrictions && restrictions.nohacknet) {
+		// try to get rid of the hashes, before the are automatically used for money which 
+		// defeats the challenge
+		for (var upgName of [blade_rank, blade_skill, corp_money, corp_research, gym_training, uni, "Generate Coding Contract"]) {
+			await spendOn(ns, upgName);
+		}
+		return;
 	}
 	if (!ns.corporation.hasCorporation() || getAvailableMoney(ns, true) < 10e9) {
 		// we need this money

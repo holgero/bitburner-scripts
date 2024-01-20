@@ -81,7 +81,8 @@ async function wantToEndRun(ns) {
 		}
 	}
 	if (ns.bladeburner.inBladeburner()) {
-		if (!player.factions.includes(c.BLADEBURNERS)) {
+		if (!player.factions.includes(c.BLADEBURNERS) && (!restrictions || !restrictions.nohacknet)) {
+			// joining bladeburner early relies on hacknet bladeburner rank gains, disabled when no hacknet available
 			ns.printf("Have bladeburner job, but didn't join bladeburners faction yet, not ending");
 			return false;
 		}
@@ -104,11 +105,11 @@ async function wantToEndRun(ns) {
 		ns.printf("Endgame: completion is %d", completion.toFixed(2));
 		return completion >= 1;
 	}
-	if ((database.features.hacknetServer ||
+	if (((database.features.hacknetServer && (!restrictions || !restrictions.nohacknet)) ||
 		player.playtimeSinceLastAug < player.playtimeSinceLastBitnode) &&
 		money <= 10e9) {
 		// allow to end the first run faster than with 10 b only if we don't have
-		// the free hacknetserver
+		// the free hacknetserver (or cannot use it to make money)
 		ns.printf("Not ending before having earned at least 10 b (have: %s).",
 			formatMoney(money));
 		return false;
