@@ -1,10 +1,16 @@
 import * as c from "constants.js";
-import { getDatabase, getFactiongoals, getAvailableMoney, runAndWait } from "helpers.js";
+import {
+	getDatabase, getFactiongoals, getAvailableMoney, runAndWait, getRestrictions
+} from "helpers.js";
 
 const POOR_MAN = 1e9;
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nosleeves) {
+		return;
+	}
 	const database = getDatabase(ns);
 	if (!database.features.sleeves) {
 		return;

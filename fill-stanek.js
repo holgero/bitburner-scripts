@@ -24,6 +24,14 @@ export async function main(ns) {
 		ns.stanek.clearGift();
 		return;
 	}
+	if (height == 5 && width == 5) {
+		ns.stanek.placeFragment(0, 0, 0, 6);
+		ns.stanek.placeFragment(3, 0, 1, 1);
+		ns.stanek.placeFragment(0, 1, 0, 5);
+		ns.stanek.placeFragment(0, 4, 0, 20);
+		ns.stanek.placeFragment(0, 2, 0, 7);
+		ns.stanek.placeFragment(3, 2, 1, 10);
+	}
 	if (height == 5 && width == 6) {
 		ns.stanek.placeFragment(0, 0, 0, 5);
 		ns.stanek.placeFragment(2, 0, 0, 0);
