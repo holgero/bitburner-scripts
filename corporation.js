@@ -430,6 +430,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 			var materials = [];
 			switch (division.type) {
 				case FOOD:
+				case RESTAURANT:
 					materials = [WATER, FOOD];
 					break;
 				case AGRICULTURE:
