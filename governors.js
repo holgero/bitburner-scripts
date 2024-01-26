@@ -32,7 +32,7 @@ export async function main(ns) {
 		ns.tprintf("Still enough money to buy governors, trying to bribe a faction");
 		await runAndWait(ns, "joinfactions.js", "--all");
 		const bribeFactions = ns.getPlayer().factions.
-			filter(a => a != BLADEBURNERS).
+			filter(a => a != BLADEBURNERS && a != CHURCH).
 			filter(a => ns.singularity.getFactionFavor(a) > ns.getFavorToDonate()).
 			map(f => ({
 				...(database.factions.find(a => a.name == f)),
