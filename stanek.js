@@ -1,8 +1,12 @@
 import * as c from "constants.js";
-import { getDatabase } from "helpers.js";
+import { getDatabase, getRestrictions } from "helpers.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nostanek) {
+		return;
+	}
 	const database = getDatabase(ns);
 	if (!database.features.church) {
 		return;

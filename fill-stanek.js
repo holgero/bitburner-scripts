@@ -1,6 +1,12 @@
+import { getRestrictions } from "helpers.js";
+
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["clear", false], ["definitions", false], ["active", false]]);
+	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.nostanek) {
+		return;
+	}
 	if (!ns.stanek.acceptGift()) {
 		ns.tprintf("Couldn't accept staneks gift.");
 		return;

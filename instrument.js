@@ -1,4 +1,4 @@
-import { getDatabase } from "helpers.js";
+import { getDatabase, getRestrictions } from "helpers.js";
 const WEAKEN_SCRIPT = "do-weaken.js";
 const GROW_SCRIPT = "do-grow.js";
 const HACK_SCRIPT = "do-hack.js";
@@ -102,8 +102,9 @@ export async function main(ns) {
 
 function ramAvailable(ns, spare) {
 	const database = getDatabase(ns);
+	const restrictions = getRestrictions(ns);
 	var availableRam = ns.getServerMaxRam("home") - ns.getServerUsedRam("home") - spare;
-	if (database.features.church) {
+	if (database.features.church && !(restrictions && restrictions.nostanek)) {
 		availableRam = availableRam / 2;
 	}
 	if (availableRam < Math.max(ns.getScriptRam(GROW_SCRIPT), ns.getScriptRam(WEAKEN_SCRIPT), ns.getScriptRam(HACK_SCRIPT))) {
