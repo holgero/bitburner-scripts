@@ -72,10 +72,19 @@ export async function main(ns) {
 /** @param {NS} ns **/
 function setDividends(ns) {
 	const corporation = ns.corporation.getCorporation();
+	if (corporation.funds < 0) {
+		ns.corporation.issueDividends(0);
+	}
 	if (corporation.issuedShares > 0) {
 		ns.corporation.issueDividends(1);
 	} else {
-		ns.corporation.issueDividends(0);
+		const database = getDatabase(ns);
+		if (database.bitnodemultipliers.CorporationValuation < 0.05) {
+			// trading shares is not profitable, so take some dividends instead
+			ns.corporation.issueDividends(0.5);
+		} else {
+			ns.corporation.issueDividends(0);
+		}
 	}
 }
 
@@ -181,6 +190,22 @@ function minimumSharePrice(ns) {
 }
 
 /** @param {NS} ns **/
+function canSpend(ns) {
+	const corp = ns.corporation.getCorporation();
+	if (corp.numShares <= 1) {
+		// corporation currently belongs someone else, so freely spend its funds
+		return true;
+	}
+	const database = getDatabase(ns);
+	if (database.bitnodemultipliers.CorporationValuation < 0.05) {
+		// valuation is too low for trading, share price is not important
+		return true;
+	}
+	// keep funds to increase share price
+	return false;
+}
+
+/** @param {NS} ns **/
 async function setupCorporation(ns) {
 	// ns.print("setupCorporation");
 	expandIndustry(ns);
@@ -201,7 +226,7 @@ async function setupCorporation(ns) {
 			corporation = ns.corporation.getCorporation();
 			if (ns.corporation.getHireAdVertCount(divisionName) <
 				corporation.divisions.length &&
-				corporation.numShares <= 1) {
+				canSpend(ns)) {
 				var cost = ns.corporation.getHireAdVertCost(divisionName);
 				if (corporation.funds - HOLD_BACK_FUNDS > cost ||
 					ns.corporation.getHireAdVertCount(divisionName) == 0) {
@@ -229,11 +254,10 @@ async function setupCorporation(ns) {
 
 /** @param {NS} ns **/
 function buyCorporationUpgrades(ns) {
-	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares > 1) {
-		// spend money only while most of the shares belong to someone else
+	if (!canSpend(ns)) {
 		return;
 	}
+	const corporation = ns.corporation.getCorporation();
 	var money = corporation.funds;
 	for (var unlock of [WAREHOUSE_API, OFFICE_API]) {
 		if (!ns.corporation.hasUnlock(unlock)) {
@@ -258,11 +282,10 @@ function buyCorporationUpgrades(ns) {
 
 /** @param {NS} ns **/
 function expandIndustry(ns) {
-	var corporation = ns.corporation.getCorporation();
-	if (corporation.numShares > 1) {
-		// expand only while the shares belong to someone else
+	if (!canSpend(ns)) {
 		return;
 	}
+	const corporation = ns.corporation.getCorporation();
 	if (!ns.corporation.hasUnlock(OFFICE_API) ||
 		!ns.corporation.hasUnlock(WAREHOUSE_API)) {
 		// need the APIs for automatic expansion
@@ -291,7 +314,7 @@ function expandIndustry(ns) {
 
 /** @param {NS} ns **/
 async function printCorporationInfo(ns) {
-	var corporation = ns.corporation.getCorporation();
+	const corporation = ns.corporation.getCorporation();
 	const value = valuation(ns, corporation);
 	const valuePerShare = value / corporation.totalShares;
 	const low = 0.5 * valuePerShare;
@@ -328,7 +351,7 @@ function valuation(ns, corporation) {
 /** @param {NS} ns **/
 function expandDivision(ns, divisionName, corporation) {
 	const division = ns.corporation.getDivision(divisionName);
-	if (corporation.numShares > 1) {
+	if (!canSpend(ns)) {
 		return;
 	}
 	if (division.cities.length >= c.CITIES.length) {
@@ -490,7 +513,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 		}
 		// if the warehouse is full and we are currently allowed to spend
 		// expand the warehouse
-		if (!buying && ns.corporation.getCorporation().numShares <= 1 &&
+		if (!buying && canSpend(ns) &&
 			ns.corporation.hasUnlock(OFFICE_API)) {
 			if (ns.corporation.getWarehouse(division.name, city).level <
 				Math.min(ns.corporation.getOffice(division.name, city).numEmployees,
@@ -538,11 +561,9 @@ function purchaseAdditionalMaterial(ns, divisionName, city, material, baseAmount
 	var amount = baseAmount * ns.corporation.getWarehouse(divisionName, city).level;
 	var info = ns.corporation.getMaterial(divisionName, city, material);
 	var corp = ns.corporation.getCorporation();
-	// only spend on addtl. materials while we don't own the company
-	var canSpend = corp.numShares <= 1;
 	// ns.printf("Can spend money for %s in %s: %s", material, city, canSpend);
 
-	if (canSpend && info.stored < amount) {
+	if (canSpend(ns) && info.stored < amount) {
 		// ns.printf("Buying %d of %s for %s in %s", amount, material, divisionName, city);
 		ns.corporation.buyMaterial(divisionName, city, material, baseAmount / 500.0);
 		ns.corporation.sellMaterial(divisionName, city, material, "0", "MP");
