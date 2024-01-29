@@ -10,6 +10,7 @@ const CHALLENGES = [
 	{ bn: 9, nohacknet: true },
 	{ bn: 10, nosleeves: true },
 	{ bn: 13, nostanek: true },
+	{ bn: 14, noend: true },
 ];
 
 /** @param {NS} ns */

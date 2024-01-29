@@ -33,9 +33,14 @@ async function wantToEndRun(ns) {
 	const player = ns.getPlayer();
 	const database = getDatabase(ns);
 	const money = getAvailableMoney(ns, true);
+	const restrictions = getRestrictions(ns);
 	if (database.owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		player.skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
+		if (restrictions && restrictions.noend) {
+			ns.printf("Not allowed to end the world.");
+			return false;
+		}
 		ns.printf("Ready to end the world.");
 		return true;
 	}
@@ -57,7 +62,6 @@ async function wantToEndRun(ns) {
 		// avoid ending while there are outstanding shares
 		return false;
 	}
-	const restrictions = getRestrictions(ns);
 	if (player.bitNodeN == 8) {
 		if (!ns.stock.has4SDataTIXAPI()) {
 			if (!restrictions || !restrictions.notix4s) {
