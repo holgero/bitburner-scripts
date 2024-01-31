@@ -44,7 +44,7 @@ async function workOnGoal(ns, goal, config) {
 	}
 	const goalRep = goal.reputation + (goal.company ? 400e3 : 0);
 	const repReached = ns.singularity.getFactionRep(goal.name) +
-		(goal.company ? Math.min(400e3, ns.singularity.getCompanyRep(goal.name)) : 0);
+		(goal.company ? Math.min(400e3, ns.singularity.getCompanyRep(goal.company)) : 0);
 	if (repReached > goalRep) {
 		return;
 	}
@@ -53,9 +53,9 @@ async function workOnGoal(ns, goal, config) {
 		goal.name, repReached, goalRep, percentComplete);
 	ns.toast(goal.name + ": " + percentComplete + " %", ns.enums.ToastVariant.SUCCESS, 5000);
 	if (goal.company && !ns.getPlayer().factions.includes(goal.name)) {
-		ns.printf("Work for company %s", goal.name);
+		ns.printf("Work for company %s", goal.company);
 		await runAndWait(ns, "workforcompany.js", "--apply", "--work",
-			"--company", goal.name, "--job", "IT");
+			"--company", goal.company, "--job", "IT");
 	} else {
 		ns.printf("Work for faction %s", goal.name);
 		await runAndWait(ns, "workforfaction.js", goal.name);

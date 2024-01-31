@@ -85,15 +85,15 @@ async function runSleeves(ns) {
 		for (var job of jobsToWorkFor) {
 			if (!ns.getPlayer().jobs[job.name]) {
 				await runAndWait(ns, "workforcompany.js",
-					"--apply", "--company", job.name, "--job", "IT");
+					"--apply", "--company", job.company, "--job", "IT");
 			}
 			if (!ns.singularity.getCurrentWork() ||
 				!ns.singularity.getCurrentWork()["companyName"] == job.name) {
 				await runAndWait(ns, "workforcompany.js",
-					"--apply", "--company", job.name, "--job", "Security");
+					"--apply", "--company", job.company, "--job", "Security");
 			}
 			for (var idx = 0; idx < available.length; idx++) {
-				if (workForCompany(ns, available[idx], job.name)) {
+				if (workForCompany(ns, available[idx], job.company)) {
 					available.splice(idx, 1);
 					break;
 				}

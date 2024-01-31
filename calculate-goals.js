@@ -148,7 +148,7 @@ function costToGet(ns, database, factionGoals, augmentation) {
 			}
 			if (faction.company) {
 				cost += 1000 * (100 / (100 + faction.companyFavor)) *
-					Math.max(0, 400000 - ns.singularity.getCompanyRep(factionName)) /
+					Math.max(0, 400000 - ns.singularity.getCompanyRep(faction.company)) /
 					player.mults.company_rep;
 			}
 			if (faction.stats) {
