@@ -34,6 +34,10 @@ async function wantToEndRun(ns) {
 	const database = getDatabase(ns);
 	const money = getAvailableMoney(ns, true);
 	const restrictions = getRestrictions(ns);
+	if (restrictions && restrictions.noend) {
+		ns.printf("Not ending automatically.");
+		return false;
+	}
 	if (database.owned_augmentations.includes(c.RED_PILL) &&
 		ns.hasRootAccess(c.WORLD_DAEMON) &&
 		player.skills.hacking >= ns.getServerRequiredHackingLevel(c.WORLD_DAEMON)) {
