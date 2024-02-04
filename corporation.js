@@ -35,7 +35,7 @@ const MAX_SELL = "1e9";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
-const RICHMAN_MONEY = 1e12;
+const RICHMAN_MONEY = 10e15;
 const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE];
 
 /** @param {NS} ns **/
