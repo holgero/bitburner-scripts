@@ -21,7 +21,7 @@ export async function main(ns) {
 		}
 	}
 	if (remaining == 0) {
-		ns.tprintf("No more black operations to do, trying to destroy the world");
+		ns.printf("No more black operations to do, trying to destroy the world");
 		ns.spawn("destroy-world.js");
 	}
 }
