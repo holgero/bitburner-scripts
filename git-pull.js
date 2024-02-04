@@ -25,6 +25,7 @@ const FILES = [
 	"do-hack.js",
 	"donate-faction.js",
 	"do-weaken.js",
+	"employment.js",
 	"estimate.js",
 	"extras.js",
 	"evaluate-traders.js",
