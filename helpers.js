@@ -174,17 +174,24 @@ export async function runAndWait(ns, script, ...args) {
 }
 
 /** @param {NS} ns **/
-function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice) {
+function addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice, minprice, excluded) {
 	for (var goal of factionGoals) {
 		var faction = database.factions.find(a => a.name == goal.name);
 		if (!faction) {
 			continue;
 		}
+		var soaRepFactor = Math.pow(1.3, toPurchase.filter(a => a.name.startsWith("SoA")).length);
 		for (var augName of faction.augmentations) {
 			var augmentation = database.augmentations.find(a => a.name == augName);
 			var rep = Math.max(goal.reputation, ns.singularity.getFactionRep(goal.name));
-			if (augmentation.reputation <= rep && augmentation.price <= maxprice) {
+			if (augmentation.reputation * soaRepFactor <= rep &&
+				augmentation.price <= maxprice &&
+				augmentation.price >= minprice && 
+				!excluded.includes(augmentation.name)) {
 				if (!toPurchase.includes(augmentation)) {
+					if (augmentation.name.startsWith("SoA")) {
+						soaRepFactor *= 1.3;
+					}
 					if (augmentation.requirements.every(a => dependencies.includes(a))) {
 						ns.printf("Adding %s", augName)
 						toPurchase.push(augmentation);
@@ -251,12 +258,12 @@ export async function findBestAugmentations(ns) {
 }
 
 /** @param {NS} ns **/
-export function getAugmentationsToPurchase(ns, database, factionGoals, maxprice) {
+export function getAugmentationsToPurchase(ns, database, factionGoals, maxprice, minprice = 0, excluded = []) {
 	const toPurchase = [];
 	const dependencies = database.owned_augmentations.slice(0);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
-	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice, minprice, excluded);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice, minprice, excluded);
+	addPossibleAugmentations(ns, database, factionGoals, dependencies, toPurchase, maxprice, minprice, excluded);
 	setSortc(toPurchase);
 	toPurchase.sort((a, b) => a.sortc - b.sortc).reverse();
 	return toPurchase;

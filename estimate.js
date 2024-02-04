@@ -18,9 +18,13 @@ export async function main(ns) {
 		["write", false],
 		["affordable", false],
 		["maxprice", 1e99],
+		["minprice", 0],
 		["best", false],
 		["governor", false],
-		["money", 0]]);
+		["money", 0],
+		["exclude", "[]"],
+		["exponent", 1.9]]);
+	const excluded = JSON.parse(options.exclude);
 	var factions = [];
 	var loopOver = ns.getPlayer().factions;
 	if (options._.length > 0) {
@@ -51,7 +55,7 @@ export async function main(ns) {
 	}
 	const database = getDatabase(ns);
 	// ns.tprintf("Factions: %s", JSON.stringify(factions))
-	var toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice);
+	var toPurchase = getAugmentationsToPurchase(ns, database, factions, options.maxprice, options.minprice, excluded);
 	const augmentationCount = toPurchase.length;
 	const money = options.money ? options.money : getAvailableMoney(ns, true);
 	const prioritized = getAugmentationPrios(ns).slice(0, 3);
@@ -63,11 +67,19 @@ export async function main(ns) {
 	}
 	var factor = 1.0;
 	var sum = 0;
+	var soaFactor = 1.0;
 	if (!options.write) {
 		ns.tprintf("%55s  %10s  %10s  %10s %s", "Augmentation", "Base", "Price", "Total", "Prio");
 	}
 	for (var augmentation of toPurchase) {
-		var toPay = factor * augmentation.price;
+		var toPay;
+		if (augmentation.name.startsWith("SoA")) {
+			// ns.tprintf("%s", JSON.stringify(augmentation));
+			toPay = soaFactor * augmentation.price;
+			soaFactor *= 7;
+		} else {
+			toPay = factor * augmentation.price;
+		}
 		sum += toPay;
 		if (!options.write) {
 			ns.tprintf("%55s: %10s  %10s  %10s %s",
@@ -75,7 +87,7 @@ export async function main(ns) {
 				formatMoney(toPay), formatMoney(sum),
 				prioritized.includes(augmentation.type) ? "*" : "");
 		}
-		factor = factor * 1.9;
+		factor = factor * options.exponent;
 	}
 
 	filterExpensiveAugmentations(ns, toPurchase, money, prioritized);
@@ -89,13 +101,13 @@ export async function main(ns) {
 	var governors = 0;
 	var sumAfterGovernors = sum;
 	if (options.governor) {
-//		var governorRep = ns.singularity.getAugmentationRepReq(GOVERNOR);
-	//	var governorPrice = ns.singularity.getAugmentationPrice(GOVERNOR);
+		//		var governorRep = ns.singularity.getAugmentationRepReq(GOVERNOR);
+		//	var governorPrice = ns.singularity.getAugmentationPrice(GOVERNOR);
 		ns.tprintf("Have %s left to spend on governors (base price: %s, with factor: %s, base rep: %d)",
-			formatMoney(money - sumAfterGovernors), formatMoney(governorPrice), 
+			formatMoney(money - sumAfterGovernors), formatMoney(governorPrice),
 			formatMoney(governorPrice * factor), governorRep);
 		while (money > sumAfterGovernors + factor * governorPrice) {
-			governors ++;
+			governors++;
 			sumAfterGovernors += factor * governorPrice;
 			governorRep *= 1.14;
 			factor *= 1.9;
