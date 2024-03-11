@@ -12,15 +12,21 @@ export async function main(ns) {
 		ns.printf("No money from purchased servers, not buying servers");
 		return;
 	}
-	const numberOfServers = ns.getPurchasedServerLimit();
-	if (numberOfServers == 0) {
+	if (ns.getPurchasedServerLimit() == 0) {
 		ns.printf("Cannot buy any servers.");
 		return;
 	}
 	const victims = JSON.parse(ns.read("victims.txt"));
 	ns.printf("Victims: %v", victims);
+	while (true) {
+		await runUpgrades(ns, options, database, victims);
+	}
+}
+
+/** @param {NS} ns */
+export async function runUpgrades(ns, options, database, victims) {
 	var moneySpent = 0;
-	for (var ii = findStartIndex(ns, options); ii < numberOfServers; ii++) {
+	for (var ii = findStartIndex(ns, options); ii < ns.getPurchasedServerLimit(); ii++) {
 		const hostname = SERVER_PREFIX + ii;
 		if (ns.serverExists(hostname)) {
 			const currentRam = ns.getServerMaxRam(hostname);
@@ -80,6 +86,9 @@ export async function main(ns) {
 	}
 	if (moneySpent > 0) {
 		ns.printf("Spent %s on servers", formatMoney(moneySpent));
+		await ns.sleep(1000);
+	} else {
+		ns.exit();
 	}
 }
 
