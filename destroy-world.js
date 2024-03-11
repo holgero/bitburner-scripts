@@ -11,8 +11,8 @@ export async function main(ns) {
 	const nextNode = nextBitnode(ns, bitNodeN, owned);
 	const thisNode = owned.find(a => a.n == bitNodeN);
 	const thisLevel = thisNode ? thisNode.lvl : 0;
-	if (nextNode === undefined) {
-		ns.tprintf("No more challenges, Game Over");
+	if (nextNode === undefined || nextNode === 14) {
+		ns.printf("No more challenges, Game Over");
 		return;
 	}
 	ns.tprintf("Destroying world daemon on bitNode %d.%d, proceeding on bitNode %d",
