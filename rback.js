@@ -1,5 +1,5 @@
 import { traverse, runAndWait } from "helpers.js";
-import { STORY_LINE } from "constants.js";
+import { STORY_LINE, WORLD_DAEMON } from "constants.js";
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -19,6 +19,9 @@ async function runBack(ns, server, known, path) {
 	}
 	if (options.all || options.one || STORY_LINE.some(a => a.backdoor == server)) {
 		if (!ns.hasRootAccess(server)) {
+			return;
+		}
+		if (server == WORLD_DAEMON) {
 			return;
 		}
 		const hackingLevel = ns.getHackingLevel();
