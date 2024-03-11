@@ -20,6 +20,7 @@ const RESEARCH = "Research & Development";
 const LABORATORY = "Hi-Tech R&D Laboratory";
 const MARKET_TA_I = "Market-TA.I";
 const MARKET_TA_II = "Market-TA.II";
+const METAL = "Metal";
 const WATER = "Water";
 const FOOD = "Food";
 const CHEMICALS = "Chemicals";
@@ -27,16 +28,19 @@ const PLANTS = "Plants";
 const HARDWARE = "Hardware";
 const ROBOTS = "Robots";
 const AI_CORES = "AI Cores";
+const ORE = "Ore";
 const REALESTATE = "Real Estate";
+const REFINERY = "Refinery";
 const RESTAURANT = "Restaurant";
 const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
+const PROPERTY = "Lar Mago";
 const MAX_SELL = "1e9";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
-const RICHMAN_MONEY = 10e15;
-const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE];
+const RICHMAN_MONEY = 1e12;
+const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE, REALESTATE, REFINERY];
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -199,6 +203,10 @@ function canSpend(ns) {
 	const database = getDatabase(ns);
 	if (database.bitnodemultipliers.CorporationValuation < 0.05) {
 		// valuation is too low for trading, share price is not important
+		return true;
+	}
+	if (getAvailableMoney(ns) > RICHMAN_MONEY) {
+		// don't need the money right now, invest into future share price instead
 		return true;
 	}
 	// keep funds to increase share price
@@ -446,6 +454,16 @@ async function setupDivisionWarehouse(ns, divisionName) {
 					// no return here: we can still produce AI Cores
 				}
 				break;
+			case REALESTATE:
+				if (division.products.length == 0) {
+					ns.corporation.makeProduct(division.name, c.SECTOR12, PROPERTY, 1e8, 1e8);
+				}
+				var product = ns.corporation.getProduct(division.name, c.SECTOR12, PROPERTY);
+				if (product.developmentProgress < 100) {
+					ns.printf("Product %s at %d%%", product.name, product.developmentProgress);
+					// no return here: we can still produce Real Estate
+				}
+				break;
 		}
 		if (ns.corporation.hasUnlock(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
@@ -465,7 +483,15 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				case SOFTWARE:
 					materials = [HARDWARE];
 					break;
+				case REALESTATE:
+					materials = [METAL, PLANTS, WATER, HARDWARE];
+					break;
+				case REFINERY:
+					materials = [ORE];
+					break;
 			}
+			const wareHouse = ns.corporation.getWarehouse(division.name, city);
+			var capacity = wareHouse.size - wareHouse.sizeUsed;
 			for (var material of materials) {
 				var materialInfo = ns.corporation.getMaterial(division.name, city, material);
 				var materialToBuy = -materialInfo.productionAmount;
@@ -484,8 +510,9 @@ async function setupDivisionWarehouse(ns, divisionName) {
 					// get going!
 					materialToBuy += 1.0;
 				}
-				materialToBuy = Math.max(0, materialToBuy);
+				materialToBuy = Math.max(0, Math.min(materialToBuy, capacity/2));
 				ns.corporation.buyMaterial(division.name, city, material, materialToBuy);
+				capacity -= materialToBuy;
 			}
 		}
 		switch (division.type) {
@@ -503,9 +530,18 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				setMaterialSellParameters(ns, division.name, city, AI_CORES);
 				setProductSellParameters(ns, division.name, city, BURNER);
 				break;
+			case REALESTATE:
+				setMaterialSellParameters(ns, division.name, city, REALESTATE);
+				setProductSellParameters(ns, division.name, city, PROPERTY);
+				break;
+			case REFINERY:
+				setMaterialSellParameters(ns, division.name, city, METAL);
+				break;
 		}
 		var buying = false;
-		buying = purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000) || buying;
+		if (division.type != REALESTATE) {
+			buying = purchaseAdditionalMaterial(ns, division.name, city, REALESTATE, 3000) || buying;
+		}
 		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
 		if (division.type != SOFTWARE) {
 			buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
