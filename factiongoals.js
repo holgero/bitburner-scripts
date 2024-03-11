@@ -86,7 +86,8 @@ async function avoidOverachievement(ns, database, config) {
 		const possibleAugs = database.augmentations.filter(
 			a => a.factions.includes(current.factionName) &&
 				a.reputation > achieved);
-		if (possibleAugs.length == 0) {
+		const remainingAugs = database.augmentations.filter(a => a.type != "Infiltration");
+		if (remainingAugs.length > 0 && possibleAugs.length == 0) {
 			ns.tprintf("No sense working for %s, because our reputation is already %d",
 				current.factionName, achieved);
 			ns.singularity.stopAction();
