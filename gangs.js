@@ -102,6 +102,9 @@ async function setMemberTasks(ns) {
 	} else {
 		preferMoney = false;
 	}
+	if (estimation.augmentationCount == 0) {
+		preferMoney = true;
+	}
 	const money = getAvailableMoney(ns);
 	if (money < 1e9) {
 		preferMoney = true;
