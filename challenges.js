@@ -18,6 +18,7 @@ export async function main(ns) {
 	const options = ns.flags([
 		["node", ns.getResetInfo().currentNode],
 		["register", 0],
+		["unregister", 0],
 		["next", false]]);
 	if (options.next) {
 		ns.tprintf("Next challenge: %d", findNextChallenge(ns));
@@ -27,10 +28,33 @@ export async function main(ns) {
 		ns.tprintf("Registering challenge done for node: %s", options.register);
 		registerChallengeDone(ns, options.register);
 	} else {
-		ns.tprintf("Setting restrictions for node: %s", options.node);
-		setUpChallenge(ns, options.node);
+		if (options.unregister) {
+			if (unregisterChallenge(ns, options.unregister)) {
+				ns.tprintf("Removed registration for node: %s", options.unregister);
+			} else {
+				ns.tprintf("Node %s wasn't registered", options.unregister);
+			}
+		} else {
+			ns.tprintf("Setting restrictions for node: %s", options.node);
+			setUpChallenge(ns, options.node);
+		}
 	}
 	ns.tprintf("restrictions: %s", JSON.stringify(getRestrictions(ns)));
+	ns.tprintf("registered nodes: %s", readChallenges(ns).done);
+}
+
+/** @param {NS} ns */
+export function unregisterChallenge(ns, unregister) {
+	const challenges = readChallenges(ns);
+	if (!challenges.done) {
+		return false;
+	}
+	const wasRegistered = challenges.done.includes(unregister);
+	challenges.done = challenges.done.filter(a => a != unregister);
+	if (wasRegistered) {
+		ns.write("challenges.txt", JSON.stringify(challenges), "w");
+	}
+	return wasRegistered;
 }
 
 /** @param {NS} ns */

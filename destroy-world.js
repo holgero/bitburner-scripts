@@ -1,4 +1,4 @@
-import { findNextChallenge, registerChallengeDone, setUpChallenge } from "challenges.js";
+import { findNextChallenge, registerChallengeDone, unregisterChallenge, setUpChallenge } from "challenges.js";
 import * as c from "constants.js";
 
 /** @param {NS} ns */
@@ -24,11 +24,15 @@ export async function main(ns) {
 		ns.tprintf("End of the world in %d seconds", countDown);
 		await ns.sleep(1000);
 	}
-	if (ns.singularity.destroyW0r1dD43m0n(nextNode, "nodestart.js")) {
-		ns.tprintf("World destroyed");
-		return;
+	ns.singularity.destroyW0r1dD43m0n(nextNode, "nodestart.js");
+	// should only arrive here when the world has not been destroyed
+	ns.tprintf("Failed to destroy world, restoring challenges");
+	if (unregisterChallenge(ns, bitNodeN)) {
+		const nextChallenge = findNextChallenge(ns);
+		if (nextChallenge) {
+			setUpChallenge(ns, nextChallenge);
+		}
 	}
-	ns.tprintf("Failed to destroy world daemon");
 }
 
 /* Source file order:
