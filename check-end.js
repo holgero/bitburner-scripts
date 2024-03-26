@@ -81,7 +81,7 @@ async function wantToEndRun(ns) {
 		}
 	} else {
 		if (money >= 135e9 && !ns.corporation.hasCorporation()) {
-			if (!restrictions || !restrictions.nocorporation) {
+			if (!restrictions || (!restrictions.nocorporation && !restrictions.maxram)) {
 				ns.printf("Not on bitnode 8 and nearly there to start a corporation (have: %s), not ending now",
 					formatMoney(money));
 				return false;
