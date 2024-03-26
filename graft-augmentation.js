@@ -17,6 +17,10 @@ export async function main(ns) {
 	}
 
 	const augmentations = getGraftableAugmentations(ns, database);
+	if (augmentations.length == 0) {
+		ns.printf("No more augs to graft");
+		return;
+	}
 	const aug = selectAugByPrio(ns, augmentations).name;
 	ns.printf("Selected for grafting %s", aug);
 	var currentWork = ns.singularity.getCurrentWork();
