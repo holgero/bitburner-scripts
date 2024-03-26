@@ -8,9 +8,6 @@ const SOFTWARE = "Software";
 const WAREHOUSE_API = "Warehouse API";
 const OFFICE_API = "Office API";
 const SMART_SUPPLY = "Smart Supply";
-const SMART_FACTORIES = "Smart Factories";
-const SMART_STORAGE = "Smart Storage";
-const DREAM_SENSE = "DreamSense";
 const OPERATIONS = "Operations";
 const INTERN = "Intern";
 const ENGINEER = "Engineer";
@@ -23,6 +20,7 @@ const MARKET_TA_II = "Market-TA.II";
 const METAL = "Metal";
 const WATER = "Water";
 const FOOD = "Food";
+const CHEMICAL = "Chemical";
 const CHEMICALS = "Chemicals";
 const PLANTS = "Plants";
 const HARDWARE = "Hardware";
@@ -32,15 +30,18 @@ const ORE = "Ore";
 const REALESTATE = "Real Estate";
 const REFINERY = "Refinery";
 const RESTAURANT = "Restaurant";
+const SPRINGWATER = "Spring Water";
+const COMPUTER_HARDWARE = "Computer Hardware";
 const DROMEDAR = "Dromedar";
 const BURNER = "ByteBurner";
+const PEAR = "Pear";
 const PROPERTY = "Lar Mago";
 const MAX_SELL = "1e9";
 const MP_SELL = "MP";
 const HOLD_BACK_FUNDS = 1e9;
 const POORMAN_MONEY = 1e9;
 const RICHMAN_MONEY = 1e12;
-const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE, REALESTATE, REFINERY];
+const INDUSTRIES = [AGRICULTURE, TOBACCO, RESTAURANT, SOFTWARE, REALESTATE, REFINERY, SPRINGWATER, CHEMICAL, COMPUTER_HARDWARE];
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -277,8 +278,9 @@ function buyCorporationUpgrades(ns) {
 		}
 	}
 	money -= HOLD_BACK_FUNDS;
-	for (var upgrade of [DREAM_SENSE, SMART_FACTORIES, SMART_STORAGE]) {
-		if (ns.corporation.getUpgradeLevel(upgrade) < corporation.divisions.length) {
+
+	for (const upgrade of ns.corporation.getConstants().upgradeNames) {
+		if (ns.corporation.getUpgradeLevel(upgrade) < 2 * corporation.divisions.length) {
 			var cost = ns.corporation.getUpgradeLevelCost(upgrade);
 			if (money > cost) {
 				ns.corporation.levelUpgrade(upgrade);
@@ -464,6 +466,16 @@ async function setupDivisionWarehouse(ns, divisionName) {
 					// no return here: we can still produce Real Estate
 				}
 				break;
+			case COMPUTER_HARDWARE:
+				if (division.products.length == 0) {
+					ns.corporation.makeProduct(division.name, c.SECTOR12, PEAR, 1e8, 1e8);
+				}
+				var product = ns.corporation.getProduct(division.name, c.SECTOR12, PEAR);
+				if (product.developmentProgress < 100) {
+					ns.printf("Product %s at %d%%", product.name, product.developmentProgress);
+					// no return here: we can still produce hardware
+				}
+				break;
 		}
 		if (ns.corporation.hasUnlock(SMART_SUPPLY)) {
 			ns.corporation.setSmartSupply(division.name, city, true);
@@ -489,6 +501,15 @@ async function setupDivisionWarehouse(ns, divisionName) {
 				case REFINERY:
 					materials = [ORE];
 					break;
+				case SPRINGWATER:
+					materials = [];
+					break;
+				case CHEMICAL:
+					materials = [PLANTS, WATER];
+					break;
+				case COMPUTER_HARDWARE:
+					materials = [METAL];
+					break;
 			}
 			const wareHouse = ns.corporation.getWarehouse(division.name, city);
 			var capacity = wareHouse.size - wareHouse.sizeUsed;
@@ -510,7 +531,7 @@ async function setupDivisionWarehouse(ns, divisionName) {
 					// get going!
 					materialToBuy += 1.0;
 				}
-				materialToBuy = Math.max(0, Math.min(materialToBuy, capacity/2));
+				materialToBuy = Math.max(0, Math.min(materialToBuy, capacity / 2));
 				ns.corporation.buyMaterial(division.name, city, material, materialToBuy);
 				capacity -= materialToBuy;
 			}
@@ -537,6 +558,16 @@ async function setupDivisionWarehouse(ns, divisionName) {
 			case REFINERY:
 				setMaterialSellParameters(ns, division.name, city, METAL);
 				break;
+			case SPRINGWATER:
+				setMaterialSellParameters(ns, division.name, city, WATER);
+				break;
+			case CHEMICAL:
+				setMaterialSellParameters(ns, division.name, city, CHEMICALS);
+				break;
+			case COMPUTER_HARDWARE:
+				setMaterialSellParameters(ns, division.name, city, HARDWARE);
+				setProductSellParameters(ns, division.name, city, PEAR);
+				break;
 		}
 		var buying = false;
 		if (division.type != REALESTATE) {
@@ -544,7 +575,9 @@ async function setupDivisionWarehouse(ns, divisionName) {
 		}
 		buying = purchaseAdditionalMaterial(ns, division.name, city, ROBOTS, 25) || buying;
 		if (division.type != SOFTWARE) {
-			buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
+			if (division.type != COMPUTER_HARDWARE) {
+				buying = purchaseAdditionalMaterial(ns, division.name, city, HARDWARE, 250) || buying;
+			}
 			buying = purchaseAdditionalMaterial(ns, division.name, city, AI_CORES, 150) || buying;
 		}
 		// if the warehouse is full and we are currently allowed to spend
