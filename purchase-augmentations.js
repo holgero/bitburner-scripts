@@ -16,13 +16,14 @@ export async function main(ns) {
 	}
 
 	ns.tprintf("Bought planned augmentations, spending remaining money: ", getAvailableMoney(ns, true));
+	await runAndWait(ns, "joinfactions.js", "--all");
+	await runAndWait(ns, "governors.js");
 	// if there is money left, run home upgrades
 	await runAndWait(ns, "purchase-cores.js", "--unlimited");
 	await runAndWait(ns, "purchase-ram.js", "--unlimited");
-	await runAndWait(ns, "governors.js");
-	await runAndWait(ns, "purchase-sleeve-augs.js");
 	await runAndWait(ns, "purchase-stock-api.js", "--all");
 	await runAndWait(ns, "gangs.js", "--spend");
+	await runAndWait(ns, "purchase-sleeve-augs.js");
 	
 	if (options.reboot) {
 		ns.spawn("reset.js");

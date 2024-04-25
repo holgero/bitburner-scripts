@@ -30,7 +30,6 @@ export async function main(ns) {
 	}
 	if (getAvailableMoney(ns, true) > ns.singularity.getAugmentationPrice(GOVERNOR)) {
 		ns.tprintf("Still enough money to buy governors, trying to bribe a faction");
-		await runAndWait(ns, "joinfactions.js", "--all");
 		const bribeFactions = ns.getPlayer().factions.
 			filter(a => a != BLADEBURNERS && a != CHURCH).
 			filter(a => ns.singularity.getFactionFavor(a) > ns.getFavorToDonate()).
