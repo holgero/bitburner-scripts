@@ -11,7 +11,7 @@ export async function main(ns) {
 	const nextNode = nextBitnode(ns, bitNodeN, owned);
 	const thisNode = owned.find(a => a.n == bitNodeN);
 	const thisLevel = thisNode ? thisNode.lvl : 0;
-	if (nextNode === undefined || nextNode === 14) {
+	if (nextNode === undefined || nextNode === 15) {
 		ns.printf("No more challenges, Game Over");
 		return;
 	}
@@ -80,7 +80,7 @@ function nextBitnode(ns, current, owned) {
 			}
 		}
 	}
-	for (let next = 6; next < 14; next++) {
+	for (let next = 6; next < 15; next++) {
 		const thisNode = owned.find(a => a.n == next);
 		if (!thisNode || thisNode.lvl < 2 || (thisNode.lvl == 2 && current != next)) {
 			return next;
