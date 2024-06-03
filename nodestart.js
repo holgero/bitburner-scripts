@@ -1,6 +1,6 @@
 import * as c from "constants.js";
 
-const MAX_TRADER_MONEY = 100e9;
+const MAX_TRADER_MONEY = 10e12;
 
 import {
 	runAndWait,
