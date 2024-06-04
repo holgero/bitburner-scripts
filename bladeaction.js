@@ -49,6 +49,12 @@ export async function main(ns) {
 /** @param {NS} ns */
 function switchToAction(ns, action, condition) {
 	const previousAction = ns.bladeburner.getCurrentAction();
+	if (!previousAction) {
+		if (condition) {
+			executeAction(ns, action);
+		}
+		return condition;
+	}
 	if (previousAction.type == "BlackOp") {
 		return true;
 	}
@@ -148,15 +154,15 @@ function selectActionDetailed(ns, actionDb, type, avoidKilling) {
 
 /** @param {NS} ns */
 function executeAction(ns, action) {
-	var current = ns.bladeburner.getCurrentAction();
+	const current = ns.bladeburner.getCurrentAction();
+	if (!current) {
+		ns.bladeburner.startAction(action.type, action.name);
+		return;
+	}
 	if (current.type == action.type && current.name == action.name) {
 		ns.printf("Action %s %s is already running", action.type, action.name);
-		return;
-	}
-	if (current.type != "Idle") {
+	} else {
 		ns.printf("Action %s %s is running, wont start %s %s",
 			current.type, current.name, action.type, action.name);
-		return;
 	}
-	ns.bladeburner.startAction(action.type, action.name);
 }

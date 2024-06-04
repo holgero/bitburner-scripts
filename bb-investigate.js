@@ -67,7 +67,7 @@ export async function main(ns) {
 /** @param {NS} ns */
 function executeInvestigation(ns) {
 	var current = ns.bladeburner.getCurrentAction();
-	if (current.type == "General" && current.name == "Field Analysis") {
+	if (current && current.type == "General" && current.name == "Field Analysis") {
 		ns.printf("Investigation is already running");
 		return;
 	}

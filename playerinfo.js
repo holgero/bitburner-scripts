@@ -29,7 +29,9 @@ export async function main(ns) {
 	ns.tprintf("%30s: %d/5 %s", "Hacking tools", progCount, ns.hasTorRouter() ? "*" : "");
 	if (ns.bladeburner.inBladeburner()) {
 		const currentAction = ns.bladeburner.getCurrentAction();
-		ns.tprintf("%30s: %s: %s", "Bladeburner", currentAction.type, currentAction.name);
+		if (currentAction) {
+			ns.tprintf("%30s: %s: %s", "Bladeburner", currentAction.type, currentAction.name);
+		}
 	}
 	if (ns.corporation.hasCorporation()) {
 		const corporationInfo = getCorporationInfo(ns);

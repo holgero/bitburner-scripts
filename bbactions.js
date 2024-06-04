@@ -34,6 +34,9 @@ function setActionLevels(ns, actionDb, minChance) {
 	for (var action of actionDb.actions) {
 		// ns.tprintf("%s", JSON.stringify(action));
 		// ns.tprintf("%s %s", action.type, action.name);
+		if (action.type == "General") {
+			continue;
+		}
 		ns.bladeburner.setActionAutolevel(action.type, action.name, false);
 		for (var ii = 1; ii <= ns.bladeburner.getActionMaxLevel(action.type, action.name); ii++) {
 			ns.bladeburner.setActionLevel(action.type, action.name, ii);

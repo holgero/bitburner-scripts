@@ -11,7 +11,7 @@ export async function main(ns) {
 		ns.tprintf("Don't have grafting api yet.");
 		return;
 	}
-	if (ns.bladeburner.getCurrentAction().type == "BlackOp") {
+	if (ns.bladeburner.getCurrentAction()?.type == "BlackOp") {
 		ns.tprintf("Don't start grafting during black op.");
 		return;
 	}
