@@ -41,6 +41,8 @@ export async function main(ns) {
 	await runAndWait(ns, "spend-hashes.js", "--all");
 	if (getDatabase(ns).owned_augmentations.includes(c.RED_PILL)) {
 		await runAndWait(ns, "destroy-world.js");
+		await ns.sleep(1000);
+		await runAndWait(ns, "destroy-world.js", "--force", 12);
 	}
 	await runAndWait(ns, "plan-augmentations.js", "--run_purchase");
 }

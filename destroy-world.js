@@ -5,14 +5,15 @@ import * as c from "constants.js";
 export async function main(ns) {
 	const options = ns.flags([
 		["dry-run", false],
+		["force", 0],
 		["bitNodeN", ns.getPlayer().bitNodeN]]);
 	const bitNodeN = options.bitNodeN;
 	const owned = ns.singularity.getOwnedSourceFiles();
-	const nextNode = nextBitnode(ns, bitNodeN, owned);
+	const nextNode = options.force ? options.force : nextBitnode(ns, bitNodeN, owned);
 	const thisNode = owned.find(a => a.n == bitNodeN);
 	const thisLevel = thisNode ? thisNode.lvl : 0;
 	if (nextNode === undefined || nextNode === 15) {
-		ns.printf("No more challenges, Game Over");
+		ns.tprintf("No more challenges, Game Over.");
 		return;
 	}
 	ns.tprintf("Destroying world daemon on bitNode %d.%d, proceeding on bitNode %d",
