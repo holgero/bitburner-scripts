@@ -55,12 +55,12 @@ function switchToAction(ns, action, condition) {
 		}
 		return condition;
 	}
-	if (previousAction.type == "BlackOp") {
+	if (previousAction.type == "Black Operations") {
 		return true;
 	}
 	if (condition) {
 		if (previousAction.type != action.type || previousAction.name != action.name) {
-			// ns.tprintf("Old action: %s, new action: %s", JSON.stringify(previousAction), JSON.stringify(action));
+			ns.printf("Old action: %s, new action: %s", JSON.stringify(previousAction), JSON.stringify(action));
 			ns.bladeburner.stopBladeburnerAction();
 		}
 		executeAction(ns, action);

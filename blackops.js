@@ -2,7 +2,7 @@
 export async function main(ns) {
 	var remaining = 0;
 	var current = ns.bladeburner.getCurrentAction();
-	if (current && current.type == "BlackOp") {
+	if (current && current.type == "Black Operations") {
 		ns.printf("%s %s is already running", current.type, current.name);
 		return;
 	}
