@@ -7,7 +7,7 @@ const MEMBER_PREFIX = "member-";
 /** @param {NS} ns */
 export async function main(ns) {
 	const options = ns.flags([["spend", false]]);
-	if (ns.getPlayer().bitNodeN != 2 && ns.heart.break() > -54000) {
+	if (ns.getResetInfo().currentNode != 2 && ns.heart.break() > -54000) {
 		ns.printf("Cannot do gangs on bitnodes other than 2 with a karma of %s", ns.heart.break());
 		return;
 	}
@@ -109,7 +109,7 @@ async function setMemberTasks(ns) {
 	if (money < 1e9) {
 		preferMoney = true;
 	}
-	if (ns.getPlayer().bitNodeN == 8) {
+	if (ns.getResetInfo().currentNode == 8) {
 		// in bitnode 8 there is no way to earn money other than on the stock market
 		preferMoney = false;
 	}

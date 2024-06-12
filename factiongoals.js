@@ -13,17 +13,16 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
 	const database = getDatabase(ns);
-	const player = ns.getPlayer();
-	if (c.BLADEBURNER_NODES.includes(player.bitNodeN) &&
+	const bitNode = ns.getResetInfo().currentNode;
+	if (c.BLADEBURNER_NODES.includes(bitNode) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
 		const restrictions = getRestrictions(ns);
 		if (!restrictions || !restrictions.nobladeburner) {
-			ns.printf("On a bladeburner bitnode (%d) without the %s",
-				player.bitNodeN, c.BLADE_SIMUL);
+			ns.printf("On a bladeburner bitnode (%d) without the %s", bitNode, c.BLADE_SIMUL);
 			return;
 		}
 	}
-	if (player.bitNodeN != 8 && !(await prepareGoalWork(ns, database))) {
+	if (bitNode != 8 && !(await prepareGoalWork(ns, database))) {
 		return;
 	}
 	const config = await getAndCheckFactiongoals(ns, database);

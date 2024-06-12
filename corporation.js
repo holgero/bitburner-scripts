@@ -58,13 +58,12 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	ns.disableLog("getServerMoneyAvailable");
 	while (true) {
-		var player = ns.getPlayer();
 		if (!ns.corporation.hasCorporation()) {
 			const restrictions = getRestrictions(ns);
 			if (restrictions && restrictions.nocorporation) {
 				return;
 			}
-			if (!ns.corporation.createCorporation("ACME", player.bitNodeN != 3)) {
+			if (!ns.corporation.createCorporation("ACME", ns.getResetInfo().currentNode != 3)) {
 				await ns.sleep(60000);
 				continue;
 			} else {

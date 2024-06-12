@@ -63,7 +63,7 @@ async function killOthers(ns) {
 
 /** @param {NS} ns **/
 async function setUpForTrader(ns) {
-	const bitNode = ns.getPlayer().bitNodeN;
+	const bitNode = ns.getResetInfo().currentNode;
 	if (bitNode != 8) {
 		return;
 	}
@@ -77,7 +77,7 @@ async function setUpForTrader(ns) {
 
 /** @param {NS} ns **/
 async function setUpForCorporations(ns) {
-	const bitNode = ns.getPlayer().bitNodeN;
+	const bitNode = ns.getResetInfo().currentNode;
 	if (bitNode == 8) {
 		return;
 	}
@@ -110,6 +110,7 @@ async function setUpForCorporations(ns) {
 
 /** @param {NS} ns **/
 async function startTrader(ns) {
+	const bitNode = ns.getResetInfo().currentNode;
 	const restrictions = getRestrictions(ns);
 	if (!ns.stock.hasTIXAPIAccess() && getAvailableMoney(ns) > 10e9) {
 		await runAndWait(ns, "purchase-stock-api.js");
@@ -118,7 +119,7 @@ async function startTrader(ns) {
 		!ns.scriptRunning("trader.js", "home") &&
 		!ns.scriptRunning("trader2.js", "home")) {
 		if (!restrictions || !restrictions.notix4s) {
-			if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+			if (!ns.stock.has4SDataTIXAPI() && bitNode == 8 &&
 				getAvailableMoney(ns, true) > 27e9) { // 1e9 for 4SData, 25e9 for 4SDataTIXAPI + 1e9 for trading
 				await runAndWait(ns, "purchase-stock-api.js", "--all");
 				deleteBudget(ns, "stocks");
@@ -127,7 +128,7 @@ async function startTrader(ns) {
 		const stockBudget = getBudget(ns, "stocks");
 		deleteBudget(ns, "stocks");
 		var money = getAvailableMoney(ns);
-		if (ns.getPlayer().bitNodeN == 8) {
+		if (bitNode == 8) {
 			// keep a bit for immediate expenses
 			money = Math.max(0, money - 10e6);
 		} else {
@@ -176,7 +177,7 @@ async function stopTrader(ns) {
 async function runHomeScripts(ns) {
 	const database = getDatabase(ns);
 	ns.print("Run home scripts");
-	if (ns.getPlayer().bitNodeN == 8 ||
+	if (ns.getResetInfo().currentNode == 8 ||
 		(ns.getServerMaxRam("home") > 32 &&
 			(getAvailableMoney(ns) > 2e9 || getBudget(ns, "stocks") > 100e6))) {
 		await startTrader(ns);
@@ -268,7 +269,7 @@ async function progressHackingLevels(ns) {
 		await travelToGoalLocations(ns);
 		await meetMoneyGoals(ns);
 		await runAndWait(ns, "rback.js");
-		if (!ns.stock.has4SDataTIXAPI() && ns.getPlayer().bitNodeN == 8 &&
+		if (!ns.stock.has4SDataTIXAPI() && ns.getResetInfo().currentNode == 8 &&
 			getAvailableMoney(ns, true) > 28e9) {
 			const restrictions = getRestrictions(ns);
 			if (!restrictions || !restrictions.notix4s) {
@@ -391,7 +392,7 @@ async function meetMoneyGoals(ns) {
 	const maxPossibleMoney = getAvailableMoney(ns, true);
 	const availableMoney = getAvailableMoney(ns);
 	const player = ns.getPlayer();
-	const bitNode = player.bitNodeN;
+	const bitNode = ns.getResetInfo().currentNode;
 	if (bitNode == 8) {
 		// not sure about this
 		// return;

@@ -6,10 +6,10 @@ export async function main(ns) {
 	ns.disableLog("sleep");
 	const player = ns.getPlayer();
 	const database = getDatabase(ns);
-	if (!c.BLADEBURNER_NODES.includes(player.bitNodeN) &&
+	const currentNode = ns.getResetInfo().currentNode;
+	if (!c.BLADEBURNER_NODES.includes(currentNode) &&
 		!database.owned_augmentations.includes(c.BLADE_SIMUL)) {
-		ns.printf("Not on a bladeburner node (%d) without the %s",
-			player.bitNodeN, c.BLADE_SIMUL);
+		ns.printf("Not on a bladeburner node (%d) without the %s", currentNode, c.BLADE_SIMUL);
 		return;
 	}
 	if (!ns.bladeburner.inBladeburner()) {

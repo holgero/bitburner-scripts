@@ -66,7 +66,8 @@ async function wantToEndRun(ns) {
 		// avoid ending while there are outstanding shares
 		return false;
 	}
-	if (player.bitNodeN == 8) {
+	const resetInfo = ns.getResetInfo();
+	if (resetInfo.currentNode == 8) {
 		if (!ns.stock.has4SDataTIXAPI()) {
 			if (!restrictions || !restrictions.notix4s) {
 				ns.printf("On bitnode 8: Not ending before having gained access to 4S data TIX API.");
@@ -114,7 +115,7 @@ async function wantToEndRun(ns) {
 		return completion >= 1;
 	}
 	if (((database.features.hacknetServer && (!restrictions || !restrictions.nohacknet)) ||
-		player.playtimeSinceLastAug < player.playtimeSinceLastBitnode) &&
+		resetInfo.lastAugReset > resetInfo.lastNodeReset) &&
 		money <= 10e9) {
 		// allow to end the first run faster than with 10 b only if we don't have
 		// the free hacknetserver (or cannot use it to make money)
@@ -151,7 +152,7 @@ async function wantToEndRun(ns) {
 		return true;
 	}
 	if (estimation.prioritizedAugmentationCount > 0 &&
-		player.playtimeSinceLastAug > 40 * 60 * 60 * 1000) {
+		Date.now() - resetInfo.lastAugReset > 40 * 60 * 60 * 1000) {
 		ns.printf("Running for over 40 h since last aug");
 		return true;
 	}

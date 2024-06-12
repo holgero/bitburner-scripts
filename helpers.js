@@ -9,7 +9,7 @@ export function getAugmentationPrios(ns) {
 	const prios = [];
 	const player = ns.getPlayer();
 	const restrictions = getRestrictions(ns);
-	if (BLADEBURNER_NODES.includes(player.bitNodeN) &&
+	if (BLADEBURNER_NODES.includes(ns.getResetInfo().currentNode) &&
 		!(restrictions && restrictions.nobladeburner)) {
 		prios.push(...AUGMENTATION_BLADEBURNER_PRIO);
 	} else {
@@ -384,10 +384,10 @@ function canAfford(toPurchase, money) {
 
 /** @param {NS} ns **/
 export function getStartState(ns) {
-	const player = ns.getPlayer();
-	if (player.playtimeSinceLastBitnode < 60 * 60 * 1000) {
+	const resetInfo = ns.getResetInfo();
+	if (Date.now() - resetInfo.lastNodeReset < 60 * 60 * 1000) {
 		return "fresh";
-	} else if (player.playtimeSinceLastAug < 60 * 1000) {
+	} else if (Date.now() - resetInfo.lastAugReset < 60 * 1000) {
 		return "augs";
 	}
 	return "restart";

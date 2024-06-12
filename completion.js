@@ -16,6 +16,7 @@ export async function main(ns) {
 	const database = getDatabase(ns);
 	const estimation = await getEstimation(ns, false);
 	const money = getAvailableMoney(ns, true);
+	const resetInfo = ns.getResetInfo();
 	const completion = {
 		money: money,
 		augmentation: 0.66 * estimation.affordableAugmentationCount + estimation.prioritizedAugmentationCount,
@@ -25,8 +26,7 @@ export async function main(ns) {
 		canAffordBladesimul: canAffordBladesimul(estimation),
 		waitForDaedalus: waitForDaedalus(ns),
 		goalCompletion: realGoalCompletion(ns),
-		freeServer: database.features.hacknetServer &&
-			(ns.getResetInfo().lastAugReset == ns.getResetInfo().lastNodeReset),
+		freeServer: database.features.hacknetServer && (resetInfo.lastAugReset == resetInfo.lastNodeReset),
 		vetoes: [],
 	};
 	const current = ns.singularity.getCurrentWork();
@@ -46,7 +46,7 @@ export async function main(ns) {
 		(corporationInfo.shareSaleCooldown > 2000 && corporationInfo.bonusTime > 100000)) {
 		completion.vetoes.push("cooldown");
 	}
-	if (player.bitNodeN == 8) {
+	if (resetInfo.currentNode == 8) {
 		if (!ns.stock.has4SDataTIXAPI()) {
 			completion.vetoes.push("4stix");
 		}

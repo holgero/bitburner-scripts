@@ -6,18 +6,18 @@ export async function main(ns) {
 	const options = ns.flags([
 		["dry-run", false],
 		["force", 0],
-		["bitNodeN", ns.getPlayer().bitNodeN]]);
-	const bitNodeN = options.bitNodeN;
+		["bitNode", ns.getResetInfo().currentNode]]);
+	const bitNode = options.bitNode;
 	const owned = ns.singularity.getOwnedSourceFiles();
-	const nextNode = options.force ? options.force : nextBitnode(ns, bitNodeN, owned);
-	const thisNode = owned.find(a => a.n == bitNodeN);
+	const nextNode = options.force ? options.force : nextBitnode(ns, bitNode, owned);
+	const thisNode = owned.find(a => a.n == bitNode);
 	const thisLevel = thisNode ? thisNode.lvl : 0;
 	if (nextNode === undefined || nextNode === 15) {
 		ns.tprintf("No more challenges, Game Over.");
 		return;
 	}
 	ns.tprintf("Destroying world daemon on bitNode %d.%d, proceeding on bitNode %d",
-		bitNodeN, thisLevel, nextNode);
+		bitNode, thisLevel, nextNode);
 	if (options["dry-run"]) {
 		return;
 	}
@@ -28,7 +28,7 @@ export async function main(ns) {
 	ns.singularity.destroyW0r1dD43m0n(nextNode, "nodestart.js");
 	// should only arrive here when the world has not been destroyed
 	ns.tprintf("Failed to destroy world, restoring challenges");
-	if (unregisterChallenge(ns, bitNodeN)) {
+	if (unregisterChallenge(ns, bitNode)) {
 		const nextChallenge = findNextChallenge(ns);
 		if (nextChallenge) {
 			setUpChallenge(ns, nextChallenge);
