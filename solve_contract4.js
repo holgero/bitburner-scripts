@@ -151,7 +151,7 @@ export async function solveContract(ns, contract) {
 			return;
 	}
 
-	await ns.sleep(500);
+	await ns.sleep(50);
 	const solutionString = JSON.stringify(solution).substring(0, 200);
 	ns.tprintf("Solving: %s, on %s %s with data %s. Solution: %s",
 		type, server, file, JSON.stringify(data), solutionString);
