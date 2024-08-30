@@ -97,6 +97,7 @@ function nextBitnode(ns, current, owned) {
 	const nextChallenge = findNextChallenge(ns);
 	if (nextChallenge) {
 		setUpChallenge(ns, nextChallenge);
+		return nextChallenge;
 	}
-	return nextChallenge;
+	return 12;
 }
