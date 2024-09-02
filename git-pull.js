@@ -109,6 +109,7 @@ const CONTRACTSOLVER = [
 const DATABASE = [
 	"create.js",
 	"create-schema.js",
+	"currentnode.js",
 	"owned-augmentations.js",
 	"factions.js",
 	"factions-info.js",

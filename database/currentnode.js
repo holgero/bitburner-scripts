@@ -7,7 +7,11 @@ export async function main(ns) {
 
 /** @param {NS} ns **/
 function getMissingInfo(ns, database) {
-	if (ns.getPlayer().bitNodeN == 5 || database.ownedSourceFiles.map(a=>a.n).includes(5)) {
-		database.bitnodemultipliers = ns.getBitNodeMultipliers();
+	const current = database.ownedSourceFiles.find(a =>
+		a.n == ns.getResetInfo().currentNode);
+	if (current) {
+		database.currentNode = current;
+	} else {
+		current = { n: 1, lvl: 0 }
 	}
 }
