@@ -7,15 +7,17 @@ import {
 /** @param {NS} ns **/
 export function getAugmentationPrios(ns) {
 	const prios = [];
-	const player = ns.getPlayer();
 	const restrictions = getRestrictions(ns);
-	if (BLADEBURNER_NODES.includes(ns.getResetInfo().currentNode) &&
+	const database = getDatabase(ns);
+	if (database.currentNode.n == 12 && database.currentNode.lvl > 50) {
+		BLADEBURNER_NODES.push(12);
+	}
+	if (BLADEBURNER_NODES.includes(database.currentNode.n) &&
 		!(restrictions && restrictions.nobladeburner)) {
 		prios.push(...AUGMENTATION_BLADEBURNER_PRIO);
 	} else {
 		prios.push(...AUGMENTATION_NORMAL_PRIO);
 	}
-	const database = getDatabase(ns);
 	if (database.bitnodemultipliers &&
 		database.bitnodemultipliers.HacknetNodeMoney <= 0) {
 		// hacknet stuff is worthless, delete it from prios
