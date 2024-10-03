@@ -12,6 +12,6 @@ function getMissingInfo(ns, database) {
 	if (current) {
 		database.currentNode = current;
 	} else {
-		current = { n: 1, lvl: 0 }
+		database.currentNode = { n: 1, lvl: 0 }
 	}
 }

@@ -13,12 +13,12 @@ function getMissingInfo(ns, database) {
 		// ns.tprintf("Check feature %s", featureName);
 		const feature = c.FEATURES[featureName];
 		if (haveSourceFile(database.ownedSourceFiles, feature.sourceFile, feature.level) ||
-			amOnBitnode(ns, feature.sourceFile)) {
+			amOnBitnode(database, feature.sourceFile)) {
 			// ns.tprintf("Yes");
 			database.features[featureName] = "true";
 		} else if (feature.sourceFile == c.BLADEBURNER_NODES[0]) {
 			if (haveSourceFile(database.ownedSourceFiles, c.BLADEBURNER_NODES[1]) ||
-				amOnBitnode(ns, c.BLADEBURNER_NODES[1])) {
+				amOnBitnode(database, c.BLADEBURNER_NODES[1])) {
 				// ns.tprintf("Yes");
 				database.features[featureName] = "true";
 			}
@@ -30,7 +30,6 @@ function haveSourceFile(ownedSourceFiles, sourceFile, level = 1) {
 	return ownedSourceFiles.find(a => a.n == sourceFile && a.lvl >= level);
 }
 
-/** @param {NS} ns **/
-function amOnBitnode(ns, sourceFile) {
-	return ns.getPlayer().bitNodeN == sourceFile;
+function amOnBitnode(database, sourceFile) {
+	return database.currentNode.n == sourceFile;
 }
