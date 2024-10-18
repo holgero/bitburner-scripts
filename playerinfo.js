@@ -15,13 +15,14 @@ export async function main(ns) {
 	const options = ns.flags([["raw", false], ["multiplier", false]]);
 	const playerInfo = ns.getPlayer();
 	const resetInfo = ns.getResetInfo();
+	const database = getDatabase(ns);
 	if (options.raw) {
 		ns.tprintf("%s", JSON.stringify(playerInfo));
 		return;
 	}
 	ns.tprintf("%30s: %s", "People killed", playerInfo.numPeopleKilled);
 	ns.tprintf("%30s: %s", "City", playerInfo.city);
-	ns.tprintf("%30s: %s", "Bit node number", resetInfo.currentNode);
+	ns.tprintf("%30s: %s", "Bit node", database.currentNode.n + "." + database.currentNode.lvl);
 	ns.tprintf("%30s: %s", "Play time since Aug", millisecondToDHMS(Date.now() - resetInfo.lastAugReset));
 	ns.tprintf("%30s: %s", "Play time since bitnode", millisecondToDHMS(Date.now() - resetInfo.lastNodeReset));
 	ns.tprintf("%30s: %s", "Total play time", millisecondToDHMS(playerInfo.totalPlaytime));
@@ -85,7 +86,7 @@ export async function main(ns) {
 	ns.tprintf("%30s: %s", "Karma:", ns.heart.break());
 	const estimation = await getEstimation(ns);
 	ns.tprintf("%30s: %d (+%d, affordable %d, with prio %d)", "Augmentations",
-		getDatabase(ns).owned_augmentations.length,
+		database.owned_augmentations.length,
 		estimation.augmentationCount, estimation.affordableAugmentationCount,
 		estimation.prioritizedAugmentationCount);
 	ns.tprintf("%30s: Home: %d GB, Purchased: %s", "Server", ns.getServerMaxRam("home"), getServerInfo(ns));
