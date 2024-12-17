@@ -14,6 +14,7 @@ import { hammingDecode, hammingEncode } from "contractsolver/hammingcode.js";
 import { rleCompression, lzDecompression, lzCompression } from "contractsolver/compression.js";
 import { graphColoring } from "contractsolver/graphcoloring.js";
 import { caesarEncryption, vignereEncryption } from "contractsolver/encryption.js";
+import { bigintSquare } from "contractsolver/bigintsquare.js";
 
 const PATHS1 = "Unique Paths in a Grid I";
 const PATHS2 = "Unique Paths in a Grid II";
@@ -42,6 +43,7 @@ const LZ_COMPRESSION = "Compression III: LZ Compression";
 const GRAPH_COLOR = "Proper 2-Coloring of a Graph";
 const ENCRYPT_CAESAR = "Encryption I: Caesar Cipher";
 const ENCRYPT_VIGNERE = "Encryption II: Vigenère Cipher";
+const SQUARE_ROOT = "Square Root";
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -144,6 +146,9 @@ export async function solveContract(ns, contract) {
 			break;
 		case ENCRYPT_VIGNERE:
 			solution = vignereEncryption(data[0], data[1]);
+			break;
+		case SQUARE_ROOT:
+			solution = bigintSquare(data);
 			break;
 		default:
 			ns.tprintf("Cannot solve contract: %s %s '%s' '%s'",

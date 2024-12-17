@@ -91,6 +91,7 @@ const FILES = [
 	"writeprogram.js"];
 const CONTRACTSOLVER = [
 	"arrayjumpinggame.js",
+	"bigintsquare.js",
 	"compression.js",
 	"encryption.js",
 	"generateipaddress.js",
