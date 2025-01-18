@@ -109,7 +109,7 @@ export async function main(ns) {
 		ns.stanek.placeFragment(2, 2, 1, 7);
 		ns.stanek.placeFragment(2, 3, 3, 27);
 	}
-	if (height >= 8 && width >= 8) {
+	if (height >= 8 && width == 8) {
 		ns.stanek.placeFragment(0, 6, 0, 7);
 		ns.stanek.placeFragment(2, 6, 0, 10);
 		ns.stanek.placeFragment(4, 6, 0, 12);
@@ -125,5 +125,24 @@ export async function main(ns) {
 		ns.stanek.placeFragment(4, 2, 2, 30);
 		ns.stanek.placeFragment(0, 0, 0, 27);
 		ns.stanek.placeFragment(2, 0, 2, 103);
+	}
+	if (height >= 8 && width >= 9) {
+		ns.stanek.placeFragment(0, 6, 0, 7);
+		ns.stanek.placeFragment(2, 6, 0, 10);
+		ns.stanek.placeFragment(4, 6, 0, 12);
+		ns.stanek.placeFragment(0, 4, 3, 16);
+		ns.stanek.placeFragment(4, 4, 3, 18);
+		ns.stanek.placeFragment(2, 4, 3, 21);
+		ns.stanek.placeFragment(0, 2, 3, 0);
+		ns.stanek.placeFragment(1, 2, 0, 1);
+		ns.stanek.placeFragment(7, 0, 3, 6);
+		ns.stanek.placeFragment(4, 0, 2, 25);
+		ns.stanek.placeFragment(4, 2, 2, 30);
+		ns.stanek.placeFragment(0, 0, 0, 27);
+		ns.stanek.placeFragment(2, 0, 2, 103);
+		ns.stanek.placeFragment(8, 0, 1, 20);
+		ns.stanek.placeFragment(5, 3, 1, 5);
+		ns.stanek.placeFragment(7, 5, 1, 14);
+		ns.stanek.placeFragment(7, 4, 3, 28);
 	}
 }
