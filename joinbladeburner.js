@@ -13,7 +13,7 @@ export async function main(ns) {
 	if (options.division) {
 		while (!ns.bladeburner.inBladeburner()) {
 			await runAndWait(ns, "commit-crimes.js");
-			await ns.sleep(45000);
+			await ns.sleep(15000);
 			player = ns.getPlayer();
 			var countLowSkills = 0;
 			if (player.skills.strength < 100) {

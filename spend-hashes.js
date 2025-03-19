@@ -15,9 +15,15 @@ export async function main(ns) {
 	const options = ns.flags([["all", false], ["gym", false], ["uni", false]]);
 	if (options.gym) {
 		await spendOn(ns, gym_training);
+		if (ns.hacknet.numHashes() < 0.99 * ns.hacknet.hashCapacity()) {
+			return;
+		}
 	}
 	if (options.uni) {
 		await spendOn(ns, uni);
+		if (ns.hacknet.numHashes() < 0.99 * ns.hacknet.hashCapacity()) {
+			return;
+		}
 	}
 	// spend one time on bladeburner rank to make it possible to join the faction
 	if (ns.bladeburner.inBladeburner() && !ns.getPlayer().factions.includes(c.BLADEBURNERS)) {
