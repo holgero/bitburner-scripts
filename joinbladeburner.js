@@ -51,7 +51,7 @@ export async function main(ns) {
 			if (ns.bladeburner.joinBladeburnerDivision()) {
 				ns.tprintf("Joined Bladeburners division");
 				ns.singularity.stopAction();
-				break;
+				ns.spawn("database/create.js");
 			}
 		}
 	}
@@ -64,7 +64,6 @@ export async function main(ns) {
 				if (ns.bladeburner.joinBladeburnerDivision()) {
 					ns.tprintf("Joined Bladeburners division");
 				}
-
 			}
 		}
 	}
