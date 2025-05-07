@@ -1,8 +1,0 @@
-Accessed deprecated function or property: ns.getPlayer().playtimeSinceLastBitnode
-Use ns.getResetInfo().lastNodeReset instead. This is a static timestamp instead of an elapsed time.
-
-Accessed deprecated function or property: ns.getPlayer().playtimeSinceLastAug
-Use ns.getResetInfo().lastAugReset instead. This is a static timestamp instead of an elapsed time.
-
-Accessed deprecated function or property: ns.getPlayer().bitNodeN
-Use ns.getResetInfo().currentNode instead
