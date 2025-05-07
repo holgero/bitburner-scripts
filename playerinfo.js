@@ -104,6 +104,11 @@ export async function main(ns) {
 	ns.tprintf("%30s: Hacking: %s, Hacknet: %s", "Profitability",
 		getHackingProfitability(ns).toFixed(3),
 		getHacknetProfitability(ns).toFixed(3));
+	if (database.owned_augmentations.includes(c.RED_PILL) && ns.hasRootAccess(c.WORLD_DAEMON)) {
+		ns.tprintf("%30s: %d/%d for %s, %d/%d for blackops", "End of World",
+			playerInfo.skills.hacking, ns.getServerRequiredHackingLevel(c.WORLD_DAEMON), c.WORLD_DAEMON,
+			ns.bladeburner.getRank(), 400000);
+	}
 }
 
 function getServerInfo(ns) {
