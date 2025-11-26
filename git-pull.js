@@ -122,7 +122,7 @@ const DATABASE = [
 	"features.js",
 ];
 
-const BASEURL = "https://codeberg.org/holgero/bitburner-scripts/raw/branch/main/";
+const BASEURL = "https://raw.codeberg.page/holgero/bitburner-scripts/";
 
 /** @param {NS} ns */
 export async function main(ns) {
